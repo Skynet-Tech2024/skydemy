@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ lesson.title }} - SKYDEMY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; padding: 15px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: clamp(15px, 3vw, 30px); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1a1a2e; font-size: clamp(22px, 4vw, 32px); }
+        .nav { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .nav a { color: #3498db; text-decoration: none; font-size: clamp(13px, 1.2vw, 15px); }
+        .nav a:hover { color: #2980b9; }
+        .lesson-meta { background: #e8f0fe; padding: clamp(12px, 2vw, 15px); border-radius: 4px; margin: 20px 0; font-size: clamp(14px, 1.2vw, 16px); }
+        .lesson-content { margin: 20px 0; line-height: 1.6; font-size: clamp(15px, 1.3vw, 17px); }
+        .btn { background: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 10px 5px 10px 0; font-size: clamp(14px, 1.2vw, 16px); border: none; cursor: pointer; }
+        .btn:hover { background: #2980b9; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .btn-warning:hover { background: #e0a800; }
+        .pdf-container { width: 100%; height: clamp(300px, 60vh, 600px); border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #f8f9fa; }
+        .pdf-container iframe { width: 100%; height: 100%; border: none; }
+        .pdf-fallback { padding: 40px 20px; text-align: center; border: 2px dashed #ddd; border-radius: 4px; background: #f8f9fa; }
+        .pdf-fallback p { font-size: clamp(16px, 2vw, 20px); color: #6c757d; }
+        .pdf-fallback .btn { margin-top: 15px; }
+        .premium-badge { background: #fff3cd; padding: 10px; border-radius: 4px; border: 1px solid #ffeeba; font-size: clamp(13px, 1.1vw, 15px); }
+        .exam-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; display: flex; flex-wrap: wrap; gap: 10px; }
+        
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            .nav { gap: 5px; }
+            .btn { padding: 8px 16px; font-size: 13px; }
+            .pdf-container { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="{% url 'home' %}">🏠 Home</a>
+            <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+            <a href="{% url 'logout' %}">🚪 Logout</a>
+        </div>
+        
+        <h1>{{ lesson.title }}</h1>
+        
+        <div class="lesson-meta">
+            <p><strong>Level:</strong> {{ lesson.get_level_display }}</p>
+            {% if lesson.subject %}<p><strong>Subject:</strong> {{ lesson.subject.name }}</p>{% endif %}
+            {% if lesson.course %}<p><strong>Course:</strong> {{ lesson.course.name }}</p>{% endif %}
+            <p><strong>Teacher:</strong> {{ lesson.teacher.username }}</p>
+            <p><strong>Uploaded:</strong> {{ lesson.created_at|date:"F d, Y" }}</p>
+            <p><strong>Views:</strong> {{ lesson.views }}</p>
+            <p><strong>Rating:</strong> {{ lesson.rating }}/5.0</p>
+        </div>
+        
+        <div class="lesson-content">
+            <h2>📖 Description</h2>
+            <p>{{ lesson.description }}</p>
+            
+            {% if lesson.pdf_file %}
+                <h2>📄 Lesson Content</h2>
+                <div class="pdf-container">
+                    <iframe src="https://docs.google.com/viewer?url={{ request.build_absolute_uri }}{{ lesson.pdf_file.url }}&embedded=true"></iframe>
+                </div>
+                <p style="margin-top: 10px;">
+                    <a href="{{ lesson.pdf_file.url }}" target="_blank" class="btn btn-secondary">📄 Open PDF</a>
+                </p>
+                {% if user.is_authenticated and user.profile.is_premium %}
+                    <p><a href="{{ lesson.pdf_file.url }}" download class="btn btn-success">⬇️ Download PDF</a></p>
+                {% else %}
+                    <div class="premium-badge">
+                        <strong>⭐ Premium Feature:</strong> Download this PDF by subscribing to our premium plan.
+                        <a href="#" style="color: #f39c12;">Upgrade now</a>
+                    </div>
+                {% endif %}
+            {% endif %}
+            
+            {% if lesson.video_url %}
+                <h2>🎬 Lesson Video</h2>
+                <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:4px;">
+                    <iframe src="{{ lesson.video_url }}" style="position:absolute; top:0; left:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="exam-section">
+            {% if exam %}
+                <a href="{% url 'take_exam' lesson.id %}" class="btn btn-warning">📝 Take Exam</a>
+            {% else %}
+                {% if user.is_authenticated and user.profile.role == 'teacher' %}
+                    <a href="{% url 'add_exam' lesson.id %}" class="btn btn-warning">➕ Add Exam</a>
+                {% endif %}
+            {% endif %}
+            <a href="{% url 'dashboard' %}" class="btn btn-success">← Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

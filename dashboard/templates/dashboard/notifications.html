@@ -1,0 +1,45 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Notifications - SKYDEMY{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; background: white; padding: clamp(15px, 3vw, 30px); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <h1 style="color: #1a1a2e; font-size: clamp(24px, 4vw, 32px); display: flex; align-items: center; gap: 10px;">
+        🔔 Notifications
+    </h1>
+    
+    {% if notifications %}
+        <div style="margin-top: 20px;">
+            {% for notification in notifications %}
+                <div style="padding: 15px; margin: 10px 0; border-radius: 8px; background: {% if notification.is_read %}#f8f9fa{% else %}#e8f0fe{% endif %}; border-left: 4px solid {% if notification.notification_type == 'certificate_earned' %}#28a745{% elif notification.notification_type == 'lesson_approved' %}#3498db{% elif notification.notification_type == 'exam_result' %}#f39c12{% else %}#6c757d{% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: clamp(16px, 1.5vw, 18px); color: #1a1a2e;">
+                                {{ notification.title }}
+                            </div>
+                            <p style="margin: 5px 0; color: #555; font-size: clamp(14px, 1.2vw, 15px);">
+                                {{ notification.message }}
+                            </p>
+                            <p style="margin: 5px 0; color: #888; font-size: clamp(12px, 1vw, 13px);">
+                                {{ notification.created_at|date:"F d, Y \a\t g:i A" }}
+                            </p>
+                        </div>
+                        {% if notification.link %}
+                            <a href="{{ notification.link }}" style="background: #3498db; color: white; padding: 6px 16px; text-decoration: none; border-radius: 4px; font-size: 13px; white-space: nowrap;">View →</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px 20px; color: #888;">
+            <p style="font-size: 48px;">📭</p>
+            <p style="font-size: 18px;">You have no notifications.</p>
+        </div>
+    {% endif %}
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{% url 'dashboard' %}" style="background: #3498db; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600;">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

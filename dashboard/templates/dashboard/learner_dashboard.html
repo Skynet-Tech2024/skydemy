@@ -1,0 +1,65 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Learner Dashboard - SKYDEMY{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; background: white; padding: clamp(15px, 3vw, 30px); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <h1 style="color: #1a1a2e; font-size: clamp(22px, 4vw, 32px);">📚 Learner Dashboard</h1>
+    <p style="font-size: clamp(14px, 2vw, 16px);">Welcome back, <strong>{{ user.username }}</strong>!</p>
+    <p style="font-size: clamp(14px, 2vw, 16px);"><strong>Level:</strong> {{ profile.get_level_display }}</p>
+    <p style="font-size: clamp(14px, 2vw, 16px);"><strong>Rating:</strong> {{ profile.rating }} ⭐</p>
+    
+    <div style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap;">
+        <div style="background: #e8f0fe; padding: 15px; border-radius: 4px; flex: 1; text-align: center; min-width: 100px;">
+            <h3 style="margin: 0; color: #1a1a2e; font-size: clamp(14px, 1.5vw, 18px);">Lessons Completed</h3>
+            <p style="font-size: clamp(24px, 4vw, 28px); margin: 5px 0; color: #f39c12; font-weight: 700;">{{ completed_count }}</p>
+        </div>
+        <div style="background: #e8f0fe; padding: 15px; border-radius: 4px; flex: 1; text-align: center; min-width: 100px;">
+            <h3 style="margin: 0; color: #1a1a2e; font-size: clamp(14px, 1.5vw, 18px);">Certificates Earned</h3>
+            <p style="font-size: clamp(24px, 4vw, 28px); margin: 5px 0; color: #f39c12; font-weight: 700;">{{ certificates_count }}</p>
+        </div>
+        <div style="background: #e8f0fe; padding: 15px; border-radius: 4px; flex: 1; text-align: center; min-width: 100px;">
+            <h3 style="margin: 0; color: #1a1a2e; font-size: clamp(14px, 1.5vw, 18px);">Exams Taken</h3>
+            <p style="font-size: clamp(24px, 4vw, 28px); margin: 5px 0; color: #f39c12; font-weight: 700;">0</p>
+        </div>
+    </div>
+    
+    <h2 style="margin-top: 30px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📖 Browse Lessons</h2>
+    <a href="{% url 'lesson_list' %}" style="background: #f39c12; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">Browse All Lessons</a>
+    
+    <!-- Progress Chart Button -->
+    <a href="{% url 'progress_chart' %}" style="background: #8e44ad; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px); margin-top: 10px;">📈 View Progress Chart</a>
+    
+    <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📈 My Progress</h2>
+    {% if progress %}
+        {% for p in progress %}
+            <div style="border: 1px solid #ddd; padding: clamp(12px, 2vw, 15px); margin: 10px 0; border-radius: 4px; {% if p.completed %}background: #d4edda; border-color: #28a745;{% else %}background: #f9f9f9;{% endif %}">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                    <strong style="font-size: clamp(14px, 1.5vw, 16px);">{{ p.lesson.title }}</strong>
+                    <span style="background: #28a745; color: white; padding: 2px 10px; border-radius: 12px; font-size: clamp(11px, 1vw, 12px);">{% if p.completed %}✅ Completed{% else %}In Progress{% endif %}</span>
+                </div>
+                <div style="background: #e9ecef; height: 20px; border-radius: 10px; overflow: hidden; margin: 10px 0;">
+                    <div style="background: #f39c12; height: 100%; width: {{ p.progress_percentage }}%;"></div>
+                </div>
+                <small style="font-size: clamp(12px, 1vw, 14px);">{{ p.progress_percentage }}% complete</small>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="font-size: clamp(14px, 1.5vw, 16px);">No lessons started yet. <a href="{% url 'lesson_list' %}" style="color: #f39c12;">Start learning now!</a></p>
+    {% endif %}
+    
+    <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">🏆 My Certificates</h2>
+    {% if certificates %}
+        {% for cert in certificates %}
+            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: clamp(12px, 2vw, 15px); margin: 10px 0; border-radius: 4px;">
+                <strong style="font-size: clamp(14px, 1.5vw, 16px);">📜 {{ cert.lesson.title }}</strong>
+                <p style="font-size: clamp(13px, 1.2vw, 14px); margin: 5px 0;">Certificate #: {{ cert.certificate_number }}</p>
+                <p style="font-size: clamp(13px, 1.2vw, 14px); margin: 5px 0;">Score: {{ cert.score }}%</p>
+                <p style="font-size: clamp(12px, 1vw, 13px); margin: 5px 0; color: #666;"><small>Issued: {{ cert.issued_date|date:"F d, Y" }}</small></p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="font-size: clamp(14px, 1.5vw, 16px);">No certificates earned yet. Pass an exam to earn a certificate!</p>
+    {% endif %}
+</div>
+{% endblock %}

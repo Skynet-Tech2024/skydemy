@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SKYDEMY - {% block title %}E-Learning Platform{% endblock %}</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SKYDEMY">
+    <style>
+        /* ===== Reset ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; }
+        
+        /* ===== Preloader ===== */
+        #preloader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 26, 46, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.8s ease;
+        }
+        #preloader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(243, 156, 18, 0.3);
+            border-top: 6px solid #f39c12;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* ===== Fade-in animation for content ===== */
+        .main-content {
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards;
+            animation-delay: 0.1s;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ===== Header / Navbar ===== */
+        .navbar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .navbar .brand img {
+            height: 40px;
+            width: auto;
+            border-radius: 8px;
+        }
+        .navbar .brand .site-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .navbar .brand .site-name span {
+            color: #f39c12;
+        }
+        .navbar .brand .tagline {
+            display: none;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 15px;
+            margin-top: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+        .nav-links a {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+        .nav-links a:hover {
+            color: #f39c12;
+            background: rgba(255,255,255,0.05);
+        }
+        .nav-links .user-greeting {
+            color: #fff;
+            font-size: 13px;
+            padding: 6px 12px;
+            background: rgba(243, 156, 18, 0.2);
+            border-radius: 20px;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .nav-links .user-greeting strong {
+            color: #f39c12;
+        }
+        .nav-links .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f39c12;
+        }
+        .nav-links .user-avatar-placeholder {
+            font-size: 20px;
+            line-height: 30px;
+        }
+        .nav-links .btn-logout {
+            background: #e74c3c;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .nav-links .btn-logout:hover {
+            background: #c0392b;
+            color: #fff;
+        }
+        .nav-links .btn-login {
+            background: #f39c12;
+            color: #1a1a2e;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .nav-links .btn-login:hover {
+            background: #e67e22;
+            color: #1a1a2e;
+        }
+        .nav-links .btn-register {
+            background: transparent;
+            color: #ddd;
+            border: 1px solid #555;
+            padding: 6px 16px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .nav-links .btn-register:hover {
+            border-color: #f39c12;
+            color: #f39c12;
+        }
+        
+        /* ===== Notification Bell ===== */
+        .notification-link {
+            position: relative;
+            color: #ddd;
+            text-decoration: none;
+            font-size: 20px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: color 0.3s;
+        }
+        .notification-link:hover {
+            color: #f39c12;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 1px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        /* ===== Breadcrumbs ===== */
+        .breadcrumb-wrapper {
+            max-width: 1200px;
+            margin: 15px auto 0;
+            padding: 0 15px;
+        }
+        .breadcrumb-wrapper nav {
+            font-size: clamp(13px, 1.2vw, 15px);
+            color: #888;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .breadcrumb-wrapper nav a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb-wrapper nav a:hover {
+            color: #f39c12;
+            text-decoration: underline;
+        }
+        .breadcrumb-wrapper nav .separator {
+            color: #ccc;
+            font-weight: 300;
+        }
+        .breadcrumb-wrapper nav .current {
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        /* ===== Footer ===== */
+        .footer {
+            text-align: center;
+            padding: 20px 15px;
+            background: #1a1a2e;
+            color: #888;
+            margin-top: 40px;
+            font-size: 13px;
+        }
+        .footer .footer-brand {
+            color: #f39c12;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .footer .footer-brand span {
+            color: #fff;
+        }
+        .footer p {
+            margin-top: 5px;
+        }
+        
+        /* ===== WhatsApp Button ===== */
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 28px;
+            text-decoration: none;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
+        .whatsapp-btn:hover {
+            transform: scale(1.1);
+        }
+        .whatsapp-btn .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        /* ===== Responsive ===== */
+        @media (min-width: 769px) {
+            .navbar {
+                padding: 15px 40px;
+                flex-wrap: nowrap;
+            }
+            .navbar .brand .tagline {
+                display: block;
+                font-size: 12px;
+                color: #aaa;
+                letter-spacing: 2px;
+                margin-top: 2px;
+            }
+            .nav-links {
+                width: auto;
+                margin-top: 0;
+                flex-wrap: nowrap;
+                gap: 25px;
+            }
+            .nav-links a {
+                font-size: 15px;
+                padding: 8px 12px;
+            }
+            .main-content {
+                padding: 0 20px;
+                margin: 30px auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar .brand .site-name {
+                font-size: 18px;
+            }
+            .navbar .brand img {
+                height: 30px;
+            }
+            .nav-links {
+                gap: 8px 10px;
+            }
+            .nav-links a {
+                font-size: 12px;
+                padding: 4px 10px;
+            }
+            .nav-links .user-greeting {
+                font-size: 12px;
+                padding: 4px 10px;
+            }
+            .nav-links .user-avatar {
+                width: 24px;
+                height: 24px;
+            }
+            .nav-links .user-avatar-placeholder {
+                font-size: 16px;
+                line-height: 24px;
+            }
+            .notification-link {
+                font-size: 18px;
+                padding: 4px 8px;
+            }
+            .notification-badge {
+                font-size: 10px;
+                min-width: 16px;
+                padding: 1px 5px;
+            }
+            .whatsapp-btn {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+                bottom: 15px;
+                right: 15px;
+            }
+            .whatsapp-btn .badge {
+                font-size: 9px;
+                padding: 1px 5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 10px 12px;
+            }
+            .navbar .brand .site-name {
+                font-size: 16px;
+            }
+            .navbar .brand img {
+                height: 25px;
+            }
+            .nav-links {
+                gap: 5px 8px;
+            }
+            .nav-links a {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            .nav-links .user-greeting {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            .notification-link {
+                font-size: 16px;
+                padding: 3px 6px;
+            }
+            .notification-badge {
+                font-size: 9px;
+                min-width: 14px;
+                padding: 0px 4px;
+                top: -2px;
+                right: -2px;
+            }
+            .main-content {
+                padding: 0 10px;
+                margin: 15px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== PRELOADER ===== -->
+    <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="brand">
+            <img src="/static/images/logo.png" alt="SKYNET TECH">
+            <div>
+                <div class="site-name">SKY<span>DEMY</span></div>
+                <div class="tagline">INNOVATE · CONNECT · EMPOWER</div>
+            </div>
+        </a>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                <span class="user-greeting">
+                    {% if user.profile.avatar and user.profile.avatar.url %}
+                        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="user-avatar">
+                    {% else %}
+                        <span class="user-avatar-placeholder">👤</span>
+                    {% endif %}
+                    Welcome, <strong>{{ user.username }}</strong> ({{ user.profile.get_role_display }})
+                </span>
+                <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+                <a href="{% url 'lesson_list' %}">📚 Lessons</a>
+                <a href="{% url 'leaderboard' %}">🏆 Leaderboard</a>
+                <a href="{% url 'inbox' %}">📩 Inbox</a>
+                <a href="{% url 'notifications' %}" class="notification-link">
+                    🔔
+                    <span id="notification-badge" class="notification-badge" style="display:none;">0</span>
+                </a>
+                <a href="{% url 'profile' %}">👤 Profile</a>
+                <a href="{% url 'logout' %}" class="btn-logout">🚪 Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-login">🔑 Login</a>
+                <a href="{% url 'register' %}" class="btn-register">📝 Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- ===== BREADCRUMBS ===== -->
+    {% if breadcrumbs %}
+    <div class="breadcrumb-wrapper">
+        <nav>
+            {% for crumb in breadcrumbs %}
+                {% if forloop.last %}
+                    <span class="current">{{ crumb.name }}</span>
+                {% else %}
+                    <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+                    <span class="separator">›</span>
+                {% endif %}
+            {% endfor %}
+        </nav>
+    </div>
+    {% endif %}
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+        <div class="footer-brand">SKY<span>DEMY</span></div>
+        <p>© 2026 SKYNET TECH — Innovate · Connect · Empower</p>
+        <p style="font-size: 12px; color: #666;">Built with Django · E-Learning for Everyone</p>
+    </div>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/237652924816" target="_blank" class="whatsapp-btn">
+        💬
+        <span class="badge">Contact</span>
+    </a>
+
+    <script>
+        // Hide preloader after page fully loads
+        window.addEventListener('load', function() {
+            document.getElementById('preloader').classList.add('hidden');
+        });
+        // Fallback: hide after 2 seconds even if load event is slow
+        setTimeout(function() {
+            document.getElementById('preloader').classList.add('hidden');
+        }, 2000);
+        
+        // Fetch unread notification count
+        function updateNotificationBadge() {
+            fetch('/notifications/unread-count/')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notification-badge');
+                    if (data.count > 0) {
+                        badge.style.display = 'inline';
+                        badge.textContent = data.count > 99 ? '99+' : data.count;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(err => console.log('Error fetching notification count:', err));
+        }
+        updateNotificationBadge();
+        setInterval(updateNotificationBadge, 30000);
+
+        // PWA: Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('Service Worker registration failed:', err);
+                    });
+            });
+        }
+
+        // PWA: Custom install button
+        let deferredPrompt;
+        const installButton = document.createElement('button');
+        installButton.textContent = '📲 Install App';
+        installButton.style.cssText = `
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: #f39c12; color: #1a1a2e; border: none; padding: 12px 30px;
+            border-radius: 30px; font-weight: 600; font-size: 16px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 99999;
+            display: none;
+        `;
+        document.body.appendChild(installButton);
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const result = await deferredPrompt.userChoice;
+                console.log('User choice:', result.outcome);
+                deferredPrompt = null;
+                installButton.style.display = 'none';
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installButton.style.display = 'none';
+            console.log('App installed successfully!');
+        });
+    </script>
+</body>
+</html>

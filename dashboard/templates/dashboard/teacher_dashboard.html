@@ -1,0 +1,68 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Teacher Dashboard - SKYDEMY{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; background: white; padding: clamp(15px, 3vw, 30px); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <h1 style="color: #1a1a2e; font-size: clamp(22px, 4vw, 32px);">👨‍🏫 Teacher Dashboard</h1>
+    <p style="font-size: clamp(14px, 2vw, 16px);">Welcome back, <strong>{{ user.username }}</strong>!</p>
+    <p style="font-size: clamp(14px, 2vw, 16px);"><strong>Role:</strong> {{ profile.get_role_display }}</p>
+    <p style="font-size: clamp(14px, 2vw, 16px);"><strong>👥 Followers:</strong> 
+        <span style="color: #f39c12; font-weight: 700;">{{ user.followers.count }}</span>
+    </p>
+
+    <!-- 📊 Analytics Stats -->
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+        <div style="flex: 1; min-width: 100px; text-align: center; padding: 10px;">
+            <div style="font-size: clamp(24px, 3vw, 32px); font-weight: 700; color: #3498db;">{{ total_views }}</div>
+            <div style="font-size: clamp(12px, 1vw, 14px); color: #6c757d;">👁️ Total Views</div>
+        </div>
+        <div style="flex: 1; min-width: 100px; text-align: center; padding: 10px;">
+            <div style="font-size: clamp(24px, 3vw, 32px); font-weight: 700; color: #e74c3c;">{{ total_likes }}</div>
+            <div style="font-size: clamp(12px, 1vw, 14px); color: #6c757d;">❤️ Total Likes</div>
+        </div>
+        <div style="flex: 1; min-width: 100px; text-align: center; padding: 10px;">
+            <div style="font-size: clamp(24px, 3vw, 32px); font-weight: 700; color: #27ae60;">{{ total_comments }}</div>
+            <div style="font-size: clamp(12px, 1vw, 14px); color: #6c757d;">💬 Total Comments</div>
+        </div>
+        <div style="flex: 1; min-width: 100px; text-align: center; padding: 10px;">
+            <div style="font-size: clamp(24px, 3vw, 32px); font-weight: 700; color: #f39c12;">{{ lessons|length }}</div>
+            <div style="font-size: clamp(12px, 1vw, 14px); color: #6c757d;">📚 Total Lessons</div>
+        </div>
+    </div>
+    
+    <h2 style="margin-top: 30px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📤 Upload a New Lesson</h2>
+    <a href="{% url 'upload_lesson' %}" style="background: #f39c12; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">+ Upload Lesson</a>
+    
+    <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📚 My Uploaded Lessons</h2>
+    <div style="margin-top: 15px;">
+        {% if lessons %}
+            {% for lesson in lessons %}
+                <div style="border: 1px solid #ddd; padding: clamp(12px, 2vw, 15px); margin: 10px 0; border-radius: 4px; background: #f9f9f9;">
+                    <h3 style="margin: 0; font-size: clamp(16px, 2vw, 20px);">{{ lesson.title }}</h3>
+                    <p style="font-size: clamp(13px, 1.2vw, 14px);">{{ lesson.description|truncatewords:20 }}</p>
+                    <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Level:</strong> {{ lesson.get_level_display }}</p>
+                    {% if lesson.subject %}
+                        <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Subject:</strong> {{ lesson.subject.name }}</p>
+                    {% endif %}
+                    {% if lesson.course %}
+                        <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Course:</strong> {{ lesson.course.name }}</p>
+                    {% endif %}
+                    <p style="font-size: clamp(12px, 1vw, 13px); color: #666;"><strong>Uploaded:</strong> {{ lesson.created_at|date:"M d, Y" }}</p>
+                    
+                    <!-- Lesson Engagement Stats -->
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 8px 0; font-size: clamp(12px, 1vw, 14px); color: #6c757d;">
+                        <span>👁️ {{ lesson.views }} views</span>
+                        <span>❤️ {{ lesson.likes_count|default:0 }} likes</span>
+                        <span>💬 {{ lesson.comments_count|default:0 }} comments</span>
+                    </div>
+                    
+                    <a href="{% url 'view_lesson' lesson.id %}" style="background: #3498db; color: white; padding: 8px 18px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 5px; font-size: clamp(13px, 1.2vw, 14px);">View Lesson</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="font-size: clamp(14px, 1.5vw, 16px);">You haven't uploaded any lessons yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

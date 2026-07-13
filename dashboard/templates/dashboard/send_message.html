@@ -1,0 +1,45 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Send Message - SKYDEMY{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto; background: white; padding: clamp(15px, 3vw, 30px); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <h1 style="color: #1a1a2e; font-size: clamp(22px, 4vw, 32px);">✏️ Send New Message</h1>
+    <p style="color: #666; font-size: clamp(14px, 1.2vw, 16px); margin-bottom: 20px;">Send a message to another user</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 10px; border-radius: 4px; margin: 10px 0; background: {% if message.tags == 'success' %}#d4edda; color: #155724;{% elif message.tags == 'error' %}#f8d7da; color: #721c24;{% else %}#fff3cd; color: #856404;{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="receiver" style="display: block; margin-top: 15px; font-weight: bold; font-size: clamp(14px, 1.2vw, 16px);">Recipient</label>
+        <select name="receiver" id="receiver" required style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: clamp(14px, 1.2vw, 16px);">
+            <option value="">Select a user...</option>
+            {% for user in users %}
+                <option value="{{ user.username }}">{{ user.username }} ({{ user.profile.get_role_display }})</option>
+            {% endfor %}
+        </select>
+        
+        <label for="subject" style="display: block; margin-top: 15px; font-weight: bold; font-size: clamp(14px, 1.2vw, 16px);">Subject (Optional)</label>
+        <input type="text" name="subject" id="subject" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: clamp(14px, 1.2vw, 16px);" placeholder="Brief subject line">
+        
+        <label for="content" style="display: block; margin-top: 15px; font-weight: bold; font-size: clamp(14px, 1.2vw, 16px);">Message</label>
+        <textarea name="content" id="content" rows="6" required style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: clamp(14px, 1.2vw, 16px);" placeholder="Type your message here..."></textarea>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+            <button type="submit" style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: clamp(14px, 1.2vw, 16px); cursor: pointer;">📤 Send Message</button>
+            <a href="{% url 'inbox' %}" style="background: #6c757d; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.2vw, 16px);">Cancel</a>
+        </div>
+    </form>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{% url 'dashboard' %}" style="color: #3498db; text-decoration: none;">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

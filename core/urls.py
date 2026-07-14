@@ -1,3 +1,4 @@
+from dashboard.views import service_worker
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -5,7 +6,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('captcha/', include('captcha.urls')),  # <-- Add this line
-    path('admin/', admin.site.urls),
+path('sw.js', service_worker),    
+path('admin/', admin.site.urls),
     path('', include('dashboard.urls')),
     path('users/', include('users.urls')),
     path('courses/', include('courses.urls')),

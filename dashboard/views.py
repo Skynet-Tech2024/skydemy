@@ -281,3 +281,14 @@ def send_message(request):
     # GET request: show users list to message
     users = User.objects.exclude(id=request.user.id).filter(profile__is_suspended=False)
     return render(request, 'dashboard/send_message.html', {'users': users})
+from django.http import HttpResponse
+from django.views.decorators.cache import never_cache
+
+@never_cache
+def service_worker(request):
+    import os
+    from django.conf import settings
+    sw_path = os.path.join(settings.BASE_DIR, 'sw.js')
+    with open(sw_path, 'r') as f:
+        content = f.read()
+    return HttpResponse(content, content_type='application/javascript')

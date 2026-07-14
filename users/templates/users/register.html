@@ -3,19 +3,220 @@
 {% block title %}Register - SKYDEMY{% endblock %}
 
 {% block content %}
-<div style="max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-    <h2 style="text-align: center; color: #1a1a2e;">Create Account</h2>
-    <p style="text-align: center; color: #666; font-size: 14px;">Join SKYDEMY and start learning today!</p>
+<div style="max-width: 520px; margin: 0 auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #f39c12;">
+    <h2 style="text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 5px;">Create Account</h2>
+    <p style="text-align: center; color: #666; font-size: 15px; margin-bottom: 25px;">Join SKYDEMY and start learning today!</p>
     
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="register-form">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" style="width: 100%; padding: 12px; background: #f39c12; color: #1a1a2e; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px;">
-            Register
+        
+        {% for field in form %}
+            <div style="margin-bottom: 18px;">
+                <label for="{{ field.id_for_label }}" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
+                    {{ field.label }}
+                    {% if field.field.required %}
+                        <span style="color: #e74c3c;">*</span>
+                    {% endif %}
+                </label>
+                
+                {% if field.name == 'password1' %}
+                    <div style="position: relative;">
+                        <input type="password" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" placeholder="Enter your password" style="width:100%; padding:12px 14px 12px 44px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" required>
+                        <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px;">🔒</span>
+                    </div>
+                    <div id="password-requirements" style="margin-top: 10px; font-size: 13px; background: #f8f9fa; padding: 12px 16px; border-radius: 8px;">
+                        <div id="req-length" style="color: #888; padding: 3px 0; transition: all 0.3s;">❌ At least 8 characters</div>
+                        <div id="req-uppercase" style="color: #888; padding: 3px 0; transition: all 0.3s;">❌ Must contain a capital letter</div>
+                        <div id="req-number" style="color: #888; padding: 3px 0; transition: all 0.3s;">❌ Must contain a number</div>
+                    </div>
+                {% elif field.name == 'password2' %}
+                    <div style="position: relative;">
+                        <input type="password" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" placeholder="Confirm your password" style="width:100%; padding:12px 14px 12px 44px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" required>
+                        <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px;">🔐</span>
+                    </div>
+                    <div id="password-match-feedback" style="margin-top: 8px; font-size: 13px; color: #888; padding: 4px 12px; border-radius: 6px; background: #f8f9fa;">⬜ Confirm your password</div>
+                {% elif field.name == 'username' %}
+                    <div style="position: relative;">
+                        <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" placeholder="Choose a username" style="width:100%; padding:12px 14px 12px 44px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" required>
+                        <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px;">👤</span>
+                    </div>
+                {% elif field.name == 'email' %}
+                    <div style="position: relative;">
+                        <input type="email" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" placeholder="your@email.com" style="width:100%; padding:12px 14px 12px 44px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" required>
+                        <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px;">✉️</span>
+                    </div>
+                {% elif field.name == 'avatar' %}
+                    <div style="border: 2px dashed #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fafafa; transition: border-color 0.3s;">
+                        {{ field }}
+                        <p style="font-size: 12px; color: #888; margin-top: 5px;">Upload a profile picture (optional)</p>
+                    </div>
+                {% else %}
+                    {{ field }}
+                {% endif %}
+                
+                {% if field.errors %}
+                    <p style="color: #e74c3c; font-size: 13px; margin-top: 4px;">{{ field.errors|striptags }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);">
+            🚀 Register
         </button>
     </form>
-    <p style="text-align: center; margin-top: 15px;">
-        Already have an account? <a href="{% url 'login' %}" style="color: #f39c12; text-decoration: none;">Login</a>
+    
+    <p style="text-align: center; margin-top: 20px; color: #666; font-size: 15px;">
+        Already have an account? <a href="{% url 'login' %}" style="color: #f39c12; text-decoration: none; font-weight: 600;">Login</a>
     </p>
 </div>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 12px 14px 12px 44px;
+        border: 1.5px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+        box-sizing: border-box;
+        background: #fafafa;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #f39c12;
+        box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.12);
+        background: #fff;
+    }
+    .form-control:hover {
+        border-color: #bbb;
+        background: #fff;
+    }
+    .form-control::placeholder {
+        color: #aaa;
+        font-weight: 300;
+    }
+    
+    input[type="file"] {
+        padding: 8px;
+        background: #f9f9f9;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .helptext {
+        font-size: 12px;
+        color: #888;
+        margin-top: 4px;
+        display: block;
+    }
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 4px 0 0;
+    }
+    ul li {
+        font-size: 12px;
+        color: #666;
+        padding: 2px 0;
+    }
+    .errorlist {
+        background: #fde8e8;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border-left: 3px solid #e74c3c;
+    }
+    .errorlist li {
+        color: #c0392b !important;
+        font-weight: 500;
+    }
+    .req-met {
+        color: #27ae60 !important;
+        font-weight: 500;
+    }
+    .req-not-met {
+        color: #e74c3c !important;
+        font-weight: 500;
+    }
+    .req-default::before {
+        content: "⬜ ";
+    }
+    select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1.5px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        box-sizing: border-box;
+        background: #fafafa;
+        transition: all 0.3s;
+    }
+    select:focus {
+        outline: none;
+        border-color: #f39c12;
+        box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.12);
+        background: #fff;
+    }
+</style>
+
+<script>
+    (function() {
+        const passwordField = document.getElementById('id_password1');
+        const confirmField = document.getElementById('id_password2');
+        const reqLength = document.getElementById('req-length');
+        const reqUppercase = document.getElementById('req-uppercase');
+        const reqNumber = document.getElementById('req-number');
+        const matchFeedback = document.getElementById('password-match-feedback');
+
+        if (!passwordField) return;
+
+        function checkRequirements() {
+            const pwd = passwordField.value;
+
+            const lengthOk = pwd.length >= 8;
+            updateRequirement(reqLength, lengthOk);
+
+            const uppercaseOk = /[A-Z]/.test(pwd);
+            updateRequirement(reqUppercase, uppercaseOk);
+
+            const numberOk = /\d/.test(pwd);
+            updateRequirement(reqNumber, numberOk);
+
+            if (confirmField) {
+                const match = pwd === confirmField.value && pwd.length > 0;
+                if (match) {
+                    matchFeedback.textContent = '✅ Passwords match';
+                    matchFeedback.style.color = '#27ae60';
+                    matchFeedback.style.background = '#e8f5e9';
+                } else if (confirmField.value.length > 0) {
+                    matchFeedback.textContent = '❌ Passwords do not match';
+                    matchFeedback.style.color = '#e74c3c';
+                    matchFeedback.style.background = '#fde8e8';
+                } else {
+                    matchFeedback.textContent = '⬜ Confirm your password';
+                    matchFeedback.style.color = '#888';
+                    matchFeedback.style.background = '#f8f9fa';
+                }
+            }
+        }
+
+        function updateRequirement(element, isMet) {
+            const text = element.textContent.replace(/[✅❌⬜]\s*/, '');
+            if (isMet) {
+                element.className = 'req-met';
+                element.textContent = '✅ ' + text;
+            } else {
+                element.className = 'req-not-met';
+                element.textContent = '❌ ' + text;
+            }
+        }
+
+        checkRequirements();
+
+        passwordField.addEventListener('input', checkRequirements);
+        if (confirmField) {
+            confirmField.addEventListener('input', checkRequirements);
+        }
+    })();
+</script>
 {% endblock %}

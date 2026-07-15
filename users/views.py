@@ -25,7 +25,6 @@ def register(request):
             print("❌ Form invalid:")
             print(form.errors)
             print(form.non_field_errors())
-            # Add error messages to be displayed on the page
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
@@ -45,7 +44,7 @@ def custom_login(request):
         if user is not None:
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
-         return redirect('/admin/')
+            return redirect('/admin/')
         else:
             print("❌ Login failed")
             messages.error(request, 'Invalid username or password.')

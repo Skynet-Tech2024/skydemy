@@ -471,7 +471,11 @@
                     {% endif %}
                     Welcome, <strong>{{ user.username }}</strong> ({{ user.profile.get_display_role }})
                 </span>
-                <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+                {% if user.is_superuser %}
+                    <a href="/admin/">🔐 Admin Dashboard</a>
+                {% else %}
+                    <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+                {% endif %}
                 <a href="{% url 'lesson_list' %}">📚 Lessons</a>
                 <a href="{% url 'leaderboard' %}">🏆 Leaderboard</a>
                 <a href="{% url 'inbox' %}">📩 Inbox</a>

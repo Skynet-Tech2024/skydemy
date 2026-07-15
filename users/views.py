@@ -7,16 +7,17 @@ from .forms import RegisterForm
 
 def register(request):
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
+        form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('home')
+        else:
+            print("❌ Registration form errors:", form.errors)
+            print("❌ Non-field errors:", form.non_field_errors())
     else:
         form = RegisterForm()
-    return render(request, 'users/register.html', {'form': form})
-
-def custom_login(request):
+    return render(request, 'users/register.html', {'form': form})def custom_login(request):
     print("🔵 Login view called")
     if request.method == 'POST':
         print("🟡 POST request received")

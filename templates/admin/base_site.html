@@ -5,23 +5,129 @@
 {% block extrahead %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
     <style>
-        /* Add any additional custom styles here if needed */
+        /* Hide the default logout link in the header */
+        #header .user-tools {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        #header .user-tools a:not(.logout-btn):not(.view-site-btn) {
+            display: none;
+        }
+        .view-site-btn, .logout-btn {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            color: #fff !important;
+        }
+        .view-site-btn:hover, .logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        .logout-btn {
+            background: rgba(231, 76, 60, 0.3);
+        }
+        .logout-btn:hover {
+            background: rgba(231, 76, 60, 0.5);
+        }
+        .view-site-btn {
+            background: rgba(46, 204, 113, 0.3);
+        }
+        .view-site-btn:hover {
+            background: rgba(46, 204, 113, 0.5);
+        }
+        /* Style the theme toggle to be an icon button */
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,255,255,0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        /* Mobile tweaks */
+        @media (max-width: 768px) {
+            .view-site-btn, .logout-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
     </style>
 {% endblock %}
 
 {% block branding %}
     <h1 id="site-name">
-        <a href="{% url 'admin:index' %}">
-            <span style="color: #f39c12;">SKY</span><span style="color: #fff;">DEMY</span>
-            <span style="font-size: 14px; color: #aaa; font-weight: 300; margin-left: 10px;">Admin Panel</span>
+        <a href="{% url 'admin:index' %}" style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 28px; font-weight: 700;">
+                <span style="color: #f39c12;">SKY</span><span style="color: #fff;">DEMY</span>
+            </span>
+            <span style="font-size: 14px; color: #aaa; font-weight: 300; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px;">
+                Admin
+            </span>
         </a>
     </h1>
 {% endblock %}
 
-{% block nav-global %}
-    <div style="float: right; margin-right: 20px; color: #aaa; font-size: 14px; padding: 8px 0;">
-        <a href="/" style="color: #f39c12; text-decoration: none;">← View Site</a>
-        &nbsp;|&nbsp;
-        <a href="{% url 'admin:logout' %}" style="color: #e74c3c; text-decoration: none;">Logout</a>
+{% block usertools %}
+    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+
+        <!-- Theme Toggle (custom icon buttons) -->
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <span class="theme-toggle" onclick="setTheme('auto')" title="Auto theme">🌓</span>
+            <span class="theme-toggle" onclick="setTheme('light')" title="Light theme">☀️</span>
+            <span class="theme-toggle" onclick="setTheme('dark')" title="Dark theme">🌙</span>
+        </div>
+
+        <!-- View Site Button -->
+        <a href="/" class="view-site-btn" title="View Site">
+            🏠 <span>View Site</span>
+        </a>
+
+        <!-- Logout Button -->
+        <a href="{% url 'admin:logout' %}" class="logout-btn" title="Logout">
+            🚪 <span>Logout</span>
+        </a>
+
+        <!-- Show user info -->
+        <span style="color: #aaa; font-size: 13px; padding: 4px 12px; background: rgba(255,255,255,0.05); border-radius: 20px;">
+            👤 {{ user.username }}
+        </span>
     </div>
+
+    <script>
+        function setTheme(theme) {
+            const html = document.documentElement;
+            if (theme === 'auto') {
+                html.removeAttribute('data-theme');
+            } else {
+                html.setAttribute('data-theme', theme);
+            }
+            // Save preference (optional)
+            localStorage.setItem('adminTheme', theme);
+        }
+        // Restore saved theme on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = localStorage.getItem('adminTheme');
+            if (saved) {
+                setTheme(saved);
+            }
+        });
+    </script>
 {% endblock %}

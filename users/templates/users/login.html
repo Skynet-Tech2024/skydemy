@@ -1,29 +1,109 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login - E-Learning Platform</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f0f4f8; display: flex; justify-content: center; padding: 50px; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 400px; }
-        h2 { text-align: center; color: #2c3e50; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; }
-        button { width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 4px; margin-top: 20px; font-size: 16px; cursor: pointer; }
-        button:hover { background: #2980b9; }
-        .error { color: red; font-size: 14px; }
-        p { text-align: center; margin-top: 15px; }
-        a { color: #3498db; text-decoration: none; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Login</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
-    </div>
-</body>
-</html>
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Login - SKYDEMY{% endblock %}
+
+{% block content %}
+<div style="max-width: 480px; margin: 0 auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #f39c12;">
+    <h2 style="text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 5px;">Welcome Back</h2>
+    <p style="text-align: center; color: #666; font-size: 15px; margin-bottom: 25px;">Login to your SKYDEMY account</p>
+    
+    <!-- Display error messages -->
+    {% if form.errors %}
+        <div style="background: #fde8e8; padding: 12px 16px; border-radius: 6px; color: #c0392b; margin-bottom: 20px; border-left: 4px solid #e74c3c;">
+            <strong>⚠️ Invalid login credentials.</strong> Please check your username and password and try again.
+        </div>
+    {% endif %}
+    
+    <!-- Display Django messages (e.g., from logout) -->
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 10px; border-radius: 6px; margin-bottom: 15px; background: #d4edda; color: #155724; border-left: 4px solid #28a745;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 18px;">
+            <label for="id_username" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
+                Username
+            </label>
+            <div style="position: relative;">
+                <input type="text" name="username" id="id_username" 
+                       class="form-control" placeholder="Enter your username" 
+                       style="width:100%; padding:12px 14px 12px 44px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" 
+                       required>
+                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px;">👤</span>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+            <label for="id_password" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
+                Password
+            </label>
+            <div style="position: relative;">
+                <input type="password" name="password" id="id_password" 
+                       class="form-control" placeholder="Enter your password" 
+                       style="width:100%; padding:12px 14px 12px 44px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" 
+                       required>
+                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px;">🔒</span>
+                <!-- Eye icon to toggle password visibility -->
+                <span id="eye-icon" onclick="togglePassword()" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:20px; cursor:pointer; color:#888; user-select:none;">👁️</span>
+            </div>
+        </div>
+        
+        <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);">
+            🔑 Login
+        </button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 20px; color: #666; font-size: 15px;">
+        Don't have an account? <a href="{% url 'register' %}" style="color: #f39c12; text-decoration: none; font-weight: 600;">Register</a>
+    </p>
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 12px 14px 12px 44px;
+        border: 1.5px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+        box-sizing: border-box;
+        background: #fafafa;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #f39c12;
+        box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.12);
+        background: #fff;
+    }
+    .form-control:hover {
+        border-color: #bbb;
+        background: #fff;
+    }
+    .form-control::placeholder {
+        color: #aaa;
+        font-weight: 300;
+    }
+</style>
+
+<script>
+    function togglePassword() {
+        var input = document.getElementById('id_password');
+        var eye = document.getElementById('eye-icon');
+        if (input) {
+            if (input.type === 'password') {
+                input.type = 'text';
+                eye.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                eye.textContent = '👁️';
+            }
+        }
+    }
+</script>
+{% endblock %}

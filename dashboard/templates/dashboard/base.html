@@ -100,6 +100,9 @@
             margin-top: 8px;
             width: 100%;
             justify-content: center;
+            overflow-x: auto;
+            padding: 4px 0;
+            -webkit-overflow-scrolling: touch;
         }
         .nav-links a {
             color: #ddd;
@@ -109,6 +112,7 @@
             transition: color 0.3s;
             padding: 6px 12px;
             border-radius: 4px;
+            flex-shrink: 0;
         }
         .nav-links a:hover {
             color: #f39c12;
@@ -126,6 +130,7 @@
             gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
+            flex-shrink: 0;
         }
         .nav-links .user-greeting strong {
             color: #f39c12;
@@ -145,8 +150,13 @@
             background: #e74c3c;
             color: #fff;
             padding: 6px 16px;
+            border: none;
             border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
             transition: background 0.3s;
+            flex-shrink: 0;
         }
         .nav-links .btn-logout:hover {
             background: #c0392b;
@@ -159,6 +169,8 @@
             border-radius: 4px;
             font-weight: 600;
             transition: background 0.3s;
+            text-decoration: none;
+            flex-shrink: 0;
         }
         .nav-links .btn-login:hover {
             background: #e67e22;
@@ -171,10 +183,15 @@
             padding: 6px 16px;
             border-radius: 4px;
             transition: all 0.3s;
+            text-decoration: none;
+            flex-shrink: 0;
         }
         .nav-links .btn-register:hover {
             border-color: #f39c12;
             color: #f39c12;
+        }
+        .nav-links form {
+            flex-shrink: 0;
         }
         
         /* ===== Notification Bell ===== */
@@ -186,6 +203,7 @@
             padding: 6px 10px;
             border-radius: 4px;
             transition: color 0.3s;
+            flex-shrink: 0;
         }
         .notification-link:hover {
             color: #f39c12;
@@ -313,6 +331,7 @@
                 margin-top: 0;
                 flex-wrap: nowrap;
                 gap: 25px;
+                overflow-x: visible;
             }
             .nav-links a {
                 font-size: 15px;
@@ -383,15 +402,31 @@
                 height: 25px;
             }
             .nav-links {
-                gap: 5px 8px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: flex-start;
+                gap: 8px;
+                padding: 8px 4px;
+                -webkit-overflow-scrolling: touch;
+                width: 100%;
             }
-            .nav-links a {
+            .nav-links a, .nav-links .btn-logout, .nav-links form, .nav-links .user-greeting {
+                white-space: nowrap;
+                flex-shrink: 0;
                 font-size: 11px;
-                padding: 3px 8px;
+                padding: 4px 8px;
             }
             .nav-links .user-greeting {
                 font-size: 11px;
-                padding: 3px 8px;
+                padding: 4px 8px;
+            }
+            .nav-links .user-avatar {
+                width: 20px;
+                height: 20px;
+            }
+            .nav-links .user-avatar-placeholder {
+                font-size: 14px;
+                line-height: 20px;
             }
             .notification-link {
                 font-size: 16px;
@@ -434,7 +469,7 @@
                     {% else %}
                         <span class="user-avatar-placeholder">👤</span>
                     {% endif %}
-                    Welcome, <strong>{{ user.username }}</strong> ({{ user.profile.get_role_display }})
+                    Welcome, <strong>{{ user.username }}</strong> ({{ user.profile.get_display_role }})
                 </span>
                 <a href="{% url 'dashboard' %}">📊 Dashboard</a>
                 <a href="{% url 'lesson_list' %}">📚 Lessons</a>
@@ -445,10 +480,10 @@
                     <span id="notification-badge" class="notification-badge" style="display:none;">0</span>
                 </a>
                 <a href="{% url 'profile' %}">👤 Profile</a>
-               <form action="{% url 'logout' %}" method="post" style="display: inline;">
-    {% csrf_token %}
-    <button type="submit" class="btn-logout" style="background: #e74c3c; color: #fff; padding: 6px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;">🚪 Logout</button>
-</form>
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-logout">🚪 Logout</button>
+                </form>
             {% else %}
                 <a href="{% url 'login' %}" class="btn-login">🔑 Login</a>
                 <a href="{% url 'register' %}" class="btn-register">📝 Register</a>

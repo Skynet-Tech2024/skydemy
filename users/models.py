@@ -92,6 +92,12 @@ class UserProfile(models.Model):
         empty_stars = '☆' * (5 - full_stars - half_star)
         return f"{stars}{empty_stars} {self.rating:.2f} ({percentage:.0f}%)"
     
+    def get_display_role(self):
+        """Return display role: 'Admin' for superusers/staff, otherwise the actual role"""
+        if self.user.is_superuser or self.user.is_staff:
+            return 'Admin'
+        return self.get_role_display()
+    
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
 
@@ -121,26 +127,32 @@ class Notification(models.Model):
     def mark_as_read(self):
         self.is_read = True
         self.save()
+
+
 class Follow(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
     following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers', limit_choices_to={'profile__role': 'teacher'})
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ('follower', 'following')  # Prevent duplicate follows
+        unique_together = ('follower', 'following')
     
     def __str__(self):
         return f"{self.follower.username} follows {self.following.username}"
+
+
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist_items')
     lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE, related_name='wishlisted_by')
     added_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ('user', 'lesson')  # Prevent duplicate wishlist items
+        unique_together = ('user', 'lesson')
     
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title}"
+
+
 class ProgressHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='progress_history')
     total_lessons_completed = models.IntegerField(default=0)
@@ -152,6 +164,8 @@ class ProgressHistory(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.total_lessons_completed} lessons - {self.recorded_at.strftime('%Y-%m-%d %H:%M')}"
+
+
 class WhatsAppAnnouncement(models.Model):
     TARGET_CHOICES = (
         ('all', 'All Users'),
@@ -175,7 +189,6 @@ class WhatsAppAnnouncement(models.Model):
         return f"{self.title} - {self.sent_at.strftime('%Y-%m-%d %H:%M')}"
     
     def get_recipients(self):
-        """Return a list of users who should receive this announcement"""
         from users.models import UserProfile
         if self.target == 'all':
             return User.objects.all()
@@ -186,6 +199,8 @@ class WhatsAppAnnouncement(models.Model):
         elif self.target == 'premium':
             return User.objects.filter(profile__is_premium=True)
         return User.objects.none()
+
+
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')

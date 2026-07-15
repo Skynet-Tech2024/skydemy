@@ -1,29 +1,179 @@
 {% extends 'dashboard/base.html' %}
 
-{% block title %}Home - SKYDEMY{% endblock %}
+{% block title %}Welcome to SKYDEMY{% endblock %}
 
 {% block content %}
-<div style="text-align: center; padding: 40px 15px; max-width: 100%;">
-    <h1 style="font-size: clamp(28px, 5vw, 48px); color: #1a1a2e; margin-bottom: 15px;">
+<!-- Hero Section -->
+<div style="
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%);
+    border-radius: 16px;
+    padding: 60px 40px;
+    margin-bottom: 50px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+">
+    <!-- Decorative elements -->
+    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(243,156,18,0.08); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -80px; left: -80px; width: 300px; height: 300px; background: rgba(243,156,18,0.05); border-radius: 50%;"></div>
+
+    <h1 style="
+        font-size: clamp(36px, 6vw, 56px);
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+    ">
         Welcome to <span style="color: #f39c12;">SKYDEMY</span>
     </h1>
-    <p style="font-size: clamp(16px, 2.5vw, 20px); color: #555; max-width: 600px; margin: 0 auto 30px; padding: 0 15px;">
-        Learn at your own pace — Primary, Secondary, and University levels.
+    <p style="
+        font-size: clamp(18px, 2.5vw, 22px);
+        color: rgba(255,255,255,0.8);
+        max-width: 600px;
+        margin: 0 auto 35px;
+        position: relative;
+        z-index: 1;
+        line-height: 1.6;
+    ">
+        Learn, teach, and grow — at your own pace.
     </p>
-    
-    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
-        {% if user.is_authenticated %}
-            <a href="{% url 'dashboard' %}" style="background: #f39c12; color: #1a1a2e; padding: 14px 35px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: clamp(16px, 2vw, 18px); transition: all 0.3s; display: inline-block;">
-                📊 Go to Dashboard
-            </a>
-        {% else %}
-            <a href="{% url 'login' %}" style="background: #f39c12; color: #1a1a2e; padding: 14px 35px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: clamp(16px, 2vw, 18px); transition: all 0.3s; display: inline-block;">
-                🔑 Login
-            </a>
-            <a href="{% url 'register' %}" style="background: #3498db; color: #fff; padding: 14px 35px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: clamp(16px, 2vw, 18px); transition: all 0.3s; display: inline-block;">
-                📝 Register
-            </a>
-        {% endif %}
+
+    <!-- Action Buttons -->
+    <div style="
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+    ">
+        <a href="{% url 'login' %}" style="
+            background: #3498db;
+            color: #fff;
+            padding: 14px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: 0.3s;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(52,152,219,0.35);
+        " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 25px rgba(52,152,219,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(52,152,219,0.35)'">
+            🔑 Login as User
+        </a>
+        <a href="/admin/login/" style="
+            background: #f39c12;
+            color: #1a1a2e;
+            padding: 14px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: 0.3s;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(243,156,18,0.35);
+        " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 25px rgba(243,156,18,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(243,156,18,0.35)'">
+            🔐 Admin Login
+        </a>
+        <a href="{% url 'register' %}" style="
+            background: #27ae60;
+            color: #fff;
+            padding: 14px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: 0.3s;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(39,174,96,0.35);
+        " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 25px rgba(39,174,96,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(39,174,96,0.35)'">
+            📝 Create Account
+        </a>
     </div>
 </div>
+
+<!-- Features Section -->
+<h2 style="
+    text-align: center;
+    font-size: clamp(28px, 4vw, 36px);
+    color: #1a1a2e;
+    margin-bottom: 35px;
+    font-weight: 700;
+">
+    Why <span style="color: #f39c12;">SKYDEMY</span>?
+</h2>
+
+<div style="
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+">
+    <!-- Feature 1 -->
+    <div style="
+        background: #fff;
+        padding: 30px 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        transition: 0.3s;
+        border-top: 4px solid #3498db;
+    " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+        <div style="font-size: 40px; margin-bottom: 10px;">📚</div>
+        <h3 style="color: #1a1a2e; font-size: 18px; margin-bottom: 8px;">Learn at Your Own Pace</h3>
+        <p style="color: #666; font-size: 14px; line-height: 1.5;">Study anytime, anywhere. Progress tracking keeps you on track.</p>
+    </div>
+
+    <!-- Feature 2 -->
+    <div style="
+        background: #fff;
+        padding: 30px 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        transition: 0.3s;
+        border-top: 4px solid #f39c12;
+    " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+        <div style="font-size: 40px; margin-bottom: 10px;">🏆</div>
+        <h3 style="color: #1a1a2e; font-size: 18px; margin-bottom: 8px;">Earn Certificates</h3>
+        <p style="color: #666; font-size: 14px; line-height: 1.5;">Pass exams and earn verified certificates to showcase your skills.</p>
+    </div>
+
+    <!-- Feature 3 -->
+    <div style="
+        background: #fff;
+        padding: 30px 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        transition: 0.3s;
+        border-top: 4px solid #27ae60;
+    " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+        <div style="font-size: 40px; margin-bottom: 10px;">👨‍🏫</div>
+        <h3 style="color: #1a1a2e; font-size: 18px; margin-bottom: 8px;">Expert Teachers</h3>
+        <p style="color: #666; font-size: 14px; line-height: 1.5;">Learn from qualified teachers with real-world experience.</p>
+    </div>
+
+    <!-- Feature 4 -->
+    <div style="
+        background: #fff;
+        padding: 30px 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        transition: 0.3s;
+        border-top: 4px solid #8e44ad;
+    " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+        <div style="font-size: 40px; margin-bottom: 10px;">📱</div>
+        <h3 style="color: #1a1a2e; font-size: 18px; margin-bottom: 8px;">Learn Anywhere</h3>
+        <p style="color: #666; font-size: 14px; line-height: 1.5;">Access lessons on your phone, tablet, or computer – anytime.</p>
+    </div>
+</div>
+
+<!-- Footer note -->
+<p style="text-align: center; color: #888; font-size: 14px; margin-top: 20px;">
+    Already have an account? <a href="{% url 'login' %}" style="color: #f39c12; text-decoration: none; font-weight: 600;">Login here</a>
+</p>
 {% endblock %}

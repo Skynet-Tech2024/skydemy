@@ -10,11 +10,25 @@ def register(request):
         print("🟡 POST request received")
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
+            try:
+                user = form.save()
+                print(f"🟢 User saved: {user.username}")
+                login(request, user)
+                print("🟢 User logged in")
+                return redirect('home')
+            except Exception as e:
+                print(f"❌ Exception during save/login: {e}")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f"An error occurred: {e}")
         else:
-            print("❌ Form invalid:", form.errors)
+            print("❌ Form invalid:")
+            print(form.errors)
+            print(form.non_field_errors())
+            # Add error messages to be displayed on the page
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})
@@ -31,7 +45,7 @@ def custom_login(request):
         if user is not None:
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
-            return redirect('dashboard')
+         return redirect('/admin/')
         else:
             print("❌ Login failed")
             messages.error(request, 'Invalid username or password.')

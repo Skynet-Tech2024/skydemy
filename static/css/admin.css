@@ -1,151 +1,189 @@
 /* ===== Django Admin Custom Styles ===== */
 
-/* Header */
+/* ----- Header ----- */
 #header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
-    color: #fff;
-    padding: 15px 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%) !important;
+    color: #fff !important;
+    padding: 18px 30px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+    border-bottom: 3px solid #f39c12 !important;
 }
 
 #header h1 {
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
 }
 
 #header a {
-    color: #f39c12;
+    color: #f39c12 !important;
+    transition: color 0.3s !important;
 }
 
 #header a:hover {
-    color: #fff;
-}
-
-/* Dashboard */
-.dashboard .module {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border: none;
-    padding: 20px;
-}
-
-.dashboard .module h2 {
-    background: #f39c12;
-    color: #1a1a2e;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 10px 15px;
-    border-radius: 4px 4px 0 0;
-    margin: -20px -20px 15px -20px;
-}
-
-.dashboard .module table {
-    width: 100%;
-}
-
-.dashboard .module td a {
-    color: #1a1a2e;
-    font-weight: 500;
-}
-
-.dashboard .module td a:hover {
-    color: #f39c12;
-}
-
-/* Buttons */
-.button, input[type="submit"], .submit-row input {
-    background: #f39c12;
-    border: none;
-    border-radius: 4px;
-    color: #1a1a2e;
-    font-weight: 600;
-    padding: 8px 18px;
-    transition: background 0.2s;
-}
-
-.button:hover, input[type="submit"]:hover, .submit-row input:hover {
-    background: #e67e22;
-    color: #fff;
-}
-
-.button.default, input[type="submit"].default {
-    background: #27ae60;
-    color: #fff;
-}
-
-.button.default:hover, input[type="submit"].default:hover {
-    background: #1e8449;
-}
-
-/* Object history / change list */
-#changelist {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.object-tools a {
-    background: #f39c12 !important;
-    color: #1a1a2e !important;
-    border-radius: 4px !important;
-    font-weight: 600 !important;
-}
-
-.object-tools a:hover {
-    background: #e67e22 !important;
     color: #fff !important;
 }
 
-/* Links in admin */
+/* ----- Dashboard Modules ----- */
+.dashboard .module {
+    background: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
+    border: 1px solid #e9ecef !important;
+    padding: 25px !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+    margin-bottom: 25px !important;
+}
+
+.dashboard .module:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1) !important;
+}
+
+.dashboard .module h2 {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    color: #1a1a2e !important;
+    font-weight: 700 !important;
+    font-size: 18px !important;
+    padding: 14px 20px !important;
+    border-radius: 8px 8px 0 0 !important;
+    margin: -25px -25px 20px -25px !important;
+    letter-spacing: 0.3px !important;
+    border-bottom: 2px solid #d68910 !important;
+}
+
+.dashboard .module table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.dashboard .module td, .dashboard .module th {
+    padding: 10px 12px !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.dashboard .module td a {
+    color: #1a1a2e !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: color 0.2s !important;
+}
+
+.dashboard .module td a:hover {
+    color: #f39c12 !important;
+}
+
+/* ----- Buttons ----- */
+.button, input[type="submit"], .submit-row input {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    color: #1a1a2e !important;
+    font-weight: 700 !important;
+    padding: 10px 24px !important;
+    transition: all 0.3s !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(243,156,18,0.3) !important;
+}
+
+.button:hover, input[type="submit"]:hover, .submit-row input:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(243,156,18,0.4) !important;
+    background: linear-gradient(135deg, #e67e22, #d68910) !important;
+}
+
+.button.default, input[type="submit"].default {
+    background: linear-gradient(135deg, #27ae60, #1e8449) !important;
+    box-shadow: 0 4px 12px rgba(39,174,96,0.3) !important;
+    color: #fff !important;
+}
+
+.button.default:hover, input[type="submit"].default:hover {
+    background: linear-gradient(135deg, #1e8449, #145a32) !important;
+    box-shadow: 0 6px 20px rgba(39,174,96,0.4) !important;
+}
+
+/* ----- Object Tools ----- */
+.object-tools a {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    color: #1a1a2e !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    padding: 8px 18px !important;
+    box-shadow: 0 4px 12px rgba(243,156,18,0.25) !important;
+    transition: all 0.3s !important;
+}
+
+.object-tools a:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(243,156,18,0.35) !important;
+    background: linear-gradient(135deg, #e67e22, #d68910) !important;
+}
+
+/* ----- Links ----- */
 a:link, a:visited {
-    color: #3498db;
+    color: #3498db !important;
+    transition: color 0.2s !important;
 }
 
 a:hover {
-    color: #f39c12;
+    color: #f39c12 !important;
 }
 
-/* Breadcrumbs */
+/* ----- Breadcrumbs ----- */
 .breadcrumbs {
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-    padding: 10px 20px;
-    font-size: 14px;
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #e9ecef !important;
+    padding: 12px 25px !important;
+    font-size: 14px !important;
+    border-radius: 0 !important;
 }
 
 .breadcrumbs a {
-    color: #3498db;
+    color: #3498db !important;
 }
 
 .breadcrumbs a:hover {
-    color: #f39c12;
+    color: #f39c12 !important;
 }
 
-/* Footer */
+/* ----- Change List ----- */
+#changelist {
+    background: #fff !important;
+    border-radius: 12px !important;
+    padding: 25px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04) !important;
+    border: 1px solid #e9ecef !important;
+}
+
+/* ----- Footer ----- */
 #footer {
-    background: #1a1a2e;
-    color: #aaa;
-    padding: 15px 20px;
-    text-align: center;
-    border-top: 3px solid #f39c12;
+    background: #1a1a2e !important;
+    color: #aaa !important;
+    padding: 18px 25px !important;
+    text-align: center !important;
+    border-top: 3px solid #f39c12 !important;
+    font-size: 14px !important;
 }
 
 #footer a {
-    color: #f39c12;
+    color: #f39c12 !important;
 }
 
-/* Responsive tweaks */
+/* ----- Responsive ----- */
 @media (max-width: 768px) {
     #header {
-        padding: 10px 15px;
+        padding: 12px 15px !important;
     }
     #header h1 {
-        font-size: 18px;
+        font-size: 20px !important;
     }
     .dashboard .module {
-        padding: 15px;
+        padding: 15px !important;
+    }
+    .dashboard .module h2 {
+        margin: -15px -15px 15px -15px !important;
+        padding: 12px 16px !important;
+        font-size: 16px !important;
     }
 }

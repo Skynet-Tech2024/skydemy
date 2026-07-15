@@ -112,3 +112,4 @@ CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 
 CSRF_TRUSTED_ORIGINS = ['https://skydemy-jeer.onrender.com']
+CSRF_COOKIE_DOMAIN = '.onrender.com'

@@ -10,14 +10,13 @@ from courses.models import Lesson, LessonLike, LessonComment, Progress, Certific
 from django.views.decorators.cache import never_cache
 
 def home(request):
-    # Redirect unauthenticated users to login page
-    if not request.user.is_authenticated:
-        return redirect('login')
-    
-    # Redirect authenticated users to their dashboard or admin
-    if request.user.is_superuser:
-        return redirect('/admin/')
-    return redirect('dashboard')
+    # If user is already authenticated, redirect to dashboard or admin
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            return redirect('/admin/')
+        return redirect('dashboard')
+    # Otherwise show the landing page
+    return render(request, 'dashboard/landing.html')
 
 @login_required
 def dashboard(request):

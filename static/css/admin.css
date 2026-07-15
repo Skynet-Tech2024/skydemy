@@ -1,0 +1,151 @@
+/* ===== Django Admin Custom Styles ===== */
+
+/* Header */
+#header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    color: #fff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+#header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+#header a {
+    color: #f39c12;
+}
+
+#header a:hover {
+    color: #fff;
+}
+
+/* Dashboard */
+.dashboard .module {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: none;
+    padding: 20px;
+}
+
+.dashboard .module h2 {
+    background: #f39c12;
+    color: #1a1a2e;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 10px 15px;
+    border-radius: 4px 4px 0 0;
+    margin: -20px -20px 15px -20px;
+}
+
+.dashboard .module table {
+    width: 100%;
+}
+
+.dashboard .module td a {
+    color: #1a1a2e;
+    font-weight: 500;
+}
+
+.dashboard .module td a:hover {
+    color: #f39c12;
+}
+
+/* Buttons */
+.button, input[type="submit"], .submit-row input {
+    background: #f39c12;
+    border: none;
+    border-radius: 4px;
+    color: #1a1a2e;
+    font-weight: 600;
+    padding: 8px 18px;
+    transition: background 0.2s;
+}
+
+.button:hover, input[type="submit"]:hover, .submit-row input:hover {
+    background: #e67e22;
+    color: #fff;
+}
+
+.button.default, input[type="submit"].default {
+    background: #27ae60;
+    color: #fff;
+}
+
+.button.default:hover, input[type="submit"].default:hover {
+    background: #1e8449;
+}
+
+/* Object history / change list */
+#changelist {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.object-tools a {
+    background: #f39c12 !important;
+    color: #1a1a2e !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+}
+
+.object-tools a:hover {
+    background: #e67e22 !important;
+    color: #fff !important;
+}
+
+/* Links in admin */
+a:link, a:visited {
+    color: #3498db;
+}
+
+a:hover {
+    color: #f39c12;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+.breadcrumbs a {
+    color: #3498db;
+}
+
+.breadcrumbs a:hover {
+    color: #f39c12;
+}
+
+/* Footer */
+#footer {
+    background: #1a1a2e;
+    color: #aaa;
+    padding: 15px 20px;
+    text-align: center;
+    border-top: 3px solid #f39c12;
+}
+
+#footer a {
+    color: #f39c12;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    #header {
+        padding: 10px 15px;
+    }
+    #header h1 {
+        font-size: 18px;
+    }
+    .dashboard .module {
+        padding: 15px;
+    }
+}

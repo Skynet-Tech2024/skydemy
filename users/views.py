@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
+from django.http import HttpResponse
 from .forms import RegisterForm
 
 def register(request):
@@ -10,7 +11,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('/')
+            return redirect('home')
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})
@@ -26,8 +27,16 @@ def custom_login(request):
         print(f"🟢 Authenticated user: {user}")
         if user is not None:
             login(request, user)
-            print("✅ Login successful")
-            return redirect('/')
+            print("✅ Login successful, session key:", request.session.session_key)
+            # Return debug page instead of redirect
+            return HttpResponse(f"""
+                <h2>Debug Login Info</h2>
+                <p>User: {user.username}</p>
+                <p>Session key: {request.session.session_key}</p>
+                <p>Is authenticated: {request.user.is_authenticated}</p>
+                <p>Session data: {dict(request.session.items())}</p>
+                <p><a href="/">Go to Home</a></p>
+            """)
         else:
             print("❌ Login failed")
             messages.error(request, 'Invalid username or password.')

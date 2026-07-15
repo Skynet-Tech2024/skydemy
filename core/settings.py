@@ -98,7 +98,7 @@ LOGOUT_REDIRECT_URL = 'login'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
-# ===== SESSION & CSRF SETTINGS (NO DOMAIN OVERRIDE) =====
+# ===== SESSION & CSRF SETTINGS FOR RENDER =====
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 SESSION_COOKIE_NAME = 'sessionid'
@@ -106,10 +106,13 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
+# ===== CSRF FIX: Store CSRF token in session to avoid cookie domain issues =====
+CSRF_USE_SESSIONS = True
+
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Lax'
+# CSRF_COOKIE_DOMAIN removed to avoid domain mismatch
 
 CSRF_TRUSTED_ORIGINS = ['https://skydemy-jeer.onrender.com']
-CSRF_COOKIE_DOMAIN = '.onrender.com'

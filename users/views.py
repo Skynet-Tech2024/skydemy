@@ -29,14 +29,7 @@ def custom_login(request):
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
             # Return debug page instead of redirect
-            return HttpResponse(f"""
-                <h2>Debug Login Info</h2>
-                <p>User: {user.username}</p>
-                <p>Session key: {request.session.session_key}</p>
-                <p>Is authenticated: {request.user.is_authenticated}</p>
-                <p>Session data: {dict(request.session.items())}</p>
-                <p><a href="/">Go to Home</a></p>
-            """)
+           return redirect('dashboard')
         else:
             print("❌ Login failed")
             messages.error(request, 'Invalid username or password.')

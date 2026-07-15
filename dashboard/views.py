@@ -15,6 +15,11 @@ def home(request):
 @login_required
 def dashboard(request):
     user = request.user
+    
+    # Redirect superusers to the admin panel
+    if user.is_superuser:
+        return redirect('/admin/')
+    
     profile = user.profile
     context = {
         'user': user,
@@ -52,13 +57,11 @@ def dashboard(request):
         wishlist_count = Wishlist.objects.filter(user=user).count()
         
         # ----- Recommended Lessons -----
-        # Get IDs of lessons the learner has interacted with
         completed_ids = progress.filter(completed=True).values_list('lesson_id', flat=True)
         in_progress_ids = progress.filter(completed=False).values_list('lesson_id', flat=True)
         wishlist_ids = Wishlist.objects.filter(user=user).values_list('lesson_id', flat=True)
         excluded_ids = set(list(completed_ids) + list(in_progress_ids) + list(wishlist_ids))
         
-        # Get lessons by learner's level, exclude interacted ones, order by engagement
         recommended = Lesson.objects.filter(
             level=profile.level,
             status='approved'
@@ -81,7 +84,6 @@ def dashboard(request):
 def profile(request):
     user = request.user
     
-    # Automatically create a profile if it doesn't exist (e.g., for admin users)
     if not hasattr(user, 'profile'):
         UserProfile.objects.create(user=user)
     
@@ -107,13 +109,8 @@ def profile(request):
 
 @login_required
 def leaderboard(request):
-    # Top learners by rating (max 20)
     top_rating = UserProfile.objects.filter(role='learner').order_by('-rating')[:20]
-    
-    # Top learners by lessons completed
     top_lessons = UserProfile.objects.filter(role='learner').order_by('-total_lessons_completed')[:20]
-    
-    # Top learners by certificates earned
     top_certificates = UserProfile.objects.filter(role='learner').annotate(
         cert_count=Count('user__certificate')
     ).order_by('-cert_count')[:20]
@@ -128,7 +125,6 @@ def leaderboard(request):
 @login_required
 def notifications(request):
     user_notifications = request.user.notifications.all()
-    # Mark all as read when viewing the page
     unread = user_notifications.filter(is_read=False)
     if unread.exists():
         unread.update(is_read=True)
@@ -148,12 +144,10 @@ def unread_notification_count(request):
 def toggle_follow(request, teacher_id):
     teacher = get_object_or_404(User, id=teacher_id, profile__role='teacher')
     
-    # Prevent following yourself
     if request.user == teacher:
         messages.error(request, "You cannot follow yourself.")
         return redirect('lesson_list')
     
-    # Check if already following
     follow_exists = Follow.objects.filter(follower=request.user, following=teacher).exists()
     
     if follow_exists:
@@ -169,12 +163,10 @@ def toggle_follow(request, teacher_id):
 def toggle_wishlist(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
     
-    # Only learners can wishlist
     if request.user.profile.role != 'learner':
         messages.error(request, "Only learners can add lessons to wishlist.")
         return redirect('lesson_list')
     
-    # Check if already in wishlist
     wishlist_item = Wishlist.objects.filter(user=request.user, lesson=lesson).first()
     
     if wishlist_item:
@@ -191,17 +183,14 @@ def toggle_wishlist(request, lesson_id):
 
 @login_required
 def progress_chart(request):
-    """View to display learner progress chart"""
     if request.user.profile.role != 'learner':
         messages.error(request, 'Only learners can view progress charts.')
         return redirect('dashboard')
     
     from users.models import ProgressHistory
     
-    # Get all progress history for this user, ordered by date
     history = ProgressHistory.objects.filter(user=request.user).order_by('recorded_at')
     
-    # Prepare data for chart
     labels = []
     lessons_data = []
     rating_data = []
@@ -221,11 +210,9 @@ def progress_chart(request):
 
 @login_required
 def inbox(request):
-    """View all received messages for the logged-in user"""
     received_messages = Message.objects.filter(receiver=request.user)
     sent_messages = Message.objects.filter(sender=request.user)
     
-    # Mark unread as read when viewing inbox
     unread = received_messages.filter(is_read=False)
     if unread.exists():
         unread.update(is_read=True)
@@ -238,7 +225,6 @@ def inbox(request):
 
 @login_required
 def send_message(request):
-    """Send a new message to a user"""
     if request.method == 'POST':
         receiver_username = request.POST.get('receiver')
         subject = request.POST.get('subject', '')
@@ -254,7 +240,6 @@ def send_message(request):
             messages.error(request, "User not found.")
             return redirect('inbox')
         
-        # Prevent messaging self
         if receiver == request.user:
             messages.error(request, "You cannot send a message to yourself.")
             return redirect('inbox')
@@ -266,7 +251,6 @@ def send_message(request):
             content=content
         )
         
-        # Create notification for receiver
         from users.utils import create_notification
         create_notification(
             user=receiver,
@@ -279,7 +263,6 @@ def send_message(request):
         messages.success(request, f"Message sent to {receiver.username}!")
         return redirect('inbox')
     
-    # GET request: show users list to message
     users = User.objects.exclude(id=request.user.id).filter(profile__is_suspended=False)
     return render(request, 'dashboard/send_message.html', {'users': users})
 

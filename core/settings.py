@@ -98,3 +98,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = '/users/login/'
+CSRF_TRUSTED_ORIGINS = ['https://skydemy-jeer.onrender.com']
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False  # optional, but ensures JavaScript can read the token if needed

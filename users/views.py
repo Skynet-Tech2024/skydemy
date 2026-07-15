@@ -6,15 +6,29 @@ from django.http import HttpResponse
 from .forms import RegisterForm
 
 def register(request):
+    import traceback
+    print("🔵 Registration view called")
     if request.method == 'POST':
-        form = RegisterForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
-        else:
-            print("❌ Registration form errors:", form.errors)
-            print("❌ Non-field errors:", form.non_field_errors())
+        print("🟡 POST request received")
+        try:
+            form = RegisterForm(request.POST, request.FILES)
+            print("🟡 Form created")
+            if form.is_valid():
+                print("🟢 Form is valid")
+                user = form.save()
+                print("🟢 User saved:", user.username)
+                login(request, user)
+                print("🟢 User logged in")
+                return redirect('home')
+            else:
+                print("❌ Form invalid:", form.errors)
+                print("❌ Non-field errors:", form.non_field_errors())
+        except Exception as e:
+            print("❌ Exception during registration:", str(e))
+            print(traceback.format_exc())
+            messages.error(request, "An error occurred during registration. Please try again.")
+            # Recreate the form with POST data to show errors
+            form = RegisterForm(request.POST, request.FILES)
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})def custom_login(request):

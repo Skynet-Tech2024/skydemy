@@ -28,13 +28,11 @@ def custom_login(request):
         if user is not None:
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
-            # Return debug page instead of redirect
-           return redirect('dashboard')
+            return redirect('dashboard')
         else:
             print("❌ Login failed")
             messages.error(request, 'Invalid username or password.')
     return render(request, 'users/login.html')
-
 def custom_logout(request):
     auth_logout(request)
     return redirect('login')

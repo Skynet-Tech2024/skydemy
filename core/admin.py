@@ -9,19 +9,19 @@ class SKYDEMYAdminSite(AdminSite):
     site_header = "SKYDEMY Admin"
     site_title = "SKYDEMY Admin"
     index_title = "Dashboard"
-def login(self, request, extra_context=None):
-    from django.contrib.admin.views import LoginView
-    return LoginView.as_view(template_name='admin/login.html')(request, extra_context=extra_context)
+
+    def login(self, request, extra_context=None):
+        from django.contrib.admin.views import LoginView
+        return LoginView.as_view(template_name='admin/login.html')(request, extra_context=extra_context)
 
     def get_app_list(self, request):
-        # This is the default app list
         app_list = super().get_app_list(request)
         return app_list
 
     def index(self, request, extra_context=None):
-        # Add statistics to the context
         extra_context = extra_context or {}
         extra_context['student_count'] = UserProfile.objects.filter(role='learner').count()
+        extra_context['teacher_count'] = UserProfile.objects.filter(role='teacher').count()
         extra_context['course_count'] = Course.objects.count()
         extra_context['exam_count'] = Exam.objects.count()
         extra_context['certificate_count'] = Certificate.objects.count()

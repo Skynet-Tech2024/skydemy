@@ -1,14 +1,15 @@
 /* ===== Django Admin Custom Styles ===== */
+/* Theme: Green, White, Gold */
 
 /* ----- Body Background ----- */
 body {
-    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 50%, #f0f4f8 100%) !important;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8f5e9 50%, #f0f4f8 100%) !important;
     min-height: 100vh !important;
 }
 
 /* ----- Header ----- */
 #header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%) !important;
+    background: linear-gradient(135deg, #1a2e1a 0%, #0f3a1f 50%, #1a4a2a 100%) !important;
     color: #fff !important;
     padding: 18px 30px !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
@@ -35,7 +36,7 @@ body {
     background: #fff !important;
     border-radius: 16px !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-    border: none !important;
+    border: 1px solid #e0e0e0 !important;
     padding: 0 !important;
     overflow: hidden !important;
     transition: transform 0.3s, box-shadow 0.3s !important;
@@ -47,38 +48,55 @@ body {
     box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
 }
 
-/* ----- Module Headers (Colored) ----- */
+/* ----- Module Headers (Colored) with Icons Spaced Properly ----- */
 .dashboard .module h2 {
     color: #fff !important;
     font-weight: 700 !important;
     font-size: 18px !important;
     padding: 14px 22px !important;
+    padding-left: 52px !important;
     margin: 0 !important;
     letter-spacing: 0.3px !important;
     border-bottom: none !important;
+    position: relative !important;
 }
 
-/* Authentication & Authorization - Blue */
+.dashboard .module h2::before {
+    position: absolute !important;
+    left: 18px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    color: rgba(255,255,255,0.9) !important;
+}
+
 .dashboard .module:first-child h2 {
-    background: linear-gradient(135deg, #3498db, #2980b9) !important;
-}
-
-/* Courses - Orange */
-.dashboard .module:nth-child(2) h2 {
-    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
-}
-
-/* Users - Green */
-.dashboard .module:nth-child(3) h2 {
     background: linear-gradient(135deg, #27ae60, #1e8449) !important;
 }
+.dashboard .module:first-child h2::before {
+    content: "🔐";
+}
 
-/* Module Table */
+.dashboard .module:nth-child(2) h2 {
+    background: linear-gradient(135deg, #f39c12, #d68910) !important;
+}
+.dashboard .module:nth-child(2) h2::before {
+    content: "📚";
+}
+
+.dashboard .module:nth-child(3) h2 {
+    background: linear-gradient(135deg, #2e86de, #1a5276) !important;
+}
+.dashboard .module:nth-child(3) h2::before {
+    content: "👥";
+}
+
+/* ----- Table Rows & Links (Add / Change) ----- */
 .dashboard .module table {
     width: 100% !important;
     border-collapse: collapse !important;
     background: transparent !important;
-    padding: 5px 0 !important;
 }
 
 .dashboard .module td, .dashboard .module th {
@@ -87,54 +105,50 @@ body {
     background: #fff !important;
 }
 
-.dashboard .module td:last-child, .dashboard .module th:last-child {
-    text-align: right !important;
-}
-
+/* Add & Change links - styled as small buttons with spacing */
 .dashboard .module td a {
-    color: #1a1a2e !important;
-    font-weight: 500 !important;
+    display: inline-block !important;
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
     text-decoration: none !important;
-    transition: color 0.2s !important;
-    padding: 4px 0 !important;
-}
-
-.dashboard .module td a:hover {
-    color: #f39c12 !important;
+    transition: all 0.2s !important;
+    margin: 2px 4px !important;
+    font-size: 13px !important;
 }
 
 .dashboard .module td a.addlink {
-    color: #27ae60 !important;
-    font-weight: 600 !important;
+    background: #27ae60 !important;
+    color: #fff !important;
 }
-
 .dashboard .module td a.addlink:hover {
-    color: #1e8449 !important;
+    background: #1e8449 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39,174,96,0.3);
 }
 
 .dashboard .module td a.changelink {
-    color: #3498db !important;
-    font-weight: 600 !important;
+    background: #2e86de !important;
+    color: #fff !important;
 }
-
 .dashboard .module td a.changelink:hover {
-    color: #2980b9 !important;
+    background: #1a5276 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46,134,222,0.3);
 }
 
-/* Module Icons */
-.dashboard .module:first-child h2::before {
-    content: "🔐 ";
+.dashboard .module td a:not(.addlink):not(.changelink) {
+    background: transparent !important;
+    color: #1a1a2e !important;
+    padding: 6px 0 !important;
 }
-.dashboard .module:nth-child(2) h2::before {
-    content: "📚 ";
-}
-.dashboard .module:nth-child(3) h2::before {
-    content: "👥 ";
+.dashboard .module td a:not(.addlink):not(.changelink):hover {
+    color: #f39c12 !important;
 }
 
 /* ----- Buttons ----- */
 .button, input[type="submit"], .submit-row input {
-    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    background: linear-gradient(135deg, #f39c12, #d68910) !important;
     border: none !important;
     border-radius: 8px !important;
     color: #1a1a2e !important;
@@ -162,7 +176,7 @@ body {
 
 /* ----- Object Tools ----- */
 .object-tools a {
-    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    background: linear-gradient(135deg, #f39c12, #d68910) !important;
     color: #1a1a2e !important;
     border-radius: 8px !important;
     font-weight: 700 !important;
@@ -202,12 +216,12 @@ a:hover {
     border-radius: 16px !important;
     padding: 25px !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.04) !important;
-    border: none !important;
+    border: 1px solid #e0e0e0 !important;
 }
 
 /* ----- Footer ----- */
 #footer {
-    background: #1a1a2e !important;
+    background: #1a2e1a !important;
     color: #aaa !important;
     padding: 18px 25px !important;
     text-align: center !important;
@@ -233,8 +247,17 @@ a:hover {
     .dashboard .module h2 {
         font-size: 15px !important;
         padding: 12px 16px !important;
+        padding-left: 44px !important;
+    }
+    .dashboard .module h2::before {
+        left: 14px !important;
+        font-size: 18px !important;
     }
     .dashboard .module td, .dashboard .module th {
         padding: 8px 14px !important;
+    }
+    .dashboard .module td a {
+        padding: 4px 10px !important;
+        font-size: 12px !important;
     }
 }

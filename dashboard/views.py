@@ -8,16 +8,37 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate
 from django.views.decorators.cache import never_cache
+from courses.models import Course, Exam, Certificate
+from users.models import UserProfile
 
 def home(request):
     # If user is already authenticated, redirect to dashboard or admin
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            return redirect('/admin/')
+            # For admin users, render the custom admin dashboard
+            # Add statistics
+            student_count = UserProfile.objects.filter(role='learner').count()
+            course_count = Course.objects.count()
+            exam_count = Exam.objects.count()
+            certificate_count = Certificate.objects.count()
+            
+            from django.contrib.admin import AdminSite
+            from django.contrib.admin.views.decorators import staff_member_required
+            from django.contrib.admin.models import LogEntry
+            
+            # Get recent actions
+            recent_actions = LogEntry.objects.select_related('user', 'content_type')[:10]
+            
+            context = {
+                'student_count': student_count,
+                'course_count': course_count,
+                'exam_count': exam_count,
+                'certificate_count': certificate_count,
+                'recent_actions': recent_actions,
+            }
+            return render(request, 'admin/index.html', context)
         return redirect('dashboard')
-    # Otherwise show the landing page
     return render(request, 'dashboard/landing.html')
-
 @login_required
 def dashboard(request):
     user = request.user

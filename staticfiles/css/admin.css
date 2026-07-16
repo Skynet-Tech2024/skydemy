@@ -1,0 +1,240 @@
+/* ===== Django Admin Custom Styles ===== */
+
+/* ----- Body Background ----- */
+body {
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 50%, #f0f4f8 100%) !important;
+    min-height: 100vh !important;
+}
+
+/* ----- Header ----- */
+#header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%) !important;
+    color: #fff !important;
+    padding: 18px 30px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+    border-bottom: 3px solid #f39c12 !important;
+}
+
+#header h1 {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+}
+
+#header a {
+    color: #f39c12 !important;
+    transition: color 0.3s !important;
+}
+
+#header a:hover {
+    color: #fff !important;
+}
+
+/* ----- Dashboard Modules (Colored Cards) ----- */
+.dashboard .module {
+    background: #fff !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+    border: none !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    transition: transform 0.3s, box-shadow 0.3s !important;
+    margin-bottom: 25px !important;
+}
+
+.dashboard .module:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
+}
+
+/* ----- Module Headers (Colored) ----- */
+.dashboard .module h2 {
+    color: #fff !important;
+    font-weight: 700 !important;
+    font-size: 18px !important;
+    padding: 14px 22px !important;
+    margin: 0 !important;
+    letter-spacing: 0.3px !important;
+    border-bottom: none !important;
+}
+
+/* Authentication & Authorization - Blue */
+.dashboard .module:first-child h2 {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+}
+
+/* Courses - Orange */
+.dashboard .module:nth-child(2) h2 {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+}
+
+/* Users - Green */
+.dashboard .module:nth-child(3) h2 {
+    background: linear-gradient(135deg, #27ae60, #1e8449) !important;
+}
+
+/* Module Table */
+.dashboard .module table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: transparent !important;
+    padding: 5px 0 !important;
+}
+
+.dashboard .module td, .dashboard .module th {
+    padding: 10px 22px !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    background: #fff !important;
+}
+
+.dashboard .module td:last-child, .dashboard .module th:last-child {
+    text-align: right !important;
+}
+
+.dashboard .module td a {
+    color: #1a1a2e !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: color 0.2s !important;
+    padding: 4px 0 !important;
+}
+
+.dashboard .module td a:hover {
+    color: #f39c12 !important;
+}
+
+.dashboard .module td a.addlink {
+    color: #27ae60 !important;
+    font-weight: 600 !important;
+}
+
+.dashboard .module td a.addlink:hover {
+    color: #1e8449 !important;
+}
+
+.dashboard .module td a.changelink {
+    color: #3498db !important;
+    font-weight: 600 !important;
+}
+
+.dashboard .module td a.changelink:hover {
+    color: #2980b9 !important;
+}
+
+/* Module Icons */
+.dashboard .module:first-child h2::before {
+    content: "🔐 ";
+}
+.dashboard .module:nth-child(2) h2::before {
+    content: "📚 ";
+}
+.dashboard .module:nth-child(3) h2::before {
+    content: "👥 ";
+}
+
+/* ----- Buttons ----- */
+.button, input[type="submit"], .submit-row input {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: #1a1a2e !important;
+    font-weight: 700 !important;
+    padding: 10px 24px !important;
+    transition: all 0.3s !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(243,156,18,0.3) !important;
+}
+
+.button:hover, input[type="submit"]:hover, .submit-row input:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(243,156,18,0.4) !important;
+}
+
+.button.default, input[type="submit"].default {
+    background: linear-gradient(135deg, #27ae60, #1e8449) !important;
+    box-shadow: 0 4px 12px rgba(39,174,96,0.3) !important;
+    color: #fff !important;
+}
+
+.button.default:hover, input[type="submit"].default:hover {
+    background: linear-gradient(135deg, #1e8449, #145a32) !important;
+}
+
+/* ----- Object Tools ----- */
+.object-tools a {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    color: #1a1a2e !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    padding: 8px 18px !important;
+    box-shadow: 0 4px 12px rgba(243,156,18,0.25) !important;
+    transition: all 0.3s !important;
+}
+
+.object-tools a:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(243,156,18,0.35) !important;
+}
+
+/* ----- Links ----- */
+a:link, a:visited {
+    color: #3498db !important;
+    transition: color 0.2s !important;
+}
+
+a:hover {
+    color: #f39c12 !important;
+}
+
+/* ----- Breadcrumbs ----- */
+.breadcrumbs {
+    background: rgba(255,255,255,0.85) !important;
+    backdrop-filter: blur(10px) !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+    padding: 12px 25px !important;
+    font-size: 14px !important;
+    border-radius: 0 !important;
+}
+
+/* ----- Change List ----- */
+#changelist {
+    background: #fff !important;
+    border-radius: 16px !important;
+    padding: 25px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04) !important;
+    border: none !important;
+}
+
+/* ----- Footer ----- */
+#footer {
+    background: #1a1a2e !important;
+    color: #aaa !important;
+    padding: 18px 25px !important;
+    text-align: center !important;
+    border-top: 3px solid #f39c12 !important;
+    font-size: 14px !important;
+}
+
+#footer a {
+    color: #f39c12 !important;
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 768px) {
+    #header {
+        padding: 12px 15px !important;
+    }
+    #header h1 {
+        font-size: 20px !important;
+    }
+    .dashboard .module {
+        border-radius: 12px !important;
+    }
+    .dashboard .module h2 {
+        font-size: 15px !important;
+        padding: 12px 16px !important;
+    }
+    .dashboard .module td, .dashboard .module th {
+        padding: 8px 14px !important;
+    }
+}

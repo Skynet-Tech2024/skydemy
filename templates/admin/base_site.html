@@ -1,4 +1,4 @@
-{% extends "admin/index.html" %}
+{% extends "admin/base_site.html" %}
 {% load i18n static %}
 
 {% block extrahead %}
@@ -11,8 +11,18 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
 
-        body {
-            background: #F8FAFC !important;
+        /* ----- Global Background with embedded SVG ----- */
+        html, body {
+            background:
+                linear-gradient(
+                    rgba(248, 250, 252, 0.92),
+                    rgba(248, 250, 252, 0.92)
+                ),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='800' viewBox='0 0 1000 800'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%232563EB;stop-opacity:0.06'/%3E%3Cstop offset='50%25' style='stop-color:%2316A34A;stop-opacity:0.04'/%3E%3Cstop offset='100%25' style='stop-color:%232563EB;stop-opacity:0.06'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1000' height='800' fill='url(%23g)'/%3E%3Cg stroke='%232563EB' stroke-width='1' stroke-opacity='0.08' fill='none'%3E%3Cpolygon points='50,0 100,43.3 100,129.9 50,173.2 0,129.9 0,43.3'/%3E%3Cpolygon points='150,0 200,43.3 200,129.9 150,173.2 100,129.9 100,43.3'/%3E%3Cpolygon points='250,0 300,43.3 300,129.9 250,173.2 200,129.9 200,43.3'/%3E%3Cpolygon points='350,0 400,43.3 400,129.9 350,173.2 300,129.9 300,43.3'/%3E%3Cpolygon points='450,0 500,43.3 500,129.9 450,173.2 400,129.9 400,43.3'/%3E%3Cpolygon points='550,0 600,43.3 600,129.9 550,173.2 500,129.9 500,43.3'/%3E%3Cpolygon points='650,0 700,43.3 700,129.9 650,173.2 600,129.9 600,43.3'/%3E%3Cpolygon points='750,0 800,43.3 800,129.9 750,173.2 700,129.9 700,43.3'/%3E%3Cpolygon points='850,0 900,43.3 900,129.9 850,173.2 800,129.9 800,43.3'/%3E%3Cpolygon points='950,0 1000,43.3 1000,129.9 950,173.2 900,129.9 900,43.3'/%3E%3Cpolygon points='100,0 150,43.3 150,129.9 100,173.2 50,129.9 50,43.3'/%3E%3Cpolygon points='200,0 250,43.3 250,129.9 200,173.2 150,129.9 150,43.3'/%3E%3Cpolygon points='300,0 350,43.3 350,129.9 300,173.2 250,129.9 250,43.3'/%3E%3Cpolygon points='400,0 450,43.3 450,129.9 400,173.2 350,129.9 350,43.3'/%3E%3Cpolygon points='500,0 550,43.3 550,129.9 500,173.2 450,129.9 450,43.3'/%3E%3Cpolygon points='600,0 650,43.3 650,129.9 600,173.2 550,129.9 550,43.3'/%3E%3Cpolygon points='700,0 750,43.3 750,129.9 700,173.2 650,129.9 650,43.3'/%3E%3Cpolygon points='800,0 850,43.3 850,129.9 800,173.2 750,129.9 750,43.3'/%3E%3Cpolygon points='900,0 950,43.3 950,129.9 900,173.2 850,129.9 850,43.3'/%3E%3C/g%3E%3Cg fill='%232563EB' fill-opacity='0.12'%3E%3Ccircle cx='100' cy='86.6' r='6'/%3E%3Ccircle cx='250' cy='86.6' r='8'/%3E%3Ccircle cx='400' cy='86.6' r='6'/%3E%3Ccircle cx='550' cy='86.6' r='8'/%3E%3Ccircle cx='700' cy='86.6' r='6'/%3E%3Ccircle cx='850' cy='86.6' r='8'/%3E%3Ccircle cx='50' cy='173.2' r='5'/%3E%3Ccircle cx='200' cy='173.2' r='7'/%3E%3Ccircle cx='350' cy='173.2' r='5'/%3E%3Ccircle cx='500' cy='173.2' r='7'/%3E%3Ccircle cx='650' cy='173.2' r='5'/%3E%3Ccircle cx='800' cy='173.2' r='7'/%3E%3Ccircle cx='950' cy='173.2' r='5'/%3E%3Ccircle cx='150' cy='259.8' r='6'/%3E%3Ccircle cx='300' cy='259.8' r='8'/%3E%3Ccircle cx='450' cy='259.8' r='6'/%3E%3Ccircle cx='600' cy='259.8' r='8'/%3E%3Ccircle cx='750' cy='259.8' r='6'/%3E%3Ccircle cx='900' cy='259.8' r='8'/%3E%3C/g%3E%3Cg stroke='%2316A34A' stroke-width='1' stroke-opacity='0.06'%3E%3Cline x1='100' y1='86.6' x2='50' y2='173.2'/%3E%3Cline x1='250' y1='86.6' x2='200' y2='173.2'/%3E%3Cline x1='400' y1='86.6' x2='350' y2='173.2'/%3E%3Cline x1='550' y1='86.6' x2='500' y2='173.2'/%3E%3Cline x1='700' y1='86.6' x2='650' y2='173.2'/%3E%3Cline x1='850' y1='86.6' x2='800' y2='173.2'/%3E%3C/g%3E%3Cg fill='%2316A34A' fill-opacity='0.08'%3E%3Ccircle cx='320' cy='420' r='3'/%3E%3Ccircle cx='680' cy='350' r='4'/%3E%3Ccircle cx='150' cy='500' r='3'/%3E%3Ccircle cx='850' cy='450' r='4'/%3E%3Ccircle cx='500' cy='600' r='5'/%3E%3Ccircle cx='200' cy='680' r='3'/%3E%3Ccircle cx='750' cy='550' r='4'/%3E%3Ccircle cx='420' cy='700' r='3'/%3E%3Ccircle cx='600' cy='450' r='4'/%3E%3Ccircle cx='900' cy='650' r='3'/%3E%3Ccircle cx='100' cy='350' r='4'/%3E%3Ccircle cx='780' cy='680' r='3'/%3E%3C/g%3E%3Cpath d='M0,300 Q200,280 400,300 T800,300 T1000,300' stroke='%232563EB' stroke-width='0.5' stroke-opacity='0.04' fill='none'/%3E%3Cpath d='M0,400 Q200,380 400,400 T800,400 T1000,400' stroke='%2316A34A' stroke-width='0.5' stroke-opacity='0.04' fill='none'/%3E%3Cpath d='M0,500 Q200,480 400,500 T800,500 T1000,500' stroke='%232563EB' stroke-width='0.5' stroke-opacity='0.04' fill='none'/%3E%3Cg stroke='%232563EB' stroke-width='1' stroke-opacity='0.04' fill='none'%3E%3Cpolygon points='50,346.4 100,389.7 100,476.3 50,519.6 0,476.3 0,389.7'/%3E%3Cpolygon points='150,346.4 200,389.7 200,476.3 150,519.6 100,476.3 100,389.7'/%3E%3Cpolygon points='250,346.4 300,389.7 300,476.3 250,519.6 200,476.3 200,389.7'/%3E%3Cpolygon points='350,346.4 400,389.7 400,476.3 350,519.6 300,476.3 300,389.7'/%3E%3C/g%3E%3Cg stroke='%2316A34A' stroke-width='0.5' stroke-opacity='0.03'%3E%3Cline x1='100' y1='0' x2='100' y2='800'/%3E%3Cline x1='300' y1='0' x2='300' y2='800'/%3E%3Cline x1='500' y1='0' x2='500' y2='800'/%3E%3Cline x1='700' y1='0' x2='700' y2='800'/%3E%3Cline x1='900' y1='0' x2='900' y2='800'/%3E%3C/g%3E%3C/svg%3E") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+            min-height: 100vh !important;
         }
 
         /* ----- Header (Dark Navy) ----- */
@@ -53,23 +63,28 @@
             max-width: 1400px !important;
             margin: 0 auto !important;
             padding: 30px !important;
+            background: transparent !important;
         }
 
-        /* ----- Statistics Cards Row ----- */
+        /* ----- Statistics Cards – 5 columns ----- */
         .stats-grid {
             display: grid !important;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+            grid-template-columns: repeat(5, 1fr) !important;
             gap: 20px !important;
             margin-bottom: 35px !important;
+            width: 100% !important;
         }
 
         .stat-card {
-            background: #fff !important;
-            border-radius: 16px !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 18px !important;
             padding: 20px 24px !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
-            border: 1px solid #E5E7EB !important;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
             transition: transform 0.2s, box-shadow 0.2s !important;
+            text-align: center !important;
         }
         .stat-card:hover {
             transform: translateY(-2px) !important;
@@ -98,6 +113,7 @@
         .stat-card.blue .stat-number { color: #2563EB !important; }
         .stat-card.gold .stat-number { color: #F59E0B !important; }
         .stat-card.purple .stat-number { color: #8B5CF6 !important; }
+        .stat-card.teal .stat-number { color: #0D9488 !important; }
 
         /* ----- Quick Actions ----- */
         .quick-actions {
@@ -117,8 +133,9 @@
             font-size: 14px !important;
             text-decoration: none !important;
             transition: 0.2s !important;
-            background: #fff !important;
-            border: 1px solid #E5E7EB !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(4px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
             color: #1E293B !important;
             box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
         }
@@ -144,12 +161,14 @@
             background: #1D4ED8 !important;
         }
 
-        /* ----- Module Cards ----- */
+        /* ----- Module Cards (glass effect) ----- */
         .dashboard .module {
-            background: #fff !important;
-            border-radius: 16px !important;
-            border: 1px solid #E5E7EB !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
             overflow: hidden !important;
             margin-bottom: 24px !important;
             transition: box-shadow 0.2s !important;
@@ -159,13 +178,13 @@
         }
 
         .dashboard .module h2 {
-            background: #F8FAFC !important;
+            background: rgba(248, 250, 252, 0.6) !important;
             color: #0F172A !important;
             font-size: 18px !important;
             font-weight: 700 !important;
             padding: 14px 24px !important;
             margin: 0 !important;
-            border-bottom: 1px solid #E5E7EB !important;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.3) !important;
             display: flex !important;
             align-items: center !important;
             gap: 10px !important;
@@ -174,7 +193,7 @@
             font-size: 22px !important;
         }
         .dashboard .module h2 .module-badge {
-            background: #E5E7EB !important;
+            background: rgba(229, 231, 235, 0.6) !important;
             color: #475569 !important;
             font-size: 12px !important;
             font-weight: 600 !important;
@@ -189,7 +208,7 @@
         }
         .dashboard .module td {
             padding: 10px 24px !important;
-            border-bottom: 1px solid #F1F5F9 !important;
+            border-bottom: 1px solid rgba(241, 245, 249, 0.4) !important;
             font-size: 14px !important;
         }
         .dashboard .module td:last-child {
@@ -244,7 +263,7 @@
             align-items: center !important;
             gap: 12px !important;
             padding: 10px 24px !important;
-            border-bottom: 1px solid #F1F5F9 !important;
+            border-bottom: 1px solid rgba(241, 245, 249, 0.4) !important;
             font-size: 14px !important;
         }
         .recent-actions-list li .action-icon {
@@ -260,9 +279,15 @@
         }
 
         /* ----- Responsive ----- */
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 12px !important;
             }
             .stat-card {
@@ -286,6 +311,13 @@
         @media (max-width: 480px) {
             .stats-grid {
                 grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+            }
+            .stat-card .stat-number {
+                font-size: 18px !important;
+            }
+            .stat-card .stat-label {
+                font-size: 12px !important;
             }
             .dashboard .module td {
                 padding: 8px 14px !important;
@@ -302,24 +334,29 @@
 {% block content %}
     <div id="content-main">
 
-        <!-- ===== STATISTICS CARDS ===== -->
+        <!-- ===== STATISTICS CARDS – 5 columns ===== -->
         <div class="stats-grid">
             <div class="stat-card green">
                 <span class="stat-icon">👨‍🎓</span>
                 <div class="stat-number">{{ student_count|default:"0" }}</div>
                 <div class="stat-label">Students</div>
             </div>
+            <div class="stat-card gold">
+                <span class="stat-icon">👨‍🏫</span>
+                <div class="stat-number">{{ teacher_count|default:"0" }}</div>
+                <div class="stat-label">Teachers</div>
+            </div>
             <div class="stat-card blue">
                 <span class="stat-icon">📚</span>
                 <div class="stat-number">{{ course_count|default:"0" }}</div>
                 <div class="stat-label">Courses</div>
             </div>
-            <div class="stat-card gold">
+            <div class="stat-card purple">
                 <span class="stat-icon">📝</span>
                 <div class="stat-number">{{ exam_count|default:"0" }}</div>
                 <div class="stat-label">Exams</div>
             </div>
-            <div class="stat-card purple">
+            <div class="stat-card teal">
                 <span class="stat-icon">🏆</span>
                 <div class="stat-number">{{ certificate_count|default:"0" }}</div>
                 <div class="stat-label">Certificates</div>
@@ -329,6 +366,7 @@
         <!-- ===== QUICK ACTIONS ===== -->
         <div class="quick-actions">
             <a href="/admin/users/userprofile/add/" class="primary">➕ Add Student</a>
+            <a href="/admin/users/userprofile/add/" class="primary">➕ Add Teacher</a>
             <a href="/admin/courses/course/add/" class="blue">📚 Add Course</a>
             <a href="/admin/courses/exam/add/" class="blue">📝 Create Exam</a>
             <a href="/admin/courses/certificate/add/" class="blue">🏆 Issue Certificate</a>

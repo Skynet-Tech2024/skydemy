@@ -1,71 +1,28 @@
-from django.urls import resolve
-from django.shortcuts import get_object_or_404
-from courses.models import Lesson, Subject, Course
+import sys
+from users.models import UserProfile
+from courses.models import Course, Exam, Certificate
 
-def breadcrumbs(request):
-    """
-    Build breadcrumb navigation based on the current URL path.
-    Returns a list of dicts with 'name' and 'url' keys.
-    """
-    path = request.path
-    breadcrumbs = []
+def admin_stats(request):
+    print("CONTEXT PROCESSOR: admin_stats called", file=sys.stderr)
+    sys.stderr.flush()
     
-    # Always start with Home
-    breadcrumbs.append({'name': '🏠 Home', 'url': '/'})
+    # Only for admin pages
+    if not request.path.startswith('/admin/'):
+        return {}
     
-    # Match URL patterns and build breadcrumbs
-    if path == '/':
-        pass  # Already on home
+    student_count = UserProfile.objects.filter(role='learner').count()
+    teacher_count = UserProfile.objects.filter(role='teacher').count()
+    course_count = Course.objects.count()
+    exam_count = Exam.objects.count()
+    certificate_count = Certificate.objects.count()
     
-    elif path.startswith('/dashboard/'):
-        breadcrumbs.append({'name': '📊 Dashboard', 'url': '/dashboard/'})
+    print(f"CONTEXT PROCESSOR: student={student_count}, teacher={teacher_count}", file=sys.stderr)
+    sys.stderr.flush()
     
-    elif path.startswith('/profile/'):
-        breadcrumbs.append({'name': '👤 Profile', 'url': '/profile/'})
-    
-    elif path.startswith('/courses/upload/'):
-        breadcrumbs.append({'name': '📚 Lessons', 'url': '/courses/'})
-        breadcrumbs.append({'name': '📤 Upload Lesson', 'url': path})
-    
-    elif path.startswith('/courses/add-subject/'):
-        breadcrumbs.append({'name': '📚 Lessons', 'url': '/courses/'})
-        breadcrumbs.append({'name': '➕ Add Subject', 'url': path})
-    
-    elif path.startswith('/courses/lesson/'):
-        # Extract lesson ID
-        parts = path.split('/')
-        try:
-            lesson_id = int(parts[3])
-            lesson = get_object_or_404(Lesson, id=lesson_id)
-            breadcrumbs.append({'name': '📚 Lessons', 'url': '/courses/'})
-            
-            # Check if it's add-exam or take-exam
-            if len(parts) > 4:
-                if parts[4] == 'add-exam':
-                    breadcrumbs.append({'name': lesson.title, 'url': f'/courses/lesson/{lesson_id}/'})
-                    breadcrumbs.append({'name': '📝 Add Exam', 'url': path})
-                elif parts[4] == 'take-exam':
-                    breadcrumbs.append({'name': lesson.title, 'url': f'/courses/lesson/{lesson_id}/'})
-                    breadcrumbs.append({'name': '📝 Take Exam', 'url': path})
-                else:
-                    breadcrumbs.append({'name': lesson.title, 'url': path})
-            else:
-                breadcrumbs.append({'name': lesson.title, 'url': path})
-        except (ValueError, IndexError):
-            breadcrumbs.append({'name': '📚 Lessons', 'url': '/courses/'})
-            breadcrumbs.append({'name': 'Lesson', 'url': path})
-    
-    elif path.startswith('/courses/'):
-        breadcrumbs.append({'name': '📚 All Lessons', 'url': '/courses/'})
-    
-    elif path.startswith('/users/register/'):
-        breadcrumbs.append({'name': '📝 Register', 'url': path})
-    
-    elif path.startswith('/users/login/'):
-        breadcrumbs.append({'name': '🔑 Login', 'url': path})
-    
-    elif path.startswith('/admin/'):
-        breadcrumbs = []  # No breadcrumbs in admin
-        breadcrumbs.append({'name': '🔒 Admin', 'url': '/admin/'})
-    
-    return {'breadcrumbs': breadcrumbs}
+    return {
+        'student_count': student_count,
+        'teacher_count': teacher_count,
+        'course_count': course_count,
+        'exam_count': exam_count,
+        'certificate_count': certificate_count,
+    }

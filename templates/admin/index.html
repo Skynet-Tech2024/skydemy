@@ -55,12 +55,13 @@
             padding: 30px !important;
         }
 
-        /* ----- Statistics Cards Row ----- */
+        /* ----- Statistics Cards Row – full width, 5 columns ----- */
         .stats-grid {
             display: grid !important;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+            grid-template-columns: repeat(5, 1fr) !important;
             gap: 20px !important;
             margin-bottom: 35px !important;
+            width: 100% !important;
         }
 
         .stat-card {
@@ -70,6 +71,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
             border: 1px solid #E5E7EB !important;
             transition: transform 0.2s, box-shadow 0.2s !important;
+            text-align: center !important;
         }
         .stat-card:hover {
             transform: translateY(-2px) !important;
@@ -98,6 +100,7 @@
         .stat-card.blue .stat-number { color: #2563EB !important; }
         .stat-card.gold .stat-number { color: #F59E0B !important; }
         .stat-card.purple .stat-number { color: #8B5CF6 !important; }
+        .stat-card.teal .stat-number { color: #0D9488 !important; }
 
         /* ----- Quick Actions ----- */
         .quick-actions {
@@ -260,9 +263,15 @@
         }
 
         /* ----- Responsive ----- */
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 12px !important;
             }
             .stat-card {
@@ -286,6 +295,13 @@
         @media (max-width: 480px) {
             .stats-grid {
                 grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+            }
+            .stat-card .stat-number {
+                font-size: 18px !important;
+            }
+            .stat-card .stat-label {
+                font-size: 12px !important;
             }
             .dashboard .module td {
                 padding: 8px 14px !important;
@@ -302,29 +318,29 @@
 {% block content %}
     <div id="content-main">
 
-        <!-- ===== STATISTICS CARDS ===== -->
+        <!-- ===== STATISTICS CARDS – Full width, 5 columns ===== -->
         <div class="stats-grid">
             <div class="stat-card green">
                 <span class="stat-icon">👨‍🎓</span>
                 <div class="stat-number">{{ student_count|default:"0" }}</div>
                 <div class="stat-label">Students</div>
             </div>
-<div class="stat-card gold">
-    <span class="stat-icon">👨‍🏫</span>
-    <div class="stat-number">{{ teacher_count|default:"0" }}</div>
-    <div class="stat-label">Teachers</div>
-</div>
+            <div class="stat-card gold">
+                <span class="stat-icon">👨‍🏫</span>
+                <div class="stat-number">{{ teacher_count|default:"0" }}</div>
+                <div class="stat-label">Teachers</div>
+            </div>
             <div class="stat-card blue">
                 <span class="stat-icon">📚</span>
                 <div class="stat-number">{{ course_count|default:"0" }}</div>
                 <div class="stat-label">Courses</div>
             </div>
-            <div class="stat-card gold">
+            <div class="stat-card purple">
                 <span class="stat-icon">📝</span>
                 <div class="stat-number">{{ exam_count|default:"0" }}</div>
                 <div class="stat-label">Exams</div>
             </div>
-            <div class="stat-card purple">
+            <div class="stat-card teal">
                 <span class="stat-icon">🏆</span>
                 <div class="stat-number">{{ certificate_count|default:"0" }}</div>
                 <div class="stat-label">Certificates</div>
@@ -334,6 +350,7 @@
         <!-- ===== QUICK ACTIONS ===== -->
         <div class="quick-actions">
             <a href="/admin/users/userprofile/add/" class="primary">➕ Add Student</a>
+            <a href="/admin/users/userprofile/add/" class="primary">➕ Add Teacher</a>
             <a href="/admin/courses/course/add/" class="blue">📚 Add Course</a>
             <a href="/admin/courses/exam/add/" class="blue">📝 Create Exam</a>
             <a href="/admin/courses/certificate/add/" class="blue">🏆 Issue Certificate</a>

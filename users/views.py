@@ -11,13 +11,25 @@ def register(request):
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                user = form.save()
+                # Save the user but do NOT log them in
+                user = form.save(commit=False)
+                # Optionally mark account as inactive until review
+                # user.is_active = False   # uncomment if you have this field
+                user.save()
                 print(f"🟢 User saved: {user.username}")
-                login(request, user)
-                print("🟢 User logged in")
-                return redirect('home')
+
+                # ** NEW: Add the pending review message **
+                messages.success(
+                    request,
+                    "Your account is under review by our professional team. "
+                    "Thank you for your patience. Review typically takes about 24 hours."
+                )
+
+                # Redirect to login page (or a dedicated 'pending' page)
+                return redirect('login')  # 'login' should be the name of your login URL
+
             except Exception as e:
-                print(f"❌ Exception during save/login: {e}")
+                print(f"❌ Exception during save: {e}")
                 import traceback
                 traceback.print_exc()
                 messages.error(request, f"An error occurred: {e}")
@@ -31,6 +43,8 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})
+
+# The rest of your views (custom_login, custom_logout, CustomLoginView) remain unchanged
 
 def custom_login(request):
     print("🔵 Login view called")

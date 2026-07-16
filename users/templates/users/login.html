@@ -3,68 +3,34 @@
 {% block title %}Login - SKYDEMY{% endblock %}
 
 {% block content %}
-<div style="max-width: 480px; margin: 0 auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #f39c12;">
-    <h2 style="text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 5px;">Welcome Back</h2>
-    <p style="text-align: center; color: #666; font-size: 15px; margin-bottom: 25px;">Login to your SKYDEMY account</p>
-    
-    <!-- Display error messages -->
-    {% if form.errors %}
-        <div style="background: #fde8e8; padding: 12px 16px; border-radius: 6px; color: #c0392b; margin-bottom: 20px; border-left: 4px solid #e74c3c;">
-            <strong>⚠️ Invalid login credentials.</strong> Please check your username and password and try again.
-        </div>
-    {% endif %}
-    
-    <!-- Display Django messages (e.g., from logout) -->
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding: 10px; border-radius: 6px; margin-bottom: 15px; background: #d4edda; color: #155724; border-left: 4px solid #28a745;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-    
-    <form method="post">
-        {% csrf_token %}
-        
-        <div style="margin-bottom: 18px;">
-            <label for="id_username" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Username
-            </label>
-            <div style="position: relative;">
-                <input type="text" name="username" id="id_username" 
-                       class="form-control" placeholder="Enter your username" 
-                       style="width:100%; padding:12px 14px 12px 44px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" 
-                       required>
-                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px;">👤</span>
-            </div>
-        </div>
-        
-        <div style="margin-bottom: 25px;">
-            <label for="id_password" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Password
-            </label>
-            <div style="position: relative;">
-                <input type="password" name="password" id="id_password" 
-                       class="form-control" placeholder="Enter your password" 
-                       style="width:100%; padding:12px 14px 12px 44px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" 
-                       required>
-                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px;">🔒</span>
-                <!-- Eye icon to toggle password visibility -->
-                <span id="eye-icon" onclick="togglePassword()" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:20px; cursor:pointer; color:#888; user-select:none;">👁️</span>
-            </div>
-        </div>
-        
-        <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);">
-            🔑 Login
-        </button>
-    </form>
-    
-    <p style="text-align: center; margin-top: 20px; color: #666; font-size: 15px;">
-        Don't have an account? <a href="{% url 'register' %}" style="color: #f39c12; text-decoration: none; font-weight: 600;">Register</a>
-    </p>
-</div>
-
+<!-- Override body background for this page -->
 <style>
+    body {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #1E3A5F 60%, #0F172A 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh !important;
+    }
+    .main-content {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    /* Glass effect for the login card */
+    .login-container {
+        max-width: 480px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.92) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+        padding: 35px !important;
+        animation: fadeInUp 0.6s ease;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
     .form-control {
         width: 100%;
         padding: 12px 14px 12px 44px;
@@ -89,21 +55,122 @@
         color: #aaa;
         font-weight: 300;
     }
+    .input-wrapper {
+        position: relative;
+    }
+    .input-wrapper .input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: #94a3b8;
+        pointer-events: none;
+    }
+    .password-toggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #94a3b8;
+        padding: 4px;
+        transition: color 0.2s;
+    }
+    .password-toggle:hover {
+        color: #1E293B;
+    }
+    /* Error messages */
+    .errornote {
+        background: #FEE2E2;
+        color: #991B1B;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border-left: 4px solid #EF4444;
+        font-size: 14px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .errornote::before {
+        content: "⚠️";
+        font-size: 18px;
+    }
 </style>
 
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh; padding: 20px;">
+    <div class="login-container">
+        <h2 style="text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 5px;">Welcome Back</h2>
+        <p style="text-align: center; color: #666; font-size: 15px; margin-bottom: 25px;">Login to your SKYDEMY account</p>
+
+        <!-- Display error messages -->
+        {% if form.errors %}
+            <div class="errornote">
+                <strong>⚠️ Invalid login credentials.</strong> Please check your username and password and try again.
+            </div>
+        {% endif %}
+
+        <!-- Display Django messages (e.g., from logout) -->
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 10px; border-radius: 6px; margin-bottom: 15px; background: #d4edda; color: #155724; border-left: 4px solid #28a745;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 18px;">
+                <label for="id_username" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
+                    Username
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-icon">👤</span>
+                    <input type="text" name="username" id="id_username" class="form-control" placeholder="Enter your username" required>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label for="id_password" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
+                    Password
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" name="password" id="id_password" class="form-control" placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" id="togglePassword" aria-label="Show/hide password">
+                        👁️
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);">
+                🔑 Login
+            </button>
+        </form>
+
+        <p style="text-align: center; margin-top: 20px; color: #666; font-size: 15px;">
+            Don't have an account? <a href="{% url 'register' %}" style="color: #f39c12; text-decoration: none; font-weight: 600;">Register</a>
+        </p>
+    </div>
+</div>
+
 <script>
-    function togglePassword() {
-        var input = document.getElementById('id_password');
-        var eye = document.getElementById('eye-icon');
-        if (input) {
-            if (input.type === 'password') {
-                input.type = 'text';
-                eye.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                eye.textContent = '👁️';
-            }
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        var passwordInput = document.getElementById('id_password');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            this.textContent = '👁️';
         }
-    }
+    });
 </script>
 {% endblock %}

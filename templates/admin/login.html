@@ -5,26 +5,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* ============================================================
-           SKYDEMY LOGIN PAGE – Dark Gradient Background + Glass Card
+           SKYDEMY LOGIN PAGE – Card only (background from base_site)
            ============================================================ */
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #1E3A5F 60%, #0F172A 100%) !important;
-            background-size: cover !important;
-            background-position: center !important;
-            background-attachment: fixed !important;
-            min-height: 100vh !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            margin: 0 !important;
-            padding: 20px !important;
         }
 
         /* Hide Django's default header */
@@ -38,20 +25,15 @@
             max-width: 420px;
             margin: 0 auto;
             animation: fadeInUp 0.6s ease;
+            padding: 20px;
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Login Card – Glass effect on dark background */
+        /* Login Card – Glass effect */
         .login-card {
             background: rgba(255, 255, 255, 0.92) !important;
             backdrop-filter: blur(12px) !important;
@@ -216,20 +198,20 @@
         }
 
         /* Remember me checkbox */
-        .form-row.checkbox-row {
+        .checkbox-row {
             display: flex !important;
             align-items: center !important;
             gap: 10px !important;
             margin-bottom: 20px !important;
         }
-        .form-row.checkbox-row input[type="checkbox"] {
+        .checkbox-row input[type="checkbox"] {
             width: 18px !important;
             height: 18px !important;
             accent-color: #16A34A !important;
             cursor: pointer !important;
             border-radius: 4px !important;
         }
-        .form-row.checkbox-row label {
+        .checkbox-row label {
             margin: 0 !important;
             font-weight: 500 !important;
             color: #475569 !important;
@@ -353,7 +335,7 @@
             </div>
 
             <!-- Remember Me -->
-            <div class="form-row checkbox-row">
+            <div class="checkbox-row">
                 <input type="checkbox" name="remember" id="id_remember">
                 <label for="id_remember">Remember me</label>
             </div>

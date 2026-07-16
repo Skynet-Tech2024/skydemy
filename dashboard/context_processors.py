@@ -3,12 +3,8 @@ from users.models import UserProfile
 from courses.models import Course, Exam, Certificate
 
 def admin_stats(request):
-    print("CONTEXT PROCESSOR: admin_stats called", file=sys.stderr)
+    print(f"CONTEXT PROCESSOR: admin_stats called, path={request.path}", file=sys.stderr)
     sys.stderr.flush()
-    
-    # Only for admin pages
-    if not request.path.startswith('/admin/'):
-        return {}
     
     student_count = UserProfile.objects.filter(role='learner').count()
     teacher_count = UserProfile.objects.filter(role='teacher').count()

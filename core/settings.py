@@ -44,12 +44,12 @@ TEMPLATES = [
         'DIRS': [BASE_DIR / 'templates'],   # <-- Added templates directory
         'APP_DIRS': True,
         'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'dashboard.context_processors.breadcrumbs',
-            ],
+           'context_processors': [
+    'django.template.context_processors.request',
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+    'dashboard.context_processors.admin_stats',
+],
         },
     },
 ]

@@ -9,6 +9,9 @@ class SKYDEMYAdminSite(AdminSite):
     site_header = "SKYDEMY Admin"
     site_title = "SKYDEMY Admin"
     index_title = "Dashboard"
+def login(self, request, extra_context=None):
+    from django.contrib.admin.views import LoginView
+    return LoginView.as_view(template_name='admin/login.html')(request, extra_context=extra_context)
 
     def get_app_list(self, request):
         # This is the default app list

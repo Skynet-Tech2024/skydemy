@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="800" viewBox="0 0 1000 800">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.06" />
+      <stop offset="50%" style="stop-color:#16A34A;stop-opacity:0.04" />
+      <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0.06" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background base -->
+  <rect width="1000" height="800" fill="url(#grad1)"/>
+  
+  <!-- Hexagonal grid pattern -->
+  <g stroke="#2563EB" stroke-width="1" stroke-opacity="0.08" fill="none">
+    <polygon points="50,0 100,43.3 100,129.9 50,173.2 0,129.9 0,43.3"/>
+    <polygon points="150,0 200,43.3 200,129.9 150,173.2 100,129.9 100,43.3"/>
+    <polygon points="250,0 300,43.3 300,129.9 250,173.2 200,129.9 200,43.3"/>
+    <polygon points="350,0 400,43.3 400,129.9 350,173.2 300,129.9 300,43.3"/>
+    <polygon points="450,0 500,43.3 500,129.9 450,173.2 400,129.9 400,43.3"/>
+    <polygon points="550,0 600,43.3 600,129.9 550,173.2 500,129.9 500,43.3"/>
+    <polygon points="650,0 700,43.3 700,129.9 650,173.2 600,129.9 600,43.3"/>
+    <polygon points="750,0 800,43.3 800,129.9 750,173.2 700,129.9 700,43.3"/>
+    <polygon points="850,0 900,43.3 900,129.9 850,173.2 800,129.9 800,43.3"/>
+    <polygon points="950,0 1000,43.3 1000,129.9 950,173.2 900,129.9 900,43.3"/>
+    
+    <!-- Second row offset -->
+    <polygon points="100,0 150,43.3 150,129.9 100,173.2 50,129.9 50,43.3"/>
+    <polygon points="200,0 250,43.3 250,129.9 200,173.2 150,129.9 150,43.3"/>
+    <polygon points="300,0 350,43.3 350,129.9 300,173.2 250,129.9 250,43.3"/>
+    <polygon points="400,0 450,43.3 450,129.9 400,173.2 350,129.9 350,43.3"/>
+    <polygon points="500,0 550,43.3 550,129.9 500,173.2 450,129.9 450,43.3"/>
+    <polygon points="600,0 650,43.3 650,129.9 600,173.2 550,129.9 550,43.3"/>
+    <polygon points="700,0 750,43.3 750,129.9 700,173.2 650,129.9 650,43.3"/>
+    <polygon points="800,0 850,43.3 850,129.9 800,173.2 750,129.9 750,43.3"/>
+    <polygon points="900,0 950,43.3 950,129.9 900,173.2 850,129.9 850,43.3"/>
+  </g>
+  
+  <!-- Connection nodes -->
+  <g fill="#2563EB" fill-opacity="0.12">
+    <circle cx="100" cy="86.6" r="6"/>
+    <circle cx="250" cy="86.6" r="8"/>
+    <circle cx="400" cy="86.6" r="6"/>
+    <circle cx="550" cy="86.6" r="8"/>
+    <circle cx="700" cy="86.6" r="6"/>
+    <circle cx="850" cy="86.6" r="8"/>
+    
+    <circle cx="50" cy="173.2" r="5"/>
+    <circle cx="200" cy="173.2" r="7"/>
+    <circle cx="350" cy="173.2" r="5"/>
+    <circle cx="500" cy="173.2" r="7"/>
+    <circle cx="650" cy="173.2" r="5"/>
+    <circle cx="800" cy="173.2" r="7"/>
+    <circle cx="950" cy="173.2" r="5"/>
+    
+    <circle cx="150" cy="259.8" r="6"/>
+    <circle cx="300" cy="259.8" r="8"/>
+    <circle cx="450" cy="259.8" r="6"/>
+    <circle cx="600" cy="259.8" r="8"/>
+    <circle cx="750" cy="259.8" r="6"/>
+    <circle cx="900" cy="259.8" r="8"/>
+  </g>
+  
+  <!-- Connection lines between nodes -->
+  <g stroke="#16A34A" stroke-width="1" stroke-opacity="0.06">
+    <line x1="100" y1="86.6" x2="50" y2="173.2"/>
+    <line x1="250" y1="86.6" x2="200" y2="173.2"/>
+    <line x1="400" y1="86.6" x2="350" y2="173.2"/>
+    <line x1="550" y1="86.6" x2="500" y2="173.2"/>
+    <line x1="700" y1="86.6" x2="650" y2="173.2"/>
+    <line x1="850" y1="86.6" x2="800" y2="173.2"/>
+  </g>
+  
+  <!-- Glowing particles -->
+  <g fill="#16A34A" fill-opacity="0.08">
+    <circle cx="320" cy="420" r="3"/>
+    <circle cx="680" cy="350" r="4"/>
+    <circle cx="150" cy="500" r="3"/>
+    <circle cx="850" cy="450" r="4"/>
+    <circle cx="500" cy="600" r="5"/>
+    <circle cx="200" cy="680" r="3"/>
+    <circle cx="750" cy="550" r="4"/>
+    <circle cx="420" cy="700" r="3"/>
+    <circle cx="600" cy="450" r="4"/>
+    <circle cx="900" cy="650" r="3"/>
+    <circle cx="100" cy="350" r="4"/>
+    <circle cx="780" cy="680" r="3"/>
+  </g>
+  
+  <!-- Light wave patterns -->
+  <path d="M0,300 Q200,280 400,300 T800,300 T1000,300" stroke="#2563EB" stroke-width="0.5" stroke-opacity="0.04" fill="none"/>
+  <path d="M0,400 Q200,380 400,400 T800,400 T1000,400" stroke="#16A34A" stroke-width="0.5" stroke-opacity="0.04" fill="none"/>
+  <path d="M0,500 Q200,480 400,500 T800,500 T1000,500" stroke="#2563EB" stroke-width="0.5" stroke-opacity="0.04" fill="none"/>
+  
+  <!-- Hexagonal grid continuation lower area -->
+  <g stroke="#2563EB" stroke-width="1" stroke-opacity="0.04" fill="none">
+    <polygon points="50,346.4 100,389.7 100,476.3 50,519.6 0,476.3 0,389.7"/>
+    <polygon points="150,346.4 200,389.7 200,476.3 150,519.6 100,476.3 100,389.7"/>
+    <polygon points="250,346.4 300,389.7 300,476.3 250,519.6 200,476.3 200,389.7"/>
+    <polygon points="350,346.4 400,389.7 400,476.3 350,519.6 300,476.3 300,389.7"/>
+  </g>
+  
+  <!-- Tech lines -->
+  <g stroke="#16A34A" stroke-width="0.5" stroke-opacity="0.03">
+    <line x1="100" y1="0" x2="100" y2="800"/>
+    <line x1="300" y1="0" x2="300" y2="800"/>
+    <line x1="500" y1="0" x2="500" y2="800"/>
+    <line x1="700" y1="0" x2="700" y2="800"/>
+    <line x1="900" y1="0" x2="900" y2="800"/>
+  </g>
+</svg>

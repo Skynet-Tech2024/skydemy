@@ -313,6 +313,70 @@
             font-weight: bold;
         }
         
+        /* ===== SKYNET THEME ===== */
+        .skynet-theme {
+            background: 
+                linear-gradient(
+                    rgba(248, 250, 252, 0.92),
+                    rgba(248, 250, 252, 0.92)
+                ),
+                url("/static/images/skynet-bg.svg") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+            min-height: 100vh !important;
+        }
+
+        /* Glass effect for cards */
+        .skynet-theme .module,
+        .skynet-theme .login-card,
+        .skynet-theme .dashboard .module,
+        .skynet-theme .stat-card {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        /* Ensure content is readable */
+        .skynet-theme #content {
+            background: transparent !important;
+        }
+
+        /* Consistent rounded corners for buttons */
+        .skynet-theme .button,
+        .skynet-theme input[type="submit"],
+        .skynet-theme .object-tools a {
+            border-radius: 12px !important;
+        }
+
+        /* Smooth transitions */
+        .skynet-theme * {
+            transition: all 0.2s ease !important;
+        }
+
+        /* Green for positive actions */
+        .skynet-theme .addlink,
+        .skynet-theme .button.green {
+            background: #16A34A !important;
+            color: #fff !important;
+        }
+
+        /* Blue for primary actions */
+        .skynet-theme .changelink,
+        .skynet-theme .button.blue {
+            background: #2563EB !important;
+            color: #fff !important;
+        }
+
+        /* Red only for destructive */
+        .skynet-theme .deletelink {
+            background: #DC2626 !important;
+            color: #fff !important;
+        }
+        
         /* ===== Responsive ===== */
         @media (min-width: 769px) {
             .navbar {
@@ -446,7 +510,7 @@
         }
     </style>
 </head>
-<body>
+<body class="skynet-theme">
     <!-- ===== PRELOADER ===== -->
     <div id="preloader">
         <div class="spinner"></div>

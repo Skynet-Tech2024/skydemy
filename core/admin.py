@@ -20,11 +20,20 @@ class SKYDEMYAdminSite(AdminSite):
 
     def index(self, request, extra_context=None):
         extra_context = extra_context or {}
-        extra_context['student_count'] = UserProfile.objects.filter(role='learner').count()
-        extra_context['teacher_count'] = UserProfile.objects.filter(role='teacher').count()
-        extra_context['course_count'] = Course.objects.count()
-        extra_context['exam_count'] = Exam.objects.count()
-        extra_context['certificate_count'] = Certificate.objects.count()
+        # Calculate counts with debug prints
+        student_count = UserProfile.objects.filter(role='learner').count()
+        teacher_count = UserProfile.objects.filter(role='teacher').count()
+        course_count = Course.objects.count()
+        exam_count = Exam.objects.count()
+        certificate_count = Certificate.objects.count()
+
+        print(f"DEBUG: student_count={student_count}, teacher_count={teacher_count}, course_count={course_count}, exam_count={exam_count}, certificate_count={certificate_count}")
+
+        extra_context['student_count'] = student_count
+        extra_context['teacher_count'] = teacher_count
+        extra_context['course_count'] = course_count
+        extra_context['exam_count'] = exam_count
+        extra_context['certificate_count'] = certificate_count
         extra_context['recent_actions'] = LogEntry.objects.select_related('user', 'content_type')[:10]
         return super().index(request, extra_context)
 

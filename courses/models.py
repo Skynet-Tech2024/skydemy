@@ -111,7 +111,17 @@ class Exam(models.Model):
     passing_score = models.IntegerField(default=50)
     questions = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
+        # New fields for exam management
+    exam_type = models.CharField(max_length=20, choices=(
+        ('fslc', 'FSLC Papers'),
+        ('mock', 'Mock Exam'),
+        ('gce', 'GCE Past Questions'),
+    ), blank=True, null=True)
     
+    year = models.CharField(max_length=4, blank=True, null=True)  # For GCE
+    level = models.CharField(max_length=20, blank=True, null=True)  # ordinary/advanced
+    subject = models.ForeignKey('Subject', on_delete=models.SET_NULL, null=True, blank=True, related_name='exams')
+    teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='exams_created')
     # Teaching guide / marking guide
     marking_guide = models.TextField(blank=True, help_text="Teaching guide with suggested answers and explanations")
     

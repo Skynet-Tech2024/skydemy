@@ -33,7 +33,18 @@
     
     <h2 style="margin-top: 30px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📤 Upload a New Lesson</h2>
     <a href="{% url 'upload_lesson' %}" style="background: #f39c12; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">+ Upload Lesson</a>
-    
+      <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📝 Exam Management</h2>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 15px 0;">
+        {% if profile.level == 'primary' %}
+            <a href="{% url 'add_fslc_papers' %}" style="background: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600;">📄 Add FSLC Papers</a>
+            <a href="{% url 'add_mock_papers_primary' %}" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600;">📝 Add Mock Papers</a>
+        {% elif profile.level == 'secondary' %}
+            <a href="{% url 'select_mock_exam_level' %}" style="background: #17a2b8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600;">📝 Add Mock Exams</a>
+            <a href="{% url 'select_gce_level' %}" style="background: #ffc107; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600;">📚 Add GCE Past Questions</a>
+        {% else %}
+            <p style="font-size: clamp(14px, 1.5vw, 16px);">No exam management options for your level.</p>
+        {% endif %}
+    </div>  
     <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📚 My Uploaded Lessons</h2>
     <div style="margin-top: 15px;">
         {% if lessons %}

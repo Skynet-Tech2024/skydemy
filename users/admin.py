@@ -1,35 +1,167 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.utils.html import format_html
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+from django.urls import path
 from .models import UserProfile, Notification, Follow, Wishlist, ProgressHistory, WhatsAppAnnouncement, Message
-from django.contrib.auth.models import User
 
 # Unregister the default User admin
-admin.site.unregister(User)
-
-# Unregister the default User admin (removes the "Users" link under Authentication and Authorization)
 try:
     admin.site.unregister(User)
 except admin.sites.NotRegistered:
     pass
 
-# Register UserProfile – fully editable (management allowed)
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'role', 'verification_status', 'level', 'rating', 'total_lessons_completed', 'is_premium')
+    list_display = ('user_full_info', 'role_badge', 'verification_badge', 'level_display', 'rating_display', 'premium_badge')
     list_filter = ('role', 'level', 'verification_status', 'is_premium', 'is_suspended')
-    search_fields = ('user__username', 'user__email')
-    readonly_fields = ('rating', 'total_lessons_completed')  # Keep these as read-only (auto-calculated)
+    search_fields = ('user__username', 'user__email', 'user__first_name', 'user__last_name')
+    readonly_fields = ('rating', 'total_lessons_completed')
     fields = ('user', 'role', 'level', 'verification_status', 'verification_notes', 
               'is_premium', 'subscription_expiry', 'is_suspended', 'avatar')
-    list_display_links = ('user',)  # Click username to edit
+    list_display_links = None
+    actions = ['verify_selected', 'suspend_selected', 'activate_selected']  # Keep bulk actions
 
-    # Allow add, change, delete
     def has_add_permission(self, request):
         return True
     def has_change_permission(self, request, obj=None):
         return True
     def has_delete_permission(self, request, obj=None):
         return True
+
+    # ===== CUSTOM DISPLAY METHODS =====
+
+    def user_full_info(self, obj):
+        full_name = obj.user.get_full_name().strip()
+        display_name = full_name if full_name else obj.user.username
+        email = obj.user.email or 'No email'
+        return format_html(
+            '<div><strong style="font-size:15px;">👤 {}</strong><br>'
+            '<span style="font-size:12px;color:#6c757d;">📧 {}</span><br>'
+            '<span style="font-size:11px;color:#6c757d;">Joined: {}</span></div>',
+            display_name,
+            email,
+            obj.user.date_joined.strftime('%d %b %Y')
+        )
+    user_full_info.short_description = 'User'
+
+    def role_badge(self, obj):
+        colors = {
+            'teacher': '#0B8A4A',
+            'learner': '#2563EB',
+            'admin': '#D4AF37'
+        }
+        color = colors.get(obj.role, '#6c757d')
+        return format_html(
+            '<span style="background:{};color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">{}</span>',
+            color,
+            obj.get_role_display()
+        )
+    role_badge.short_description = 'Role'
+
+    def verification_badge(self, obj):
+        if obj.verification_status == 'verified':
+            return format_html('<span style="background:#0B8A4A;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🟢 Verified</span>')
+        elif obj.verification_status == 'pending':
+            return format_html('<span style="background:#D4AF37;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🟡 Pending Review</span>')
+        elif obj.verification_status == 'rejected':
+            return format_html('<span style="background:#dc3545;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🔴 Rejected</span>')
+        return format_html('<span style="background:#6c757d;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">Unknown</span>')
+    verification_badge.short_description = 'Status'
+
+    def level_display(self, obj):
+        levels = {
+            'primary': '🏫 Primary School',
+            'secondary': '🏛️ Secondary School',
+            'university': '🎓 University'
+        }
+        return levels.get(obj.level, '—')
+    level_display.short_description = 'Level'
+
+    def rating_display(self, obj):
+        rating = float(obj.rating)
+        full_stars = int(rating)
+        empty_stars = 5 - full_stars
+        return format_html(
+            '<span style="color:#D4AF37;font-size:14px;">{}{} {:.1f}</span>',
+            '★' * full_stars,
+            '☆' * empty_stars,
+            rating
+        )
+    rating_display.short_description = 'Rating'
+
+    def premium_badge(self, obj):
+        if obj.is_premium:
+            return format_html('<span style="background:#D4AF37;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">⭐ Premium</span>')
+        return format_html('<span style="background:#e9ecef;color:#6c757d;padding:4px 12px;border-radius:20px;font-size:12px;">Free</span>')
+    premium_badge.short_description = 'Premium'
+
+    # ===== CUSTOM BULK ACTIONS =====
+    def verify_selected(self, request, queryset):
+        count = queryset.update(verification_status='verified')
+        self.message_user(request, f'✅ {count} user(s) verified successfully.')
+    verify_selected.short_description = '✅ Verify selected users'
+
+    def suspend_selected(self, request, queryset):
+        count = queryset.update(is_suspended=True)
+        self.message_user(request, f'🚫 {count} user(s) suspended.')
+    suspend_selected.short_description = '🚫 Suspend selected users'
+
+    def activate_selected(self, request, queryset):
+        count = queryset.update(is_suspended=False)
+        self.message_user(request, f'✅ {count} user(s) activated.')
+    activate_selected.short_description = '✅ Activate selected users'
+
+    # ===== CUSTOM SINGLE-ACTION VIEWS (GET) =====
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('verify/<int:profile_id>/', self.admin_site.admin_view(self.verify_view), name='verify_user'),
+            path('delete/<int:profile_id>/', self.admin_site.admin_view(self.delete_view), name='delete_user'),
+        ]
+        return custom_urls + urls
+
+    def verify_view(self, request, profile_id):
+        profile = get_object_or_404(UserProfile, id=profile_id)
+        if request.method == 'GET':
+            # Show confirmation or directly verify (with a GET param for confirmation)
+            if request.GET.get('confirm', 'no') == 'yes':
+                profile.verification_status = 'verified'
+                profile.save()
+                self.message_user(request, f'✅ User "{profile.user.get_full_name() or profile.user.username}" verified successfully.')
+                return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))
+            else:
+                # Show a simple confirmation page
+                return self.admin_site.admin_view(
+                    lambda r: render(
+                        r,
+                        'admin/users/userprofile/confirm_verify.html',
+                        {'profile': profile, 'action': 'Verify'}
+                    )
+                )(request)
+        return redirect('/admin/users/userprofile/')
+
+    def delete_view(self, request, profile_id):
+        profile = get_object_or_404(UserProfile, id=profile_id)
+        if request.method == 'GET':
+            if request.GET.get('confirm', 'no') == 'yes':
+                user = profile.user
+                profile.delete()
+                user.delete()  # Delete the associated User as well
+                self.message_user(request, f'🗑️ User "{user.get_full_name() or user.username}" deleted successfully.')
+                return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))
+            else:
+                return self.admin_site.admin_view(
+                    lambda r: render(
+                        r,
+                        'admin/users/userprofile/confirm_delete.html',
+                        {'profile': profile, 'action': 'Delete'}
+                    )
+                )(request)
+        return redirect('/admin/users/userprofile/')
+
+    change_list_template = 'admin/users/userprofile/change_list.html'
 
 # Register other models (unchanged)
 @admin.register(Notification)

@@ -1,0 +1,661 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<!-- SweetAlert2 CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    /* ============================================================
+       SKYDEMY – Premium User Management Interface
+       Colors: Green #0B8A4A | Gold #D4AF37 | White #FFFFFF
+       ============================================================ */
+    
+    /* ----- Brand Header ----- */
+    #header {
+        background: linear-gradient(135deg, #0B8A4A, #1FAF6B) !important;
+        padding: 16px 30px !important;
+        border-bottom: 3px solid #D4AF37 !important;
+    }
+    #header h1 {
+        font-size: 22px !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px !important;
+    }
+    #header h1 a {
+        color: #fff !important;
+    }
+    #header h1 a span {
+        color: #D4AF37 !important;
+    }
+
+    /* ----- Page Title ----- */
+    .breadcrumbs {
+        background: #F7F9F8 !important;
+        border-bottom: 1px solid #e9ecef !important;
+        padding: 12px 30px !important;
+    }
+    .breadcrumbs a {
+        color: #0B8A4A !important;
+        font-weight: 600 !important;
+    }
+
+    /* ----- Heading & Breadcrumb Enhancements ----- */
+    .content-title {
+        margin-bottom: 8px !important;
+    }
+    .content-title h1 {
+        color: #FFFFFF !important;
+        font-size: 32px !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px !important;
+        margin: 0 !important;
+    }
+    .content-title h1 .icon {
+        color: #D4AF37 !important;
+    }
+    .content-title p {
+        color: #D6DDE5 !important;
+        font-size: 16px !important;
+        margin: 4px 0 0 !important;
+        font-weight: 400 !important;
+    }
+    .content-title .gold-line {
+        width: 80px !important;
+        height: 4px !important;
+        background: #D4AF37 !important;
+        border-radius: 4px !important;
+        margin-top: 10px !important;
+    }
+    .breadcrumbs {
+        background: rgba(255,255,255,0.08) !important;
+        backdrop-filter: blur(4px) !important;
+        padding: 10px 30px !important;
+        border-radius: 8px !important;
+        margin-bottom: 20px !important;
+        border: 1px solid rgba(255,255,255,0.06) !important;
+    }
+    .breadcrumbs a {
+        color: #28A745 !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        transition: color 0.2s !important;
+    }
+    .breadcrumbs a:hover {
+        color: #34CE57 !important;
+    }
+    .breadcrumbs .current {
+        color: #D4AF37 !important;
+        font-weight: 700 !important;
+    }
+    .breadcrumbs .separator {
+        color: rgba(255,255,255,0.3) !important;
+        margin: 0 8px !important;
+    }
+
+    /* ----- Stats Cards ----- */
+    .stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 16px !important;
+        margin: 20px 0 30px !important;
+        padding: 0 !important;
+    }
+    .stat-card {
+        background: #fff !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        text-align: center !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+        border: 1px solid #e9ecef !important;
+        transition: transform 0.2s, box-shadow 0.2s !important;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 24px rgba(11,138,74,0.12) !important;
+    }
+    .stat-card .stat-number {
+        font-size: 26px !important;
+        font-weight: 800 !important;
+        color: #0B8A4A !important;
+        line-height: 1.2 !important;
+    }
+    .stat-card .stat-label {
+        font-size: 13px !important;
+        color: #6c757d !important;
+        font-weight: 500 !important;
+        margin-top: 2px !important;
+    }
+    .stat-card .stat-icon {
+        font-size: 24px !important;
+        display: block !important;
+        margin-bottom: 4px !important;
+    }
+    .stat-card.gold .stat-number { color: #D4AF37 !important; }
+    .stat-card.blue .stat-number { color: #2563EB !important; }
+
+    /* ----- Search Bar ----- */
+    #toolbar form #searchbar {
+        border-radius: 30px !important;
+        border: 2px solid #e9ecef !important;
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+        width: 100% !important;
+        max-width: 500px !important;
+        transition: border-color 0.3s !important;
+    }
+    #toolbar form #searchbar:focus {
+        border-color: #0B8A4A !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(11,138,74,0.15) !important;
+    }
+    #toolbar form input[type="submit"] {
+        background: #0B8A4A !important;
+        color: #fff !important;
+        border-radius: 30px !important;
+        padding: 10px 30px !important;
+        border: none !important;
+        font-weight: 600 !important;
+    }
+    #toolbar form input[type="submit"]:hover {
+        background: #1FAF6B !important;
+    }
+
+    /* ----- Table ----- */
+    #result_list thead th {
+        background: #0B8A4A !important;
+        color: #fff !important;
+        padding: 12px 16px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    #result_list tbody tr {
+        background: #fff !important;
+        transition: background 0.2s !important;
+        border-bottom: 1px solid #f1f3f5 !important;
+    }
+    #result_list tbody tr:nth-child(even) {
+        background: #F7F9F8 !important;
+    }
+    #result_list tbody tr:hover {
+        background: #EAF8F1 !important;
+    }
+    #result_list tbody td {
+        padding: 14px 16px !important;
+        vertical-align: middle !important;
+        font-size: 14px !important;
+    }
+
+    /* ----- Quick Action Buttons ----- */
+    .action-buttons {
+        display: flex !important;
+        gap: 6px !important;
+        flex-wrap: wrap !important;
+    }
+    .action-btn {
+        padding: 4px 12px !important;
+        border-radius: 6px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        display: inline-block !important;
+        transition: 0.2s !important;
+        border: none !important;
+        cursor: pointer !important;
+    }
+    .action-btn.edit { background: #D4AF37; color: #fff; }
+    .action-btn.verify { background: #0B8A4A; color: #fff; }
+    .action-btn.delete { background: #dc3545; color: #fff; }
+    .action-btn:hover { transform: scale(1.05); opacity: 0.9; }
+
+    /* ----- Filters (inside white card) ----- */
+    #changelist-filter {
+        background: #fff !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+        border: 1px solid #e9ecef !important;
+        margin-bottom: 20px !important;
+    }
+    #changelist-filter h2 {
+        background: #F7F9F8 !important;
+        color: #0B8A4A !important;
+        font-size: 16px !important;
+        padding: 12px 16px !important;
+        border-radius: 8px !important;
+        margin-bottom: 16px !important;
+    }
+    #changelist-filter h3 {
+        color: #1a1a2e !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        margin: 12px 0 6px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    #changelist-filter a {
+        color: #495057 !important;
+        padding: 4px 0 !important;
+        display: block !important;
+        font-size: 13px !important;
+    }
+    #changelist-filter a:hover {
+        color: #0B8A4A !important;
+    }
+    #changelist-filter a.selected {
+        color: #0B8A4A !important;
+        font-weight: 700 !important;
+    }
+
+    /* ----- Add User Button ----- */
+    .object-tools a.addlink {
+        background: #0B8A4A !important;
+        color: #fff !important;
+        border-radius: 30px !important;
+        padding: 10px 24px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(11,138,74,0.3) !important;
+        transition: 0.3s !important;
+    }
+    .object-tools a.addlink:hover {
+        background: #1FAF6B !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(11,138,74,0.4) !important;
+    }
+
+    /* ----- Pagination ----- */
+    .paginator {
+        background: #F7F9F8 !important;
+        border-radius: 8px !important;
+        padding: 12px 20px !important;
+        margin-top: 20px !important;
+    }
+    .paginator a {
+        background: #fff !important;
+        color: #0B8A4A !important;
+        border: 1px solid #e9ecef !important;
+        border-radius: 6px !important;
+        padding: 6px 14px !important;
+        margin: 0 3px !important;
+        font-weight: 600 !important;
+        transition: 0.2s !important;
+    }
+    .paginator a:hover {
+        background: #0B8A4A !important;
+        color: #fff !important;
+        border-color: #0B8A4A !important;
+    }
+    .paginator .this-page {
+        background: #0B8A4A !important;
+        color: #fff !important;
+        border-radius: 6px !important;
+        padding: 6px 14px !important;
+        margin: 0 3px !important;
+    }
+
+    /* ----- Responsive ----- */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+        }
+        #result_list thead th {
+            font-size: 11px !important;
+            padding: 8px 10px !important;
+        }
+        #result_list tbody td {
+            padding: 10px 10px !important;
+            font-size: 13px !important;
+        }
+    }
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+        }
+        .stat-card .stat-number {
+            font-size: 20px !important;
+        }
+        .action-buttons {
+            flex-direction: column !important;
+            gap: 4px !important;
+        }
+        .action-btn {
+            text-align: center !important;
+        }
+    }
+
+    /* SweetAlert2 override to match SKYDEMY theme */
+    .swal2-popup {
+        border-radius: 16px !important;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    .swal2-title {
+        color: #0B8A4A !important;
+        font-weight: 700 !important;
+    }
+    .swal2-confirm {
+        background: #0B8A4A !important;
+        border-radius: 30px !important;
+        padding: 10px 30px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 12px rgba(11,138,74,0.3) !important;
+    }
+    .swal2-confirm:hover {
+        background: #1FAF6B !important;
+    }
+    .swal2-cancel {
+        border-radius: 30px !important;
+        padding: 10px 30px !important;
+        font-weight: 600 !important;
+        background: #e9ecef !important;
+        color: #495057 !important;
+    }
+    .swal2-cancel:hover {
+        background: #dee2e6 !important;
+    }
+    .swal2-icon.swal2-success {
+        border-color: #0B8A4A !important;
+        color: #0B8A4A !important;
+    }
+    .swal2-icon.swal2-warning {
+        border-color: #D4AF37 !important;
+        color: #D4AF37 !important;
+    }
+    .swal2-icon.swal2-error {
+        border-color: #dc3545 !important;
+        color: #dc3545 !important;
+    }
+</style>
+<script>
+    // Custom SweetAlert2 functions for Verify and Delete
+    function confirmVerify(url, username) {
+        Swal.fire({
+            title: '✅ Verify User',
+            html: `Are you sure you want to verify <strong>${username}</strong>?<br><small style="color:#6c757d;">This user will gain access to all verified features.</small>`,
+            icon: 'success',
+            iconColor: '#0B8A4A',
+            showCancelButton: true,
+            confirmButtonText: '🟢 Verify User',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'swal2-confirm',
+                cancelButton: 'swal2-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url + '&confirm=yes';
+            }
+        });
+        return false;
+    }
+
+    function confirmDelete(url, username) {
+        Swal.fire({
+            title: '🗑️ Delete User',
+            html: `Are you sure you want to delete <strong>${username}</strong>?<br><small style="color:#dc3545;">This action cannot be undone.</small>`,
+            icon: 'warning',
+            iconColor: '#D4AF37',
+            showCancelButton: true,
+            confirmButtonText: '🗑️ Delete User',
+            confirmButtonColor: '#dc3545',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'swal2-confirm',
+                cancelButton: 'swal2-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url + '&confirm=yes';
+            }
+        });
+        return false;
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+    <!-- ===== PAGE TITLE ===== -->
+    <div class="content-title" style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+            <div>
+                <h1 style="color:#FFFFFF;font-size:32px;font-weight:800;letter-spacing:-0.5px;margin:0;">
+                    <span class="icon" style="color:#D4AF37;">👤</span> User Management
+                </h1>
+                <p style="color:#D6DDE5;font-size:16px;margin:4px 0 0;font-weight:400;">
+                    Manage learner and teacher accounts
+                </p>
+                <div class="gold-line" style="width:80px;height:4px;background:#D4AF37;border-radius:4px;margin-top:10px;"></div>
+            </div>
+            <div>
+                <a href="{% url 'admin:users_userprofile_add' %}" class="addlink" style="background:#0B8A4A;color:#fff;border-radius:30px;padding:10px 24px;font-weight:700;font-size:14px;text-decoration:none;display:inline-block;box-shadow:0 4px 12px rgba(11,138,74,0.3);transition:0.3s;">
+                    ➕ Add New User
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STATISTICS CARDS ===== -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-icon">👥</span>
+            <div class="stat-number">{{ cl.result_count }}</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card blue">
+            <span class="stat-icon">🎓</span>
+            <div class="stat-number">{{ student_count|default:"0" }}</div>
+            <div class="stat-label">Learners</div>
+        </div>
+        <div class="stat-card gold">
+            <span class="stat-icon">👨‍🏫</span>
+            <div class="stat-number">{{ teacher_count|default:"0" }}</div>
+            <div class="stat-label">Teachers</div>
+        </div>
+        <div class="stat-card" style="border-left:4px solid #0B8A4A;">
+            <span class="stat-icon">✅</span>
+            <div class="stat-number">{{ verified_count|default:"0" }}</div>
+            <div class="stat-label">Verified</div>
+        </div>
+        <div class="stat-card" style="border-left:4px solid #D4AF37;">
+            <span class="stat-icon">⏳</span>
+            <div class="stat-number">{{ pending_count|default:"0" }}</div>
+            <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card gold">
+            <span class="stat-icon">⭐</span>
+            <div class="stat-number">{{ premium_count|default:"0" }}</div>
+            <div class="stat-label">Premium</div>
+        </div>
+    </div>
+
+    <!-- ===== SEARCH + FILTERS ===== -->
+    <div style="display:flex;flex-wrap:wrap;gap:20px;margin-bottom:30px;">
+        <div style="flex:1;min-width:250px;">
+            <form id="changelist-search" method="get" style="display:flex;gap:10px;align-items:center;">
+                <input type="text" name="{{ search_var }}" value="{{ cl.query }}" 
+                       placeholder="🔍 Search by username or email..." 
+                       style="flex:1;border-radius:30px;border:2px solid #e9ecef;padding:12px 20px;font-size:14px;transition:border-color 0.3s;">
+                <button type="submit" style="background:#0B8A4A;color:#fff;border-radius:30px;padding:12px 30px;border:none;font-weight:600;">
+                    Search
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== FILTERS (White Card) ===== -->
+    <div id="changelist-filter" style="background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e9ecef;margin-bottom:24px;">
+        <h2 style="background:#F7F9F8;color:#0B8A4A;font-size:16px;padding:12px 16px;border-radius:8px;margin-bottom:16px;">
+            🔍 Filters
+        </h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+            <!-- Role Filter -->
+            <div>
+                <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Role</h3>
+                <ul style="list-style:none;padding:0;margin:0;">
+                    <li><a href="?role__exact=" class="selected">All</a></li>
+                    <li><a href="?role__exact=learner">🎓 Learner</a></li>
+                    <li><a href="?role__exact=teacher">👨‍🏫 Teacher</a></li>
+                </ul>
+            </div>
+            <!-- Verification Status -->
+            <div>
+                <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Verification</h3>
+                <ul style="list-style:none;padding:0;margin:0;">
+                    <li><a href="?verification_status__exact=" class="selected">All</a></li>
+                    <li><a href="?verification_status__exact=verified">🟢 Verified</a></li>
+                    <li><a href="?verification_status__exact=pending">🟡 Pending</a></li>
+                    <li><a href="?verification_status__exact=rejected">🔴 Rejected</a></li>
+                </ul>
+            </div>
+            <!-- Level Filter -->
+            <div>
+                <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Level</h3>
+                <ul style="list-style:none;padding:0;margin:0;">
+                    <li><a href="?level__exact=" class="selected">All</a></li>
+                    <li><a href="?level__exact=primary">🏫 Primary</a></li>
+                    <li><a href="?level__exact=secondary">🏛️ Secondary</a></li>
+                    <li><a href="?level__exact=university">🎓 University</a></li>
+                </ul>
+            </div>
+            <!-- Premium Filter -->
+            <div>
+                <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Premium</h3>
+                <ul style="list-style:none;padding:0;margin:0;">
+                    <li><a href="?is_premium__exact=" class="selected">All</a></li>
+                    <li><a href="?is_premium__exact=True">⭐ Premium</a></li>
+                    <li><a href="?is_premium__exact=False">Free</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TABLE (Enhanced with Quick Actions) ===== -->
+    <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e9ecef;">
+        <div style="overflow-x:auto;">
+            <table id="result_list" style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="background:#0B8A4A;color:#fff;padding:12px 16px;font-weight:600;font-size:13px;text-transform:uppercase;">User</th>
+                        <th style="background:#0B8A4A;color:#fff;padding:12px 16px;font-weight:600;font-size:13px;text-transform:uppercase;">Role</th>
+                        <th style="background:#0B8A4A;color:#fff;padding:12px 16px;font-weight:600;font-size:13px;text-transform:uppercase;">Status</th>
+                        <th style="background:#0B8A4A;color:#fff;padding:12px 16px;font-weight:600;font-size:13px;text-transform:uppercase;">Level</th>
+                        <th style="background:#0B8A4A;color:#fff;padding:12px 16px;font-weight:600;font-size:13px;text-transform:uppercase;">Rating</th>
+                        <th style="background:#0B8A4A;color:#fff;padding:12px 16px;font-weight:600;font-size:13px;text-transform:uppercase;">Premium</th>
+                        <th style="background:#0B8A4A;color:#fff;padding:12px 16px;font-weight:600;font-size:13px;text-transform:uppercase;text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profile in cl.result_list %}
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0B8A4A,#1FAF6B);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;">
+                                    {% with full_name=profile.user.get_full_name|default:profile.user.username %}
+                                        {{ full_name|slice:":1"|upper }}
+                                    {% endwith %}
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;font-size:15px;">
+                                        {% with full_name=profile.user.get_full_name|default:profile.user.username %}
+                                            {{ full_name }}
+                                        {% endwith %}
+                                    </div>
+                                    <div style="font-size:12px;color:#6c757d;">
+                                        {{ profile.user.email|default:"No email" }} · Joined: {{ profile.user.date_joined|date:"d M Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="background:{% if profile.role == 'teacher' %}#0B8A4A{% elif profile.role == 'learner' %}#2563EB{% else %}#6c757d{% endif %};color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">
+                                {{ profile.get_role_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if profile.verification_status == 'verified' %}
+                                <span style="background:#0B8A4A;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🟢 Verified</span>
+                            {% elif profile.verification_status == 'pending' %}
+                                <span style="background:#D4AF37;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🟡 Pending</span>
+                            {% elif profile.verification_status == 'rejected' %}
+                                <span style="background:#dc3545;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🔴 Rejected</span>
+                            {% else %}
+                                <span style="background:#6c757d;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">Unknown</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if profile.level == 'primary' %}🏫 Primary
+                            {% elif profile.level == 'secondary' %}🏛️ Secondary
+                            {% elif profile.level == 'university' %}🎓 University
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>
+                            <span style="color:#D4AF37;font-size:14px;">
+                                {% with rating=profile.rating|floatformat:0 %}
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= rating|add:0 %}★{% else %}☆{% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                                {{ profile.rating|floatformat:1 }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if profile.is_premium %}
+                                <span style="background:#D4AF37;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">⭐ Premium</span>
+                            {% else %}
+                                <span style="background:#e9ecef;color:#6c757d;padding:4px 12px;border-radius:20px;font-size:12px;">Free</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center;">
+                            <div class="action-buttons" style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                                <a href="{% url 'admin:users_userprofile_change' profile.id %}" class="action-btn edit">✏️ Edit</a>
+                                <a href="#" onclick="return confirmVerify('{% url 'admin:verify_user' profile.id %}', '{% with full_name=profile.user.get_full_name|default:profile.user.username %}{{ full_name }}{% endwith %}')" class="action-btn verify">✔️ Verify</a>
+                                <a href="#" onclick="return confirmDelete('{% url 'admin:delete_user' profile.id %}', '{% with full_name=profile.user.get_full_name|default:profile.user.username %}{{ full_name }}{% endwith %}')" class="action-btn delete">🗑️ Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align:center;padding:40px;color:#6c757d;">
+                            <div style="font-size:48px;margin-bottom:12px;">👥</div>
+                            <div style="font-size:18px;font-weight:600;">No users found</div>
+                            <div style="font-size:14px;color:#6c757d;">Click "Add New User" to create the first account.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== PAGINATION ===== -->
+    {% if cl.paginator.num_pages > 1 %}
+    <div class="paginator" style="background:#F7F9F8;border-radius:8px;padding:12px 20px;margin-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <span style="color:#6c757d;font-size:14px;">
+            {{ cl.result_count }} user{{ cl.result_count|pluralize }}
+        </span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            {% if cl.paginator.num_pages > 1 %}
+                {% for page in cl.paginator.page_range %}
+                    {% if page == cl.page_num %}
+                        <span class="this-page" style="background:#0B8A4A;color:#fff;border-radius:6px;padding:6px 14px;margin:0 3px;">{{ page }}</span>
+                    {% else %}
+                        <a href="?p={{ page }}{% if cl.query %}&q={{ cl.query }}{% endif %}" style="background:#fff;color:#0B8A4A;border:1px solid #e9ecef;border-radius:6px;padding:6px 14px;margin:0 3px;font-weight:600;text-decoration:none;transition:0.2s;">{{ page }}</a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

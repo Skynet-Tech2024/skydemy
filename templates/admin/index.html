@@ -341,13 +341,12 @@
 {% endblock %}
 
 {% block content %}
-<!-- DEBUG: student_count={{ student_count|default:"NOT SET" }} -->
 <div style="background: linear-gradient(135deg, #1E293B, #0F172A); color: #fff; padding: 18px 24px; border-radius: 12px; margin-bottom: 30px; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
     📊 Dashboard
 </div>
     <div id="content-main">
 
-        <!-- ===== STATISTICS CARDS – Clickable links to filtered admin lists ===== -->
+        <!-- ===== STATISTICS CARDS – Clickable links to filtered UserProfile lists ===== -->
         <div class="stats-grid">
             <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=learner" class="stat-card-link">
                 <div class="stat-card green">

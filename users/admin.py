@@ -8,30 +8,26 @@ try:
 except admin.sites.NotRegistered:
     pass
 
-# Register UserProfile as the main user management – completely read-only
+# Register UserProfile – fully editable (management allowed)
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'verification_status', 'level', 'rating', 'total_lessons_completed', 'is_premium')
     list_filter = ('role', 'level', 'verification_status', 'is_premium', 'is_suspended')
     search_fields = ('user__username', 'user__email')
-    
-    # All fields are read-only – no editing allowed
-    readonly_fields = ('user', 'role', 'level', 'verification_status', 'verification_notes', 
-                       'is_premium', 'subscription_expiry', 'is_suspended', 'avatar', 
-                       'rating', 'total_lessons_completed')
-    
-    # Disable all actions (add, change, delete)
-    actions = None
-    list_display_links = ('user',)  # Click username to view detail (read-only)
-    
-    def has_add_permission(self, request):
-        return False
-    def has_change_permission(self, request, obj=None):
-        return False
-    def has_delete_permission(self, request, obj=None):
-        return False
+    readonly_fields = ('rating', 'total_lessons_completed')  # Keep these as read-only (auto-calculated)
+    fields = ('user', 'role', 'level', 'verification_status', 'verification_notes', 
+              'is_premium', 'subscription_expiry', 'is_suspended', 'avatar')
+    list_display_links = ('user',)  # Click username to edit
 
-# Register other models (not users)
+    # Allow add, change, delete
+    def has_add_permission(self, request):
+        return True
+    def has_change_permission(self, request, obj=None):
+        return True
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+# Register other models (unchanged)
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'title', 'notification_type', 'is_read', 'created_at')

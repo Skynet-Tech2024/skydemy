@@ -2,31 +2,36 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from .models import UserProfile, Notification, Follow, Wishlist, ProgressHistory, WhatsAppAnnouncement, Message
 
-# Unregister the default User admin (removes the "Users" link under Auth)
+# Unregister the default User admin (removes the "Users" link under Authentication and Authorization)
 try:
     admin.site.unregister(User)
 except admin.sites.NotRegistered:
-    pass  # Already unregistered
+    pass
 
-# Register UserProfile as the main user management
+# Register UserProfile as the main user management – completely read-only
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'verification_status', 'level', 'rating', 'total_lessons_completed', 'is_premium')
     list_filter = ('role', 'level', 'verification_status', 'is_premium', 'is_suspended')
     search_fields = ('user__username', 'user__email')
-    readonly_fields = ('user', 'role', 'level', 'verification_status', 'verification_notes', 
-                       'is_premium', 'subscription_expiry', 'is_suspended', 'avatar', 'rating', 'total_lessons_completed')
     
-    # Disable all editing actions
+    # All fields are read-only – no editing allowed
+    readonly_fields = ('user', 'role', 'level', 'verification_status', 'verification_notes', 
+                       'is_premium', 'subscription_expiry', 'is_suspended', 'avatar', 
+                       'rating', 'total_lessons_completed')
+    
+    # Disable all actions (add, change, delete)
     actions = None
-    list_display_links = ('user',)  # Click username to view detail
+    list_display_links = ('user',)  # Click username to view detail (read-only)
     
     def has_add_permission(self, request):
         return False
     def has_change_permission(self, request, obj=None):
         return False
     def has_delete_permission(self, request, obj=None):
-        return False# Register other models
+        return False
+
+# Register other models (not users)
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'title', 'notification_type', 'is_read', 'created_at')

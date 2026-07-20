@@ -1,8 +1,29 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils import timezone
-from .models import ProgressHistory
+from django.contrib.auth.models import User
+from .models import UserProfile, ProgressHistory
 from courses.models import Progress
+
+# Signal to create UserProfile when a new User is created
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(
+            user=instance,
+            role='learner',
+            verification_status='pending'  # Fixed field name
+        )
+        print(f"✅ UserProfile created for {instance.username}")
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    # Ensure profile exists (if somehow missing)
+    if not hasattr(instance, 'profile'):
+        UserProfile.objects.create(
+            user=instance,
+            role='learner',
+            verification_status='pending'
+        )
 
 @receiver(post_save, sender=Progress)
 def record_progress_history(sender, instance, created, **kwargs):

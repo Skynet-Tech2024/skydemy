@@ -7,7 +7,7 @@ def admin_stats(request):
     
     student_count = UserProfile.objects.filter(role='learner').count()
     teacher_count = UserProfile.objects.filter(role='teacher').count()
-    course_count = Lesson.objects.filter(status='approved').count()  # or all lessons? Adjust as needed
+    course_count = Lesson.objects.filter(status='approved').count()  # Only approved lessons
     exam_count = Exam.objects.count()
     certificate_count = Certificate.objects.count()
     

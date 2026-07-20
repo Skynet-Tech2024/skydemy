@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from .models import UserProfile, Notification, Follow, Wishlist, ProgressHistory, WhatsAppAnnouncement, Message
+from django.contrib.auth.models import User
+
+# Unregister the default User admin
+admin.site.unregister(User)
 
 # Unregister the default User admin (removes the "Users" link under Authentication and Authorization)
 try:

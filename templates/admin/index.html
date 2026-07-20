@@ -81,6 +81,12 @@
             width: 100% !important;
         }
 
+        .stat-card-link {
+            text-decoration: none !important;
+            color: inherit !important;
+            display: block !important;
+        }
+
         .stat-card {
             background: #fff !important;
             border-radius: 16px !important;
@@ -89,10 +95,12 @@
             border: 1px solid #E5E7EB !important;
             transition: transform 0.2s, box-shadow 0.2s !important;
             text-align: center !important;
+            cursor: pointer !important;
         }
         .stat-card:hover {
             transform: translateY(-2px) !important;
             box-shadow: 0 12px 24px -8px rgba(0,0,0,0.10) !important;
+            border-color: #16A34A !important;
         }
 
         .stat-card .stat-icon {
@@ -339,43 +347,53 @@
 </div>
     <div id="content-main">
 
-        <!-- ===== STATISTICS CARDS – Full width, 5 columns ===== -->
+        <!-- ===== STATISTICS CARDS – Clickable links to filtered admin lists ===== -->
         <div class="stats-grid">
-            <div class="stat-card green">
-                <span class="stat-icon">👨‍🎓</span>
-                <div class="stat-number">{{ student_count|default:"0" }}</div>
-                <div class="stat-label">Students</div>
-            </div>
-            <div class="stat-card gold">
-                <span class="stat-icon">👨‍🏫</span>
-                <div class="stat-number">{{ teacher_count|default:"0" }}</div>
-                <div class="stat-label">Teachers</div>
-            </div>
-            <div class="stat-card blue">
-                <span class="stat-icon">📚</span>
-                <div class="stat-number">{{ course_count|default:"0" }}</div>
-                <div class="stat-label">Courses</div>
-            </div>
-            <div class="stat-card purple">
-                <span class="stat-icon">📝</span>
-                <div class="stat-number">{{ exam_count|default:"0" }}</div>
-                <div class="stat-label">Exams</div>
-            </div>
-            <div class="stat-card teal">
-                <span class="stat-icon">🏆</span>
-                <div class="stat-number">{{ certificate_count|default:"0" }}</div>
-                <div class="stat-label">Certificates</div>
-            </div>
+            <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=learner" class="stat-card-link">
+                <div class="stat-card green">
+                    <span class="stat-icon">👨‍🎓</span>
+                    <div class="stat-number">{{ student_count|default:"0" }}</div>
+                    <div class="stat-label">Students</div>
+                </div>
+            </a>
+            <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=teacher" class="stat-card-link">
+                <div class="stat-card gold">
+                    <span class="stat-icon">👨‍🏫</span>
+                    <div class="stat-number">{{ teacher_count|default:"0" }}</div>
+                    <div class="stat-label">Teachers</div>
+                </div>
+            </a>
+            <a href="{% url 'admin:courses_lesson_changelist' %}" class="stat-card-link">
+                <div class="stat-card blue">
+                    <span class="stat-icon">📚</span>
+                    <div class="stat-number">{{ course_count|default:"0" }}</div>
+                    <div class="stat-label">Courses (Lessons)</div>
+                </div>
+            </a>
+            <a href="{% url 'admin:courses_exam_changelist' %}" class="stat-card-link">
+                <div class="stat-card purple">
+                    <span class="stat-icon">📝</span>
+                    <div class="stat-number">{{ exam_count|default:"0" }}</div>
+                    <div class="stat-label">Exams</div>
+                </div>
+            </a>
+            <a href="{% url 'admin:courses_certificate_changelist' %}" class="stat-card-link">
+                <div class="stat-card teal">
+                    <span class="stat-icon">🏆</span>
+                    <div class="stat-number">{{ certificate_count|default:"0" }}</div>
+                    <div class="stat-label">Certificates</div>
+                </div>
+            </a>
         </div>
 
         <!-- ===== QUICK ACTIONS ===== -->
         <div class="quick-actions">
-            <a href="/admin/users/userprofile/add/" class="primary">➕ Add Student</a>
-            <a href="/admin/users/userprofile/add/" class="primary">➕ Add Teacher</a>
-            <a href="/admin/courses/course/add/" class="blue">📚 Add Course</a>
-            <a href="/admin/courses/exam/add/" class="blue">📝 Create Exam</a>
-            <a href="/admin/courses/certificate/add/" class="blue">🏆 Issue Certificate</a>
-            <a href="/admin/users/whatsappannouncement/add/" class="blue">📢 Send Announcement</a>
+            <a href="{% url 'admin:users_userprofile_add' %}" class="primary">➕ Add Student</a>
+            <a href="{% url 'admin:users_userprofile_add' %}" class="primary">➕ Add Teacher</a>
+            <a href="{% url 'admin:courses_lesson_add' %}" class="blue">📚 Add Lesson</a>
+            <a href="{% url 'admin:courses_exam_add' %}" class="blue">📝 Create Exam</a>
+            <a href="{% url 'admin:courses_certificate_add' %}" class="blue">🏆 Issue Certificate</a>
+            <a href="{% url 'admin:users_whatsappannouncement_add' %}" class="blue">📢 Send Announcement</a>
         </div>
 
         <!-- ===== ORIGINAL DJANGO MODULES ===== -->

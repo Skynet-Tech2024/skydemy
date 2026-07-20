@@ -1,4 +1,9 @@
+import os
 import json
+import re
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.http import JsonResponse
 from users.utils import create_notification
 from users.models import Wishlist
 from django.core.mail import send_mail
@@ -120,10 +125,151 @@ def view_lesson(request, lesson_id):
             progress.save()
     
     return render(request, 'courses/view_lesson.html', {'lesson': lesson, 'exam': exam})
-
+def parse_exam_file(file):
+    """Parse exam file (PDF or DOCX) and return list of questions in JSON format."""
+    content = ""
+    file_name = file.name.lower()
+    
+    if file_name.endswith('.pdf'):
+        try:
+            import pdfplumber
+            with pdfplumber.open(file) as pdf:
+                for page in pdf.pages:
+                    text = page.extract_text()
+                    if text:
+                        content += text + "\n"
+        except ImportError:
+            raise ImportError("pdfplumber is not installed. Run: pip install pdfplumber")
+    elif file_name.endswith('.docx'):
+        try:
+            from docx import Document
+            doc = Document(file)
+            for para in doc.paragraphs:
+                if para.text:
+                    content += para.text + "\n"
+        except ImportError:
+            raise ImportError("python-docx is not installed. Run: pip install python-docx")
+    else:
+        raise ValueError("Unsupported file format. Use PDF or DOCX.")
+    
+    if not content.strip():
+        raise ValueError("No text could be extracted from the file.")
+    
+    # Parse content into questions
+    questions = []
+    lines = content.split('\n')
+    current_question = None
+    current_options = []
+    current_correct = None
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            # Blank line might separate questions
+            if current_question and current_options:
+                # If we have a question and options, finalize
+                q = {
+                    'question': current_question,
+                    'options': current_options,
+                    'correct': current_correct or (current_options[0] if current_options else "")
+                }
+                questions.append(q)
+                current_question = None
+                current_options = []
+                current_correct = None
+            continue
+        
+        # Check for question number (e.g., "1.", "2)", etc.)
+        question_match = re.match(r'^(\d+)[\.\)]\s*(.*)', line)
+        if question_match:
+            # If we have a previous question, save it
+            if current_question and current_options:
+                q = {
+                    'question': current_question,
+                    'options': current_options,
+                    'correct': current_correct or (current_options[0] if current_options else "")
+                }
+                questions.append(q)
+            # Start new question
+            current_question = question_match.group(2).strip()
+            current_options = []
+            current_correct = None
+            continue
+        
+        # Check for option (A., B., C., D.)
+        option_match = re.match(r'^([A-D])[\.\)]\s*(.*)', line, re.IGNORECASE)
+        if option_match and current_question is not None:
+            option_text = option_match.group(2).strip()
+            current_options.append(option_text)
+            # Check if this option is marked as correct (e.g., has "*" or "(correct)" )
+            if '*' in option_text or '(correct)' in option_text.lower():
+                current_correct = option_text
+            continue
+        
+        # Check for answer key line (e.g., "Answers: 1A, 2B, 3C")
+        answer_match = re.match(r'^Answers?\s*[:;]\s*(.*)', line, re.IGNORECASE)
+        if answer_match and questions:
+            # We'll parse answer key and update correct answers for existing questions
+            answer_key = answer_match.group(1).strip()
+            # Split by commas or spaces
+            parts = re.split(r'[,\s]+', answer_key)
+            for part in parts:
+                part = part.strip()
+                if not part:
+                    continue
+                # Try to extract number and letter
+                num_letter = re.match(r'^(\d+)\s*([A-D])', part, re.IGNORECASE)
+                if num_letter:
+                    q_num = int(num_letter.group(1))
+                    ans_letter = num_letter.group(2).upper()
+                    if q_num <= len(questions):
+                        # Map letter to option index
+                        opt_idx = ord(ans_letter) - ord('A')
+                        if opt_idx < len(questions[q_num-1]['options']):
+                            questions[q_num-1]['correct'] = questions[q_num-1]['options'][opt_idx]
+            continue
+        
+        # Otherwise, it's continuation of current question or option
+        if current_question is not None:
+            if current_options:
+                # Append to last option
+                current_options[-1] += " " + line
+            else:
+                # Append to question
+                current_question += " " + line
+    
+    # Append last question
+    if current_question and current_options:
+        q = {
+            'question': current_question,
+            'options': current_options,
+            'correct': current_correct or (current_options[0] if current_options else "")
+        }
+        questions.append(q)
+    
+    # If no questions found, try alternative format: each line is a question with options
+    if not questions:
+        # Fallback: assume each question is on a single line with options separated by semicolon
+        for line in content.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            # Assume format: question? A: option A, B: option B, C: option C, D: option D
+            # We'll attempt to split
+            parts = re.split(r'[A-D]\s*[:.]\s*', line, flags=re.IGNORECASE)
+            if len(parts) >= 2:
+                question_text = parts[0].strip()
+                options = [p.strip() for p in parts[1:] if p.strip()]
+                if question_text and options:
+                    questions.append({
+                        'question': question_text,
+                        'options': options,
+                        'correct': options[0]  # placeholder
+                    })
+    
+    return questions
 @login_required
 def add_exam(request, lesson_id):
-    """Add an exam to a specific lesson (teacher only)."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
     
     if request.user.profile.role != 'teacher':
@@ -135,20 +281,50 @@ def add_exam(request, lesson_id):
         return redirect('view_lesson', lesson_id=lesson.id)
     
     if request.method == 'POST':
-        form = ExamForm(request.POST)
-        if form.is_valid():
-            exam = form.save(commit=False)
-            exam.lesson = lesson
-            exam.status = 'pending'
-            exam.save()
-            messages.success(request, f'Exam "{exam.title}" created and pending admin review!')
-            return redirect('view_lesson', lesson_id=lesson.id)
-    else:
-        form = ExamForm()
+        # Check if a file was uploaded
+        exam_file = request.FILES.get('exam_file')
+        json_questions = request.POST.get('questions')
+        title = request.POST.get('title')
+        passing_score = request.POST.get('passing_score', 50)
+        
+        questions = None
+        if exam_file:
+            # Parse the file
+            try:
+                questions = parse_exam_file(exam_file)
+                if not questions:
+                    messages.error(request, 'No questions could be parsed from the file. Please check the format.')
+                    return render(request, 'courses/add_exam.html', {'lesson': lesson})
+            except Exception as e:
+                messages.error(request, f'Error parsing file: {e}')
+                return render(request, 'courses/add_exam.html', {'lesson': lesson})
+        elif json_questions:
+            # Use JSON input
+            try:
+                questions = json.loads(json_questions)
+                if not isinstance(questions, list) or not questions:
+                    messages.error(request, 'Invalid JSON format. Must be a non-empty array.')
+                    return render(request, 'courses/add_exam.html', {'lesson': lesson})
+            except json.JSONDecodeError:
+                messages.error(request, 'Invalid JSON format. Please check your syntax.')
+                return render(request, 'courses/add_exam.html', {'lesson': lesson})
+        else:
+            messages.error(request, 'Please provide either a file or JSON questions.')
+            return render(request, 'courses/add_exam.html', {'lesson': lesson})
+        
+        # Create the exam
+        exam = Exam(
+            lesson=lesson,
+            title=title or f"Exam for {lesson.title}",
+            passing_score=int(passing_score) if passing_score else 50,
+            questions=questions,
+            status='pending'
+        )
+        exam.save()
+        messages.success(request, f'Exam "{exam.title}" created and pending admin review!')
+        return redirect('view_lesson', lesson_id=lesson.id)
     
-    return render(request, 'courses/add_exam.html', {'form': form, 'lesson': lesson})
-
-@login_required
+    return render(request, 'courses/add_exam.html', {'lesson': lesson})@login_required
 def take_exam(request, lesson_id):
     """Learner takes an exam."""
     lesson = get_object_or_404(Lesson, id=lesson_id)

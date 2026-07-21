@@ -2,18 +2,19 @@ from django.contrib import admin
 from datetime import datetime
 from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
 from users.utils import create_notification
+from core.admin import admin_site
 
-@admin.register(Subject)
+# ===== Subject Admin =====
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'level')
     list_filter = ('level',)
 
-@admin.register(Course)
+# ===== Course Admin =====
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('code', 'name')
     search_fields = ('code', 'name')
 
-@admin.register(Lesson)
+# ===== Lesson Admin =====
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'level', 'status', 'teacher', 'created_at', 'views')
     list_filter = ('level', 'status', 'teacher')
@@ -29,7 +30,6 @@ class LessonAdmin(admin.ModelAdmin):
             lesson.reviewed_at = datetime.now()
             lesson.save()
             updated += 1
-            # Send notification to teacher
             create_notification(
                 user=lesson.teacher,
                 notification_type='lesson_approved',
@@ -48,7 +48,6 @@ class LessonAdmin(admin.ModelAdmin):
             lesson.reviewed_at = datetime.now()
             lesson.save()
             updated += 1
-            # Send notification to teacher
             create_notification(
                 user=lesson.teacher,
                 notification_type='system',
@@ -58,12 +57,12 @@ class LessonAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} lesson(s) rejected.')
     reject_lessons.short_description = "Reject selected lessons"
 
-@admin.register(Progress)
+# ===== Progress Admin =====
 class ProgressAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'progress_percentage', 'completed', 'last_accessed')
     list_filter = ('completed',)
 
-@admin.register(Exam)
+# ===== Exam Admin =====
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('title', 'lesson', 'status', 'passing_score', 'created_at')
     list_filter = ('status', 'lesson__level')
@@ -78,7 +77,6 @@ class ExamAdmin(admin.ModelAdmin):
             exam.reviewed_at = datetime.now()
             exam.save()
             updated += 1
-            # Send notification to teacher
             create_notification(
                 user=exam.lesson.teacher,
                 notification_type='system',
@@ -97,7 +95,6 @@ class ExamAdmin(admin.ModelAdmin):
             exam.reviewed_at = datetime.now()
             exam.save()
             updated += 1
-            # Send notification to teacher
             create_notification(
                 user=exam.lesson.teacher,
                 notification_type='system',
@@ -107,12 +104,21 @@ class ExamAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} exam(s) rejected.')
     reject_exams.short_description = "Reject selected exams"
 
-@admin.register(ExamResult)
+# ===== ExamResult Admin =====
 class ExamResultAdmin(admin.ModelAdmin):
     list_display = ('user', 'exam', 'percentage', 'passed', 'date_taken')
     list_filter = ('passed',)
 
-@admin.register(Certificate)
+# ===== Certificate Admin =====
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'certificate_number', 'issued_date')
     search_fields = ('certificate_number',)
+
+# ===== Register all models with the custom admin site =====
+admin_site.register(Subject, SubjectAdmin)
+admin_site.register(Course, CourseAdmin)
+admin_site.register(Lesson, LessonAdmin)
+admin_site.register(Progress, ProgressAdmin)
+admin_site.register(Exam, ExamAdmin)
+admin_site.register(ExamResult, ExamResultAdmin)
+admin_site.register(Certificate, CertificateAdmin)

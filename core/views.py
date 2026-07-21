@@ -1,6 +1,31 @@
 from django.http import HttpResponse
 from pathlib import Path
 from django.template.loader import get_template
+from django.contrib.auth import logout as auth_logout
+from django.shortcuts import redirect
+from django.contrib import messages
+
+def admin_logout(request):
+    """Custom logout view for admin."""
+    auth_logout(request)
+    messages.info(request, "You have been logged out.")
+    return redirect('/admin/login/')from django.contrib.auth import logout as auth_logout
+from django.shortcuts import redirect
+from django.contrib import messages
+
+def admin_logout(request):
+    """Custom logout view for admin."""
+    auth_logout(request)
+    messages.info(request, "You have been logged out.")
+    return redirect('/admin/login/')from django.contrib.auth import logout as auth_logout
+from django.shortcuts import redirect
+from django.contrib import messages
+
+def admin_logout(request):
+    """Custom logout view for admin."""
+    auth_logout(request)
+    messages.info(request, "You have been logged out.")
+    return redirect('/admin/login/')
 
 def debug_templates(request):
     """Debug view to check template loading and paths."""

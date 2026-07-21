@@ -4,8 +4,10 @@ from django.urls import path
 from django.contrib.auth import logout as auth_logout
 from django.shortcuts import redirect
 from django.contrib import messages
-from django.template.response import TemplateResponse
-from django.contrib.admin.views.main import ChangeList
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.conf import settings
+
 
 class SKYDEMYAdminSite(AdminSite):
     site_header = "SKYDEMY Admin"
@@ -21,32 +23,50 @@ class SKYDEMYAdminSite(AdminSite):
         urls = super().get_urls()
         custom_urls = [
             path('logout/', self.logout, name='admin_logout'),
+            path('debug/', self.debug_templates, name='admin_debug'),  # Debug view
         ]
         return custom_urls + urls
 
-    def index(self, request, extra_context=None):
-        """
-        Override the admin index view to use a custom template with footer.
-        """
-        context = self.each_context(request)
-        context.update(extra_context or {})
-        # Add the footer to the context? No, we'll hardcode it in the template.
-        return TemplateResponse(
-            request,
-            'admin/custom_index.html',  # We'll create this template
-            context
-        )
+    def debug_templates(self, request):
+        """Debug view to check template loading and paths."""
+        from pathlib import Path
 
-    def changelist_view(self, request, model_admin, model, **kwargs):
-        """
-        Override the changelist view to use a custom template with footer.
-        """
-        # This is more complex; we can handle it by setting a custom template
-        # on each ModelAdmin, but for simplicity we'll override the response.
-        # We'll instead set a custom template for each model admin that we want.
-        # But for now, we'll just override the index and let the change list
-        # inherit from the custom base.html.
-        return super().changelist_view(request, model_admin, model, **kwargs)
+        base_dir = settings.BASE_DIR
+        templates_path = base_dir / 'templates'
+        templates_exists = templates_path.exists()
 
-# Replace the default admin site with our custom one
+        admin_template_path = templates_path / 'admin' / 'base_site.html'
+        admin_exists = admin_template_path.exists()
+
+        try:
+            t = get_template('admin/base_site.html')
+            template_loaded = True
+            template_origin = t.origin.name
+        except Exception as e:
+            template_loaded = False
+            template_origin = str(e)
+
+        files = []
+        if templates_exists:
+            admin_dir = templates_path / 'admin'
+            if admin_dir.exists():
+                files = [f.name for f in admin_dir.iterdir() if f.is_file()]
+
+        response = f"""
+        <h1>Debug Template Info</h1>
+        <p><strong>BASE_DIR:</strong> {base_dir}</p>
+        <p><strong>templates folder exists?</strong> {templates_exists}</p>
+        <p><strong>admin/base_site.html exists?</strong> {admin_exists}</p>
+        <p><strong>Template loaded via get_template?</strong> {template_loaded}</p>
+        <p><strong>Template origin:</strong> {template_origin}</p>
+        <p><strong>Files in templates/admin/:</strong> {', '.join(files) if files else 'None'}</p>
+        <p><strong>DEBUG:</strong> {settings.DEBUG}</p>
+        """
+        return HttpResponse(response)
+
+
+# Create an instance of the custom admin site
 admin_site = SKYDEMYAdminSite()
+
+# Also assign to admin.site for backward compatibility
+admin.site = admin_site

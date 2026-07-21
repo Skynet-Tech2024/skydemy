@@ -6,13 +6,10 @@ from django.contrib import messages
 from django.urls import path
 from .models import UserProfile, Notification, Follow, Wishlist, ProgressHistory, WhatsAppAnnouncement, Message
 
-# Unregister the default User admin
-try:
-    admin.site.unregister(User)
-except admin.sites.NotRegistered:
-    pass
+# Import the custom admin site from core.admin
+from core.admin import admin_site
 
-@admin.register(UserProfile)
+# ===== UserProfile Admin =====
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user_full_info', 'role_badge', 'verification_badge', 'level_display', 'rating_display', 'premium_badge')
     list_filter = ('role', 'level', 'verification_status', 'is_premium', 'is_suspended')
@@ -21,7 +18,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     fields = ('user', 'role', 'level', 'verification_status', 'verification_notes', 
               'is_premium', 'subscription_expiry', 'is_suspended', 'avatar')
     list_display_links = None
-    actions = ['verify_selected', 'suspend_selected', 'activate_selected']  # Keep bulk actions
+    actions = ['verify_selected', 'suspend_selected', 'activate_selected']
 
     def has_add_permission(self, request):
         return True
@@ -31,7 +28,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         return True
 
     # ===== CUSTOM DISPLAY METHODS =====
-
     def user_full_info(self, obj):
         full_name = obj.user.get_full_name().strip()
         display_name = full_name if full_name else obj.user.username
@@ -147,7 +143,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             if request.GET.get('confirm', 'no') == 'yes':
                 user = profile.user
                 profile.delete()
-                user.delete()  # Delete the associated User as well
+                user.delete()
                 self.message_user(request, f'🗑️ User "{user.get_full_name() or user.username}" deleted successfully.')
                 return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))
             else:
@@ -164,7 +160,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         profile = get_object_or_404(UserProfile, id=profile_id)
         if request.method == 'GET':
             if request.GET.get('confirm', 'no') == 'yes':
-                # Toggle premium status
                 profile.is_premium = not profile.is_premium
                 profile.save()
                 status = "⭐ Premium" if profile.is_premium else "Free"
@@ -176,37 +171,40 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     change_list_template = 'admin/users/userprofile/change_list.html'
 
-# Register other models (unchanged)
-@admin.register(Notification)
+# ===== Other Admin Classes =====
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'title', 'notification_type', 'is_read', 'created_at')
     list_filter = ('notification_type', 'is_read')
     search_fields = ('user__username', 'title', 'message')
 
-@admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('follower', 'following', 'created_at')
     search_fields = ('follower__username', 'following__username')
 
-@admin.register(Wishlist)
 class WishlistAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'added_at')
     search_fields = ('user__username', 'lesson__title')
 
-@admin.register(ProgressHistory)
 class ProgressHistoryAdmin(admin.ModelAdmin):
     list_display = ('user', 'total_lessons_completed', 'rating', 'recorded_at')
     list_filter = ('recorded_at',)
     search_fields = ('user__username',)
 
-@admin.register(WhatsAppAnnouncement)
 class WhatsAppAnnouncementAdmin(admin.ModelAdmin):
     list_display = ('title', 'target', 'sent_by', 'sent_at', 'is_sent')
     list_filter = ('target', 'is_sent')
     search_fields = ('title', 'message')
 
-@admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('sender', 'receiver', 'subject', 'is_read', 'created_at')
     list_filter = ('is_read', 'created_at')
     search_fields = ('sender__username', 'receiver__username', 'subject', 'content')
+
+# ===== Register all models with the custom admin site =====
+admin_site.register(UserProfile, UserProfileAdmin)
+admin_site.register(Notification, NotificationAdmin)
+admin_site.register(Follow, FollowAdmin)
+admin_site.register(Wishlist, WishlistAdmin)
+admin_site.register(ProgressHistory, ProgressHistoryAdmin)
+admin_site.register(WhatsAppAnnouncement, WhatsAppAnnouncementAdmin)
+admin_site.register(Message, MessageAdmin)

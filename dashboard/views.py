@@ -8,6 +8,9 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate
 from django.views.decorators.cache import never_cache
+from django.template.loader import get_template
+from django.conf import settings
+from pathlib import Path
 
 def home(request):
     # Always show the public landing page
@@ -307,3 +310,40 @@ self.addEventListener('fetch', (event) => {
 });
 '''
     return HttpResponse(content.strip(), content_type='application/javascript')
+
+
+# ===== DEBUG VIEW =====
+def debug_templates(request):
+    """Debug view to check template loading and paths."""
+    base_dir = settings.BASE_DIR
+    templates_path = base_dir / 'templates'
+    templates_exists = templates_path.exists()
+
+    admin_template_path = templates_path / 'admin' / 'base_site.html'
+    admin_exists = admin_template_path.exists()
+
+    try:
+        t = get_template('admin/base_site.html')
+        template_loaded = True
+        template_origin = t.origin.name
+    except Exception as e:
+        template_loaded = False
+        template_origin = str(e)
+
+    files = []
+    if templates_exists:
+        admin_dir = templates_path / 'admin'
+        if admin_dir.exists():
+            files = [f.name for f in admin_dir.iterdir() if f.is_file()]
+
+    response = f"""
+    <h1>Debug Template Info</h1>
+    <p><strong>BASE_DIR:</strong> {base_dir}</p>
+    <p><strong>templates folder exists?</strong> {templates_exists}</p>
+    <p><strong>admin/base_site.html exists?</strong> {admin_exists}</p>
+    <p><strong>Template loaded via get_template?</strong> {template_loaded}</p>
+    <p><strong>Template origin:</strong> {template_origin}</p>
+    <p><strong>Files in templates/admin/:</strong> {', '.join(files) if files else 'None'}</p>
+    <p><strong>DEBUG:</strong> {settings.DEBUG}</p>
+    """
+    return HttpResponse(response)

@@ -275,5 +275,13 @@
             confirmField.addEventListener('input', checkRequirements);
         }
     })();
+
+    // ===== FIX: Hide preloader when page loads =====
+    document.addEventListener('DOMContentLoaded', function() {
+        var preloader = document.getElementById('preloader');
+        if (preloader) {
+            preloader.classList.add('hidden');
+        }
+    });
 </script>
 {% endblock %}

@@ -7,18 +7,19 @@
         /* ============================================================
            SKYDEMY LOGIN PAGE – Card only (background from base_site)
            ============================================================ */
-        *
-html, body {
-    background: linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #1E3A5F 60%, #0F172A 100%) !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-attachment: fixed !important;
-    min-height: 100vh !important;
-} {
+        * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html, body {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #1E3A5F 60%, #0F172A 100%) !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+            min-height: 100vh !important;
         }
 
         /* Hide Django's default header */
@@ -94,7 +95,7 @@ html, body {
             letter-spacing: 0.5px !important;
         }
 
-        /* Form rows */
+        /* Django form row overrides */
         .form-row {
             margin-bottom: 20px !important;
         }
@@ -106,22 +107,10 @@ html, body {
             margin-bottom: 5px !important;
         }
 
-        /* Input wrapper with icon */
-        .input-wrapper {
-            position: relative !important;
-        }
-        .input-wrapper .input-icon {
-            position: absolute !important;
-            left: 14px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            font-size: 18px !important;
-            color: #94A3B8 !important;
-            pointer-events: none !important;
-        }
-        .input-wrapper input {
+        /* Input styling */
+        .form-row input {
             width: 100% !important;
-            padding: 12px 14px 12px 46px !important;
+            padding: 12px 14px !important;
             border: 2px solid #E5E7EB !important;
             border-radius: 12px !important;
             font-size: 15px !important;
@@ -130,33 +119,15 @@ html, body {
             color: #0F172A !important;
             box-sizing: border-box !important;
         }
-        .input-wrapper input:focus {
+        .form-row input:focus {
             outline: none !important;
             border-color: #2563EB !important;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
             background: #fff !important;
         }
-        .input-wrapper input::placeholder {
+        .form-row input::placeholder {
             color: #94A3B8 !important;
             font-weight: 400 !important;
-        }
-
-        /* Password toggle button */
-        .password-toggle {
-            position: absolute !important;
-            right: 14px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            background: none !important;
-            border: none !important;
-            font-size: 20px !important;
-            cursor: pointer !important;
-            color: #94A3B8 !important;
-            padding: 4px !important;
-            transition: color 0.2s !important;
-        }
-        .password-toggle:hover {
-            color: #1E293B !important;
         }
 
         /* Error messages */
@@ -204,7 +175,7 @@ html, body {
             transform: translateY(0) !important;
         }
 
-        /* Remember me checkbox */
+        /* Checkbox */
         .checkbox-row {
             display: flex !important;
             align-items: center !important;
@@ -269,8 +240,8 @@ html, body {
             .login-brand .logo-icon {
                 font-size: 38px !important;
             }
-            .input-wrapper input {
-                padding: 10px 14px 10px 40px !important;
+            .form-row input {
+                padding: 10px 14px !important;
                 font-size: 14px !important;
             }
             .submit-row input[type="submit"] {
@@ -316,42 +287,17 @@ html, body {
             </div>
         {% endif %}
 
-        <!-- Login Form -->
+        <!-- Login Form – Using Django's form rendering for CSRF safety -->
         <form action="{{ app_path }}" method="post" id="login-form">
             {% csrf_token %}
-
-            <!-- Username -->
-            <div class="form-row">
-                <label for="id_username">Username</label>
-                <div class="input-wrapper">
-                    <span class="input-icon">👤</span>
-                    <input type="text" name="username" id="id_username" placeholder="Enter your username" autofocus required>
-                </div>
-            </div>
-
-            <!-- Password -->
-            <div class="form-row">
-                <label for="id_password">Password</label>
-                <div class="input-wrapper">
-                    <span class="input-icon">🔒</span>
-                    <input type="password" name="password" id="id_password" placeholder="Enter your password" required>
-                    <button type="button" class="password-toggle" id="togglePassword" aria-label="Show/hide password">
-                        👁️
-                    </button>
-                </div>
-            </div>
-
-            <!-- Remember Me -->
+            {{ form.as_p }}
             <div class="checkbox-row">
                 <input type="checkbox" name="remember" id="id_remember">
                 <label for="id_remember">Remember me</label>
             </div>
-
-            <!-- Submit -->
             <div class="submit-row">
                 <input type="submit" value="🔑 Login to Dashboard">
             </div>
-
             <div class="login-footer">
                 <a href="#">Forgot Password?</a>
                 <span style="color: #E5E7EB; margin: 0 12px;">|</span>
@@ -367,18 +313,4 @@ html, body {
         <br><span style="font-size: 11px; color: #CBD5E1;">Version 1.0</span>
     </div>
 </div>
-
-<script>
-    // Toggle password visibility
-    document.getElementById('togglePassword').addEventListener('click', function() {
-        var passwordInput = document.getElementById('id_password');
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            this.textContent = '🙈';
-        } else {
-            passwordInput.type = 'password';
-            this.textContent = '👁️';
-        }
-    });
-</script>
 {% endblock %}

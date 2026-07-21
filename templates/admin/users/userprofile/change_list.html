@@ -490,38 +490,38 @@
         </div>
     </div>
 
-    <!-- ===== STATISTICS CARDS ===== -->
+    <!-- ===== STATISTICS CARDS (CLICKABLE) ===== -->
     <div class="stats-grid">
-        <div class="stat-card">
+        <a href="{% url 'admin:users_userprofile_changelist' %}" class="stat-card" style="text-decoration:none; color: inherit; display:block;">
             <span class="stat-icon">👥</span>
             <div class="stat-number">{{ cl.result_count }}</div>
             <div class="stat-label">Total Users</div>
-        </div>
-        <div class="stat-card blue">
+        </a>
+        <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=learner" class="stat-card blue" style="text-decoration:none; color: inherit; display:block;">
             <span class="stat-icon">🎓</span>
             <div class="stat-number">{{ student_count|default:"0" }}</div>
             <div class="stat-label">Learners</div>
-        </div>
-        <div class="stat-card gold">
+        </a>
+        <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=teacher" class="stat-card gold" style="text-decoration:none; color: inherit; display:block;">
             <span class="stat-icon">👨‍🏫</span>
             <div class="stat-number">{{ teacher_count|default:"0" }}</div>
             <div class="stat-label">Teachers</div>
-        </div>
-        <div class="stat-card" style="border-left:4px solid #0B8A4A;">
+        </a>
+        <a href="{% url 'admin:users_userprofile_changelist' %}?verification_status__exact=verified" class="stat-card" style="border-left:4px solid #0B8A4A; text-decoration:none; color: inherit; display:block;">
             <span class="stat-icon">✅</span>
             <div class="stat-number">{{ verified_count|default:"0" }}</div>
             <div class="stat-label">Verified</div>
-        </div>
-        <div class="stat-card" style="border-left:4px solid #D4AF37;">
+        </a>
+        <a href="{% url 'admin:users_userprofile_changelist' %}?verification_status__exact=pending" class="stat-card" style="border-left:4px solid #D4AF37; text-decoration:none; color: inherit; display:block;">
             <span class="stat-icon">⏳</span>
             <div class="stat-number">{{ pending_count|default:"0" }}</div>
             <div class="stat-label">Pending</div>
-        </div>
-        <div class="stat-card gold">
+        </a>
+        <a href="{% url 'admin:users_userprofile_changelist' %}?is_premium__exact=True" class="stat-card gold" style="text-decoration:none; color: inherit; display:block;">
             <span class="stat-icon">⭐</span>
             <div class="stat-number">{{ premium_count|default:"0" }}</div>
             <div class="stat-label">Premium</div>
-        </div>
+        </a>
     </div>
 
     <!-- ===== SEARCH + FILTERS ===== -->

@@ -11,8 +11,8 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
     path('admin/logout/', core_views.admin_logout, name='admin_logout'),
     path('admin/', admin_site.urls),  # Use the custom admin site
+    path('debug-templates/', core_views.debug_templates, name='debug_templates'),  # Debug view
     path('', include('dashboard.urls')),
-path('debug-templates/', core_views.debug_templates, name='debug_templates'),
     path('users/', include('users.urls')),
     path('courses/', include('courses.urls')),
 ]

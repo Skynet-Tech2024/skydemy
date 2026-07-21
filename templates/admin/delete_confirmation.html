@@ -1,324 +1,316 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_urls static %}
+{% load i18n static %}
 
 {% block extrahead %}
-    {{ block.super }}
-    <style>
-        /* ============================================================
-           SKYDEMY DELETE CONFIRMATION – Premium Design
-           ============================================================ */
+{{ block.super }}
+<style>
+    /* ===== SKYDEMY DELETE CONFIRMATION PAGE ===== */
+    body {
+        background: #F0FDF4 !important;
+        font-family: 'Inter', 'Segoe UI', sans-serif !important;
+    }
 
-        body {
-            background:
-                linear-gradient(
-                    rgba(248, 250, 252, 0.92),
-                    rgba(248, 250, 252, 0.92)
-                ),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='800' viewBox='0 0 1000 800'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%232563EB;stop-opacity:0.06'/%3E%3Cstop offset='50%25' style='stop-color:%2316A34A;stop-opacity:0.04'/%3E%3Cstop offset='100%25' style='stop-color:%232563EB;stop-opacity:0.06'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1000' height='800' fill='url(%23g)'/%3E%3Cg stroke='%232563EB' stroke-width='1' stroke-opacity='0.08' fill='none'%3E%3Cpolygon points='50,0 100,43.3 100,129.9 50,173.2 0,129.9 0,43.3'/%3E%3Cpolygon points='150,0 200,43.3 200,129.9 150,173.2 100,129.9 100,43.3'/%3E%3Cpolygon points='250,0 300,43.3 300,129.9 250,173.2 200,129.9 200,43.3'/%3E%3Cpolygon points='350,0 400,43.3 400,129.9 350,173.2 300,129.9 300,43.3'/%3E%3Cpolygon points='450,0 500,43.3 500,129.9 450,173.2 400,129.9 400,43.3'/%3E%3Cpolygon points='550,0 600,43.3 600,129.9 550,173.2 500,129.9 500,43.3'/%3E%3Cpolygon points='650,0 700,43.3 700,129.9 650,173.2 600,129.9 600,43.3'/%3E%3Cpolygon points='750,0 800,43.3 800,129.9 750,173.2 700,129.9 700,43.3'/%3E%3Cpolygon points='850,0 900,43.3 900,129.9 850,173.2 800,129.9 800,43.3'/%3E%3Cpolygon points='950,0 1000,43.3 1000,129.9 950,173.2 900,129.9 900,43.3'/%3E%3Cpolygon points='100,0 150,43.3 150,129.9 100,173.2 50,129.9 50,43.3'/%3E%3Cpolygon points='200,0 250,43.3 250,129.9 200,173.2 150,129.9 150,43.3'/%3E%3Cpolygon points='300,0 350,43.3 350,129.9 300,173.2 250,129.9 250,43.3'/%3E%3Cpolygon points='400,0 450,43.3 450,129.9 400,173.2 350,129.9 350,43.3'/%3E%3Cpolygon points='500,0 550,43.3 550,129.9 500,173.2 450,129.9 450,43.3'/%3E%3Cpolygon points='600,0 650,43.3 650,129.9 600,173.2 550,129.9 550,43.3'/%3E%3Cpolygon points='700,0 750,43.3 750,129.9 700,173.2 650,129.9 650,43.3'/%3E%3Cpolygon points='800,0 850,43.3 850,129.9 800,173.2 750,129.9 750,43.3'/%3E%3Cpolygon points='900,0 950,43.3 950,129.9 900,173.2 850,129.9 850,43.3'/%3E%3C/g%3E%3Cg fill='%232563EB' fill-opacity='0.12'%3E%3Ccircle cx='100' cy='86.6' r='6'/%3E%3Ccircle cx='250' cy='86.6' r='8'/%3E%3Ccircle cx='400' cy='86.6' r='6'/%3E%3Ccircle cx='550' cy='86.6' r='8'/%3E%3Ccircle cx='700' cy='86.6' r='6'/%3E%3Ccircle cx='850' cy='86.6' r='8'/%3E%3Ccircle cx='50' cy='173.2' r='5'/%3E%3Ccircle cx='200' cy='173.2' r='7'/%3E%3Ccircle cx='350' cy='173.2' r='5'/%3E%3Ccircle cx='500' cy='173.2' r='7'/%3E%3Ccircle cx='650' cy='173.2' r='5'/%3E%3Ccircle cx='800' cy='173.2' r='7'/%3E%3Ccircle cx='950' cy='173.2' r='5'/%3E%3Ccircle cx='150' cy='259.8' r='6'/%3E%3Ccircle cx='300' cy='259.8' r='8'/%3E%3Ccircle cx='450' cy='259.8' r='6'/%3E%3Ccircle cx='600' cy='259.8' r='8'/%3E%3Ccircle cx='750' cy='259.8' r='6'/%3E%3Ccircle cx='900' cy='259.8' r='8'/%3E%3C/g%3E%3Cg stroke='%2316A34A' stroke-width='1' stroke-opacity='0.06'%3E%3Cline x1='100' y1='86.6' x2='50' y2='173.2'/%3E%3Cline x1='250' y1='86.6' x2='200' y2='173.2'/%3E%3Cline x1='400' y1='86.6' x2='350' y2='173.2'/%3E%3Cline x1='550' y1='86.6' x2='500' y2='173.2'/%3E%3Cline x1='700' y1='86.6' x2='650' y2='173.2'/%3E%3Cline x1='850' y1='86.6' x2='800' y2='173.2'/%3E%3C/g%3E%3Cg fill='%2316A34A' fill-opacity='0.08'%3E%3Ccircle cx='320' cy='420' r='3'/%3E%3Ccircle cx='680' cy='350' r='4'/%3E%3Ccircle cx='150' cy='500' r='3'/%3E%3Ccircle cx='850' cy='450' r='4'/%3E%3Ccircle cx='500' cy='600' r='5'/%3E%3Ccircle cx='200' cy='680' r='3'/%3E%3Ccircle cx='750' cy='550' r='4'/%3E%3Ccircle cx='420' cy='700' r='3'/%3E%3Ccircle cx='600' cy='450' r='4'/%3E%3Ccircle cx='900' cy='650' r='3'/%3E%3Ccircle cx='100' cy='350' r='4'/%3E%3Ccircle cx='780' cy='680' r='3'/%3E%3C/g%3E%3Cpath d='M0,300 Q200,280 400,300 T800,300 T1000,300' stroke='%232563EB' stroke-width='0.5' stroke-opacity='0.04' fill='none'/%3E%3Cpath d='M0,400 Q200,380 400,400 T800,400 T1000,400' stroke='%2316A34A' stroke-width='0.5' stroke-opacity='0.04' fill='none'/%3E%3Cpath d='M0,500 Q200,480 400,500 T800,500 T1000,500' stroke='%232563EB' stroke-width='0.5' stroke-opacity='0.04' fill='none'/%3E%3Cg stroke='%232563EB' stroke-width='1' stroke-opacity='0.04' fill='none'%3E%3Cpolygon points='50,346.4 100,389.7 100,476.3 50,519.6 0,476.3 0,389.7'/%3E%3Cpolygon points='150,346.4 200,389.7 200,476.3 150,519.6 100,476.3 100,389.7'/%3E%3Cpolygon points='250,346.4 300,389.7 300,476.3 250,519.6 200,476.3 200,389.7'/%3E%3Cpolygon points='350,346.4 400,389.7 400,476.3 350,519.6 300,476.3 300,389.7'/%3E%3C/g%3E%3Cg stroke='%2316A34A' stroke-width='0.5' stroke-opacity='0.03'%3E%3Cline x1='100' y1='0' x2='100' y2='800'/%3E%3Cline x1='300' y1='0' x2='300' y2='800'/%3E%3Cline x1='500' y1='0' x2='500' y2='800'/%3E%3Cline x1='700' y1='0' x2='700' y2='800'/%3E%3Cline x1='900' y1='0' x2='900' y2='800'/%3E%3C/g%3E%3C/svg%3E") !important;
-            background-size: cover !important;
-            background-position: center !important;
-            background-attachment: fixed !important;
-            min-height: 100vh !important;
-        }
+    #content {
+        max-width: 780px !important;
+        margin: 40px auto !important;
+        padding: 0 20px !important;
+        background: transparent !important;
+    }
 
-        .delete-confirmation-wrapper {
-            max-width: 700px;
-            margin: 40px auto;
-            animation: fadeInUp 0.5s ease;
-        }
+    /* ----- Confirmation Card ----- */
+    .delete-card {
+        background: #ffffff !important;
+        border-radius: 20px !important;
+        padding: 40px 40px 30px !important;
+        box-shadow: 0 12px 48px rgba(0,0,0,0.08) !important;
+        border: 1px solid #D4AF37 !important;
+        animation: slideUp 0.5s ease forwards !important;
+    }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    @keyframes slideUp {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
 
+    @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+
+    /* ----- Warning Icon ----- */
+    .warning-icon {
+        font-size: 56px !important;
+        display: block !important;
+        text-align: center !important;
+        margin-bottom: 4px !important;
+        color: #D4AF37 !important;
+    }
+
+    /* ----- Title ----- */
+    .delete-title {
+        font-size: 30px !important;
+        font-weight: 800 !important;
+        color: #14532D !important;
+        text-align: center !important;
+        margin: 0 0 6px !important;
+        letter-spacing: -0.5px !important;
+    }
+
+    .delete-subtitle {
+        font-size: 16px !important;
+        color: #374151 !important;
+        text-align: center !important;
+        margin: 0 0 10px !important;
+        font-weight: 400 !important;
+        line-height: 1.5 !important;
+    }
+
+    /* ----- Warning Box ----- */
+    .warning-box {
+        background: #FEF2F2 !important;
+        border-left: 4px solid #DC2626 !important;
+        border-radius: 10px !important;
+        padding: 14px 20px !important;
+        margin: 16px 0 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+    .warning-box .icon {
+        font-size: 22px !important;
+    }
+    .warning-box .text {
+        font-size: 15px !important;
+        color: #991B1B !important;
+        font-weight: 500 !important;
+    }
+
+    /* ----- Impact Badge ----- */
+    .impact-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        background: #14532D !important;
+        color: #fff !important;
+        padding: 10px 24px !important;
+        border-radius: 40px !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        margin: 6px 0 18px !important;
+    }
+
+    /* ----- Object List ----- */
+    .object-list {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        margin: 14px 0 20px !important;
+        padding: 0 !important;
+        list-style: none !important;
+    }
+
+    .object-item {
+        background: #F9FAFB !important;
+        border-radius: 10px !important;
+        padding: 10px 16px !important;
+        border: 1px solid #E5E7EB !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        transition: 0.2s !important;
+    }
+    .object-item:hover {
+        background: #F0FDF4 !important;
+        border-color: #0B8A4A !important;
+    }
+    .object-item .avatar {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg, #0B8A4A, #1FAF6B) !important;
+        color: #fff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        flex-shrink: 0 !important;
+    }
+    .object-item .info {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #1F2937 !important;
+    }
+    .object-item .info small {
+        font-weight: 400 !important;
+        color: #6B7280 !important;
+        font-size: 12px !important;
+        display: block !important;
+        margin-top: 0px !important;
+    }
+    .object-item .role-badge {
+        font-size: 11px !important;
+        background: #E5E7EB !important;
+        color: #374151 !important;
+        padding: 2px 10px !important;
+        border-radius: 20px !important;
+        font-weight: 600 !important;
+        margin-left: auto !important;
+    }
+
+    /* ----- Gold Divider ----- */
+    .gold-divider {
+        height: 2px !important;
+        background: linear-gradient(to right, transparent, #D4AF37, transparent) !important;
+        margin: 18px 0 22px !important;
+        border: none !important;
+    }
+
+    /* ----- Buttons ----- */
+    .button-group {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 14px !important;
+        margin-top: 6px !important;
+    }
+
+    .btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 12px 30px !important;
+        border-radius: 40px !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        text-decoration: none !important;
+        border: none !important;
+        cursor: pointer !important;
+        transition: all 0.25s ease !important;
+        font-family: 'Inter', sans-serif !important;
+        min-width: 140px !important;
+        justify-content: center !important;
+    }
+
+    .btn:hover {
+        transform: scale(1.04) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+    }
+
+    .btn-danger {
+        background: #DC2626 !important;
+        color: #fff !important;
+    }
+    .btn-danger:hover {
+        background: #B91C1C !important;
+    }
+
+    .btn-cancel {
+        background: #0B8A4A !important;
+        color: #fff !important;
+    }
+    .btn-cancel:hover {
+        background: #087B3E !important;
+    }
+
+    .btn-secondary {
+        background: #E5E7EB !important;
+        color: #374151 !important;
+    }
+    .btn-secondary:hover {
+        background: #D1D5DB !important;
+    }
+
+    /* ----- Responsive ----- */
+    @media (max-width: 640px) {
         .delete-card {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-            padding: 40px 45px;
-            overflow: hidden;
+            padding: 24px 16px !important;
         }
-
-        /* Warning banner */
-        .warning-banner {
-            background: #FEF2F2;
-            border-left: 5px solid #DC2626;
-            padding: 14px 20px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 25px;
-            font-weight: 600;
-            color: #991B1B;
-            font-size: 15px;
-        }
-        .warning-banner .icon {
-            font-size: 24px;
-        }
-
-        /* Header with icon */
-        .delete-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 10px;
-        }
-        .delete-header .danger-icon {
-            font-size: 42px;
-            background: #FEE2E2;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .delete-header h1 {
-            font-size: 28px;
-            font-weight: 800;
-            color: #0F172A;
-            margin: 0;
-        }
-        .delete-header .subtitle {
-            color: #64748B;
-            font-size: 16px;
-            margin-top: 4px;
-        }
-
-        /* Impact summary */
-        .impact-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 30px;
-            background: #F8FAFC;
-            border-radius: 14px;
-            padding: 18px 24px;
-            margin: 20px 0 18px 0;
-            border: 1px solid #E5E7EB;
-        }
-        .impact-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 15px;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
-        }
-        .impact-item:last-child,
-        .impact-item:nth-last-child(2) {
-            border-bottom: none;
-        }
-        .impact-item .label {
-            color: #475569;
-            font-weight: 500;
-        }
-        .impact-item .count {
-            font-weight: 700;
-            color: #0F172A;
-        }
-
-        /* Object list */
         .object-list {
-            background: #F8FAFC;
-            border-radius: 12px;
-            padding: 0;
-            margin: 16px 0 22px 0;
-            border: 1px solid #E5E7EB;
-            overflow: hidden;
+            grid-template-columns: 1fr !important;
         }
-        .object-list summary {
-            padding: 14px 20px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #2563EB;
-            user-select: none;
-            transition: background 0.2s;
+        .delete-title {
+            font-size: 24px !important;
         }
-        .object-list summary:hover {
-            background: rgba(37, 99, 235, 0.04);
+        .btn {
+            width: 100% !important;
+            min-width: unset !important;
         }
-        .object-list summary::marker {
-            color: #2563EB;
+        .button-group {
+            flex-direction: column !important;
+            align-items: stretch !important;
         }
-        .object-list .details-content {
-            padding: 0 20px 18px 20px;
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 14px;
-            color: #1E293B;
-            line-height: 1.7;
+        .impact-badge {
+            font-size: 14px !important;
+            padding: 8px 18px !important;
         }
-        .object-list .details-content ul {
-            margin: 8px 0 0 20px;
-            padding: 0;
+        .warning-box .text {
+            font-size: 14px !important;
         }
-        .object-list .details-content ul li {
-            list-style: disc;
-            color: #475569;
-        }
-
-        /* Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 16px;
-            margin-top: 28px;
-            flex-wrap: wrap;
-        }
-        .action-buttons .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 32px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 16px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            flex: 1;
-            justify-content: center;
-            min-width: 140px;
-        }
-        .action-buttons .btn-cancel {
-            background: #F1F5F9;
-            color: #1E293B;
-        }
-        .action-buttons .btn-cancel:hover {
-            background: #E2E8F0;
-            transform: translateY(-2px);
-        }
-        .action-buttons .btn-danger {
-            background: #DC2626;
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
-        }
-        .action-buttons .btn-danger:hover {
-            background: #B91C1C;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .delete-card {
-                padding: 24px 18px;
-                border-radius: 18px;
-            }
-            .delete-header h1 {
-                font-size: 22px;
-            }
-            .delete-header .danger-icon {
-                width: 54px;
-                height: 54px;
-                font-size: 30px;
-            }
-            .impact-grid {
-                grid-template-columns: 1fr;
-                gap: 4px;
-            }
-            .impact-item {
-                border-bottom: 1px solid rgba(229, 231, 235, 0.5);
-            }
-            .impact-item:last-child {
-                border-bottom: none;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
-            .action-buttons .btn {
-                flex: none;
-                padding: 14px 20px;
-                font-size: 15px;
-            }
-            .warning-banner {
-                font-size: 13px;
-                padding: 10px 14px;
-            }
-        }
-    </style>
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="delete-confirmation-wrapper">
-    <div class="delete-card">
+<div class="delete-card">
+    <!-- Warning Icon -->
+    <span class="warning-icon">🗑️</span>
 
-        <!-- Warning Banner -->
-        <div class="warning-banner">
-            <span class="icon">⚠️</span>
-            <span><strong>WARNING:</strong> This action is irreversible. All related records will be permanently deleted.</span>
-        </div>
+    <!-- Title -->
+    <h1 class="delete-title">Delete User Profiles</h1>
+    <p class="delete-subtitle">
+        You are about to permanently delete the selected user profiles.
+    </p>
 
-        <!-- Header -->
-        <div class="delete-header">
-            <div class="danger-icon">🗑️</div>
-            <div>
-                <h1>Delete {{ opts.verbose_name_plural|capfirst }}</h1>
-                <div class="subtitle">You are about to permanently delete {{ objects|length }} {{ opts.verbose_name }} and all associated records.</div>
-            </div>
-        </div>
+    <!-- Impact Badge -->
+    <div style="text-align: center;">
+        <span class="impact-badge">
+            👥 {{ objects|length }} User Profiles
+        </span>
+    </div>
 
-        <!-- Impact Summary (auto-calculated from object list) -->
-        <div class="impact-grid">
-            <div class="impact-item">
-                <span class="label">👥 {{ opts.verbose_name_plural|capfirst }}</span>
-                <span class="count">{{ objects|length }}</span>
-            </div>
-            {% if deleted_objects %}
-                {# We'll show a few key categories – this is a simplified example #}
-                <div class="impact-item">
-                    <span class="label">📄 Related Objects</span>
-                    <span class="count">{{ deleted_objects|length }}</span>
-                </div>
-            {% endif %}
-            <div class="impact-item">
-                <span class="label">🔒 Irreversible</span>
-                <span class="count" style="color:#DC2626;">Yes</span>
-            </div>
-            <div class="impact-item">
-                <span class="label">📅 Action</span>
-                <span class="count">Permanent Deletion</span>
-            </div>
-        </div>
+    <!-- Warning Box -->
+    <div class="warning-box">
+        <span class="icon">⚠️</span>
+        <span class="text">This action is <strong>permanent</strong> and <strong>cannot be undone</strong>.</span>
+    </div>
 
-        <!-- Object List (collapsible) -->
-        <details class="object-list">
-            <summary>📋 Show items to be deleted ({{ objects|length }} items)</summary>
-            <div class="details-content">
-                <ul>
-                    {% for obj in objects %}
-                        <li>{{ obj }}</li>
-                    {% endfor %}
-                </ul>
-                {% if deleted_objects %}
-                    <p style="margin-top:12px; font-weight:600; color:#475569;">Related objects:</p>
-                    <ul>
-                        {% for obj in deleted_objects %}
-                            <li style="color:#64748B;">{{ obj }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        </details>
+    <!-- Objects List -->
+    <p style="font-weight: 700; color: #14532D; font-size: 15px; margin: 0 0 6px;">
+        Affected users:
+    </p>
+    <ul class="object-list">
+        {% for obj in objects %}
+        <li class="object-item">
+            <span class="avatar">{{ obj.user.username|slice:":1"|upper }}</span>
+            <span class="info">
+                {{ obj.user.get_full_name|default:obj.user.username }}
+                <small>@{{ obj.user.username }}</small>
+            </span>
+            <span class="role-badge">{{ obj.get_role_display }}</span>
+        </li>
+        {% endfor %}
+    </ul>
 
-        <!-- Action Buttons -->
-        <form method="post" style="margin:0;">
+    <!-- Gold Divider -->
+    <div class="gold-divider"></div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+        <a href="{% url 'admin:users_userprofile_changelist' %}" class="btn btn-cancel">
+            ← Go Back
+        </a>
+        <form method="post" style="display:inline;">
             {% csrf_token %}
-            <div class="action-buttons">
-                <a href="{% url opts|admin_urlname:'changelist' %}" class="btn btn-cancel">
-                    ← Cancel
-                </a>
-                <button type="submit" class="btn btn-danger">
-                    🗑️ Delete Permanently
-                </button>
-            </div>
+            <input type="hidden" name="action" value="delete_selected">
+            <input type="hidden" name="post" value="yes">
+            {% for obj in objects %}
+                <input type="hidden" name="selected" value="{{ obj.pk }}">
+            {% endfor %}
+            <button type="submit" class="btn btn-danger">
+                🗑 Delete Permanently
+            </button>
         </form>
-
     </div>
 </div>
 {% endblock %}

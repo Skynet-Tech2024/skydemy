@@ -1,374 +1,72 @@
 {% extends "admin/base_site.html" %}
 
-{% load static %}
+{% block footer %}
+<!-- ===== SKYDEMY BRANDED FOOTER (Admin) ===== -->
+<div style="background: #0B5E3A; color: #e9ecef; padding: 40px 20px 20px; margin-top: 40px; border-top: 4px solid #D4AF37; font-family: 'Segoe UI', sans-serif;">
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px;">
 
-{% block extrahead %}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style id="admin-styles">
-        /* ===== Django Admin Custom Styles ===== */
-        /* Dark Gradient Background for ALL admin pages */
-
-        html, body {
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #1E3A5F 60%, #0F172A 100%) !important;
-            background-size: cover !important;
-            background-position: center !important;
-            background-attachment: fixed !important;
-            min-height: 100vh !important;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        }
-
-        /* Override default Django admin header */
-        #header {
-            background: #1a3a2a !important;
-            color: #fff !important;
-            padding: 18px 30px !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
-            border-bottom: 4px solid #ffd700 !important;
-        }
-
-        #header h1 {
-            font-size: 28px !important;
-            font-weight: 700 !important;
-            letter-spacing: 0.5px !important;
-            color: #fff !important;
-        }
-
-        #header a {
-            color: #ffd700 !important;
-        }
-        #header a:hover {
-            color: #fff !important;
-        }
-
-        /* ----- Login page specific (applies only when login form is shown) ----- */
-        .login-container {
-            max-width: 420px;
-            margin: 0 auto;
-            animation: fadeInUp 0.6s ease;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Login Card – glass effect */
-        .login-card {
-            background: rgba(255, 255, 255, 0.92) !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            border-radius: 24px !important;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
-            padding: 40px 35px !important;
-            transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-        }
-        .login-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 30px 80px rgba(0,0,0,0.35) !important;
-        }
-
-        /* Style for the login form inside */
-        .login-brand {
-            text-align: center !important;
-            margin-bottom: 30px !important;
-        }
-        .login-brand .logo-icon {
-            font-size: 48px !important;
-            display: block !important;
-            margin-bottom: 8px !important;
-        }
-        .login-brand h1 {
-            font-size: 28px !important;
-            font-weight: 800 !important;
-            color: #0F172A !important;
-            letter-spacing: -0.5px !important;
-            margin: 0 !important;
-        }
-        .login-brand h1 span {
-            color: #16A34A !important;
-        }
-        .login-brand .subtitle {
-            font-size: 14px !important;
-            color: #64748B !important;
-            font-weight: 400 !important;
-            margin-top: 4px !important;
-        }
-        .login-brand .admin-badge {
-            display: inline-block !important;
-            background: #16A34A !important;
-            color: #fff !important;
-            font-size: 11px !important;
-            font-weight: 600 !important;
-            padding: 2px 14px !important;
-            border-radius: 20px !important;
-            margin-top: 6px !important;
-            letter-spacing: 0.5px !important;
-        }
-
-        .form-row {
-            margin-bottom: 20px !important;
-        }
-        .form-row label {
-            display: block !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            color: #1E293B !important;
-            margin-bottom: 5px !important;
-        }
-
-        .input-wrapper {
-            position: relative !important;
-        }
-        .input-wrapper .input-icon {
-            position: absolute !important;
-            left: 14px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            font-size: 18px !important;
-            color: #94A3B8 !important;
-            pointer-events: none !important;
-        }
-        .input-wrapper input {
-            width: 100% !important;
-            padding: 12px 14px 12px 46px !important;
-            border: 2px solid #E5E7EB !important;
-            border-radius: 12px !important;
-            font-size: 15px !important;
-            transition: all 0.3s ease !important;
-            background: #F8FAFC !important;
-            color: #0F172A !important;
-            box-sizing: border-box !important;
-        }
-        .input-wrapper input:focus {
-            outline: none !important;
-            border-color: #2563EB !important;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
-            background: #fff !important;
-        }
-        .input-wrapper input::placeholder {
-            color: #94A3B8 !important;
-            font-weight: 400 !important;
-        }
-
-        .password-toggle {
-            position: absolute !important;
-            right: 14px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            background: none !important;
-            border: none !important;
-            font-size: 20px !important;
-            cursor: pointer !important;
-            color: #94A3B8 !important;
-            padding: 4px !important;
-            transition: color 0.2s !important;
-        }
-        .password-toggle:hover {
-            color: #1E293B !important;
-        }
-
-        .errornote {
-            background: #FEE2E2 !important;
-            color: #991B1B !important;
-            padding: 12px 16px !important;
-            border-radius: 10px !important;
-            border-left: 4px solid #EF4444 !important;
-            font-size: 14px !important;
-            margin-bottom: 20px !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-        }
-        .errornote::before {
-            content: "⚠️";
-            font-size: 18px;
-        }
-
-        .submit-row input[type="submit"] {
-            width: 100% !important;
-            padding: 14px !important;
-            background: #2563EB !important;
-            color: #fff !important;
-            border: none !important;
-            border-radius: 12px !important;
-            font-size: 16px !important;
-            font-weight: 700 !important;
-            cursor: pointer !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25) !important;
-            letter-spacing: 0.3px !important;
-        }
-        .submit-row input[type="submit"]:hover {
-            background: #1D4ED8 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35) !important;
-        }
-        .submit-row input[type="submit"]:active {
-            transform: translateY(0) !important;
-        }
-
-        .checkbox-row {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            margin-bottom: 20px !important;
-        }
-        .checkbox-row input[type="checkbox"] {
-            width: 18px !important;
-            height: 18px !important;
-            accent-color: #16A34A !important;
-            cursor: pointer !important;
-            border-radius: 4px !important;
-        }
-        .checkbox-row label {
-            margin: 0 !important;
-            font-weight: 500 !important;
-            color: #475569 !important;
-            font-size: 14px !important;
-            cursor: pointer !important;
-        }
-
-        .login-footer {
-            text-align: center !important;
-            margin-top: 25px !important;
-            padding-top: 20px !important;
-            border-top: 1px solid #E5E7EB !important;
-        }
-        .login-footer a {
-            color: #2563EB !important;
-            text-decoration: none !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            transition: color 0.2s !important;
-        }
-        .login-footer a:hover {
-            color: #16A34A !important;
-            text-decoration: underline !important;
-        }
-
-        .page-footer {
-            text-align: center !important;
-            margin-top: 30px !important;
-            font-size: 13px !important;
-            color: #94A3B8 !important;
-        }
-        .page-footer span {
-            color: #16A34A !important;
-            font-weight: 600 !important;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 30px 20px !important;
-                border-radius: 16px !important;
-            }
-            .login-brand h1 {
-                font-size: 24px !important;
-            }
-            .login-brand .logo-icon {
-                font-size: 38px !important;
-            }
-            .input-wrapper input {
-                padding: 10px 14px 10px 40px !important;
-                font-size: 14px !important;
-            }
-            .submit-row input[type="submit"] {
-                padding: 12px !important;
-                font-size: 15px !important;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .login-card {
-                padding: 20px 16px !important;
-            }
-            .login-brand h1 {
-                font-size: 20px !important;
-            }
-        }
-
-        /* Dashboards and modules – keep them readable on dark background */
-        .dashboard .module,
-        .dashboard .module * {
-            background: rgba(255, 255, 255, 0.85) !important;
-            backdrop-filter: blur(10px) !important;
-        }
-        #content {
-            background: transparent !important;
-        }
-
-        /* Custom header brand */
-        .branding-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .branding-wrapper .site-name {
-            font-size: 28px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.5px;
-        }
-        .branding-wrapper .site-name span {
-            color: #f39c12;
-        }
-        .branding-wrapper .admin-tag {
-            font-size: 14px;
-            color: #aaa;
-            font-weight: 300;
-            background: rgba(255,255,255,0.1);
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-    </style>
-{% endblock %}
-
-{% block branding %}
-    <div class="branding-wrapper">
-        <div class="site-name">SKY<span>DEMY</span></div>
-        <span class="admin-tag">Admin</span>
-    </div>
-{% endblock %}
-
-{% block usertools %}
-    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-
-        <div style="display: flex; gap: 4px; align-items: center;">
-            <span class="theme-toggle" onclick="setTheme('auto')" title="Auto theme" style="background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 20px; cursor: pointer; color: #fff;">🌓</span>
-            <span class="theme-toggle" onclick="setTheme('light')" title="Light theme" style="background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 20px; cursor: pointer; color: #fff;">☀️</span>
-            <span class="theme-toggle" onclick="setTheme('dark')" title="Dark theme" style="background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 20px; cursor: pointer; color: #fff;">🌙</span>
+        <!-- About -->
+        <div>
+            <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin: 0 0 6px;">SKY<span style="color: #D4AF37;">DEMY</span></h3>
+            <p style="font-size: 14px; line-height: 1.6; color: #d4dce8; margin-top: 6px;">Modern e-learning platform for practical skills and recognized certifications.</p>
+            <div style="margin-top: 14px; display: flex; gap: 14px;">
+                <a href="#" style="color: #d4dce8; font-size: 20px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">📘</a>
+                <a href="#" style="color: #d4dce8; font-size: 20px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">📸</a>
+                <a href="#" style="color: #d4dce8; font-size: 20px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">▶️</a>
+                <a href="#" style="color: #d4dce8; font-size: 20px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">💬</a>
+            </div>
         </div>
 
-        <a href="/" class="view-site-btn" style="background: rgba(46,204,113,0.3); color: #fff; padding: 6px 14px; border-radius: 6px; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px;">
-            🏠 View Site
-        </a>
+        <!-- Quick Links -->
+        <div>
+            <h4 style="color: #D4AF37; font-size: 16px; font-weight: 700; margin: 0 0 12px;">Quick Links</h4>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 2.2;">
+                <li><a href="/" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">Home</a></li>
+                <li><a href="/courses/" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">Courses</a></li>
+                <li><a href="/about/" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">About Us</a></li>
+                <li><a href="/contact/" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">Contact</a></li>
+            </ul>
+        </div>
 
-        <a href="{% url 'admin:logout' %}" class="logout-btn" style="background: rgba(231,76,60,0.3); color: #fff; padding: 6px 14px; border-radius: 6px; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px;">
-            🚪 Logout
-        </a>
+        <!-- Support -->
+        <div>
+            <h4 style="color: #D4AF37; font-size: 16px; font-weight: 700; margin: 0 0 12px;">Support</h4>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 2.2;">
+                <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">Help Centre</a></li>
+                <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">FAQs</a></li>
+                <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">Privacy Policy</a></li>
+                <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">Terms of Service</a></li>
+            </ul>
+        </div>
 
-        <span style="color: #aaa; font-size: 13px; padding: 4px 12px; background: rgba(255,255,255,0.05); border-radius: 20px;">
-            👤 {{ user.username }}
-        </span>
+        <!-- Contact & WhatsApp -->
+        <div>
+            <h4 style="color: #D4AF37; font-size: 16px; font-weight: 700; margin: 0 0 12px;">Contact</h4>
+            <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">📞 +237 652 924 816</p>
+            <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">✉️ nckenny59@gmail.com</p>
+            <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">📍 New Hope College, Souza, Cameroon</p>
+            <p style="font-size: 13px; margin: 8px 0; color: #d4dce8;">🕒 Mon–Sat, 8am–6pm</p>
+            <div style="margin-top: 14px;">
+                <a href="https://whatsapp.com/channel/0029VbD3W1RIHphEmykn2h3H" target="_blank" style="display: inline-block; background: #25D366; color: #fff; padding: 8px 20px; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#128C7E'" onmouseout="this.style.background='#25D366'">
+                    💬 Join WhatsApp Channel
+                </a>
+            </div>
+        </div>
+
     </div>
 
-    <script>
-        function setTheme(theme) {
-            const html = document.documentElement;
-            if (theme === 'auto') {
-                html.removeAttribute('data-theme');
-            } else {
-                html.setAttribute('data-theme', theme);
-            }
-            localStorage.setItem('adminTheme', theme);
-        }
-        document.addEventListener('DOMContentLoaded', function() {
-            const saved = localStorage.getItem('adminTheme');
-            if (saved) {
-                setTheme(saved);
-            }
-        });
-    </script>
+    <!-- Copyright Bar -->
+    <div style="max-width: 1200px; margin: 30px auto 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 13px; color: #b0c4d8;">
+        <div>
+            © 2026 <strong style="color: #fff;">SKYDEMY</strong>. All Rights Reserved.<br>
+            <span style="color: #8a9fb0;">Designed & Developed by SKYNET Tech</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+            <a href="#" style="color: #b0c4d8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#b0c4d8'">Privacy Policy</a>
+            <a href="#" style="color: #b0c4d8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#b0c4d8'">Terms of Service</a>
+            <a href="#" style="color: #b0c4d8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#b0c4d8'">Cookies</a>
+            <span style="color: #6c7d8e;">Version 2.0</span>
+        </div>
+    </div>
+</div>
 {% endblock %}

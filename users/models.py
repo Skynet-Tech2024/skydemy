@@ -22,7 +22,8 @@ class UserProfile(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='learner')
-    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, blank=True, null=True)
+    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='primary')  # Now required with default
+    whatsapp_number = models.CharField(max_length=20, blank=True, null=True, help_text="Optional WhatsApp number for announcements")  # New
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     total_lessons_completed = models.IntegerField(default=0)
     is_premium = models.BooleanField(default=False, help_text="Premium subscription for PDF downloads")

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils.html import format_html
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib import messages
 from django.urls import path
 from .models import UserProfile, Notification, Follow, Wishlist, ProgressHistory, WhatsAppAnnouncement, Message
@@ -119,20 +119,19 @@ class UserProfileAdmin(admin.ModelAdmin):
         custom_urls = [
             path('verify/<int:profile_id>/', self.admin_site.admin_view(self.verify_view), name='verify_user'),
             path('delete/<int:profile_id>/', self.admin_site.admin_view(self.delete_view), name='delete_user'),
+            path('premium/<int:profile_id>/', self.admin_site.admin_view(self.premium_view), name='make_premium'),
         ]
         return custom_urls + urls
 
     def verify_view(self, request, profile_id):
         profile = get_object_or_404(UserProfile, id=profile_id)
         if request.method == 'GET':
-            # Show confirmation or directly verify (with a GET param for confirmation)
             if request.GET.get('confirm', 'no') == 'yes':
                 profile.verification_status = 'verified'
                 profile.save()
                 self.message_user(request, f'✅ User "{profile.user.get_full_name() or profile.user.username}" verified successfully.')
                 return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))
             else:
-                # Show a simple confirmation page
                 return self.admin_site.admin_view(
                     lambda r: render(
                         r,
@@ -159,6 +158,20 @@ class UserProfileAdmin(admin.ModelAdmin):
                         {'profile': profile, 'action': 'Delete'}
                     )
                 )(request)
+        return redirect('/admin/users/userprofile/')
+
+    def premium_view(self, request, profile_id):
+        profile = get_object_or_404(UserProfile, id=profile_id)
+        if request.method == 'GET':
+            if request.GET.get('confirm', 'no') == 'yes':
+                # Toggle premium status
+                profile.is_premium = not profile.is_premium
+                profile.save()
+                status = "⭐ Premium" if profile.is_premium else "Free"
+                self.message_user(request, f'User "{profile.user.get_full_name() or profile.user.username}" is now {status}.')
+                return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))
+            else:
+                return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))
         return redirect('/admin/users/userprofile/')
 
     change_list_template = 'admin/users/userprofile/change_list.html'

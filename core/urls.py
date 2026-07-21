@@ -1,6 +1,6 @@
 from . import views as core_views
 from dashboard.views import service_worker
-from django.contrib import admin
+from django.contrib import admin  # Use the default admin site
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -9,7 +9,7 @@ urlpatterns = [
     path('sw.js', service_worker),
     path('captcha/', include('captcha.urls')),
     path('admin/logout/', core_views.admin_logout, name='admin_logout'),
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),  # Now uses default admin
     path('', include('dashboard.urls')),
     path('users/', include('users.urls')),
     path('courses/', include('courses.urls')),

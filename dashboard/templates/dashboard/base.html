@@ -258,27 +258,6 @@
             font-weight: 600;
         }
         
-        /* ===== Footer ===== */
-        .footer {
-            text-align: center;
-            padding: 20px 15px;
-            background: #1a1a2e;
-            color: #888;
-            margin-top: 40px;
-            font-size: 13px;
-        }
-        .footer .footer-brand {
-            color: #f39c12;
-            font-weight: 700;
-            font-size: 16px;
-        }
-        .footer .footer-brand span {
-            color: #fff;
-        }
-        .footer p {
-            margin-top: 5px;
-        }
-        
         /* ===== WhatsApp Button ===== */
         .whatsapp-btn {
             position: fixed;
@@ -519,7 +498,12 @@
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
         <a href="{% url 'home' %}" class="brand">
-            <img src="/static/images/logo.png" alt="SKYNET TECH">
+         <a href="{% url 'home' %}" class="brand" style="text-decoration:none;">
+    <div>
+        <div class="site-name">SKY<span>DEMY</span></div>
+        <div class="tagline">INNOVATE · CONNECT · EMPOWER</div>
+    </div>
+</a>
             <div>
                 <div class="site-name">SKY<span>DEMY</span></div>
                 <div class="tagline">INNOVATE · CONNECT · EMPOWER</div>
@@ -581,93 +565,96 @@
         {% endblock %}
     </div>
 
-    <!-- ===== FOOTER ===== -->
-    <div class="footer">
-        <div class="footer-brand">SKY<span>DEMY</span></div>
-        <p>© 2026 SKYNET TECH — Innovate · Connect · Empower</p>
-        <p style="font-size: 12px; color: #666;">Built with Django · E-Learning for Everyone</p>
+        </script>
+<!-- ===== PROFESSIONAL FOOTER (SKYDEMY Branded) ===== -->
+<footer style="background: #0B5E3A; color: #e9ecef; padding: 50px 20px 20px; margin-top: 60px; font-family: 'Inter', 'Segoe UI', sans-serif; border-top: 4px solid #D4AF37;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+
+        <!-- Main Footer Grid (4 columns) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px;">
+
+            <!-- Column 1: About SKYDEMY -->
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <img src="/static/images/logo.png" alt="SKYDEMY" style="height: 40px; width: auto;">
+                    <span style="font-size: 28px; font-weight: 800; color: #fff;">SKY<span style="color: #D4AF37;">DEMY</span></span>
+                </div>
+                <p style="font-size: 14px; line-height: 1.7; color: #d4dce8; margin-top: 6px;">
+                    SKYDEMY is a modern e-learning platform dedicated to helping learners gain practical skills through high-quality online courses, interactive learning experiences, and recognized certifications.
+                </p>
+                <!-- Social Icons -->
+                <div style="margin-top: 16px; display: flex; gap: 14px; flex-wrap: wrap;">
+                    <a href="#" style="color: #d4dce8; font-size: 22px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">📘</a>
+                    <a href="#" style="color: #d4dce8; font-size: 22px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">📸</a>
+                    <a href="#" style="color: #d4dce8; font-size: 22px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">▶️</a>
+                    <a href="#" style="color: #d4dce8; font-size: 22px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">🔗</a>
+                    <a href="#" style="color: #d4dce8; font-size: 22px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#d4dce8'">💬</a>
+                </div>
+            </div>
+
+            <!-- Column 2: Quick Links -->
+            <div>
+                <h4 style="color: #D4AF37; font-size: 18px; font-weight: 700; margin: 0 0 16px; letter-spacing: 0.5px;">Quick Links</h4>
+                <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 2.2;">
+                    <li><a href="/" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Home</a></li>
+                    <li><a href="/courses/" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Courses</a></li>
+                    <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Categories</a></li>
+                    <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Pricing</a></li>
+                    <li><a href="/about/" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">About Us</a></li>
+                    <li><a href="/contact/" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 3: Support -->
+            <div>
+                <h4 style="color: #D4AF37; font-size: 18px; font-weight: 700; margin: 0 0 16px; letter-spacing: 0.5px;">Support</h4>
+                <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 2.2;">
+                    <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Help Centre</a></li>
+                    <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">FAQs</a></li>
+                    <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Privacy Policy</a></li>
+                    <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Terms & Conditions</a></li>
+                    <li><a href="#" style="color: #d4dce8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'; this.style.paddingLeft='6px'" onmouseout="this.style.color='#d4dce8'; this.style.paddingLeft='0'">Refund Policy</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 4: Contact + WhatsApp Channel -->
+            <div>
+                <h4 style="color: #D4AF37; font-size: 18px; font-weight: 700; margin: 0 0 16px; letter-spacing: 0.5px;">Contact</h4>
+                <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">📞 +237 652 924 816</p>
+                <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">✉️ nckenny59@gmail.com</p>
+                <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">📍 New Hope College, Souza, Cameroon</p>
+                <p style="font-size: 13px; margin: 8px 0; color: #d4dce8;">🕒 Mon–Sat, 8am–6pm</p>
+
+                <!-- WhatsApp Channel -->
+                <div style="margin-top: 20px; background: rgba(255,255,255,0.06); padding: 16px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.3);">
+                    <h5 style="color: #D4AF37; font-size: 15px; font-weight: 700; margin: 0 0 8px;">Stay Connected</h5>
+                    <p style="font-size: 13px; color: #d4dce8; margin: 0 0 12px;">
+                        Get platform announcements, course updates, and special offers via WhatsApp.
+                    </p>
+                    <a href="https://whatsapp.com/channel/0029VbD3W1RIHphEmykn2h3H" target="_blank" style="display: inline-block; background: #25D366; color: #fff; padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#128C7E'" onmouseout="this.style.background='#25D366'">
+                        💬 Join WhatsApp Channel
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gold Divider -->
+        <div style="margin: 40px 0 20px; border-top: 2px solid rgba(212,175,55,0.3);"></div>
+
+        <!-- Copyright Bar -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 13px; color: #b0c4d8;">
+            <div>
+                © 2026 <strong style="color: #fff;">SKYDEMY</strong>. All Rights Reserved.<br>
+                <span style="color: #8a9fb0;">Designed & Developed by SKYNET Tech</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 8px;">
+                <a href="#" style="color: #b0c4d8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#b0c4d8'">Privacy Policy</a>
+                <a href="#" style="color: #b0c4d8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#b0c4d8'">Terms of Service</a>
+                <a href="#" style="color: #b0c4d8; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#b0c4d8'">Cookies</a>
+                <span style="color: #6c7d8e;">Version 2.0</span>
+            </div>
+        </div>
     </div>
-
-    <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/237652924816" target="_blank" class="whatsapp-btn">
-        💬
-        <span class="badge">Contact</span>
-    </a>
-
-    <script>
-        // Hide preloader after page fully loads
-        window.addEventListener('load', function() {
-            document.getElementById('preloader').classList.add('hidden');
-        });
-        // Fallback: hide after 2 seconds even if load event is slow
-        setTimeout(function() {
-            document.getElementById('preloader').classList.add('hidden');
-        }, 2000);
-        
-        // Fetch unread notification count
-        function updateNotificationBadge() {
-            fetch('/notifications/unread-count/')
-                .then(response => response.json())
-                .then(data => {
-                    const badge = document.getElementById('notification-badge');
-                    if (data.count > 0) {
-                        badge.style.display = 'inline';
-                        badge.textContent = data.count > 99 ? '99+' : data.count;
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                })
-                .catch(err => console.log('Error fetching notification count:', err));
-        }
-        updateNotificationBadge();
-        setInterval(updateNotificationBadge, 30000);
-
-        // PWA: Register service worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('Service Worker registered with scope:', registration.scope);
-                    })
-                    .catch(function(err) {
-                        console.log('Service Worker registration failed:', err);
-                    });
-            });
-        }
-
-        // PWA: Custom install button
-        let deferredPrompt;
-        const installButton = document.createElement('button');
-        installButton.textContent = '📲 Install App';
-        installButton.style.cssText = `
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            background: #f39c12; color: #1a1a2e; border: none; padding: 12px 30px;
-            border-radius: 30px; font-weight: 600; font-size: 16px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 99999;
-            display: none;
-        `;
-        document.body.appendChild(installButton);
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installButton.style.display = 'block';
-        });
-
-        installButton.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const result = await deferredPrompt.userChoice;
-                console.log('User choice:', result.outcome);
-                deferredPrompt = null;
-                installButton.style.display = 'none';
-            }
-        });
-
-        window.addEventListener('appinstalled', () => {
-            installButton.style.display = 'none';
-            console.log('App installed successfully!');
-        });
-    </script>
+</footer>
 </body>
 </html>

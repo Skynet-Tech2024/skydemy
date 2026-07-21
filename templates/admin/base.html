@@ -1,9 +1,8 @@
 {% extends "admin/base.html" %}
 
 {% block footer %}
-{{ block.super }}
-<!-- ===== SKYDEMY FOOTER (injected via base.html override) ===== -->
-<div style="background: #0B5E3A; color: #e9ecef; padding: 40px 20px 20px; margin-top: 40px; border-top: 4px solid #D4AF37; font-family: 'Segoe UI', sans-serif;">
+<!-- ===== SKYDEMY FOOTER (injected at the very bottom of every admin page) ===== -->
+<div style="background: #0B5E3A; color: #e9ecef; padding: 40px 20px 20px; margin-top: 40px; border-top: 4px solid #D4AF37; font-family: 'Segoe UI', sans-serif; clear: both;">
     <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px;">
         <div>
             <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin: 0 0 6px;">SKY<span style="color: #D4AF37;">DEMY</span></h3>
@@ -57,4 +56,5 @@
         </div>
     </div>
 </div>
+{{ block.super }}
 {% endblock %}

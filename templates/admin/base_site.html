@@ -1,8 +1,14 @@
-{% extends "admin/base.html" %}
+{% extends "admin/base_site.html" %}
+{% load static %}
 
-{% block content %}
-<h1 style="color:white;font-size:60px;background:red;padding:40px;text-align:center;margin:0;">
-    🔴 THIS IS MY CUSTOM TEMPLATE
+{% block title %}SKYDEMY Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <span style="color: #D4AF37;">SKY</span>DEMY Admin
+    </a>
 </h1>
-{{ block.super }}
 {% endblock %}
+
+{% block nav-global %}{% endblock %}

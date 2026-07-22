@@ -16,24 +16,23 @@ def register(request):
                 user = form.save(commit=False)
                 # Keep account active; use verification_status for permissions
                 user.is_active = True
-                user.save()  # Now save the user
-                print(f"🟢 User saved: {user.username}")
+                user.save()  # Now save the user (this triggers post_save signal to create profile)
 
-                # Now create the UserProfile manually
-                profile = UserProfile.objects.create(
-                    user=user,
-                    role=form.cleaned_data['role'],
-                    level=form.cleaned_data['level'],
-                    whatsapp_number=form.cleaned_data.get('whatsapp_number', ''),
-                    avatar=form.cleaned_data.get('avatar'),
-                    verification_status='pending',
-                    # Identity fields (if any)
-                    id_document=form.cleaned_data.get('id_document'),
-                    id_document_type=form.cleaned_data.get('id_document_type'),
-                    utility_bill=form.cleaned_data.get('utility_bill'),
-                    location_verified=False,
-                )
-                print(f"🟢 Profile created for {user.username}")
+                # Retrieve the profile created by the signal and update it
+                profile = user.profile  # This should exist now
+                profile.role = form.cleaned_data['role']
+                profile.level = form.cleaned_data['level']
+                profile.whatsapp_number = form.cleaned_data.get('whatsapp_number', '')
+                profile.avatar = form.cleaned_data.get('avatar')
+                profile.verification_status = 'pending'
+                # Identity fields
+                profile.id_document = form.cleaned_data.get('id_document')
+                profile.id_document_type = form.cleaned_data.get('id_document_type')
+                profile.utility_bill = form.cleaned_data.get('utility_bill')
+                profile.location_verified = False
+                profile.save()
+
+                print(f"🟢 Profile updated for {user.username}")
 
                 messages.success(
                     request,

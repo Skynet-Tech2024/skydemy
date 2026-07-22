@@ -1,0 +1,482 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_list %}
+
+{% block extrahead %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+<style>
+    /* ===== GLOBAL BRAND RESET ===== */
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+    body {
+        background: #FAF8F0 !important;
+        color: #1F2933 !important;
+    }
+
+    /* ===== FIXED HEADER (deep green) ===== */
+    #header {
+        background: #0B5D3B !important;
+        border-bottom: 3px solid #C9A227 !important;
+        padding: 16px 30px !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+    }
+    #header h1 {
+        color: #fff !important;
+        font-weight: 800 !important;
+        font-size: 22px !important;
+    }
+    #header h1 a { color: #fff !important; }
+    #header h1 a span { color: #C9A227 !important; }
+    .user-tools a {
+        color: #d4dce8 !important;
+    }
+    .user-tools a:hover {
+        color: #C9A227 !important;
+    }
+
+    /* ===== BREADCRUMBS ===== */
+    .breadcrumbs {
+        background: rgba(11, 93, 59, 0.06) !important;
+        border-bottom: 1px solid #e9ecef !important;
+        padding: 10px 30px !important;
+        margin: 0 !important;
+        font-size: 14px !important;
+        backdrop-filter: blur(4px);
+    }
+    .breadcrumbs a {
+        color: #0B5D3B !important;
+        font-weight: 600 !important;
+    }
+    .breadcrumbs a:hover {
+        color: #C9A227 !important;
+    }
+    .breadcrumbs .current {
+        color: #C9A227 !important;
+        font-weight: 700 !important;
+    }
+
+    /* ===== CONTENT AREA ===== */
+    #content {
+        padding: 20px 30px !important;
+        max-width: 1400px !important;
+        margin: 0 auto !important;
+        background: transparent !important;
+    }
+
+    /* ===== TOOLBAR HEADER ===== */
+    .content-title-bar {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        margin-bottom: 20px !important;
+        gap: 16px !important;
+    }
+    .content-title-bar h1 {
+        font-size: 28px !important;
+        font-weight: 800 !important;
+        color: #0B5D3B !important;
+        margin: 0 !important;
+        letter-spacing: -0.5px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+    .content-title-bar h1 .icon {
+        font-size: 30px !important;
+    }
+    .content-title-bar .toolbar-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+    /* Gold primary button */
+    .btn-gold {
+        background: #C9A227 !important;
+        color: #fff !important;
+        padding: 10px 24px !important;
+        border-radius: 30px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3) !important;
+        transition: 0.2s !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+    .btn-gold:hover {
+        background: #B8911F !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(201, 162, 39, 0.4) !important;
+        color: #fff !important;
+    }
+
+    /* ===== SUCCESS BANNER ===== */
+    .success-banner {
+        background: #E8F5E9 !important;
+        border-left: 4px solid #16834C !important;
+        padding: 12px 20px !important;
+        border-radius: 8px !important;
+        margin-bottom: 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        font-size: 15px !important;
+        color: #1F2933 !important;
+    }
+    .success-banner .badge-count {
+        background: #16834C !important;
+        color: #fff !important;
+        padding: 2px 12px !important;
+        border-radius: 30px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+    }
+
+    /* ===== SEARCH + FILTERS (toolbar) ===== */
+    #toolbar {
+        background: #fff !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        border: 1px solid #e9ecef !important;
+        margin-bottom: 24px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 16px !important;
+    }
+    #toolbar form {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        flex: 1 !important;
+        flex-wrap: wrap !important;
+    }
+    #toolbar form #searchbar {
+        flex: 1 !important;
+        min-width: 200px !important;
+        padding: 10px 16px !important;
+        border-radius: 30px !important;
+        border: 1.5px solid #D1D5DB !important;
+        font-size: 14px !important;
+        background: #FAFAFA !important;
+        transition: 0.2s !important;
+    }
+    #toolbar form #searchbar:focus {
+        border-color: #0B5D3B !important;
+        box-shadow: 0 0 0 3px rgba(11, 93, 59, 0.12) !important;
+        outline: none !important;
+        background: #fff !important;
+    }
+    #toolbar form input[type="submit"] {
+        background: #0B5D3B !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 30px !important;
+        padding: 10px 24px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        transition: 0.2s !important;
+    }
+    #toolbar form input[type="submit"]:hover {
+        background: #16834C !important;
+    }
+
+    /* ===== FILTER SIDEBAR ===== */
+    #changelist-filter {
+        background: #fff !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        border: 1px solid #e9ecef !important;
+        margin-bottom: 20px !important;
+        width: 100% !important;
+    }
+    #changelist-filter h2 {
+        background: #F7FAF8 !important;
+        color: #0B5D3B !important;
+        font-size: 16px !important;
+        padding: 10px 16px !important;
+        border-radius: 8px !important;
+        margin-bottom: 16px !important;
+        font-weight: 700 !important;
+    }
+    #changelist-filter h3 {
+        color: #1F2933 !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        margin: 16px 0 6px !important;
+    }
+    #changelist-filter a {
+        color: #4B5563 !important;
+        padding: 4px 0 !important;
+        display: block !important;
+        font-size: 14px !important;
+        transition: 0.2s !important;
+    }
+    #changelist-filter a:hover {
+        color: #0B5D3B !important;
+    }
+    #changelist-filter a.selected {
+        color: #C9A227 !important;
+        font-weight: 700 !important;
+    }
+
+    /* ===== TABLE CARD ===== */
+    .table-wrapper {
+        background: #fff !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        border: 1px solid #e9ecef !important;
+    }
+    #result_list {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+    #result_list thead th {
+        background: #F7FAF8 !important;
+        color: #1F2933 !important;
+        padding: 14px 16px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        border-bottom: 2px solid #e9ecef !important;
+    }
+    #result_list tbody tr {
+        background: #fff !important;
+        border-bottom: 1px solid #f1f3f5 !important;
+        transition: background 0.15s !important;
+    }
+    #result_list tbody tr:nth-child(even) {
+        background: #F9FBF9 !important;
+    }
+    #result_list tbody tr:hover {
+        background: #F0F7F0 !important;
+    }
+    #result_list tbody td {
+        padding: 14px 16px !important;
+        vertical-align: middle !important;
+        font-size: 14px !important;
+        color: #1F2933 !important;
+    }
+    /* Status badge */
+    .badge-status {
+        padding: 4px 14px !important;
+        border-radius: 30px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+    }
+    .badge-status.approved {
+        background: #E8F5E9 !important;
+        color: #16834C !important;
+    }
+    .badge-status.pending {
+        background: #FFF8E1 !important;
+        color: #C9A227 !important;
+    }
+    .badge-status.rejected {
+        background: #FFEBEE !important;
+        color: #C62828 !important;
+    }
+
+    /* ===== PAGINATION ===== */
+    .paginator {
+        background: #F7FAF8 !important;
+        border-radius: 8px !important;
+        padding: 12px 20px !important;
+        margin-top: 20px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+    .paginator a {
+        background: #fff !important;
+        color: #0B5D3B !important;
+        border: 1px solid #e9ecef !important;
+        border-radius: 6px !important;
+        padding: 6px 14px !important;
+        margin: 0 3px !important;
+        font-weight: 600 !important;
+        transition: 0.2s !important;
+        text-decoration: none !important;
+    }
+    .paginator a:hover {
+        background: #0B5D3B !important;
+        color: #fff !important;
+        border-color: #0B5D3B !important;
+    }
+    .paginator .this-page {
+        background: #0B5D3B !important;
+        color: #fff !important;
+        border-radius: 6px !important;
+        padding: 6px 14px !important;
+        margin: 0 3px !important;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        #content { padding: 15px !important; }
+        .content-title-bar { flex-direction: column; align-items: stretch; }
+        .content-title-bar .toolbar-actions { justify-content: flex-start; }
+        #toolbar { flex-direction: column; align-items: stretch; }
+        #toolbar form { flex-direction: column; align-items: stretch; }
+        #toolbar form #searchbar { width: 100% !important; }
+        .table-wrapper { overflow-x: auto !important; }
+        #changelist-filter { width: 100% !important; }
+        .paginator { flex-direction: column; text-align: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+    <!-- ===== TITLE BAR ===== -->
+    <div class="content-title-bar">
+        <h1>
+            <span class="icon">📝</span> Exam Management
+        </h1>
+        <div class="toolbar-actions">
+            <a href="{% url 'admin:courses_exam_add' %}" class="btn-gold">➕ Add Exam</a>
+        </div>
+    </div>
+
+    <!-- ===== SUCCESS BANNER (if any) ===== -->
+    {% if cl.result_count %}
+        <div class="success-banner">
+            <span class="badge-count">{{ cl.result_count }}</span>
+            <span>exam(s) displayed</span>
+            <span style="margin-left: auto; font-size: 13px; color: #4B5563;">
+                {% if cl.result_count == 1 %}1 exam found{% else %}{{ cl.result_count }} exams found{% endif %}
+            </span>
+        </div>
+    {% endif %}
+
+    <!-- ===== SEARCH + FILTERS ===== -->
+    <div id="toolbar">
+        <form id="changelist-search" method="get">
+            <input type="text" name="{{ search_var }}" value="{{ cl.query }}" placeholder="🔍 Search exams..." id="searchbar">
+            <input type="submit" value="Search">
+        </form>
+    </div>
+
+    <!-- ===== FILTERS (sidebar style but full width) ===== -->
+    <div id="changelist-filter">
+        <h2>🔍 Filters</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+            <!-- Level filter -->
+            <div>
+                <h3>Level</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><a href="?level__exact=" {% if not cl.get_filters.0 %}class="selected"{% endif %}>All</a></li>
+                    <li><a href="?level__exact=primary">Primary School</a></li>
+                    <li><a href="?level__exact=secondary">Secondary School</a></li>
+                    <li><a href="?level__exact=university">University / Higher</a></li>
+                </ul>
+            </div>
+            <!-- Status filter -->
+            <div>
+                <h3>Status</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><a href="?status__exact=" {% if not cl.get_filters.0 %}class="selected"{% endif %}>All</a></li>
+                    <li><a href="?status__exact=pending">Pending Review</a></li>
+                    <li><a href="?status__exact=approved">Approved</a></li>
+                    <li><a href="?status__exact=rejected">Rejected</a></li>
+                </ul>
+            </div>
+            <!-- Lesson filter (optional) -->
+            <div>
+                <h3>Lesson</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><a href="?lesson__exact=" {% if not cl.get_filters.0 %}class="selected"{% endif %}>All</a></li>
+                    {% for lesson in cl.get_filters.1.lesson.field.choices %}
+                        <li><a href="?lesson__exact={{ lesson.0 }}">{{ lesson.1 }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TABLE ===== -->
+    <div class="table-wrapper">
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Lesson</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" style="text-align:center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in cl.result_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'admin:courses_exam_change' exam.id %}" style="font-weight:600; color:#0B5D3B; text-decoration:none;">
+                            {{ exam.title }}
+                        </a>
+                    </td>
+                    <td>{{ exam.lesson.title }}</td>
+                    <td>{{ exam.get_level_display }}</td>
+                    <td>
+                        <span class="badge-status 
+                            {% if exam.status == 'approved' %}approved
+                            {% elif exam.status == 'pending' %}pending
+                            {% elif exam.status == 'rejected' %}rejected{% endif %}">
+                            {{ exam.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="text-align:center;">
+                        <a href="{% url 'admin:courses_exam_change' exam.id %}" class="btn-gold" style="padding:4px 14px; font-size:12px; background:#0B5D3B; box-shadow:none;">Edit</a>
+                        <a href="{% url 'admin:courses_exam_delete' exam.id %}" style="color:#c62828; margin-left:8px; font-size:13px; text-decoration:none;">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:40px; color:#6B7280;">
+                        <div style="font-size:48px; margin-bottom:12px;">📭</div>
+                        <div style="font-size:18px; font-weight:600; color:#1F2933;">No exams found</div>
+                        <div style="font-size:14px; color:#4B5563;">Click "Add Exam" to create one.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ===== PAGINATION ===== -->
+    {% if cl.paginator.num_pages > 1 %}
+    <div class="paginator">
+        <span>{{ cl.result_count }} exam{{ cl.result_count|pluralize }}</span>
+        <div style="display:flex; gap:4px; flex-wrap:wrap;">
+            {% for page in cl.paginator.page_range %}
+                {% if page == cl.page_num %}
+                    <span class="this-page">{{ page }}</span>
+                {% else %}
+                    <a href="?p={{ page }}{% if cl.query %}&q={{ cl.query }}{% endif %}">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -223,7 +223,7 @@
     }
 
     .action-btn.edit { background: #D4AF37; color: #fff; }
-    .action-btn.verify { background: #0B8A4A; color: #fff; }
+    .action-btn.approve { background: #0B8A4A; color: #fff; }
     .action-btn.premium { background: #C89B1D; color: #fff; }
     .action-btn.delete { background: #dc3545; color: #fff; }
 
@@ -392,15 +392,15 @@
     }
 </style>
 <script>
-    // Custom SweetAlert2 functions for Verify, Delete, and Premium
-    function confirmVerify(url, username) {
+    // Custom SweetAlert2 functions for Approve, Delete, and Premium
+    function confirmApprove(url, username) {
         Swal.fire({
-            title: '✅ Verify User',
-            html: `Are you sure you want to verify <strong>${username}</strong>?<br><small style="color:#6c757d;">This user will gain access to all verified features.</small>`,
+            title: '✅ Approve User',
+            html: `Are you sure you want to approve <strong>${username}</strong>?<br><small style="color:#6c757d;">This will activate their account and grant full access.</small>`,
             icon: 'success',
             iconColor: '#0B8A4A',
             showCancelButton: true,
-            confirmButtonText: '🟢 Verify User',
+            confirmButtonText: '🟢 Approve User',
             cancelButtonText: 'Cancel',
             reverseButtons: true,
             customClass: {
@@ -691,8 +691,8 @@
                                 <a href="{% url 'admin:users_userprofile_change' profile.id %}" class="action-btn edit" style="background:#D4AF37; color:#fff; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; white-space:nowrap; line-height:1; min-height:38px; min-width:70px;">
                                     ✏️ Edit
                                 </a>
-                                <a href="#" onclick="return confirmVerify('{% url 'admin:verify_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn verify" style="background:#0B8A4A; color:#fff; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; white-space:nowrap; line-height:1; min-height:38px; min-width:70px;">
-                                    ✔ Verify
+                                <a href="#" onclick="return confirmApprove('{% url 'admin:approve_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn approve" style="background:#0B8A4A; color:#fff; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; white-space:nowrap; line-height:1; min-height:38px; min-width:70px;">
+                                    ✔ Approve
                                 </a>
                                 <a href="#" onclick="return confirmPremium('{% url 'admin:make_premium' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn premium" style="background:#C89B1D; color:#fff; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; white-space:nowrap; line-height:1; min-height:38px; min-width:70px;">
                                     ⭐ Premium

@@ -2,6 +2,7 @@ from captcha.fields import CaptchaField
 from django import forms
 from django.contrib.auth.models import User
 from .models import UserProfile
+import re
 
 class RegisterForm(forms.Form):
     username = forms.CharField(max_length=150, label="Username")
@@ -16,6 +17,16 @@ class RegisterForm(forms.Form):
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("This username is already taken.")
         return username
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get('phone_number')
+        if phone:
+            # Only allow digits, spaces, +, and -
+            if not re.match(r'^[\d\s\+-]+$', phone):
+                raise forms.ValidationError("Phone number can only contain digits, spaces, + and -.")
+            # Optionally, strip extra spaces
+            phone = re.sub(r'\s+', ' ', phone).strip()
+        return phone
 
     def clean(self):
         cleaned_data = super().clean()

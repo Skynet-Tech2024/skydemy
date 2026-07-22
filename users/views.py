@@ -46,7 +46,8 @@ def register(request):
                 print(f"🟢 User and profile created/updated: {username}, ID: {user.id}")
 
                 messages.success(request, "Account created! Please complete your profile.")
-                return redirect('complete_profile')
+                # Use direct URL path instead of name lookup to avoid NoReverseMatch
+                return redirect('/users/complete-profile/')
 
             except Exception as e:
                 print(f"❌ Error creating user: {e}")

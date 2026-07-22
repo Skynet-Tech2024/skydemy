@@ -118,23 +118,7 @@
             {% endif %}
         </div>
 
-        <!-- Captcha -->
-        <div style="margin-bottom: 18px;">
-            <label for="id_captcha_1" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Enter the text shown below <span style="color: #e74c3c;">*</span>
-            </label>
-            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #e9ecef;">
-                {{ form.captcha }}
-            </div>
-            {% if form.captcha.errors %}
-                <div style="background: #fde8e8; padding: 8px 12px; border-radius: 4px; margin-top: 6px; border-left: 3px solid #e74c3c;">
-                    {% for error in form.captcha.errors %}
-                        <p style="color: #c0392b; font-size: 13px; margin: 2px 0;">❌ {{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-
+        <!-- Submit button -->
         <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);">
             🚀 Create Account
         </button>

@@ -1,4 +1,3 @@
-from captcha.fields import CaptchaField
 from django import forms
 from django.contrib.auth.models import User
 from .models import UserProfile
@@ -10,7 +9,6 @@ class RegisterForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput, label="Password")
     password_confirm = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
     role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, label="I am a")
-    captcha = CaptchaField(label="Enter the text shown below")
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -21,10 +19,8 @@ class RegisterForm(forms.Form):
     def clean_phone_number(self):
         phone = self.cleaned_data.get('phone_number')
         if phone:
-            # Only allow digits, spaces, +, and -
             if not re.match(r'^[\d\s\+-]+$', phone):
                 raise forms.ValidationError("Phone number can only contain digits, spaces, + and -.")
-            # Optionally, strip extra spaces
             phone = re.sub(r'\s+', ' ', phone).strip()
         return phone
 

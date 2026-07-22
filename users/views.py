@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .forms import RegisterForm, ProfileCompletionForm
+from .forms import RegisterForm  # Only RegisterForm, no ProfileCompletionForm
 from .models import UserProfile
 
 # ===== STEP 1: Account Creation =====
@@ -25,14 +25,18 @@ def register(request):
                     password=password,
                     email=phone_number  # Use phone as email for recovery
                 )
-                # Store role and phone in session for Step 2
+                # Create a minimal profile (will be completed in Step 2)
+                profile = UserProfile.objects.create(
+                    user=user,
+                    role=role,
+                    verification_status='pending'
+                )
+                # Store user ID in session for Step 2
                 request.session['temp_user_id'] = user.id
-                request.session['temp_role'] = role
-                request.session['temp_phone'] = phone_number
 
-                print(f"🟢 User created: {username}, ID: {user.id}")
+                print(f"🟢 User and profile created: {username}, ID: {user.id}")
 
-                # Redirect to Step 2 (profile completion)
+                messages.success(request, "Account created! Please complete your profile.")
                 return redirect('complete_profile')
 
             except Exception as e:
@@ -60,51 +64,37 @@ def complete_profile(request):
         return redirect('register')
 
     user = get_object_or_404(User, id=user_id)
-    role = request.session.get('temp_role', 'learner')
-
-    # Check if profile already exists
-    try:
-        profile = user.profile
-    except UserProfile.DoesNotExist:
-        profile = UserProfile(user=user)
+    profile = user.profile  # Should exist from registration
 
     if request.method == 'POST':
-        form = ProfileCompletionForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            profile = form.save(commit=False)
-            profile.user = user
-            profile.role = role
-            profile.whatsapp_number = request.session.get('temp_phone', '')
-            if not profile.verification_status:
-                profile.verification_status = 'pending'
-            profile.save()
-            print(f"🟢 Profile completed for {user.username}")
+        # Collect optional profile fields manually
+        level = request.POST.get('level')
+        whatsapp_number = request.POST.get('whatsapp_number')
+        avatar = request.FILES.get('avatar')
 
-            # Clear session data
-            del request.session['temp_user_id']
-            del request.session['temp_role']
-            if 'temp_phone' in request.session:
-                del request.session['temp_phone']
+        if level:
+            profile.level = level
+        if whatsapp_number:
+            profile.whatsapp_number = whatsapp_number
+        if avatar:
+            profile.avatar = avatar
+        profile.save()
 
-            messages.success(
-                request,
-                "✅ Your account has been created and is now pending review by our admin team. "
-                "You can now log in."
-            )
-            return redirect('login')
-        else:
-            print("❌ Profile form invalid:")
-            print(form.errors)
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
-    else:
-        form = ProfileCompletionForm(instance=profile, initial={'role': role})
+        # Clear session data
+        del request.session['temp_user_id']
 
+        messages.success(
+            request,
+            "✅ Your profile is complete! Your account is pending review. You can now log in."
+        )
+        return redirect('login')
+
+    # GET request - show profile completion form
+    level_choices = UserProfile.LEVEL_CHOICES
     return render(request, 'users/complete_profile.html', {
-        'form': form,
         'user': user,
-        'role': role
+        'profile': profile,
+        'level_choices': level_choices,
     })
 
 

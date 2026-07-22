@@ -25,16 +25,25 @@ def register(request):
                     password=password,
                     email=phone_number  # Use phone as email for recovery
                 )
-                # Create a minimal profile (will be completed in Step 2)
-                profile = UserProfile.objects.create(
+
+                # Create or get the profile to avoid duplicate constraint errors
+                profile, created = UserProfile.objects.get_or_create(
                     user=user,
-                    role=role,
-                    verification_status='pending'
+                    defaults={
+                        'role': role,
+                        'verification_status': 'pending'
+                    }
                 )
+                # If the profile already existed, update its role and status
+                if not created:
+                    profile.role = role
+                    profile.verification_status = 'pending'
+                    profile.save()
+
                 # Store user ID in session for Step 2
                 request.session['temp_user_id'] = user.id
 
-                print(f"🟢 User and profile created: {username}, ID: {user.id}")
+                print(f"🟢 User and profile created/updated: {username}, ID: {user.id}")
 
                 messages.success(request, "Account created! Please complete your profile.")
                 return redirect('complete_profile')
@@ -43,7 +52,6 @@ def register(request):
                 print(f"❌ Error creating user: {e}")
                 import traceback
                 traceback.print_exc()
-                # TEMPORARY: Show the actual error for debugging
                 messages.error(request, f"We couldn't create your account: {str(e)}")
         else:
             print("❌ Form invalid:")

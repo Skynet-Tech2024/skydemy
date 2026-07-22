@@ -379,25 +379,6 @@
         flex-shrink: 0;
     }
 
-    /* ===== FULL-WIDTH FOOTER ===== */
-    .full-width-footer {
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
-        background: #0B5E3A;
-        color: #e9ecef;
-        padding: 40px 20px 20px;
-        border-top: 4px solid #D4AF37;
-        font-family: 'Segoe UI', sans-serif;
-        box-sizing: border-box;
-    }
-    .full-width-footer a {
-        color: #d4dce8;
-        text-decoration: none;
-    }
-    .full-width-footer a:hover {
-        color: #D4AF37;
-    }
-
     @media (max-width: 992px) {
         .stats-grid { grid-template-columns: repeat(3, 1fr) !important; }
         #result_list thead th, #result_list tbody td {
@@ -416,11 +397,6 @@
         #header { padding: 0 16px !important; height: 50px !important; }
         #container, #content { padding-top: 50px !important; }
         .breadcrumbs { top: 50px !important; padding: 8px 16px !important; font-size: 12px !important; }
-        .full-width-footer {
-            width: 100%;
-            margin-left: 0;
-            padding: 30px 16px 16px;
-        }
     }
 
     .swal2-popup { border-radius: 16px !important; box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important; font-family: 'Inter', sans-serif !important; }
@@ -770,69 +746,6 @@
     </div>
     {% endif %}
 
-</div>
-
-<!-- ===== FULL-WIDTH FOOTER ===== -->
-<div class="full-width-footer">
-    <div style="max-width: 1200px; margin: 0 auto;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px;">
-            <!-- About -->
-            <div>
-                <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin: 0 0 6px;">SKY<span style="color: #D4AF37;">DEMY</span></h3>
-                <p style="font-size: 14px; line-height: 1.6; color: #d4dce8;">Modern e-learning platform for practical skills and recognized certifications.</p>
-                <div style="margin-top: 14px; display: flex; gap: 14px;">
-                    <a href="#" style="color: #d4dce8; font-size: 20px; text-decoration: none;">📘</a>
-                    <a href="#" style="color: #d4dce8; font-size: 20px; text-decoration: none;">📸</a>
-                    <a href="#" style="color: #d4dce8; font-size: 20px; text-decoration: none;">▶️</a>
-                    <a href="#" style="color: #d4dce8; font-size: 20px; text-decoration: none;">💬</a>
-                </div>
-            </div>
-            <!-- Quick Links -->
-            <div>
-                <h4 style="color: #D4AF37; font-size: 16px; font-weight: 700; margin: 0 0 12px;">Quick Links</h4>
-                <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 2.2;">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/courses/">Courses</a></li>
-                    <li><a href="/about/">About Us</a></li>
-                    <li><a href="/contact/">Contact</a></li>
-                </ul>
-            </div>
-            <!-- Support -->
-            <div>
-                <h4 style="color: #D4AF37; font-size: 16px; font-weight: 700; margin: 0 0 12px;">Support</h4>
-                <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 2.2;">
-                    <li><a href="#">Help Centre</a></li>
-                    <li><a href="#">FAQs</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                </ul>
-            </div>
-            <!-- Contact -->
-            <div>
-                <h4 style="color: #D4AF37; font-size: 16px; font-weight: 700; margin: 0 0 12px;">Contact</h4>
-                <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">📞 +237 652 924 816</p>
-                <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">✉️ nckenny59@gmail.com</p>
-                <p style="font-size: 14px; margin: 4px 0; color: #d4dce8;">📍 New Hope College, Souza, Cameroon</p>
-                <p style="font-size: 13px; margin: 8px 0; color: #d4dce8;">🕒 Mon–Sat, 8am–6pm</p>
-                <div style="margin-top: 14px;">
-                    <a href="https://whatsapp.com/channel/0029VbD3W1RIHphEmykn2h3H" target="_blank" style="display: inline-block; background: #25D366; color: #fff; padding: 8px 20px; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 14px;">💬 Join WhatsApp Channel</a>
-                </div>
-            </div>
-        </div>
-        <!-- Copyright -->
-        <div style="max-width: 1200px; margin: 30px auto 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 13px; color: #b0c4d8;">
-            <div>
-                © 2026 <strong style="color: #fff;">SKYDEMY</strong>. All Rights Reserved.<br>
-                <span style="color: #8a9fb0;">Designed & Developed by SKYNET Tech</span>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 16px;">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Cookies</a>
-                <span style="color: #6c7d8e;">Version 2.0</span>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- ===== SWEETALERT2 CONFIRMATION SCRIPT FOR BULK ACTIONS ===== -->

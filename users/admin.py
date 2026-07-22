@@ -18,7 +18,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     fields = ('user', 'role', 'level', 'verification_status', 'verification_notes', 
               'is_premium', 'subscription_expiry', 'is_suspended', 'avatar')
     list_display_links = None
-    actions = ['approve_selected', 'suspend_selected', 'activate_selected']
+    actions = ['approve_selected', 'verify_selected', 'suspend_selected', 'activate_selected']
 
     def has_add_permission(self, request):
         return True
@@ -99,7 +99,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     def approve_selected(self, request, queryset):
         count = 0
         for profile in queryset:
-            # Activate user and set verification to approved
             profile.user.is_active = True
             profile.user.save()
             profile.verification_status = 'approved'
@@ -107,6 +106,19 @@ class UserProfileAdmin(admin.ModelAdmin):
             count += 1
         self.message_user(request, f'✅ {count} user(s) approved successfully.')
     approve_selected.short_description = '✅ Approve selected users'
+
+    def verify_selected(self, request, queryset):
+        count = 0
+        for profile in queryset:
+            # Ensure user is active, then mark as verified
+            if not profile.user.is_active:
+                profile.user.is_active = True
+                profile.user.save()
+            profile.verification_status = 'verified'
+            profile.save()
+            count += 1
+        self.message_user(request, f'🟢 {count} user(s) verified successfully.')
+    verify_selected.short_description = '🟢 Verify selected users'
 
     def suspend_selected(self, request, queryset):
         count = queryset.update(is_suspended=True)
@@ -123,6 +135,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('approve/<int:profile_id>/', self.admin_site.admin_view(self.approve_view), name='approve_user'),
+            path('verify/<int:profile_id>/', self.admin_site.admin_view(self.verify_view), name='verify_user'),
             path('delete/<int:profile_id>/', self.admin_site.admin_view(self.delete_view), name='delete_user'),
             path('premium/<int:profile_id>/', self.admin_site.admin_view(self.premium_view), name='make_premium'),
         ]
@@ -132,7 +145,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         profile = get_object_or_404(UserProfile, id=profile_id)
         if request.method == 'GET':
             if request.GET.get('confirm', 'no') == 'yes':
-                # Approve user: set active and approved
                 profile.user.is_active = True
                 profile.user.save()
                 profile.verification_status = 'approved'
@@ -145,6 +157,27 @@ class UserProfileAdmin(admin.ModelAdmin):
                         r,
                         'admin/users/userprofile/confirm_verify.html',
                         {'profile': profile, 'action': 'Approve'}
+                    )
+                )(request)
+        return redirect('/admin/users/userprofile/')
+
+    def verify_view(self, request, profile_id):
+        profile = get_object_or_404(UserProfile, id=profile_id)
+        if request.method == 'GET':
+            if request.GET.get('confirm', 'no') == 'yes':
+                if not profile.user.is_active:
+                    profile.user.is_active = True
+                    profile.user.save()
+                profile.verification_status = 'verified'
+                profile.save()
+                self.message_user(request, f'🟢 User "{profile.user.get_full_name() or profile.user.username}" verified successfully.')
+                return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))
+            else:
+                return self.admin_site.admin_view(
+                    lambda r: render(
+                        r,
+                        'admin/users/userprofile/confirm_verify.html',
+                        {'profile': profile, 'action': 'Verify'}
                     )
                 )(request)
         return redirect('/admin/users/userprofile/')

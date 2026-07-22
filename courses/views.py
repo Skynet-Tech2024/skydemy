@@ -13,7 +13,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.http import JsonResponse
 from .forms import LessonForm, ExamForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
 
@@ -21,16 +20,19 @@ from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
 
 @basic_access
 def lesson_list(request):
-    """Display all approved lessons (public)."""
+    """Display lessons – learners see only their level, teachers see all."""
     lessons = Lesson.objects.filter(status='approved').order_by('-created_at')
     
     if request.user.is_authenticated and request.user.profile.role == 'learner':
+        # Learner: only show lessons of their level
+        lessons = lessons.filter(level=request.user.profile.level)
         following_ids = request.user.following.values_list('following_id', flat=True)
         wishlisted_ids = Wishlist.objects.filter(user=request.user).values_list('lesson_id', flat=True)
         for lesson in lessons:
             lesson.is_following = lesson.teacher.id in following_ids
             lesson.is_wishlisted = lesson.id in wishlisted_ids
     else:
+        # Teacher/admin: show all lessons, no following/wishlist flags
         for lesson in lessons:
             lesson.is_following = False
             lesson.is_wishlisted = False
@@ -39,27 +41,39 @@ def lesson_list(request):
 
 @upload_access
 def upload_lesson(request):
-    """Teachers upload a new lesson."""
+    """Teachers upload a new lesson – level is forced to teacher's level."""
     if request.user.profile.role != 'teacher':
         messages.error(request, 'Only teachers can upload lessons.')
         return redirect('home')
-    
+
+    teacher_level = request.user.profile.level
+
+    # If the teacher has no level set, redirect them to profile
+    if not teacher_level:
+        messages.error(request, 'Please set your education level in your profile before uploading a lesson.')
+        return redirect('profile')
+
     if request.method == 'POST':
-        form = LessonForm(request.POST, request.FILES)
+        # Remove level from POST data – we'll set it manually
+        post_data = request.POST.copy()
+        post_data.pop('level', None)
+        form = LessonForm(post_data, request.FILES)
         if form.is_valid():
             lesson = form.save(commit=False)
             lesson.teacher = request.user
             lesson.status = 'pending'
-            
+            # Force lesson level to match teacher's level
+            lesson.level = teacher_level
+
             if lesson.level in ['primary', 'secondary'] and not lesson.subject:
                 messages.error(request, 'Please select a subject for primary/secondary level.')
-                return render(request, 'courses/upload_lesson.html', {'form': form})
+                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
             if lesson.level == 'university' and not lesson.course:
                 messages.error(request, 'Please select a course for university level.')
-                return render(request, 'courses/upload_lesson.html', {'form': form})
-            
+                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
+
             lesson.save()
-            
+
             # Notify followers
             followers = request.user.followers.all()
             for follow in followers:
@@ -70,13 +84,19 @@ def upload_lesson(request):
                     message=f'Your followed teacher "{request.user.username}" has uploaded a new lesson: "{lesson.title}".',
                     link=f'/courses/lesson/{lesson.id}/'
                 )
-            
+
             messages.success(request, 'Lesson uploaded successfully and is pending admin review!')
             return redirect('dashboard')
+        else:
+            # Form invalid – re‑render with teacher_level
+            return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
     else:
-        form = LessonForm()
-    
-    return render(request, 'courses/upload_lesson.html', {'form': form})
+        # Pre-populate level with teacher's level and make it disabled
+        form = LessonForm(initial={'level': teacher_level})
+        form.fields['level'].disabled = True
+        form.fields['level'].widget.attrs['readonly'] = True
+
+    return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
 
 @upload_access
 def add_subject(request):

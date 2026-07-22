@@ -16,6 +16,7 @@ class UserProfile(models.Model):
     
     VERIFICATION_CHOICES = (
         ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
         ('verified', 'Verified'),
         ('rejected', 'Rejected'),
     )

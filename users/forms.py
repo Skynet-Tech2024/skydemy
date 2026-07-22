@@ -4,71 +4,50 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import UserProfile
 
-class RegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
-    level = forms.ChoiceField(choices=UserProfile.LEVEL_CHOICES, required=True, label="Your Level")
-    whatsapp_number = forms.CharField(max_length=20, required=False, label="WhatsApp Number (optional)", help_text="For announcements and updates")
-    avatar = forms.ImageField(required=False, label="Profile Picture", help_text="Upload a profile picture")
-    
-    # ===== NEW: Identity Verification =====
-    id_document = forms.FileField(
-        required=False,
-        label="Identity Document",
-        help_text="Upload National ID, School ID, Driver's License, or International Passport"
-    )
-    id_document_type = forms.ChoiceField(
-        choices=UserProfile.ID_DOCUMENT_TYPES,
-        required=False,
-        label="Document Type",
-        help_text="Select the type of document you uploaded"
-    )
-    
-    # ===== NEW: Location Verification =====
-    utility_bill = forms.FileField(
-        required=False,
-        label="Utility Bill",
-        help_text="Upload a utility bill (water, electricity, internet) with your name and address for location verification"
-    )
-    
+# ===== STEP 1: Account Creation =====
+class RegisterForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, label="Password")
+    password_confirm = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
+    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, label="I am a")
+    phone_number = forms.CharField(max_length=20, required=False, label="Phone Number (optional, for recovery)")
     captcha = CaptchaField(label="Enter the text shown below")
-    
+
     class Meta:
         model = User
-        fields = [
-            'username', 'email', 'password1', 'password2', 
-            'role', 'level', 'whatsapp_number', 'avatar',
-            'id_document', 'id_document_type', 'utility_bill',
-            'captcha'
-        ]
-    
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        if commit:
-            user.save()
-            # Create UserProfile with all fields
-            profile = UserProfile.objects.create(
-                user=user,
-                role=self.cleaned_data['role'],
-                level=self.cleaned_data['level'],
-                whatsapp_number=self.cleaned_data.get('whatsapp_number', ''),
-                verification_status='pending',
-                avatar=self.cleaned_data.get('avatar'),
-                # Identity fields
-                id_document=self.cleaned_data.get('id_document'),
-                id_document_type=self.cleaned_data.get('id_document_type'),
-                # Location fields
-                utility_bill=self.cleaned_data.get('utility_bill'),
-                location_verified=False,  # Default until verified by admin
-            )
-        return user
+        fields = ['username', 'phone_number', 'password', 'password_confirm', 'role']
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get('phone_number')
+        if phone and User.objects.filter(email=phone).exists():
+            raise forms.ValidationError("This phone number is already registered.")
+        return phone
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        if password and password_confirm and password != password_confirm:
+            raise forms.ValidationError("Passwords do not match.")
+        return cleaned_data
 
 
-class ProfileUpdateForm(forms.ModelForm):
+# ===== STEP 2: Profile Completion (optional) =====
+class ProfileCompletionForm(forms.ModelForm):
+    # Common fields for both roles
+    avatar = forms.ImageField(required=False, label="Profile Photo")
+
     class Meta:
         model = UserProfile
-        fields = ['avatar', 'level']
-        widgets = {
-            'avatar': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
-        }
+        fields = ['role', 'level', 'whatsapp_number', 'avatar']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make level optional for teachers? Actually we can keep it required for now
+        self.fields['level'].required = True
+        self.fields['whatsapp_number'].required = False

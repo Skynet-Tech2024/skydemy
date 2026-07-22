@@ -143,13 +143,35 @@
         vertical-align: middle !important;
         font-size: 14px !important;
     }
-    /* Limit user column */
-    .user-column {
-        max-width: 200px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+    /* User name - dark and bold */
+    .user-name {
+        font-weight: 600 !important;
+        color: #1F2937 !important;
+        font-size: 14px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
     }
+    .user-email {
+        font-size: 12px !important;
+        color: #4B5563 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+    }
+    .user-level {
+        color: #374151 !important;
+        font-weight: 500 !important;
+        font-size: 14px !important;
+    }
+    .empty-value {
+        color: #9CA3AF !important;
+        font-size: 13px !important;
+    }
+
+    /* Badges */
     .badge-status {
         padding: 3px 10px !important;
         border-radius: 20px !important;
@@ -162,6 +184,33 @@
     .badge-status.pending { background: #D4AF37; color: #fff; }
     .badge-status.rejected { background: #dc3545; color: #fff; }
     .badge-status.default { background: #6c757d; color: #fff; }
+
+    /* Premium badge */
+    .premium-badge {
+        background: #D4AF37 !important;
+        color: #fff !important;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    .free-badge {
+        background: #E2E8F0 !important;
+        color: #475569 !important;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    /* Role badge (already has inline background) */
+    .role-badge {
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        white-space: nowrap;
+        color: #fff;
+    }
 
     /* Filters */
     #changelist-filter {
@@ -202,22 +251,77 @@
         font-weight: 700 !important;
     }
 
-    /* Add User Button */
-    .object-tools a.addlink {
+    /* Search bar */
+    #toolbar form #searchbar {
+        border-radius: 30px !important;
+        border: 2px solid #D1D5DB !important;
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+        width: 100% !important;
+        max-width: 500px !important;
+        transition: border-color 0.3s !important;
+        background: #FAFAFA;
+    }
+    #toolbar form #searchbar:focus {
+        border-color: #0B8A4A !important;
+        box-shadow: 0 0 0 3px rgba(11,138,74,0.15) !important;
+        outline: none !important;
+        background: #fff;
+    }
+    #toolbar form #searchbar::placeholder {
+        color: #94A3B8 !important;
+    }
+    #toolbar form input[type="submit"] {
         background: #0B8A4A !important;
         color: #fff !important;
         border-radius: 30px !important;
-        padding: 10px 24px !important;
-        font-weight: 700 !important;
-        font-size: 14px !important;
+        padding: 10px 30px !important;
         border: none !important;
-        box-shadow: 0 4px 12px rgba(11,138,74,0.3) !important;
-        transition: 0.3s !important;
+        font-weight: 600 !important;
     }
-    .object-tools a.addlink:hover {
+    #toolbar form input[type="submit"]:hover {
         background: #1FAF6B !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(11,138,74,0.4) !important;
+    }
+
+    /* Bulk actions area */
+    .bulk-actions-panel {
+        margin-top: 15px;
+        padding: 12px 16px;
+        background: #F8FAFC;
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .bulk-actions-panel label {
+        font-weight: 600;
+        color: #1F2937;
+    }
+    .bulk-actions-panel select {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #D1D5DB;
+        background: #fff;
+        color: #1F2937;
+    }
+    .bulk-actions-panel .button {
+        background: #0B8A4A;
+        color: #fff;
+        padding: 8px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .bulk-actions-panel .button:hover {
+        background: #1FAF6B;
+    }
+    .bulk-actions-panel .instruction {
+        font-size: 13px;
+        color: #4B5563;
+        margin-left: auto;
     }
 
     /* Pagination */
@@ -250,18 +354,36 @@
         margin: 0 3px !important;
     }
 
+    /* Avatar initials */
+    .avatar-initials {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0B8A4A, #1FAF6B);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
     @media (max-width: 992px) {
         .stats-grid { grid-template-columns: repeat(3, 1fr) !important; }
         #result_list thead th, #result_list tbody td {
             padding: 6px 8px !important;
             font-size: 12px !important;
         }
-        .user-column { max-width: 120px !important; }
+        .user-name { max-width: 120px !important; }
+        .user-email { max-width: 120px !important; }
     }
     @media (max-width: 768px) {
         .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
         .stat-card .stat-number { font-size: 20px !important; }
         .table-wrapper { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+        .bulk-actions-panel { flex-direction: column; align-items: stretch; }
+        .bulk-actions-panel .instruction { margin-left: 0; text-align: center; }
     }
 
     .swal2-popup { border-radius: 16px !important; box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important; font-family: 'Inter', sans-serif !important; }
@@ -439,7 +561,7 @@
             <form id="changelist-search" method="get" style="display:flex;gap:10px;align-items:center;">
                 <input type="text" name="{{ search_var }}" value="{{ cl.query }}" 
                        placeholder="🔍 Search by username or email..." 
-                       style="flex:1;border-radius:30px;border:2px solid #e9ecef;padding:12px 20px;font-size:14px;transition:border-color 0.3s;">
+                       style="flex:1;border-radius:30px;border:2px solid #D1D5DB;padding:12px 20px;font-size:14px;transition:border-color 0.3s;background:#FAFAFA;">
                 <button type="submit" style="background:#0B8A4A;color:#fff;border-radius:30px;padding:12px 30px;border:none;font-weight:600;">
                     Search
                 </button>
@@ -518,33 +640,34 @@
                         </td>
                         <td>
                             <div style="display:flex;align-items:center;gap:10px;">
+                                <!-- Avatar or initials -->
                                 {% if profile.avatar and profile.avatar.url %}
                                     <img src="{{ profile.avatar.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
                                 {% else %}
-                                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0B8A4A,#1FAF6B);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">
+                                    <div class="avatar-initials">
                                         {{ profile.user.get_full_name|default:profile.user.username|slice:":1"|upper }}
                                     </div>
                                 {% endif %}
                                 <div style="min-width:0;">
-                                    <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
+                                    <div class="user-name">
                                         {{ profile.user.get_full_name|default:profile.user.username }}
                                     </div>
-                                    <div style="font-size:12px;color:#6c757d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
-                                        {{ profile.user.email|default:"No email" }}
+                                    <div class="user-email">
+                                        {{ profile.user.email|default:"No phone number added" }}
                                     </div>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <span style="background:{% if profile.role == 'teacher' %}#0B8A4A{% elif profile.role == 'learner' %}#2563EB{% else %}#6c757d{% endif %};color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">
+                            <span class="role-badge" style="background:{% if profile.role == 'teacher' %}#0B8A4A{% elif profile.role == 'learner' %}#2563EB{% else %}#6c757d{% endif %};">
                                 {{ profile.get_role_display }}
                             </span>
                         </td>
                         <td>
                             {% if profile.level %}
-                                {{ profile.get_level_display|default:"—" }}
+                                <span class="user-level">{{ profile.get_level_display }}</span>
                             {% else %}
-                                —
+                                <span class="empty-value">—</span>
                             {% endif %}
                         </td>
                         <td>
@@ -559,9 +682,9 @@
                         </td>
                         <td>
                             {% if profile.is_premium %}
-                                <span style="background:#D4AF37;color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">⭐ Premium</span>
+                                <span class="premium-badge">⭐ Premium</span>
                             {% else %}
-                                <span style="background:#e9ecef;color:#6c757d;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">Free</span>
+                                <span class="free-badge">Free</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -569,8 +692,8 @@
                     <tr>
                         <td colspan="6" style="text-align:center;padding:40px;color:#6c757d;">
                             <div style="font-size:48px;margin-bottom:12px;">👥</div>
-                            <div style="font-size:18px;font-weight:600;">No users found</div>
-                            <div style="font-size:14px;color:#6c757d;">Click "Add New User" to create the first account.</div>
+                            <div style="font-size:18px;font-weight:600;color:#1F2937;">No users found</div>
+                            <div style="font-size:14px;color:#4B5563;">Click "Add New User" to create the first account.</div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -578,10 +701,10 @@
             </table>
         </div>
 
-        <!-- Bulk actions with HARDCODED options -->
-        <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-            <label for="action" style="font-weight:600;">Action:</label>
-            <select name="action" id="action" style="padding:6px 12px; border-radius:6px; border:1px solid #ddd;">
+        <!-- Bulk actions with improved styling -->
+        <div class="bulk-actions-panel">
+            <label for="action">Action:</label>
+            <select name="action" id="action">
                 <option value="">---------</option>
                 <option value="approve_selected">✅ Approve selected users</option>
                 <option value="verify_selected">🟢 Verify selected users</option>
@@ -589,8 +712,8 @@
                 <option value="activate_selected">✅ Activate selected users</option>
                 <option value="delete_selected">🗑️ Delete selected users</option>
             </select>
-            <button type="submit" name="index" value="0" class="button" style="background:#0B8A4A;color:#fff;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Go</button>
-            <span style="font-size:13px;color:#6c757d;">Select users using the checkboxes.</span>
+            <button type="submit" name="index" value="0" class="button">Go</button>
+            <span class="instruction">Select one or more users, then choose an action.</span>
         </div>
     </form>
 

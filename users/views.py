@@ -13,20 +13,28 @@ def register(request):
             try:
                 # Save the user but do NOT log them in
                 user = form.save(commit=False)
-                # Optionally mark account as inactive until review
-                # user.is_active = False   # uncomment if you have this field
+                # Mark account inactive until admin approval
+                user.is_active = False
                 user.save()
                 print(f"🟢 User saved: {user.username}")
 
-                # ** NEW: Add the pending review message **
+                # Set profile verification status to 'pending'
+                try:
+                    profile = user.profile
+                    profile.verification_status = 'pending'
+                    profile.save()
+                    print(f"🟢 Profile verification set to pending for {user.username}")
+                except Exception as e:
+                    print(f"⚠️ Could not set profile pending: {e}")
+
                 messages.success(
                     request,
-                    "Your account is under review by our professional team. "
-                    "Thank you for your patience. Review typically takes about 24 hours."
+                    "✅ Your account has been created and is now pending review by our admin team. "
+                    "You will receive an email once your account is approved. "
+                    "Thank you for your patience! Review typically takes 24–48 hours."
                 )
 
-                # Redirect to login page (or a dedicated 'pending' page)
-                return redirect('login')  # 'login' should be the name of your login URL
+                return redirect('login')
 
             except Exception as e:
                 print(f"❌ Exception during save: {e}")
@@ -44,7 +52,6 @@ def register(request):
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})
 
-# The rest of your views (custom_login, custom_logout, CustomLoginView) remain unchanged
 
 def custom_login(request):
     print("🔵 Login view called")
@@ -56,6 +63,11 @@ def custom_login(request):
         user = authenticate(request, username=username, password=password)
         print(f"🟢 Authenticated user: {user}")
         if user is not None:
+            # Check if user is active
+            if not user.is_active:
+                print("❌ User account is inactive")
+                messages.error(request, 'Your account is pending admin approval. Please wait for the verification email.')
+                return render(request, 'users/login.html')
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
             return redirect('/admin/')
@@ -64,9 +76,11 @@ def custom_login(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'users/login.html')
 
+
 def custom_logout(request):
     auth_logout(request)
     return redirect('login')
+
 
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'

@@ -513,4 +513,84 @@
     {% endif %}
 
 </div>
+
+<!-- ===== SWEETALERT2 CONFIRMATION SCRIPT FOR BULK ACTIONS ===== -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('changelist-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const actionSelect = document.getElementById('action');
+                const selectedAction = actionSelect.value;
+                if (selectedAction === '') {
+                    // No action selected, let Django show default error
+                    return;
+                }
+                const selectedItems = document.querySelectorAll('input.action-select:checked');
+                if (selectedItems.length === 0) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No users selected',
+                        text: 'Please select at least one user to perform this action.',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                const messages = {
+                    'approve_selected': {
+                        title: 'Approve Users',
+                        text: `Are you sure you want to approve ${selectedItems.length} user(s)? This will activate their accounts and give them full access.`,
+                        icon: 'success',
+                        confirmButtonText: 'Yes, approve'
+                    },
+                    'verify_selected': {
+                        title: 'Verify Users',
+                        text: `Are you sure you want to verify ${selectedItems.length} user(s)? This will mark them as fully verified.`,
+                        icon: 'success',
+                        confirmButtonText: 'Yes, verify'
+                    },
+                    'suspend_selected': {
+                        title: 'Suspend Users',
+                        text: `Are you sure you want to suspend ${selectedItems.length} user(s)? They will lose access to the platform.`,
+                        icon: 'warning',
+                        confirmButtonText: 'Yes, suspend'
+                    },
+                    'activate_selected': {
+                        title: 'Activate Users',
+                        text: `Are you sure you want to activate ${selectedItems.length} user(s)? They will regain access to the platform.`,
+                        icon: 'info',
+                        confirmButtonText: 'Yes, activate'
+                    },
+                    'delete_selected': {
+                        title: 'Delete Users',
+                        text: `Are you sure you want to permanently delete ${selectedItems.length} user(s)? This action cannot be undone.`,
+                        icon: 'error',
+                        confirmButtonText: 'Yes, delete permanently'
+                    }
+                };
+
+                const msg = messages[selectedAction];
+                if (msg) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: msg.title,
+                        html: msg.text,
+                        icon: msg.icon,
+                        showCancelButton: true,
+                        confirmButtonColor: '#0B8A4A',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: msg.confirmButtonText,
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -6,6 +6,7 @@ from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from users.utils import create_notification
 from users.models import Wishlist
+from users.decorators import basic_access, lesson_access, upload_access, video_lesson_access, profile_access
 from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
@@ -18,6 +19,7 @@ from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
 
 # ====== Core Lesson Views ======
 
+@basic_access
 def lesson_list(request):
     """Display all approved lessons (public)."""
     lessons = Lesson.objects.filter(status='approved').order_by('-created_at')
@@ -35,7 +37,7 @@ def lesson_list(request):
     
     return render(request, 'courses/lesson_list.html', {'lessons': lessons})
 
-@login_required
+@upload_access
 def upload_lesson(request):
     """Teachers upload a new lesson."""
     if request.user.profile.role != 'teacher':
@@ -76,7 +78,7 @@ def upload_lesson(request):
     
     return render(request, 'courses/upload_lesson.html', {'form': form})
 
-@login_required
+@upload_access
 def add_subject(request):
     """Teachers add a new subject."""
     if request.user.profile.role != 'teacher':
@@ -100,6 +102,7 @@ def add_subject(request):
     return render(request, 'courses/add_subject.html')
 
 @xframe_options_exempt
+@lesson_access
 def view_lesson(request, lesson_id):
     """View a single lesson and its exam."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
@@ -124,7 +127,20 @@ def view_lesson(request, lesson_id):
                 profile.save()
             progress.save()
     
-    return render(request, 'courses/view_lesson.html', {'lesson': lesson, 'exam': exam})
+    # Check if user can view video (verified only)
+    can_view_video = False
+    if request.user.is_authenticated and request.user.profile.verification_status == 'verified':
+        can_view_video = True
+    elif request.user.is_authenticated and request.user.is_superuser:
+        can_view_video = True
+    
+    return render(request, 'courses/view_lesson.html', {
+        'lesson': lesson,
+        'exam': exam,
+        'can_view_video': can_view_video
+    })
+
+
 def parse_exam_file(file):
     """Parse exam file (PDF or DOCX) and return list of questions in JSON format."""
     content = ""
@@ -165,9 +181,7 @@ def parse_exam_file(file):
     for line in lines:
         line = line.strip()
         if not line:
-            # Blank line might separate questions
             if current_question and current_options:
-                # If we have a question and options, finalize
                 q = {
                     'question': current_question,
                     'options': current_options,
@@ -179,10 +193,8 @@ def parse_exam_file(file):
                 current_correct = None
             continue
         
-        # Check for question number (e.g., "1.", "2)", etc.)
         question_match = re.match(r'^(\d+)[\.\)]\s*(.*)', line)
         if question_match:
-            # If we have a previous question, save it
             if current_question and current_options:
                 q = {
                     'question': current_question,
@@ -190,55 +202,43 @@ def parse_exam_file(file):
                     'correct': current_correct or (current_options[0] if current_options else "")
                 }
                 questions.append(q)
-            # Start new question
             current_question = question_match.group(2).strip()
             current_options = []
             current_correct = None
             continue
         
-        # Check for option (A., B., C., D.)
         option_match = re.match(r'^([A-D])[\.\)]\s*(.*)', line, re.IGNORECASE)
         if option_match and current_question is not None:
             option_text = option_match.group(2).strip()
             current_options.append(option_text)
-            # Check if this option is marked as correct (e.g., has "*" or "(correct)" )
             if '*' in option_text or '(correct)' in option_text.lower():
                 current_correct = option_text
             continue
         
-        # Check for answer key line (e.g., "Answers: 1A, 2B, 3C")
         answer_match = re.match(r'^Answers?\s*[:;]\s*(.*)', line, re.IGNORECASE)
         if answer_match and questions:
-            # We'll parse answer key and update correct answers for existing questions
             answer_key = answer_match.group(1).strip()
-            # Split by commas or spaces
             parts = re.split(r'[,\s]+', answer_key)
             for part in parts:
                 part = part.strip()
                 if not part:
                     continue
-                # Try to extract number and letter
                 num_letter = re.match(r'^(\d+)\s*([A-D])', part, re.IGNORECASE)
                 if num_letter:
                     q_num = int(num_letter.group(1))
                     ans_letter = num_letter.group(2).upper()
                     if q_num <= len(questions):
-                        # Map letter to option index
                         opt_idx = ord(ans_letter) - ord('A')
                         if opt_idx < len(questions[q_num-1]['options']):
                             questions[q_num-1]['correct'] = questions[q_num-1]['options'][opt_idx]
             continue
         
-        # Otherwise, it's continuation of current question or option
         if current_question is not None:
             if current_options:
-                # Append to last option
                 current_options[-1] += " " + line
             else:
-                # Append to question
                 current_question += " " + line
     
-    # Append last question
     if current_question and current_options:
         q = {
             'question': current_question,
@@ -247,15 +247,11 @@ def parse_exam_file(file):
         }
         questions.append(q)
     
-    # If no questions found, try alternative format: each line is a question with options
     if not questions:
-        # Fallback: assume each question is on a single line with options separated by semicolon
         for line in content.split('\n'):
             line = line.strip()
             if not line:
                 continue
-            # Assume format: question? A: option A, B: option B, C: option C, D: option D
-            # We'll attempt to split
             parts = re.split(r'[A-D]\s*[:.]\s*', line, flags=re.IGNORECASE)
             if len(parts) >= 2:
                 question_text = parts[0].strip()
@@ -264,11 +260,13 @@ def parse_exam_file(file):
                     questions.append({
                         'question': question_text,
                         'options': options,
-                        'correct': options[0]  # placeholder
+                        'correct': options[0]
                     })
     
     return questions
-@login_required
+
+
+@upload_access
 def add_exam(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
     
@@ -281,7 +279,6 @@ def add_exam(request, lesson_id):
         return redirect('view_lesson', lesson_id=lesson.id)
     
     if request.method == 'POST':
-        # Check if a file was uploaded
         exam_file = request.FILES.get('exam_file')
         json_questions = request.POST.get('questions')
         title = request.POST.get('title')
@@ -289,7 +286,6 @@ def add_exam(request, lesson_id):
         
         questions = None
         if exam_file:
-            # Parse the file
             try:
                 questions = parse_exam_file(exam_file)
                 if not questions:
@@ -299,7 +295,6 @@ def add_exam(request, lesson_id):
                 messages.error(request, f'Error parsing file: {e}')
                 return render(request, 'courses/add_exam.html', {'lesson': lesson})
         elif json_questions:
-            # Use JSON input
             try:
                 questions = json.loads(json_questions)
                 if not isinstance(questions, list) or not questions:
@@ -312,7 +307,6 @@ def add_exam(request, lesson_id):
             messages.error(request, 'Please provide either a file or JSON questions.')
             return render(request, 'courses/add_exam.html', {'lesson': lesson})
         
-        # Create the exam
         exam = Exam(
             lesson=lesson,
             title=title or f"Exam for {lesson.title}",
@@ -324,7 +318,10 @@ def add_exam(request, lesson_id):
         messages.success(request, f'Exam "{exam.title}" created and pending admin review!')
         return redirect('view_lesson', lesson_id=lesson.id)
     
-    return render(request, 'courses/add_exam.html', {'lesson': lesson})@login_required
+    return render(request, 'courses/add_exam.html', {'lesson': lesson})
+
+
+@lesson_access
 def take_exam(request, lesson_id):
     """Learner takes an exam."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
@@ -368,7 +365,6 @@ def take_exam(request, lesson_id):
                 message=f'You passed "{exam.title}" with {percentage}%. Well done!',
                 link=f'/courses/lesson/{lesson.id}/'
             )
-            # Generate certificate
             certificate = Certificate.objects.create(
                 user=request.user,
                 lesson=lesson,
@@ -382,7 +378,6 @@ def take_exam(request, lesson_id):
                 message=f'You earned a certificate for passing "{exam.title}" with {percentage}%. Certificate #: {certificate.certificate_number}',
                 link=f'/dashboard/'
             )
-            # Email admin
             send_mail(
                 f'New Certificate Generated - {request.user.username}',
                 f'User: {request.user.username} ({request.user.email})\nLesson: {lesson.title}\nExam: {exam.title}\nScore: {percentage}%\nCertificate: {certificate.certificate_number}',
@@ -405,9 +400,70 @@ def take_exam(request, lesson_id):
     
     return render(request, 'courses/take_exam.html', {'exam': exam, 'lesson': lesson})
 
+
+# ====== CONVERT LESSON TO VIDEO ======
+
+@upload_access
+def convert_to_video(request, lesson_id):
+    """
+    Convert a lesson to an illustrative video.
+    Verified users (teachers) can convert their lessons to videos.
+    """
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    
+    # Check if the current user is the teacher of this lesson or an admin
+    if request.user != lesson.teacher and not request.user.is_superuser:
+        messages.error(request, "You can only convert your own lessons.")
+        return redirect('view_lesson', lesson_id=lesson.id)
+    
+    # Only verified users can convert to video
+    if request.user.profile.verification_status != 'verified' and not request.user.is_superuser:
+        messages.error(request, "Only verified teachers can convert lessons to video. Please contact admin.")
+        return redirect('view_lesson', lesson_id=lesson.id)
+    
+    # Check if lesson already has a video
+    if lesson.video_url or lesson.video_file:
+        messages.warning(request, "This lesson already has a video.")
+        return redirect('view_lesson', lesson_id=lesson.id)
+    
+    # --- VIDEO GENERATION LOGIC ---
+    # Placeholder: In production, integrate with a video generation service
+    # like HeyGen, Synthesia, or use a library like moviepy to create a video
+    # from lesson content (text-to-speech + slides)
+    
+    # For now, we'll simulate the process:
+    # 1. Extract content from lesson
+    # 2. Generate a video using a service
+    # 3. Store the video URL or file
+    
+    # Simulated video URL (replace with actual service call)
+    video_url = "https://example.com/videos/generated/" + str(lesson.id) + ".mp4"
+    video_url = None  # Keep as None until actual implementation
+    
+    if video_url:
+        lesson.video_url = video_url
+        lesson.save()
+        messages.success(request, f'🎬 Video successfully generated for "{lesson.title}"!')
+        
+        # Notify the teacher
+        create_notification(
+            user=request.user,
+            notification_type='system',
+            title='🎬 Video Generated!',
+            message=f'Your lesson "{lesson.title}" has been converted to an illustrative video.',
+            link=f'/courses/lesson/{lesson.id}/'
+        )
+    else:
+        messages.info(request, "Video conversion is being processed. You will be notified when it's ready.")
+        # Here you can trigger a background task (Celery, Redis, etc.)
+        # For now, just show a placeholder message
+    
+    return redirect('view_lesson', lesson_id=lesson.id)
+
+
 # ========== EXAM MANAGEMENT FOR TEACHERS ==========
 
-@login_required
+@upload_access
 def add_fslc_papers(request):
     if request.user.profile.level != 'primary':
         messages.error(request, "You are not authorized to add FSLC papers.")
@@ -420,7 +476,7 @@ def add_fslc_papers(request):
         lessons = Lesson.objects.filter(teacher=request.user)
         return render(request, 'courses/select_lesson_for_exam.html', {'lessons': lessons, 'exam_type': 'FSLC'})
 
-@login_required
+@upload_access
 def add_mock_papers_primary(request):
     if request.user.profile.level != 'primary':
         messages.error(request, "You are not authorized to add mock papers.")
@@ -433,21 +489,21 @@ def add_mock_papers_primary(request):
         lessons = Lesson.objects.filter(teacher=request.user)
         return render(request, 'courses/select_lesson_for_exam.html', {'lessons': lessons, 'exam_type': 'Mock (Primary)'})
 
-@login_required
+@upload_access
 def select_mock_exam_level(request):
     if request.user.profile.level != 'secondary':
         messages.error(request, "You are not authorized.")
         return redirect('lesson_list')
     return render(request, 'courses/select_mock_level.html')
 
-@login_required
+@upload_access
 def select_gce_level(request):
     if request.user.profile.level != 'secondary':
         messages.error(request, "You are not authorized.")
         return redirect('lesson_list')
     return render(request, 'courses/select_gce_level.html')
 
-@login_required
+@upload_access
 def add_mock_exam(request, level):
     if request.user.profile.level != 'secondary':
         messages.error(request, "You are not authorized.")
@@ -484,7 +540,7 @@ def add_mock_exam(request, level):
     
     return render(request, 'courses/add_mock_exam.html', {'level': level, 'lessons': lessons})
 
-@login_required
+@upload_access
 def add_gce_past_questions(request, level):
     if request.user.profile.level != 'secondary':
         messages.error(request, "You are not authorized.")

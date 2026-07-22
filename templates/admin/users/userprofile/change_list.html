@@ -392,6 +392,81 @@
     .swal2-confirm:hover { background: #1FAF6B !important; }
     .swal2-cancel { border-radius: 30px !important; padding: 10px 30px !important; font-weight: 600 !important; background: #e9ecef !important; color: #495057 !important; }
     .swal2-cancel:hover { background: #dee2e6 !important; }
+    /* ===== FIXED HEADER & STICKY NAVIGATION ===== */
+    /* Fixed admin header */
+    #header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 58px !important;
+        z-index: 1000 !important;
+        background: #0B8A4A !important;
+        border-bottom: 3px solid #D4AF37 !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22) !important;
+        padding: 0 30px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* Push content down to avoid hiding under fixed header */
+    #container,
+    .dashboard #content,
+    .admin-page,
+    #content {
+        padding-top: 58px !important;
+    }
+
+    /* Sticky breadcrumbs directly below header */
+    .breadcrumbs {
+        position: sticky !important;
+        top: 58px !important;
+        z-index: 900 !important;
+        background: #F7F9F8 !important;
+        border-bottom: 1px solid #e9ecef !important;
+        padding: 12px 30px !important;
+        margin: 0 !important;
+    }
+
+    /* Sticky filter sidebar */
+    #changelist-filter {
+        position: sticky !important;
+        top: 104px !important; /* header 58px + breadcrumbs 46px */
+        height: calc(100vh - 104px) !important;
+        overflow-y: auto !important;
+        align-self: flex-start !important;
+        background: #fff !important;
+        z-index: 100 !important;
+        border: 1px solid #e9ecef !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* Ensure the filter sidebar doesn't overflow on small screens */
+    @media (max-width: 768px) {
+        #changelist-filter {
+            position: static !important;
+            height: auto !important;
+            max-height: 300px !important;
+            overflow-y: auto !important;
+            top: auto !important;
+        }
+        #header {
+            padding: 0 16px !important;
+            height: 50px !important;
+        }
+        #container,
+        #content {
+            padding-top: 50px !important;
+        }
+        .breadcrumbs {
+            top: 50px !important;
+            padding: 8px 16px !important;
+            font-size: 12px !important;
+        }
+    }
 </style>
 
 <script>

@@ -20,10 +20,17 @@ class UserProfile(models.Model):
         ('rejected', 'Rejected'),
     )
     
+    ID_DOCUMENT_TYPES = (
+        ('national_id', 'National ID Card'),
+        ('school_id', 'School ID Card'),
+        ('drivers_license', "Driver's License"),
+        ('passport', 'International Passport'),
+    )
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='learner')
-    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='primary')  # Now required with default
-    whatsapp_number = models.CharField(max_length=20, blank=True, null=True, help_text="Optional WhatsApp number for announcements")  # New
+    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='primary')
+    whatsapp_number = models.CharField(max_length=20, blank=True, null=True, help_text="Optional WhatsApp number for announcements")
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     total_lessons_completed = models.IntegerField(default=0)
     is_premium = models.BooleanField(default=False, help_text="Premium subscription for PDF downloads")
@@ -35,6 +42,36 @@ class UserProfile(models.Model):
     
     # Profile picture
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, default='avatars/default.png')
+    
+    # ===== NEW: Identity Verification =====
+    id_document = models.FileField(
+        upload_to='id_documents/',
+        blank=True,
+        null=True,
+        verbose_name="Identity Document"
+    )
+    id_document_type = models.CharField(
+        max_length=20,
+        choices=ID_DOCUMENT_TYPES,
+        blank=True,
+        null=True,
+        verbose_name="Document Type"
+    )
+    
+    # ===== NEW: Location Verification =====
+    utility_bill = models.FileField(
+        upload_to='utility_bills/',
+        blank=True,
+        null=True,
+        verbose_name="Utility Bill (for address verification)"
+    )
+    location_verified = models.BooleanField(
+        default=False,
+        verbose_name="Location Verified"
+    )
+    # Optional geolocation (if user permits)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     
     def get_status(self):
         if self.is_suspended:
@@ -53,14 +90,13 @@ class UserProfile(models.Model):
         """Return the avatar URL or a default if not set"""
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url
-        return '/static/images/default-avatar.png'  # Fallback to a static default
+        return '/static/images/default-avatar.png'
     
     def calculate_rating(self):
         """Calculate rating based on likes, comments, and views of user's lessons"""
         from courses.models import Lesson, LessonLike, LessonComment
         from django.db.models import Sum, Count
         
-        # Get all lessons by this teacher
         lessons = Lesson.objects.filter(teacher=self.user)
         if not lessons.exists():
             return 0.0

@@ -43,7 +43,8 @@ def register(request):
                 print(f"❌ Error creating user: {e}")
                 import traceback
                 traceback.print_exc()
-                messages.error(request, "We couldn't create your account. Please try again.")
+                # TEMPORARY: Show the actual error for debugging
+                messages.error(request, f"We couldn't create your account: {str(e)}")
         else:
             print("❌ Form invalid:")
             print(form.errors)

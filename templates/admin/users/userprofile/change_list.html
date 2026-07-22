@@ -271,6 +271,104 @@
     .swal2-cancel { border-radius: 30px !important; padding: 10px 30px !important; font-weight: 600 !important; background: #e9ecef !important; color: #495057 !important; }
     .swal2-cancel:hover { background: #dee2e6 !important; }
 </style>
+
+<script>
+    // ===== FIXED: Correctly append ?confirm=yes =====
+    function appendConfirm(url) {
+        // Remove any existing query string to avoid double '?'
+        var baseUrl = url.split('?')[0];
+        return baseUrl + '?confirm=yes';
+    }
+
+    function confirmApprove(url, username) {
+        Swal.fire({
+            title: '✅ Approve User',
+            html: `Are you sure you want to approve <strong>${username}</strong>?<br><small style="color:#6c757d;">This will activate their account and grant full access.</small>`,
+            icon: 'success',
+            iconColor: '#0B8A4A',
+            showCancelButton: true,
+            confirmButtonText: '🟢 Approve User',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'swal2-confirm',
+                cancelButton: 'swal2-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = appendConfirm(url);
+            }
+        });
+        return false;
+    }
+
+    function confirmVerify(url, username) {
+        Swal.fire({
+            title: '🟢 Verify User',
+            html: `Are you sure you want to verify <strong>${username}</strong>?<br><small style="color:#6c757d;">This marks the user as fully verified.</small>`,
+            icon: 'success',
+            iconColor: '#1B7A3D',
+            showCancelButton: true,
+            confirmButtonText: '🟢 Verify User',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'swal2-confirm',
+                cancelButton: 'swal2-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = appendConfirm(url);
+            }
+        });
+        return false;
+    }
+
+    function confirmDelete(url, username) {
+        Swal.fire({
+            title: '🗑️ Delete User',
+            html: `Are you sure you want to delete <strong>${username}</strong>?<br><small style="color:#dc3545;">This action cannot be undone.</small>`,
+            icon: 'warning',
+            iconColor: '#D4AF37',
+            showCancelButton: true,
+            confirmButtonText: '🗑️ Delete User',
+            confirmButtonColor: '#dc3545',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'swal2-confirm',
+                cancelButton: 'swal2-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = appendConfirm(url);
+            }
+        });
+        return false;
+    }
+
+    function confirmPremium(url, username) {
+        Swal.fire({
+            title: '⭐ Toggle Premium',
+            html: `Are you sure you want to toggle Premium status for <strong>${username}</strong>?<br><small style="color:#6c757d;">This will give the user access to premium features.</small>`,
+            icon: 'question',
+            iconColor: '#D4AF37',
+            showCancelButton: true,
+            confirmButtonText: '⭐ Toggle Premium',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'swal2-confirm',
+                cancelButton: 'swal2-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = appendConfirm(url);
+            }
+        });
+        return false;
+    }
+</script>
 {% endblock %}
 
 {% block content %}

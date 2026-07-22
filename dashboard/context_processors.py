@@ -31,6 +31,7 @@ def admin_stats(request):
     learners = queryset.filter(role='learner').count()
     teachers = queryset.filter(role='teacher').count()
     verified = queryset.filter(verification_status='verified').count()
+    approved = queryset.filter(verification_status='approved').count()
     pending = queryset.filter(verification_status='pending').count()
     premium = queryset.filter(is_premium=True).count()
     
@@ -38,6 +39,7 @@ def admin_stats(request):
         'student_count': learners,
         'teacher_count': teachers,
         'verified_count': verified,
+        'approved_count': approved,
         'pending_count': pending,
         'premium_count': premium,
         'total_count': total,

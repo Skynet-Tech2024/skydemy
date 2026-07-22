@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from .forms import RegisterForm
-from .models import UserProfile  # <-- Import this
+from .models import UserProfile
 
 def register(request):
     print("🔵 Registration view called")
@@ -74,7 +74,8 @@ def custom_login(request):
             # Allow login regardless of is_active (we use verification_status for permissions)
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
-            return redirect('/')
+            # Redirect to dashboard after login
+            return redirect('dashboard')
         else:
             print("❌ Login failed")
             messages.error(request, 'Invalid username or password.')
@@ -91,4 +92,5 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
     
     def get_success_url(self):
-        return '/'
+        # Redirect to dashboard after login
+        return 'dashboard'

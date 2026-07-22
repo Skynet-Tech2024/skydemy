@@ -1,5 +1,5 @@
 {% extends "admin/change_list.html" %}
-{% load i18n static %}
+{% load i18n admin_list %}
 
 {% block extrahead %}
 {{ block.super }}
@@ -7,12 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-    /* ============================================================
-       SKYDEMY – Premium User Management Interface
-       Colors: Green #0B8A4A | Gold #D4AF37 | White #FFFFFF
-       ============================================================ */
-    
-    /* ----- Brand Header ----- */
+    /* ===== Branding & Stats (same as before) ===== */
     #header {
         background: linear-gradient(135deg, #0B8A4A, #1FAF6B) !important;
         padding: 16px 30px !important;
@@ -23,25 +18,16 @@
         font-weight: 800 !important;
         letter-spacing: -0.5px !important;
     }
-    #header h1 a {
-        color: #fff !important;
-    }
-    #header h1 a span {
-        color: #D4AF37 !important;
-    }
+    #header h1 a { color: #fff !important; }
+    #header h1 a span { color: #D4AF37 !important; }
 
-    /* ----- Page Title ----- */
     .breadcrumbs {
         background: #F7F9F8 !important;
         border-bottom: 1px solid #e9ecef !important;
         padding: 12px 30px !important;
     }
-    .breadcrumbs a {
-        color: #0B8A4A !important;
-        font-weight: 600 !important;
-    }
+    .breadcrumbs a { color: #0B8A4A !important; font-weight: 600 !important; }
 
-    /* ----- Heading & Breadcrumb Enhancements ----- */
     .content-title {
         margin-bottom: 8px !important;
     }
@@ -52,9 +38,7 @@
         letter-spacing: -0.5px !important;
         margin: 0 !important;
     }
-    .content-title h1 .icon {
-        color: #D4AF37 !important;
-    }
+    .content-title h1 .icon { color: #D4AF37 !important; }
     .content-title p {
         color: #D6DDE5 !important;
         font-size: 16px !important;
@@ -76,25 +60,12 @@
         margin-bottom: 20px !important;
         border: 1px solid rgba(255,255,255,0.06) !important;
     }
-    .breadcrumbs a {
-        color: #28A745 !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-        transition: color 0.2s !important;
-    }
-    .breadcrumbs a:hover {
-        color: #34CE57 !important;
-    }
-    .breadcrumbs .current {
-        color: #D4AF37 !important;
-        font-weight: 700 !important;
-    }
-    .breadcrumbs .separator {
-        color: rgba(255,255,255,0.3) !important;
-        margin: 0 8px !important;
-    }
+    .breadcrumbs a { color: #28A745 !important; }
+    .breadcrumbs a:hover { color: #34CE57 !important; }
+    .breadcrumbs .current { color: #D4AF37 !important; font-weight: 700 !important; }
+    .breadcrumbs .separator { color: rgba(255,255,255,0.3) !important; margin: 0 8px !important; }
 
-    /* ----- Stats Cards ----- */
+    /* Stats cards */
     .stats-grid {
         display: grid !important;
         grid-template-columns: repeat(6, 1fr) !important;
@@ -135,34 +106,7 @@
     .stat-card.gold .stat-number { color: #D4AF37 !important; }
     .stat-card.blue .stat-number { color: #2563EB !important; }
 
-    /* ----- Search Bar ----- */
-    #toolbar form #searchbar {
-        border-radius: 30px !important;
-        border: 2px solid #e9ecef !important;
-        padding: 10px 20px !important;
-        font-size: 14px !important;
-        width: 100% !important;
-        max-width: 500px !important;
-        transition: border-color 0.3s !important;
-    }
-    #toolbar form #searchbar:focus {
-        border-color: #0B8A4A !important;
-        outline: none !important;
-        box-shadow: 0 0 0 3px rgba(11,138,74,0.15) !important;
-    }
-    #toolbar form input[type="submit"] {
-        background: #0B8A4A !important;
-        color: #fff !important;
-        border-radius: 30px !important;
-        padding: 10px 30px !important;
-        border: none !important;
-        font-weight: 600 !important;
-    }
-    #toolbar form input[type="submit"]:hover {
-        background: #1FAF6B !important;
-    }
-
-    /* ----- Compact Table ----- */
+    /* Compact table */
     #result_list {
         width: 100% !important;
         border-collapse: collapse !important;
@@ -180,7 +124,6 @@
     #result_list tbody tr {
         background: #fff !important;
         border-bottom: 1px solid #f1f3f5 !important;
-        transition: background 0.15s !important;
     }
     #result_list tbody tr:nth-child(even) {
         background: #F7F9F8 !important;
@@ -193,14 +136,13 @@
         vertical-align: middle !important;
         font-size: 14px !important;
     }
-    /* Limit max width of user column */
+    /* Limit user column */
     .user-column {
         max-width: 200px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }
-    /* Status badge */
     .badge-status {
         padding: 3px 10px !important;
         border-radius: 20px !important;
@@ -214,7 +156,7 @@
     .badge-status.rejected { background: #dc3545; color: #fff; }
     .badge-status.default { background: #6c757d; color: #fff; }
 
-    /* ----- Action Dropdown ----- */
+    /* Action dropdown */
     .action-dropdown {
         position: relative !important;
         display: inline-block !important;
@@ -223,15 +165,15 @@
         background: #0B8A4A !important;
         color: #fff !important;
         border: none !important;
-        padding: 6px 14px !important;
+        padding: 4px 12px !important;
         border-radius: 6px !important;
         font-size: 13px !important;
         font-weight: 600 !important;
         cursor: pointer !important;
         transition: 0.2s !important;
-        display: flex !important;
+        display: inline-flex !important;
         align-items: center !important;
-        gap: 6px !important;
+        gap: 4px !important;
     }
     .action-dropdown-toggle:hover {
         background: #1FAF6B !important;
@@ -241,7 +183,7 @@
         position: absolute !important;
         right: 0 !important;
         background: #fff !important;
-        min-width: 160px !important;
+        min-width: 150px !important;
         box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
         border-radius: 8px !important;
         z-index: 1000 !important;
@@ -258,7 +200,7 @@
         padding: 8px 16px !important;
         color: #1a1a2e !important;
         text-decoration: none !important;
-        font-size: 14px !important;
+        font-size: 13px !important;
         transition: background 0.15s !important;
         border-bottom: 1px solid #f8f9fa !important;
     }
@@ -272,7 +214,7 @@
         color: #dc3545 !important;
     }
 
-    /* ----- Filters ----- */
+    /* Filters */
     #changelist-filter {
         background: #fff !important;
         border-radius: 12px !important;
@@ -311,7 +253,7 @@
         font-weight: 700 !important;
     }
 
-    /* ----- Add User Button ----- */
+    /* Add User Button */
     .object-tools a.addlink {
         background: #0B8A4A !important;
         color: #fff !important;
@@ -329,7 +271,7 @@
         box-shadow: 0 6px 20px rgba(11,138,74,0.4) !important;
     }
 
-    /* ----- Pagination ----- */
+    /* Pagination */
     .paginator {
         background: #F7F9F8 !important;
         border-radius: 8px !important;
@@ -359,69 +301,29 @@
         margin: 0 3px !important;
     }
 
-    /* ----- Responsive ----- */
     @media (max-width: 992px) {
-        .stats-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-        }
-        #result_list thead th,
-        #result_list tbody td {
+        .stats-grid { grid-template-columns: repeat(3, 1fr) !important; }
+        #result_list thead th, #result_list tbody td {
             padding: 6px 8px !important;
             font-size: 12px !important;
         }
-        .user-column {
-            max-width: 120px !important;
-        }
+        .user-column { max-width: 120px !important; }
     }
     @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 10px !important;
-        }
-        .stat-card .stat-number {
-            font-size: 20px !important;
-        }
-        /* Make table scrollable horizontally on small screens */
-        .table-wrapper {
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-        }
+        .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+        .stat-card .stat-number { font-size: 20px !important; }
+        .table-wrapper { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
     }
 
-    /* SweetAlert2 override */
-    .swal2-popup {
-        border-radius: 16px !important;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important;
-        font-family: 'Inter', sans-serif !important;
-    }
-    .swal2-title {
-        color: #0B8A4A !important;
-        font-weight: 700 !important;
-    }
-    .swal2-confirm {
-        background: #0B8A4A !important;
-        border-radius: 30px !important;
-        padding: 10px 30px !important;
-        font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba(11,138,74,0.3) !important;
-    }
-    .swal2-confirm:hover {
-        background: #1FAF6B !important;
-    }
-    .swal2-cancel {
-        border-radius: 30px !important;
-        padding: 10px 30px !important;
-        font-weight: 600 !important;
-        background: #e9ecef !important;
-        color: #495057 !important;
-    }
-    .swal2-cancel:hover {
-        background: #dee2e6 !important;
-    }
+    .swal2-popup { border-radius: 16px !important; box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important; font-family: 'Inter', sans-serif !important; }
+    .swal2-title { color: #0B8A4A !important; font-weight: 700 !important; }
+    .swal2-confirm { background: #0B8A4A !important; border-radius: 30px !important; padding: 10px 30px !important; font-weight: 600 !important; box-shadow: 0 4px 12px rgba(11,138,74,0.3) !important; }
+    .swal2-confirm:hover { background: #1FAF6B !important; }
+    .swal2-cancel { border-radius: 30px !important; padding: 10px 30px !important; font-weight: 600 !important; background: #e9ecef !important; color: #495057 !important; }
+    .swal2-cancel:hover { background: #dee2e6 !important; }
 </style>
-
 <script>
-    // Toggle dropdown menu for actions
+    // Toggle dropdown
     document.addEventListener('click', function(e) {
         var dropdowns = document.querySelectorAll('.action-dropdown-menu.show');
         dropdowns.forEach(function(dropdown) {
@@ -430,7 +332,6 @@
             }
         });
     });
-
     function toggleDropdown(btn) {
         var menu = btn.parentElement.querySelector('.action-dropdown-menu');
         if (menu) {
@@ -438,12 +339,13 @@
         }
     }
 
-    // SweetAlert2 functions with query parameter handling
+    // Append confirm parameter
     function appendConfirm(url) {
         var separator = url.includes('?') ? '&' : '?';
         return url + separator + 'confirm=yes';
     }
 
+    // SweetAlert2 functions (same as before)
     function confirmApprove(url, username) {
         Swal.fire({
             title: '✅ Approve User',
@@ -454,10 +356,7 @@
             confirmButtonText: '🟢 Approve User',
             cancelButtonText: 'Cancel',
             reverseButtons: true,
-            customClass: {
-                confirmButton: 'swal2-confirm',
-                cancelButton: 'swal2-cancel'
-            }
+            customClass: { confirmButton: 'swal2-confirm', cancelButton: 'swal2-cancel' }
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = appendConfirm(url);
@@ -476,10 +375,7 @@
             confirmButtonText: '🟢 Verify User',
             cancelButtonText: 'Cancel',
             reverseButtons: true,
-            customClass: {
-                confirmButton: 'swal2-confirm',
-                cancelButton: 'swal2-cancel'
-            }
+            customClass: { confirmButton: 'swal2-confirm', cancelButton: 'swal2-cancel' }
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = appendConfirm(url);
@@ -499,10 +395,7 @@
             confirmButtonColor: '#dc3545',
             cancelButtonText: 'Cancel',
             reverseButtons: true,
-            customClass: {
-                confirmButton: 'swal2-confirm',
-                cancelButton: 'swal2-cancel'
-            }
+            customClass: { confirmButton: 'swal2-confirm', cancelButton: 'swal2-cancel' }
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = appendConfirm(url);
@@ -521,10 +414,7 @@
             confirmButtonText: '⭐ Toggle Premium',
             cancelButtonText: 'Cancel',
             reverseButtons: true,
-            customClass: {
-                confirmButton: 'swal2-confirm',
-                cancelButton: 'swal2-cancel'
-            }
+            customClass: { confirmButton: 'swal2-confirm', cancelButton: 'swal2-cancel' }
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = appendConfirm(url);
@@ -611,7 +501,7 @@
         </div>
     </div>
 
-    <!-- ===== FILTERS (White Card) ===== -->
+    <!-- ===== FILTERS ===== -->
     <div id="changelist-filter" style="background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e9ecef;margin-bottom:24px;">
         <h2 style="background:#F7F9F8;color:#0B8A4A;font-size:16px;padding:12px 16px;border-radius:8px;margin-bottom:16px;">
             🔍 Filters
@@ -655,97 +545,121 @@
         </div>
     </div>
 
-    <!-- ===== COMPACT TABLE ===== -->
-    <div class="table-wrapper" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e9ecef;">
-        <table id="result_list">
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>Level</th>
-                    <th>Status</th>
-                    <th>Premium</th>
-                    <th style="text-align:center; min-width:120px;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for profile in cl.result_list %}
-                <tr>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            {% if profile.avatar and profile.avatar.url %}
-                                <img src="{{ profile.avatar.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+    <!-- ===== BULK ACTIONS FORM + TABLE ===== -->
+    <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>
+        {% csrf_token %}
+        <div class="table-wrapper" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e9ecef;">
+            <table id="result_list">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 30px;">
+                            <div class="text">
+                                <span><input type="checkbox" id="action-toggle" style="margin:0;"></span>
+                            </div>
+                        </th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Level</th>
+                        <th>Status</th>
+                        <th>Premium</th>
+                        <th style="text-align:center; min-width:120px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profile in cl.result_list %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="action-select" name="_selected_action" value="{{ profile.pk }}" style="margin:0;">
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                {% if profile.avatar and profile.avatar.url %}
+                                    <img src="{{ profile.avatar.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                                {% else %}
+                                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0B8A4A,#1FAF6B);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">
+                                        {{ profile.user.get_full_name|default:profile.user.username|slice:":1"|upper }}
+                                    </div>
+                                {% endif %}
+                                <div style="min-width:0;">
+                                    <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
+                                        {{ profile.user.get_full_name|default:profile.user.username }}
+                                    </div>
+                                    <div style="font-size:12px;color:#6c757d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
+                                        {{ profile.user.email|default:"No email" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="background:{% if profile.role == 'teacher' %}#0B8A4A{% elif profile.role == 'learner' %}#2563EB{% else %}#6c757d{% endif %};color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">
+                                {{ profile.get_role_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if profile.level %}
+                                {{ profile.get_level_display|default:"—" }}
                             {% else %}
-                                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0B8A4A,#1FAF6B);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">
-                                    {{ profile.user.get_full_name|default:profile.user.username|slice:":1"|upper }}
-                                </div>
+                                —
                             {% endif %}
-                            <div style="min-width:0;">
-                                <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
-                                    {{ profile.user.get_full_name|default:profile.user.username }}
-                                </div>
-                                <div style="font-size:12px;color:#6c757d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
-                                    {{ profile.user.email|default:"No email" }}
+                        </td>
+                        <td>
+                            <span class="badge-status 
+                                {% if profile.verification_status == 'verified' %}verified
+                                {% elif profile.verification_status == 'approved' %}approved
+                                {% elif profile.verification_status == 'pending' %}pending
+                                {% elif profile.verification_status == 'rejected' %}rejected
+                                {% else %}default{% endif %}">
+                                {{ profile.get_verification_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if profile.is_premium %}
+                                <span style="background:#D4AF37;color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">⭐ Premium</span>
+                            {% else %}
+                                <span style="background:#e9ecef;color:#6c757d;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">Free</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center;">
+                            <div class="action-dropdown">
+                                <button class="action-dropdown-toggle" onclick="toggleDropdown(this)">
+                                    ⚡ Actions
+                                </button>
+                                <div class="action-dropdown-menu">
+                                    <a href="{% url 'admin:users_userprofile_change' profile.id %}">✏️ Edit</a>
+                                    <a href="#" onclick="return confirmApprove('{% url 'admin:approve_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">✔ Approve</a>
+                                    <a href="#" onclick="return confirmVerify('{% url 'admin:verify_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">✅ Verify</a>
+                                    <a href="#" onclick="return confirmPremium('{% url 'admin:make_premium' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">⭐ Premium</a>
+                                    <a href="#" class="danger" onclick="return confirmDelete('{% url 'admin:delete_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">🗑 Delete</a>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                    <td>
-                        <span style="background:{% if profile.role == 'teacher' %}#0B8A4A{% elif profile.role == 'learner' %}#2563EB{% else %}#6c757d{% endif %};color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">
-                            {{ profile.get_role_display }}
-                        </span>
-                    </td>
-                    <td>
-                        {% if profile.level %}
-                            {{ profile.get_level_display|default:"—" }}
-                        {% else %}
-                            —
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="badge-status 
-                            {% if profile.verification_status == 'verified' %}verified
-                            {% elif profile.verification_status == 'approved' %}approved
-                            {% elif profile.verification_status == 'pending' %}pending
-                            {% elif profile.verification_status == 'rejected' %}rejected
-                            {% else %}default{% endif %}">
-                            {{ profile.get_verification_status_display }}
-                        </span>
-                    </td>
-                    <td>
-                        {% if profile.is_premium %}
-                            <span style="background:#D4AF37;color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">⭐ Premium</span>
-                        {% else %}
-                            <span style="background:#e9ecef;color:#6c757d;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">Free</span>
-                        {% endif %}
-                    </td>
-                    <td style="text-align:center;">
-                        <div class="action-dropdown">
-                            <button class="action-dropdown-toggle" onclick="toggleDropdown(this)">
-                                ⚡ Actions
-                            </button>
-                            <div class="action-dropdown-menu">
-                                <a href="{% url 'admin:users_userprofile_change' profile.id %}">✏️ Edit</a>
-                                <a href="#" onclick="return confirmApprove('{% url 'admin:approve_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">✔ Approve</a>
-                                <a href="#" onclick="return confirmVerify('{% url 'admin:verify_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">✅ Verify</a>
-                                <a href="#" onclick="return confirmPremium('{% url 'admin:make_premium' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">⭐ Premium</a>
-                                <a href="#" class="danger" onclick="return confirmDelete('{% url 'admin:delete_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">🗑 Delete</a>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" style="text-align:center;padding:40px;color:#6c757d;">
-                        <div style="font-size:48px;margin-bottom:12px;">👥</div>
-                        <div style="font-size:18px;font-weight:600;">No users found</div>
-                        <div style="font-size:14px;color:#6c757d;">Click "Add New User" to create the first account.</div>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align:center;padding:40px;color:#6c757d;">
+                            <div style="font-size:48px;margin-bottom:12px;">👥</div>
+                            <div style="font-size:18px;font-weight:600;">No users found</div>
+                            <div style="font-size:14px;color:#6c757d;">Click "Add New User" to create the first account.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bulk actions (standard Django admin) -->
+        <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <label for="action" style="font-weight:600;">Action:</label>
+            <select name="action" id="action" style="padding:6px 12px; border-radius:6px; border:1px solid #ddd;">
+                <option value="">---------</option>
+                {% for action in cl.model_admin.get_actions %}
+                    <option value="{{ action.name }}">{{ action.short_description }}</option>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            </select>
+            <button type="submit" name="index" value="0" class="button" style="background:#0B8A4A;color:#fff;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Go</button>
+            <span style="font-size:13px;color:#6c757d;">Select users using the checkboxes.</span>
+        </div>
+    </form>
 
     <!-- ===== PAGINATION ===== -->
     {% if cl.paginator.num_pages > 1 %}

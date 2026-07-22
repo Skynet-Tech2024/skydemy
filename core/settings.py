@@ -65,6 +65,9 @@ DATABASES = {
     )
 }
 
+# ===== DEBUG: Check if DATABASE_URL is set =====
+print("DATABASE_URL:", os.environ.get('DATABASE_URL', 'NOT SET'))
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

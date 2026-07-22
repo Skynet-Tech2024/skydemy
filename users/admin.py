@@ -18,7 +18,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     fields = ('user', 'role', 'level', 'verification_status', 'verification_notes', 
               'is_premium', 'subscription_expiry', 'is_suspended', 'avatar')
     list_display_links = None
-    actions = ['approve_selected', 'verify_selected', 'suspend_selected', 'activate_selected']
+    actions = ['approve_selected', 'verify_selected', 'suspend_selected', 'activate_selected', 'delete_selected']
 
     def has_add_permission(self, request):
         return True
@@ -110,7 +110,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     def verify_selected(self, request, queryset):
         count = 0
         for profile in queryset:
-            # Ensure user is active, then mark as verified
             if not profile.user.is_active:
                 profile.user.is_active = True
                 profile.user.save()
@@ -129,6 +128,16 @@ class UserProfileAdmin(admin.ModelAdmin):
         count = queryset.update(is_suspended=False)
         self.message_user(request, f'✅ {count} user(s) activated.')
     activate_selected.short_description = '✅ Activate selected users'
+
+    def delete_selected(self, request, queryset):
+        """Delete selected users (including their User records)."""
+        count = queryset.count()
+        for profile in queryset:
+            user = profile.user
+            profile.delete()
+            user.delete()
+        self.message_user(request, f'🗑️ {count} user(s) deleted successfully.')
+    delete_selected.short_description = '🗑️ Delete selected users'
 
     # ===== CUSTOM SINGLE-ACTION VIEWS (GET) =====
     def get_urls(self):

@@ -59,6 +59,8 @@ class UserProfileAdmin(admin.ModelAdmin):
     def verification_badge(self, obj):
         if obj.verification_status == 'verified':
             return format_html('<span style="background:#0B8A4A;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🟢 Verified</span>')
+        elif obj.verification_status == 'approved':
+            return format_html('<span style="background:#2E7D32;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">✅ Approved</span>')
         elif obj.verification_status == 'pending':
             return format_html('<span style="background:#D4AF37;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🟡 Pending Review</span>')
         elif obj.verification_status == 'rejected':
@@ -97,10 +99,10 @@ class UserProfileAdmin(admin.ModelAdmin):
     def approve_selected(self, request, queryset):
         count = 0
         for profile in queryset:
-            # Activate user and set verification to verified
+            # Activate user and set verification to approved
             profile.user.is_active = True
             profile.user.save()
-            profile.verification_status = 'verified'
+            profile.verification_status = 'approved'
             profile.save()
             count += 1
         self.message_user(request, f'✅ {count} user(s) approved successfully.')
@@ -130,10 +132,10 @@ class UserProfileAdmin(admin.ModelAdmin):
         profile = get_object_or_404(UserProfile, id=profile_id)
         if request.method == 'GET':
             if request.GET.get('confirm', 'no') == 'yes':
-                # Approve user: set active and verified
+                # Approve user: set active and approved
                 profile.user.is_active = True
                 profile.user.save()
-                profile.verification_status = 'verified'
+                profile.verification_status = 'approved'
                 profile.save()
                 self.message_user(request, f'✅ User "{profile.user.get_full_name() or profile.user.username}" approved successfully.')
                 return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))

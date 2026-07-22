@@ -46,12 +46,12 @@
             <p style="font-size: 12px; color: #888; margin-top: 4px;">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</p>
         </div>
 
-        <!-- Phone Number (optional) -->
+        <!-- Phone Number (optional) - Restrict input -->
         <div style="margin-bottom: 18px;">
             <label for="id_phone_number" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
                 Phone Number <span style="color: #888; font-weight:400;">(optional, for recovery)</span>
             </label>
-            <input type="text" name="phone_number" id="id_phone_number" class="form-control" placeholder="e.g., +237 6XX XXX XXX" style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;">
+            <input type="tel" name="phone_number" id="id_phone_number" class="form-control" placeholder="e.g., +237 6XX XXX XXX" pattern="[\d\s\+\-]*" title="Only digits, spaces, +, and - allowed." style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;">
             {% if form.phone_number.errors %}
                 <div style="background: #fde8e8; padding: 8px 12px; border-radius: 4px; margin-top: 6px; border-left: 3px solid #e74c3c;">
                     {% for error in form.phone_number.errors %}

@@ -6,6 +6,11 @@ import os
 import dj_database_url
 from pathlib import Path
 
+# Cloudinary imports
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3)$am^&z@h7ngtnkwod0^(jsy64p#nadv$r16=l%&2-hdn-3^@')
@@ -20,6 +25,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Cloudinary
+    'cloudinary_storage',
+    'cloudinary',
+    # Custom apps
     'users',
     'courses',
     'dashboard',
@@ -68,6 +77,21 @@ DATABASES = {
 # ===== DEBUG: Check if DATABASE_URL is set =====
 print("DATABASE_URL:", os.environ.get('DATABASE_URL', 'NOT SET'))
 
+# ===== CLOUDINARY CONFIGURATION =====
+cloudinary.config(
+    cloud_name='dgtt5qsq',
+    api_key='981561537385896',
+    api_secret='A-DGV9yMeUi8j2_saH6_bKVEhQM'
+)
+
+# Use Cloudinary as default storage for media files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dgtt5qsq',
+    'API_KEY': '981561537385896',
+    'API_SECRET': 'A-DGV9yMeUi8j2_saH6_bKVEhQM',
+}
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -93,8 +117,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
+# Media files are now hosted on Cloudinary – MEDIA_URL is still used for URL generation
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # kept for local development fallback
 
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-    /* ===== Branding & Stats (same as before) ===== */
+    /* ===== Branding & Stats ===== */
     #header {
         background: linear-gradient(135deg, #0B8A4A, #1FAF6B) !important;
         padding: 16px 30px !important;
@@ -107,6 +107,13 @@
     .stat-card.blue .stat-number { color: #2563EB !important; }
 
     /* Compact table */
+    .table-wrapper {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border: 1px solid #e9ecef;
+    }
     #result_list {
         width: 100% !important;
         border-collapse: collapse !important;
@@ -155,64 +162,6 @@
     .badge-status.pending { background: #D4AF37; color: #fff; }
     .badge-status.rejected { background: #dc3545; color: #fff; }
     .badge-status.default { background: #6c757d; color: #fff; }
-
-    /* Action dropdown */
-    .action-dropdown {
-        position: relative !important;
-        display: inline-block !important;
-    }
-    .action-dropdown-toggle {
-        background: #0B8A4A !important;
-        color: #fff !important;
-        border: none !important;
-        padding: 4px 12px !important;
-        border-radius: 6px !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        cursor: pointer !important;
-        transition: 0.2s !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 4px !important;
-    }
-    .action-dropdown-toggle:hover {
-        background: #1FAF6B !important;
-    }
-    .action-dropdown-menu {
-        display: none !important;
-        position: absolute !important;
-        right: 0 !important;
-        background: #fff !important;
-        min-width: 150px !important;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
-        border-radius: 8px !important;
-        z-index: 1000 !important;
-        border: 1px solid #e9ecef !important;
-        overflow: hidden !important;
-    }
-    .action-dropdown-menu.show {
-        display: block !important;
-    }
-    .action-dropdown-menu a {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        padding: 8px 16px !important;
-        color: #1a1a2e !important;
-        text-decoration: none !important;
-        font-size: 13px !important;
-        transition: background 0.15s !important;
-        border-bottom: 1px solid #f8f9fa !important;
-    }
-    .action-dropdown-menu a:hover {
-        background: #f1f3f5 !important;
-    }
-    .action-dropdown-menu a:last-child {
-        border-bottom: none !important;
-    }
-    .action-dropdown-menu a.danger {
-        color: #dc3545 !important;
-    }
 
     /* Filters */
     #changelist-filter {
@@ -322,107 +271,6 @@
     .swal2-cancel { border-radius: 30px !important; padding: 10px 30px !important; font-weight: 600 !important; background: #e9ecef !important; color: #495057 !important; }
     .swal2-cancel:hover { background: #dee2e6 !important; }
 </style>
-<script>
-    // Toggle dropdown
-    document.addEventListener('click', function(e) {
-        var dropdowns = document.querySelectorAll('.action-dropdown-menu.show');
-        dropdowns.forEach(function(dropdown) {
-            if (!dropdown.parentElement.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
-    });
-    function toggleDropdown(btn) {
-        var menu = btn.parentElement.querySelector('.action-dropdown-menu');
-        if (menu) {
-            menu.classList.toggle('show');
-        }
-    }
-
-    // Append confirm parameter
-    function appendConfirm(url) {
-        var separator = url.includes('?') ? '&' : '?';
-        return url + separator + 'confirm=yes';
-    }
-
-    // SweetAlert2 functions (same as before)
-    function confirmApprove(url, username) {
-        Swal.fire({
-            title: '✅ Approve User',
-            html: `Are you sure you want to approve <strong>${username}</strong>?<br><small style="color:#6c757d;">This will activate their account and grant full access.</small>`,
-            icon: 'success',
-            iconColor: '#0B8A4A',
-            showCancelButton: true,
-            confirmButtonText: '🟢 Approve User',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            customClass: { confirmButton: 'swal2-confirm', cancelButton: 'swal2-cancel' }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = appendConfirm(url);
-            }
-        });
-        return false;
-    }
-
-    function confirmVerify(url, username) {
-        Swal.fire({
-            title: '🟢 Verify User',
-            html: `Are you sure you want to verify <strong>${username}</strong>?<br><small style="color:#6c757d;">This marks the user as fully verified.</small>`,
-            icon: 'success',
-            iconColor: '#1B7A3D',
-            showCancelButton: true,
-            confirmButtonText: '🟢 Verify User',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            customClass: { confirmButton: 'swal2-confirm', cancelButton: 'swal2-cancel' }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = appendConfirm(url);
-            }
-        });
-        return false;
-    }
-
-    function confirmDelete(url, username) {
-        Swal.fire({
-            title: '🗑️ Delete User',
-            html: `Are you sure you want to delete <strong>${username}</strong>?<br><small style="color:#dc3545;">This action cannot be undone.</small>`,
-            icon: 'warning',
-            iconColor: '#D4AF37',
-            showCancelButton: true,
-            confirmButtonText: '🗑️ Delete User',
-            confirmButtonColor: '#dc3545',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            customClass: { confirmButton: 'swal2-confirm', cancelButton: 'swal2-cancel' }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = appendConfirm(url);
-            }
-        });
-        return false;
-    }
-
-    function confirmPremium(url, username) {
-        Swal.fire({
-            title: '⭐ Toggle Premium',
-            html: `Are you sure you want to toggle Premium status for <strong>${username}</strong>?<br><small style="color:#6c757d;">This will give the user access to premium features.</small>`,
-            icon: 'question',
-            iconColor: '#D4AF37',
-            showCancelButton: true,
-            confirmButtonText: '⭐ Toggle Premium',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            customClass: { confirmButton: 'swal2-confirm', cancelButton: 'swal2-cancel' }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = appendConfirm(url);
-            }
-        });
-        return false;
-    }
-</script>
 {% endblock %}
 
 {% block content %}
@@ -548,7 +396,7 @@
     <!-- ===== BULK ACTIONS FORM + TABLE ===== -->
     <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>
         {% csrf_token %}
-        <div class="table-wrapper" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e9ecef;">
+        <div class="table-wrapper">
             <table id="result_list">
                 <thead>
                     <tr>
@@ -562,7 +410,6 @@
                         <th>Level</th>
                         <th>Status</th>
                         <th>Premium</th>
-                        <th style="text-align:center; min-width:120px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -619,24 +466,10 @@
                                 <span style="background:#e9ecef;color:#6c757d;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">Free</span>
                             {% endif %}
                         </td>
-                        <td style="text-align:center;">
-                            <div class="action-dropdown">
-                                <button class="action-dropdown-toggle" onclick="toggleDropdown(this)">
-                                    ⚡ Actions
-                                </button>
-                                <div class="action-dropdown-menu">
-                                    <a href="{% url 'admin:users_userprofile_change' profile.id %}">✏️ Edit</a>
-                                    <a href="#" onclick="return confirmApprove('{% url 'admin:approve_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">✔ Approve</a>
-                                    <a href="#" onclick="return confirmVerify('{% url 'admin:verify_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">✅ Verify</a>
-                                    <a href="#" onclick="return confirmPremium('{% url 'admin:make_premium' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">⭐ Premium</a>
-                                    <a href="#" class="danger" onclick="return confirmDelete('{% url 'admin:delete_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">🗑 Delete</a>
-                                </div>
-                            </div>
-                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" style="text-align:center;padding:40px;color:#6c757d;">
+                        <td colspan="6" style="text-align:center;padding:40px;color:#6c757d;">
                             <div style="font-size:48px;margin-bottom:12px;">👥</div>
                             <div style="font-size:18px;font-weight:600;">No users found</div>
                             <div style="font-size:14px;color:#6c757d;">Click "Add New User" to create the first account.</div>

@@ -392,8 +392,14 @@
         color: #dc3545 !important;
     }
 </style>
+
 <script>
-    // Custom SweetAlert2 functions for Approve, Verify, Delete, and Premium
+    // Custom SweetAlert2 functions with proper query parameter handling
+    function appendConfirm(url) {
+        var separator = url.includes('?') ? '&' : '?';
+        return url + separator + 'confirm=yes';
+    }
+
     function confirmApprove(url, username) {
         Swal.fire({
             title: '✅ Approve User',
@@ -410,7 +416,7 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = url + '&confirm=yes';
+                window.location.href = appendConfirm(url);
             }
         });
         return false;
@@ -432,7 +438,7 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = url + '&confirm=yes';
+                window.location.href = appendConfirm(url);
             }
         });
         return false;
@@ -455,7 +461,7 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = url + '&confirm=yes';
+                window.location.href = appendConfirm(url);
             }
         });
         return false;
@@ -477,7 +483,7 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = url + '&confirm=yes';
+                window.location.href = appendConfirm(url);
             }
         });
         return false;

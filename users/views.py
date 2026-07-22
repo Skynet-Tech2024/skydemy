@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from .forms import RegisterForm
+from .models import UserProfile  # <-- Import this
 
 def register(request):
     print("🔵 Registration view called")
@@ -11,21 +12,28 @@ def register(request):
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                # Save the user but do NOT log them in
+                # Save the user but DO NOT commit yet
                 user = form.save(commit=False)
                 # Keep account active; use verification_status for permissions
                 user.is_active = True
-                user.save()
+                user.save()  # Now save the user
                 print(f"🟢 User saved: {user.username}")
 
-                # Set profile verification status to 'pending'
-                try:
-                    profile = user.profile
-                    profile.verification_status = 'pending'
-                    profile.save()
-                    print(f"🟢 Profile verification set to pending for {user.username}")
-                except Exception as e:
-                    print(f"⚠️ Could not set profile pending: {e}")
+                # Now create the UserProfile manually
+                profile = UserProfile.objects.create(
+                    user=user,
+                    role=form.cleaned_data['role'],
+                    level=form.cleaned_data['level'],
+                    whatsapp_number=form.cleaned_data.get('whatsapp_number', ''),
+                    avatar=form.cleaned_data.get('avatar'),
+                    verification_status='pending',
+                    # Identity fields (if any)
+                    id_document=form.cleaned_data.get('id_document'),
+                    id_document_type=form.cleaned_data.get('id_document_type'),
+                    utility_bill=form.cleaned_data.get('utility_bill'),
+                    location_verified=False,
+                )
+                print(f"🟢 Profile created for {user.username}")
 
                 messages.success(
                     request,

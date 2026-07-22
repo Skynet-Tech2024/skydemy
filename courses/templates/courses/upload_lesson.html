@@ -3,40 +3,379 @@
 {% block title %}Upload Lesson - SKYDEMY{% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-    <h1 style="color: #1a1a2e;">📤 Upload a New Lesson</h1>
-    
-    <div style="margin-bottom: 20px;">
-        <a href="{% url 'add_subject' %}" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">+ Add New Subject</a>
-    </div>
-    
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding: 10px; border-radius: 4px; margin: 10px 0; background: {% if message.tags == 'success' %}#d4edda; color: #155724;{% elif message.tags == 'error' %}#f8d7da; color: #721c24;{% elif message.tags == 'info' %}#d1ecf1; color: #0c5460;{% else %}#fff3cd; color: #856404;{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-    
-    {% if form.errors %}
-        <div style="padding: 10px; border-radius: 4px; margin: 10px 0; background: #f8d7da; color: #721c24;">
-            <ul style="margin: 0; padding-left: 20px;">
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-                {% for error in form.non_field_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-    
-    <form method="post" enctype="multipart/form-data">
+<style>
+    /* ===== Override base styles for this page ===== */
+    .main-content {
+        max-width: 720px !important;
+        margin: 0 auto !important;
+        padding: 20px 0 !important;
+    }
+
+    .upload-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 32px 40px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 1px solid #e9ecef;
+        margin-bottom: 30px;
+    }
+
+    .upload-card h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #1F2937;
+        margin: 0 0 4px;
+        letter-spacing: -0.5px;
+    }
+
+    .upload-card .subtitle {
+        font-size: 16px;
+        color: #6B7280;
+        margin-bottom: 30px;
+    }
+
+    .form-section {
+        margin-bottom: 28px;
+    }
+    .form-section h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #1F2937;
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+    .form-group label .optional {
+        font-weight: 400;
+        color: #6B7280;
+        font-size: 13px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1.5px solid #D1D5DB;
+        border-radius: 8px;
+        font-size: 15px;
+        background: #FAFAFA;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #0B8A4A;
+        box-shadow: 0 0 0 3px rgba(11,138,74,0.12);
+        outline: none;
+        background: #fff;
+    }
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    .form-group .help-text {
+        font-size: 13px;
+        color: #6B7280;
+        margin-top: 4px;
+    }
+
+    /* Upload panels */
+    .upload-panel {
+        border: 2px dashed #D1D5DB;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        background: #FAFAFA;
+        transition: border-color 0.2s, background 0.2s;
+        cursor: pointer;
+        position: relative;
+    }
+    .upload-panel:hover {
+        border-color: #0B8A4A;
+        background: #F0FDF4;
+    }
+    .upload-panel .icon {
+        font-size: 32px;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .upload-panel .panel-title {
+        font-weight: 600;
+        color: #1F2937;
+        font-size: 15px;
+    }
+    .upload-panel .panel-sub {
+        font-size: 13px;
+        color: #6B7280;
+    }
+    .upload-panel input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .upload-panel .file-info {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #0B8A4A;
+        display: none;
+    }
+    .upload-panel .file-info.show {
+        display: block;
+    }
+
+    /* Subject creation toggle */
+    .subject-toggle {
+        margin-top: 6px;
+    }
+    .subject-toggle .btn-link {
+        background: none;
+        border: none;
+        color: #0B8A4A;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0;
+        font-size: 14px;
+        text-decoration: underline;
+    }
+    .subject-toggle .btn-link:hover {
+        color: #1FAF6B;
+    }
+    .subject-hidden {
+        display: none;
+        margin-top: 16px;
+        padding: 16px;
+        background: #F9FAFB;
+        border-radius: 8px;
+        border: 1px solid #E5E7EB;
+    }
+    .subject-hidden.show {
+        display: block;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-primary {
+        background: #0B8A4A;
+        color: #fff;
+    }
+    .btn-primary:hover {
+        background: #1FAF6B;
+        transform: translateY(-1px);
+    }
+    .btn-secondary {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    .btn-secondary:hover {
+        background: #D1D5DB;
+    }
+    .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        justify-content: flex-end;
+    }
+
+    /* Reduce footer on this page */
+    .full-width-footer {
+        margin-top: 20px;
+        padding: 20px 0 10px !important;
+    }
+
+    @media (max-width: 640px) {
+        .upload-card {
+            padding: 20px;
+        }
+        .btn-group {
+            flex-direction: column;
+        }
+        .btn-group .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="upload-card">
+    <h1>📚 Upload a New Lesson</h1>
+    <p class="subtitle">Briefly add the lesson details and learning materials.</p>
+
+    <form method="post" enctype="multipart/form-data" id="lesson-form">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" style="background: #f39c12; color: #1a1a2e; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; margin-top: 10px;">Upload Lesson</button>
+
+        <!-- ===== LESSON DETAILS ===== -->
+        <div class="form-section">
+            <h2>Lesson details</h2>
+
+            <div class="form-group">
+                <label for="id_title">Title *</label>
+                <input type="text" name="title" id="id_title" maxlength="200" required placeholder="e.g., Introduction to Algebra" value="{{ form.title.value|default:'' }}">
+                {% if form.title.errors %}<div class="help-text" style="color:#DC2626;">{{ form.title.errors }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_description">Description *</label>
+                <textarea name="description" id="id_description" rows="5" placeholder="Explain what students will learn and any prerequisites." required>{{ form.description.value|default:'' }}</textarea>
+                {% if form.description.errors %}<div class="help-text" style="color:#DC2626;">{{ form.description.errors }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_level">Level *</label>
+                <select name="level" id="id_level" required>
+                    <option value="">Select level</option>
+                    {% for value, label in form.fields.level.choices %}
+                        <option value="{{ value }}" {% if form.level.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.level.errors %}<div class="help-text" style="color:#DC2626;">{{ form.level.errors }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_subject">Subject</label>
+                <select name="subject" id="id_subject">
+                    <option value="">Select existing subject</option>
+                    {% for subject in form.fields.subject.queryset %}
+                        <option value="{{ subject.id }}" {% if form.subject.value == subject.id %}selected{% endif %}>{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">Select a subject or create a new one below.</div>
+                {% if form.subject.errors %}<div class="help-text" style="color:#DC2626;">{{ form.subject.errors }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_course">Course (optional)</label>
+                <select name="course" id="id_course">
+                    <option value="">Select course</option>
+                    {% for course in form.fields.course.queryset %}
+                        <option value="{{ course.id }}" {% if form.course.value == course.id %}selected{% endif %}>{{ course.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">Only for university level.</div>
+                {% if form.course.errors %}<div class="help-text" style="color:#DC2626;">{{ form.course.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Subject creation toggle -->
+            <div class="subject-toggle">
+                <button type="button" class="btn-link" id="toggleSubjectBtn">➕ Create a new subject</button>
+                <div class="subject-hidden" id="subjectHidden">
+                    <div class="form-group">
+                        <label for="new_subject_name">New subject name</label>
+                        <input type="text" name="new_subject_name" id="new_subject_name" placeholder="e.g., Further Mathematics">
+                        <div class="help-text">If you enter a name here, a new subject will be created automatically.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_subject_level">New subject level</label>
+                        <select name="new_subject_level" id="new_subject_level">
+                            <option value="">Select level</option>
+                            {% for value, label in form.fields.level.choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-text">Select the level for the new subject.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== LEARNING MATERIALS ===== -->
+        <div class="form-section">
+            <h2>Learning materials</h2>
+
+            <!-- PDF Upload -->
+            <div class="form-group">
+                <label>Lesson document (PDF) <span class="optional">(optional)</span></label>
+                <div class="upload-panel" id="pdfPanel">
+                    <span class="icon">📄</span>
+                    <div class="panel-title">Drag a PDF here or browse files</div>
+                    <div class="panel-sub">PDF up to 25 MB</div>
+                    <input type="file" name="pdf_file" id="id_pdf_file" accept=".pdf">
+                    <div class="file-info" id="pdfFileInfo"></div>
+                </div>
+                {% if form.pdf_file.errors %}<div class="help-text" style="color:#DC2626;">{{ form.pdf_file.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Video file Upload -->
+            <div class="form-group">
+                <label>Video file <span class="optional">(optional)</span></label>
+                <div class="upload-panel" id="videoPanel">
+                    <span class="icon">🎬</span>
+                    <div class="panel-title">Drag a video file here or browse</div>
+                    <div class="panel-sub">MP4, WebM, or OGG up to 100 MB</div>
+                    <input type="file" name="video_file" id="id_video_file" accept="video/*">
+                    <div class="file-info" id="videoFileInfo"></div>
+                </div>
+                {% if form.video_file.errors %}<div class="help-text" style="color:#DC2626;">{{ form.video_file.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Video URL -->
+            <div class="form-group">
+                <label for="id_video_url">Video link (YouTube or Vimeo) <span class="optional">(optional)</span></label>
+                <input type="url" name="video_url" id="id_video_url" placeholder="https://www.youtube.com/watch?v=..." value="{{ form.video_url.value|default:'' }}">
+                <div class="help-text">Paste a YouTube or Vimeo link if you have a video already hosted.</div>
+                {% if form.video_url.errors %}<div class="help-text" style="color:#DC2626;">{{ form.video_url.errors }}</div>{% endif %}
+            </div>
+        </div>
+
+        <!-- ===== FORM ACTIONS ===== -->
+        <div class="btn-group">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">🚀 Publish lesson</button>
+        </div>
     </form>
 </div>
+
+<script>
+    // ===== Subject toggle =====
+    document.getElementById('toggleSubjectBtn').addEventListener('click', function() {
+        var hidden = document.getElementById('subjectHidden');
+        hidden.classList.toggle('show');
+        this.textContent = hidden.classList.contains('show') ? '✖ Cancel new subject' : '➕ Create a new subject';
+    });
+
+    // ===== File upload panels: show selected filename =====
+    function setupFilePanel(inputId, infoId) {
+        var input = document.getElementById(inputId);
+        var info = document.getElementById(infoId);
+        if (!input || !info) return;
+        input.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                var file = this.files[0];
+                info.textContent = '📎 ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                info.classList.add('show');
+            } else {
+                info.textContent = '';
+                info.classList.remove('show');
+            }
+        });
+    }
+    setupFilePanel('id_pdf_file', 'pdfFileInfo');
+    setupFilePanel('id_video_file', 'videoFileInfo');
+</script>
+
 {% endblock %}

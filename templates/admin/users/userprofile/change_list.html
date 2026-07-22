@@ -162,138 +162,117 @@
         background: #1FAF6B !important;
     }
 
-    /* ----- User Cards (Grid) ----- */
-    .user-cards-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
-        gap: 20px !important;
-        margin-top: 20px !important;
-    }
-
-    .user-card {
-        background: #fff !important;
-        border-radius: 12px !important;
-        padding: 20px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
-        border: 1px solid #e9ecef !important;
-        transition: transform 0.2s, box-shadow 0.2s !important;
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    .user-card:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 8px 24px rgba(11,138,74,0.12) !important;
-    }
-
-    .user-card-header {
-        display: flex !important;
-        align-items: center !important;
-        gap: 14px !important;
-        margin-bottom: 12px !important;
-    }
-
-    .user-avatar-circle {
-        width: 50px !important;
-        height: 50px !important;
-        border-radius: 50% !important;
-        overflow: hidden !important;
-        flex-shrink: 0 !important;
-        background: linear-gradient(135deg, #0B8A4A, #1FAF6B) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        color: #fff !important;
-        font-weight: 700 !important;
-        font-size: 20px !important;
-    }
-
-    .user-avatar-circle img {
+    /* ----- Compact Table ----- */
+    #result_list {
         width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
+        border-collapse: collapse !important;
     }
-
-    .user-name {
-        font-weight: 700 !important;
-        font-size: 16px !important;
-        color: #1a1a2e !important;
+    #result_list thead th {
+        background: #0B8A4A !important;
+        color: #fff !important;
+        padding: 10px 12px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
         white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
     }
-
-    .user-email {
-        font-size: 12px !important;
-        color: #6c757d !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+    #result_list tbody tr {
+        background: #fff !important;
+        border-bottom: 1px solid #f1f3f5 !important;
+        transition: background 0.15s !important;
     }
-
-    .status-dot {
-        display: inline-block !important;
-        width: 12px !important;
-        height: 12px !important;
-        border-radius: 50% !important;
-        flex-shrink: 0 !important;
+    #result_list tbody tr:nth-child(even) {
+        background: #F7F9F8 !important;
     }
-
-    .user-card-body {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 8px 12px !important;
-        margin-bottom: 12px !important;
+    #result_list tbody tr:hover {
+        background: #EAF8F1 !important;
+    }
+    #result_list tbody td {
+        padding: 8px 12px !important;
+        vertical-align: middle !important;
         font-size: 14px !important;
-        color: #495057 !important;
     }
-
-    .user-card-body .label {
-        font-weight: 600 !important;
-    }
-
-    .user-card-actions {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 8px !important;
-        margin-top: auto !important;
-        border-top: 1px solid #f1f3f5 !important;
-        padding-top: 12px !important;
-    }
-
-    .user-card-actions .action-btn {
-        flex: 1 !important;
-        min-width: 50px !important;
-        text-align: center !important;
-        padding: 6px 10px !important;
-        border-radius: 8px !important;
-        font-size: 11px !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        transition: 0.2s !important;
-        border: none !important;
-        cursor: pointer !important;
+    /* Limit max width of user column */
+    .user-column {
+        max-width: 200px !important;
         white-space: nowrap !important;
-        line-height: 1.2 !important;
-        min-height: 34px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    /* Status badge */
+    .badge-status {
+        padding: 3px 10px !important;
+        border-radius: 20px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        white-space: nowrap !important;
+    }
+    .badge-status.verified { background: #0B8A4A; color: #fff; }
+    .badge-status.approved { background: #1B7A3D; color: #fff; }
+    .badge-status.pending { background: #D4AF37; color: #fff; }
+    .badge-status.rejected { background: #dc3545; color: #fff; }
+    .badge-status.default { background: #6c757d; color: #fff; }
+
+    /* ----- Action Dropdown ----- */
+    .action-dropdown {
+        position: relative !important;
+        display: inline-block !important;
+    }
+    .action-dropdown-toggle {
+        background: #0B8A4A !important;
+        color: #fff !important;
+        border: none !important;
+        padding: 6px 14px !important;
+        border-radius: 6px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: 0.2s !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+    .action-dropdown-toggle:hover {
+        background: #1FAF6B !important;
+    }
+    .action-dropdown-menu {
+        display: none !important;
+        position: absolute !important;
+        right: 0 !important;
+        background: #fff !important;
+        min-width: 160px !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
+        border-radius: 8px !important;
+        z-index: 1000 !important;
+        border: 1px solid #e9ecef !important;
+        overflow: hidden !important;
+    }
+    .action-dropdown-menu.show {
+        display: block !important;
+    }
+    .action-dropdown-menu a {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 8px 16px !important;
+        color: #1a1a2e !important;
+        text-decoration: none !important;
+        font-size: 14px !important;
+        transition: background 0.15s !important;
+        border-bottom: 1px solid #f8f9fa !important;
+    }
+    .action-dropdown-menu a:hover {
+        background: #f1f3f5 !important;
+    }
+    .action-dropdown-menu a:last-child {
+        border-bottom: none !important;
+    }
+    .action-dropdown-menu a.danger {
+        color: #dc3545 !important;
     }
 
-    .user-card-actions .action-btn:hover {
-        transform: scale(1.05) !important;
-        opacity: 0.9 !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-    }
-
-    .user-card-actions .action-btn.edit { background: #D4AF37; color: #fff; }
-    .user-card-actions .action-btn.approve { background: #0B8A4A; color: #fff; }
-    .user-card-actions .action-btn.verify { background: #1B7A3D; color: #fff; }
-    .user-card-actions .action-btn.premium { background: #C89B1D; color: #fff; }
-    .user-card-actions .action-btn.delete { background: #dc3545; color: #fff; }
-
-    /* ----- Filters (inside white card) ----- */
+    /* ----- Filters ----- */
     #changelist-filter {
         background: #fff !important;
         border-radius: 12px !important;
@@ -385,8 +364,13 @@
         .stats-grid {
             grid-template-columns: repeat(3, 1fr) !important;
         }
-        .user-cards-grid {
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+        #result_list thead th,
+        #result_list tbody td {
+            padding: 6px 8px !important;
+            font-size: 12px !important;
+        }
+        .user-column {
+            max-width: 120px !important;
         }
     }
     @media (max-width: 768px) {
@@ -397,17 +381,14 @@
         .stat-card .stat-number {
             font-size: 20px !important;
         }
-        .user-cards-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .user-card-actions .action-btn {
-            font-size: 10px !important;
-            padding: 4px 8px !important;
-            min-height: 30px !important;
+        /* Make table scrollable horizontally on small screens */
+        .table-wrapper {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
         }
     }
 
-    /* SweetAlert2 override to match SKYDEMY theme */
+    /* SweetAlert2 override */
     .swal2-popup {
         border-radius: 16px !important;
         box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important;
@@ -437,22 +418,27 @@
     .swal2-cancel:hover {
         background: #dee2e6 !important;
     }
-    .swal2-icon.swal2-success {
-        border-color: #0B8A4A !important;
-        color: #0B8A4A !important;
-    }
-    .swal2-icon.swal2-warning {
-        border-color: #D4AF37 !important;
-        color: #D4AF37 !important;
-    }
-    .swal2-icon.swal2-error {
-        border-color: #dc3545 !important;
-        color: #dc3545 !important;
-    }
 </style>
 
 <script>
-    // Custom SweetAlert2 functions with proper query parameter handling
+    // Toggle dropdown menu for actions
+    document.addEventListener('click', function(e) {
+        var dropdowns = document.querySelectorAll('.action-dropdown-menu.show');
+        dropdowns.forEach(function(dropdown) {
+            if (!dropdown.parentElement.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    });
+
+    function toggleDropdown(btn) {
+        var menu = btn.parentElement.querySelector('.action-dropdown-menu');
+        if (menu) {
+            menu.classList.toggle('show');
+        }
+    }
+
+    // SweetAlert2 functions with query parameter handling
     function appendConfirm(url) {
         var separator = url.includes('?') ? '&' : '?';
         return url + separator + 'confirm=yes';
@@ -572,7 +558,7 @@
         </div>
     </div>
 
-    <!-- ===== STATISTICS CARDS (CLICKABLE) ===== -->
+    <!-- ===== STATISTICS CARDS ===== -->
     <div class="stats-grid">
         <a href="{% url 'admin:users_userprofile_changelist' %}" class="stat-card" style="text-decoration:none; color: inherit; display:block;">
             <span class="stat-icon">👥</span>
@@ -631,19 +617,17 @@
             🔍 Filters
         </h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
-            <!-- Role Filter -->
             <div>
-                <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Role</h3>
-                <ul style="list-style:none;padding:0;margin:0;">
+                <h3>Role</h3>
+                <ul>
                     <li><a href="?role__exact=" class="selected">All</a></li>
                     <li><a href="?role__exact=learner">🎓 Learner</a></li>
                     <li><a href="?role__exact=teacher">👨‍🏫 Teacher</a></li>
                 </ul>
             </div>
-            <!-- Verification Status -->
             <div>
-                <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Verification</h3>
-                <ul style="list-style:none;padding:0;margin:0;">
+                <h3>Verification</h3>
+                <ul>
                     <li><a href="?verification_status__exact=" class="selected">All</a></li>
                     <li><a href="?verification_status__exact=approved">✅ Approved</a></li>
                     <li><a href="?verification_status__exact=verified">🟢 Verified</a></li>
@@ -651,20 +635,18 @@
                     <li><a href="?verification_status__exact=rejected">🔴 Rejected</a></li>
                 </ul>
             </div>
-            <!-- Level Filter -->
             <div>
-                <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Level</h3>
-                <ul style="list-style:none;padding:0;margin:0;">
+                <h3>Level</h3>
+                <ul>
                     <li><a href="?level__exact=" class="selected">All</a></li>
                     <li><a href="?level__exact=primary">🏫 Primary</a></li>
                     <li><a href="?level__exact=secondary">🏛️ Secondary</a></li>
                     <li><a href="?level__exact=university">🎓 University</a></li>
                 </ul>
             </div>
-            <!-- Premium Filter -->
             <div>
-                <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Premium</h3>
-                <ul style="list-style:none;padding:0;margin:0;">
+                <h3>Premium</h3>
+                <ul>
                     <li><a href="?is_premium__exact=" class="selected">All</a></li>
                     <li><a href="?is_premium__exact=True">⭐ Premium</a></li>
                     <li><a href="?is_premium__exact=False">Free</a></li>
@@ -673,102 +655,110 @@
         </div>
     </div>
 
-    <!-- ===== USER CARDS (GRID) ===== -->
-    <div class="user-cards-grid">
-        {% for profile in cl.result_list %}
-        <div class="user-card">
-            <!-- Card Header: Avatar + User Info -->
-            <div class="user-card-header">
-                <!-- Avatar -->
-                <div class="user-avatar-circle">
-                    {% if profile.avatar and profile.avatar.url %}
-                        <img src="{{ profile.avatar.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}">
-                    {% else %}
-                        {% with full_name=profile.user.get_full_name|default:profile.user.username %}
-                            {{ full_name|slice:":1"|upper }}
-                        {% endwith %}
-                    {% endif %}
-                </div>
-                <!-- User Name and Email -->
-                <div style="flex:1; min-width:0;">
-                    <div class="user-name">
-                        {{ profile.user.get_full_name|default:profile.user.username }}
-                    </div>
-                    <div class="user-email">
-                        {{ profile.user.email|default:"No email" }} · Joined: {{ profile.user.date_joined|date:"d M Y" }}
-                    </div>
-                </div>
-                <!-- Status Dot -->
-                <span class="status-dot" 
-                    style="{% if profile.verification_status == 'verified' %}background:#0B8A4A; box-shadow:0 0 0 2px rgba(11,138,74,0.2);
-                    {% elif profile.verification_status == 'approved' %}background:#1B7A3D; box-shadow:0 0 0 2px rgba(27,122,61,0.2);
-                    {% elif profile.verification_status == 'pending' %}background:#D4AF37; box-shadow:0 0 0 2px rgba(212,175,55,0.2);
-                    {% elif profile.verification_status == 'rejected' %}background:#dc3545; box-shadow:0 0 0 2px rgba(220,53,69,0.2);
-                    {% else %}background:#6c757d;{% endif %}"
-                    title="{% if profile.verification_status == 'verified' %}Verified{% elif profile.verification_status == 'approved' %}Approved{% elif profile.verification_status == 'pending' %}Pending Review{% elif profile.verification_status == 'rejected' %}Rejected{% else %}Unknown{% endif %}">
-                </span>
-            </div>
-
-            <!-- Card Body: Role, Level, Rating, Premium -->
-            <div class="user-card-body">
-                <div><span class="label">Role:</span> 
-                    <span style="background:{% if profile.role == 'teacher' %}#0B8A4A{% elif profile.role == 'learner' %}#2563EB{% else %}#6c757d{% endif %}; color:#fff; padding:2px 10px; border-radius:20px; font-size:12px;">
-                        {{ profile.get_role_display }}
-                    </span>
-                </div>
-                <div><span class="label">Level:</span> 
-                    {% if profile.level %}
-                        {{ profile.get_level_display }}
-                    {% else %}
-                        —
-                    {% endif %}
-                </div>
-                <div><span class="label">Rating:</span> 
-                    <span style="color:#D4AF37;">{{ profile.rating|floatformat:1 }}</span>
-                </div>
-                <div><span class="label">Premium:</span>
-                    {% if profile.is_premium %}
-                        <span style="background:#D4AF37; color:#fff; padding:2px 10px; border-radius:20px; font-size:12px;">⭐ Premium</span>
-                    {% else %}
-                        <span style="background:#e9ecef; color:#6c757d; padding:2px 10px; border-radius:20px; font-size:12px;">Free</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Card Actions -->
-            <div class="user-card-actions">
-                <a href="{% url 'admin:users_userprofile_change' profile.id %}" class="action-btn edit">✏️ Edit</a>
-                <a href="#" onclick="return confirmApprove('{% url 'admin:approve_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn approve">✔ Approve</a>
-                <a href="#" onclick="return confirmVerify('{% url 'admin:verify_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn verify">✅ Verify</a>
-                <a href="#" onclick="return confirmPremium('{% url 'admin:make_premium' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn premium">⭐ Premium</a>
-                <a href="#" onclick="return confirmDelete('{% url 'admin:delete_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn delete">🗑 Delete</a>
-            </div>
-        </div>
-        {% empty %}
-        <div style="grid-column: 1 / -1; text-align:center; padding:40px; color:#6c757d;">
-            <div style="font-size:48px; margin-bottom:12px;">👥</div>
-            <div style="font-size:18px; font-weight:600;">No users found</div>
-            <div style="font-size:14px;">Click "Add New User" to create the first account.</div>
-        </div>
-        {% endfor %}
+    <!-- ===== COMPACT TABLE ===== -->
+    <div class="table-wrapper" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e9ecef;">
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Level</th>
+                    <th>Status</th>
+                    <th>Premium</th>
+                    <th style="text-align:center; min-width:120px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in cl.result_list %}
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            {% if profile.avatar and profile.avatar.url %}
+                                <img src="{{ profile.avatar.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                            {% else %}
+                                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0B8A4A,#1FAF6B);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">
+                                    {{ profile.user.get_full_name|default:profile.user.username|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+                            <div style="min-width:0;">
+                                <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
+                                    {{ profile.user.get_full_name|default:profile.user.username }}
+                                </div>
+                                <div style="font-size:12px;color:#6c757d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
+                                    {{ profile.user.email|default:"No email" }}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="background:{% if profile.role == 'teacher' %}#0B8A4A{% elif profile.role == 'learner' %}#2563EB{% else %}#6c757d{% endif %};color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">
+                            {{ profile.get_role_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if profile.level %}
+                            {{ profile.get_level_display|default:"—" }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge-status 
+                            {% if profile.verification_status == 'verified' %}verified
+                            {% elif profile.verification_status == 'approved' %}approved
+                            {% elif profile.verification_status == 'pending' %}pending
+                            {% elif profile.verification_status == 'rejected' %}rejected
+                            {% else %}default{% endif %}">
+                            {{ profile.get_verification_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if profile.is_premium %}
+                            <span style="background:#D4AF37;color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">⭐ Premium</span>
+                        {% else %}
+                            <span style="background:#e9ecef;color:#6c757d;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;">Free</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:center;">
+                        <div class="action-dropdown">
+                            <button class="action-dropdown-toggle" onclick="toggleDropdown(this)">
+                                ⚡ Actions
+                            </button>
+                            <div class="action-dropdown-menu">
+                                <a href="{% url 'admin:users_userprofile_change' profile.id %}">✏️ Edit</a>
+                                <a href="#" onclick="return confirmApprove('{% url 'admin:approve_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">✔ Approve</a>
+                                <a href="#" onclick="return confirmVerify('{% url 'admin:verify_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">✅ Verify</a>
+                                <a href="#" onclick="return confirmPremium('{% url 'admin:make_premium' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">⭐ Premium</a>
+                                <a href="#" class="danger" onclick="return confirmDelete('{% url 'admin:delete_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')">🗑 Delete</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align:center;padding:40px;color:#6c757d;">
+                        <div style="font-size:48px;margin-bottom:12px;">👥</div>
+                        <div style="font-size:18px;font-weight:600;">No users found</div>
+                        <div style="font-size:14px;color:#6c757d;">Click "Add New User" to create the first account.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <!-- ===== PAGINATION ===== -->
     {% if cl.paginator.num_pages > 1 %}
-    <div class="paginator" style="background:#F7F9F8;border-radius:8px;padding:12px 20px;margin-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <span style="color:#6c757d;font-size:14px;">
-            {{ cl.result_count }} user{{ cl.result_count|pluralize }}
-        </span>
+    <div class="paginator">
+        <span>{{ cl.result_count }} user{{ cl.result_count|pluralize }}</span>
         <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            {% if cl.paginator.num_pages > 1 %}
-                {% for page in cl.paginator.page_range %}
-                    {% if page == cl.page_num %}
-                        <span class="this-page" style="background:#0B8A4A;color:#fff;border-radius:6px;padding:6px 14px;margin:0 3px;">{{ page }}</span>
-                    {% else %}
-                        <a href="?p={{ page }}{% if cl.query %}&q={{ cl.query }}{% endif %}" style="background:#fff;color:#0B8A4A;border:1px solid #e9ecef;border-radius:6px;padding:6px 14px;margin:0 3px;font-weight:600;text-decoration:none;transition:0.2s;">{{ page }}</a>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
+            {% for page in cl.paginator.page_range %}
+                {% if page == cl.page_num %}
+                    <span class="this-page">{{ page }}</span>
+                {% else %}
+                    <a href="?p={{ page }}{% if cl.query %}&q={{ cl.query }}{% endif %}">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
     {% endif %}

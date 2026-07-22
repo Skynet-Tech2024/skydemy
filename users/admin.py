@@ -129,13 +129,12 @@ class UserProfileAdmin(admin.ModelAdmin):
         self.message_user(request, f'✅ {count} user(s) activated.')
     activate_selected.short_description = '✅ Activate selected users'
 
+    # ===== FIXED DELETE (cascade only) =====
     def delete_selected(self, request, queryset):
-        """Delete selected users (including their User records)."""
+        """Delete selected users (cascade deletes profiles)."""
         count = queryset.count()
-        for profile in queryset:
-            user = profile.user
-            profile.delete()
-            user.delete()
+        user_ids = list(queryset.values_list('user_id', flat=True))
+        User.objects.filter(id__in=user_ids).delete()
         self.message_user(request, f'🗑️ {count} user(s) deleted successfully.')
     delete_selected.short_description = '🗑️ Delete selected users'
 
@@ -192,11 +191,12 @@ class UserProfileAdmin(admin.ModelAdmin):
         return redirect('/admin/users/userprofile/')
 
     def delete_view(self, request, profile_id):
+        """Delete a single user (cascade deletes profile)."""
         profile = get_object_or_404(UserProfile, id=profile_id)
         if request.method == 'GET':
             if request.GET.get('confirm', 'no') == 'yes':
                 user = profile.user
-                profile.delete()
+                # Delete the user; the profile will be deleted by cascade
                 user.delete()
                 self.message_user(request, f'🗑️ User "{user.get_full_name() or user.username}" deleted successfully.')
                 return redirect(request.META.get('HTTP_REFERER', '/admin/users/userprofile/'))

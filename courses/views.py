@@ -54,10 +54,12 @@ def upload_lesson(request):
         return redirect('profile')
 
     if request.method == 'POST':
-        # Remove level from POST data – we'll set it manually
-        post_data = request.POST.copy()
-        post_data.pop('level', None)
-        form = LessonForm(post_data, request.FILES)
+        # Use the form without the 'level' field
+        form = LessonForm(request.POST, request.FILES)
+        # Remove 'level' from form fields so it's not validated
+        if 'level' in form.fields:
+            del form.fields['level']
+        
         if form.is_valid():
             lesson = form.save(commit=False)
             lesson.teacher = request.user
@@ -91,10 +93,10 @@ def upload_lesson(request):
             # Form invalid – re‑render with teacher_level
             return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
     else:
-        # Pre-populate level with teacher's level and make it disabled
-        form = LessonForm(initial={'level': teacher_level})
-        form.fields['level'].disabled = True
-        form.fields['level'].widget.attrs['readonly'] = True
+        # GET request – create form without the 'level' field
+        form = LessonForm()
+        if 'level' in form.fields:
+            del form.fields['level']
 
     return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
 

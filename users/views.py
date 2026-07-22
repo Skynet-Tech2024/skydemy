@@ -13,8 +13,8 @@ def register(request):
             try:
                 # Save the user but do NOT log them in
                 user = form.save(commit=False)
-                # Mark account inactive until admin approval
-                user.is_active = False
+                # Keep account active; use verification_status for permissions
+                user.is_active = True
                 user.save()
                 print(f"🟢 User saved: {user.username}")
 
@@ -63,14 +63,10 @@ def custom_login(request):
         user = authenticate(request, username=username, password=password)
         print(f"🟢 Authenticated user: {user}")
         if user is not None:
-            # Check if user is active
-            if not user.is_active:
-                print("❌ User account is inactive")
-                messages.error(request, 'Your account is pending admin approval. Please wait for the verification email.')
-                return render(request, 'users/login.html')
+            # Allow login regardless of is_active (we use verification_status for permissions)
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
-            return redirect('/admin/')
+            return redirect('/')
         else:
             print("❌ Login failed")
             messages.error(request, 'Invalid username or password.')

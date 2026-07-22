@@ -224,6 +224,7 @@
 
     .action-btn.edit { background: #D4AF37; color: #fff; }
     .action-btn.approve { background: #0B8A4A; color: #fff; }
+    .action-btn.verify { background: #1B7A3D; color: #fff; }
     .action-btn.premium { background: #C89B1D; color: #fff; }
     .action-btn.delete { background: #dc3545; color: #fff; }
 
@@ -392,7 +393,7 @@
     }
 </style>
 <script>
-    // Custom SweetAlert2 functions for Approve, Delete, and Premium
+    // Custom SweetAlert2 functions for Approve, Verify, Delete, and Premium
     function confirmApprove(url, username) {
         Swal.fire({
             title: '✅ Approve User',
@@ -401,6 +402,28 @@
             iconColor: '#0B8A4A',
             showCancelButton: true,
             confirmButtonText: '🟢 Approve User',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'swal2-confirm',
+                cancelButton: 'swal2-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url + '&confirm=yes';
+            }
+        });
+        return false;
+    }
+
+    function confirmVerify(url, username) {
+        Swal.fire({
+            title: '🟢 Verify User',
+            html: `Are you sure you want to verify <strong>${username}</strong>?<br><small style="color:#6c757d;">This marks the user as fully verified.</small>`,
+            icon: 'success',
+            iconColor: '#1B7A3D',
+            showCancelButton: true,
+            confirmButtonText: '🟢 Verify User',
             cancelButtonText: 'Cancel',
             reverseButtons: true,
             customClass: {
@@ -507,8 +530,13 @@
             <div class="stat-number">{{ teacher_count|default:"0" }}</div>
             <div class="stat-label">Teachers</div>
         </a>
-        <a href="{% url 'admin:users_userprofile_changelist' %}?verification_status__exact=verified" class="stat-card" style="border-left:4px solid #0B8A4A; text-decoration:none; color: inherit; display:block;">
+        <a href="{% url 'admin:users_userprofile_changelist' %}?verification_status__exact=approved" class="stat-card" style="border-left:4px solid #1B7A3D; text-decoration:none; color: inherit; display:block;">
             <span class="stat-icon">✅</span>
+            <div class="stat-number">{{ approved_count|default:"0" }}</div>
+            <div class="stat-label">Approved</div>
+        </a>
+        <a href="{% url 'admin:users_userprofile_changelist' %}?verification_status__exact=verified" class="stat-card" style="border-left:4px solid #0B8A4A; text-decoration:none; color: inherit; display:block;">
+            <span class="stat-icon">🟢</span>
             <div class="stat-number">{{ verified_count|default:"0" }}</div>
             <div class="stat-label">Verified</div>
         </a>
@@ -558,6 +586,7 @@
                 <h3 style="color:#1a1a2e;font-size:13px;font-weight:700;margin:0 0 8px;text-transform:uppercase;">Verification</h3>
                 <ul style="list-style:none;padding:0;margin:0;">
                     <li><a href="?verification_status__exact=" class="selected">All</a></li>
+                    <li><a href="?verification_status__exact=approved">✅ Approved</a></li>
                     <li><a href="?verification_status__exact=verified">🟢 Verified</a></li>
                     <li><a href="?verification_status__exact=pending">🟡 Pending</a></li>
                     <li><a href="?verification_status__exact=rejected">🔴 Rejected</a></li>
@@ -606,8 +635,12 @@
                             <div style="display:flex;align-items:center;gap:12px;">
                                 <!-- Status Dot -->
                                 <span style="display:inline-block; width:12px; height:12px; border-radius:50%; flex-shrink:0; 
-                                    {% if profile.verification_status == 'verified' %}background:#0B8A4A; box-shadow:0 0 0 2px rgba(11,138,74,0.2);{% elif profile.verification_status == 'pending' %}background:#D4AF37; box-shadow:0 0 0 2px rgba(212,175,55,0.2);{% elif profile.verification_status == 'rejected' %}background:#dc3545; box-shadow:0 0 0 2px rgba(220,53,69,0.2);{% else %}background:#6c757d;{% endif %}"
-                                    title="{% if profile.verification_status == 'verified' %}Verified{% elif profile.verification_status == 'pending' %}Pending Review{% elif profile.verification_status == 'rejected' %}Rejected{% else %}Unknown{% endif %}">
+                                    {% if profile.verification_status == 'verified' %}background:#0B8A4A; box-shadow:0 0 0 2px rgba(11,138,74,0.2);
+                                    {% elif profile.verification_status == 'approved' %}background:#1B7A3D; box-shadow:0 0 0 2px rgba(27,122,61,0.2);
+                                    {% elif profile.verification_status == 'pending' %}background:#D4AF37; box-shadow:0 0 0 2px rgba(212,175,55,0.2);
+                                    {% elif profile.verification_status == 'rejected' %}background:#dc3545; box-shadow:0 0 0 2px rgba(220,53,69,0.2);
+                                    {% else %}background:#6c757d;{% endif %}"
+                                    title="{% if profile.verification_status == 'verified' %}Verified{% elif profile.verification_status == 'approved' %}Approved{% elif profile.verification_status == 'pending' %}Pending Review{% elif profile.verification_status == 'rejected' %}Rejected{% else %}Unknown{% endif %}">
                                 </span>
                                 <!-- Avatar -->
                                 {% if profile.avatar and profile.avatar.url %}
@@ -693,6 +726,9 @@
                                 </a>
                                 <a href="#" onclick="return confirmApprove('{% url 'admin:approve_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn approve" style="background:#0B8A4A; color:#fff; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; white-space:nowrap; line-height:1; min-height:38px; min-width:70px;">
                                     ✔ Approve
+                                </a>
+                                <a href="#" onclick="return confirmVerify('{% url 'admin:verify_user' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn verify" style="background:#1B7A3D; color:#fff; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; white-space:nowrap; line-height:1; min-height:38px; min-width:70px;">
+                                    ✅ Verify
                                 </a>
                                 <a href="#" onclick="return confirmPremium('{% url 'admin:make_premium' profile.id %}', '{{ profile.user.get_full_name|default:profile.user.username|escapejs }}')" class="action-btn premium" style="background:#C89B1D; color:#fff; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; white-space:nowrap; line-height:1; min-height:38px; min-width:70px;">
                                     ⭐ Premium

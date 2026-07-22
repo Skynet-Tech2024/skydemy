@@ -1,57 +1,48 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
-from .forms import RegisterForm
+from django.contrib.auth.models import User
+from .forms import RegisterForm, ProfileCompletionForm
 from .models import UserProfile
 
+# ===== STEP 1: Account Creation =====
 def register(request):
-    print("🔵 Registration view called")
+    print("🔵 Registration view called (Step 1)")
     if request.method == 'POST':
         print("🟡 POST request received")
-        form = RegisterForm(request.POST, request.FILES)
+        form = RegisterForm(request.POST)
         if form.is_valid():
             try:
-                # Save the user but DO NOT commit yet
-                user = form.save(commit=False)
-                # Keep account active; use verification_status for permissions
-                user.is_active = True
-                user.save()  # Now save the user (this triggers post_save signal to create profile)
+                # Create user
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+                phone_number = form.cleaned_data.get('phone_number', '')
+                role = form.cleaned_data['role']
 
-                # Retrieve the profile created by the signal and update it
-                profile = user.profile  # This should exist now
-                profile.role = form.cleaned_data['role']
-                profile.level = form.cleaned_data['level']
-                profile.whatsapp_number = form.cleaned_data.get('whatsapp_number', '')
-                profile.avatar = form.cleaned_data.get('avatar')
-                profile.verification_status = 'pending'
-                # Identity fields
-                profile.id_document = form.cleaned_data.get('id_document')
-                profile.id_document_type = form.cleaned_data.get('id_document_type')
-                profile.utility_bill = form.cleaned_data.get('utility_bill')
-                profile.location_verified = False
-                profile.save()
-
-                print(f"🟢 Profile updated for {user.username}")
-
-                messages.success(
-                    request,
-                    "✅ Your account has been created and is now pending review by our admin team. "
-                    "You will receive an email once your account is approved. "
-                    "Thank you for your patience! Review typically takes 24–48 hours."
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    email=phone_number  # Use phone as email for recovery
                 )
+                # Store role and phone in session for Step 2
+                request.session['temp_user_id'] = user.id
+                request.session['temp_role'] = role
+                request.session['temp_phone'] = phone_number
 
-                return redirect('login')
+                print(f"🟢 User created: {username}, ID: {user.id}")
+
+                # Redirect to Step 2 (profile completion)
+                return redirect('complete_profile')
 
             except Exception as e:
-                print(f"❌ Exception during save: {e}")
+                print(f"❌ Error creating user: {e}")
                 import traceback
                 traceback.print_exc()
-                messages.error(request, f"An error occurred: {e}")
+                messages.error(request, "We couldn't create your account. Please try again.")
         else:
             print("❌ Form invalid:")
             print(form.errors)
-            print(form.non_field_errors())
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
@@ -60,6 +51,64 @@ def register(request):
     return render(request, 'users/register.html', {'form': form})
 
 
+# ===== STEP 2: Profile Completion (optional) =====
+def complete_profile(request):
+    print("🔵 Profile completion view called (Step 2)")
+    user_id = request.session.get('temp_user_id')
+    if not user_id:
+        messages.error(request, "Please create your account first.")
+        return redirect('register')
+
+    user = get_object_or_404(User, id=user_id)
+    role = request.session.get('temp_role', 'learner')
+
+    # Check if profile already exists
+    try:
+        profile = user.profile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile(user=user)
+
+    if request.method == 'POST':
+        form = ProfileCompletionForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.user = user
+            profile.role = role
+            profile.whatsapp_number = request.session.get('temp_phone', '')
+            if not profile.verification_status:
+                profile.verification_status = 'pending'
+            profile.save()
+            print(f"🟢 Profile completed for {user.username}")
+
+            # Clear session data
+            del request.session['temp_user_id']
+            del request.session['temp_role']
+            if 'temp_phone' in request.session:
+                del request.session['temp_phone']
+
+            messages.success(
+                request,
+                "✅ Your account has been created and is now pending review by our admin team. "
+                "You can now log in."
+            )
+            return redirect('login')
+        else:
+            print("❌ Profile form invalid:")
+            print(form.errors)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = ProfileCompletionForm(instance=profile, initial={'role': role})
+
+    return render(request, 'users/complete_profile.html', {
+        'form': form,
+        'user': user,
+        'role': role
+    })
+
+
+# ===== Login =====
 def custom_login(request):
     print("🔵 Login view called")
     if request.method == 'POST':
@@ -70,10 +119,8 @@ def custom_login(request):
         user = authenticate(request, username=username, password=password)
         print(f"🟢 Authenticated user: {user}")
         if user is not None:
-            # Allow login regardless of is_active (we use verification_status for permissions)
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
-            # Redirect to dashboard after login
             return redirect('dashboard')
         else:
             print("❌ Login failed")
@@ -91,5 +138,4 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
     
     def get_success_url(self):
-        # Redirect to dashboard after login
         return 'dashboard'

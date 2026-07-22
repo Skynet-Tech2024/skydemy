@@ -35,3 +35,12 @@ class RegisterForm(forms.Form):
         if password and password_confirm and password != password_confirm:
             raise forms.ValidationError("Passwords do not match.")
         return cleaned_data
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['avatar', 'level', 'whatsapp_number']
+        widgets = {
+            'avatar': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
+        }

@@ -145,8 +145,8 @@ def view_lesson(request, lesson_id):
                 progress.completed = True
                 profile = request.user.profile
                 profile.total_lessons_completed += 1
-                profile.rating = profile.total_lessons_completed * 10
-                profile.save()
+                # Use the model's rating calculation instead of manual assignment
+                profile.update_rating()  # this calculates a 0-5 rating based on engagement
             progress.save()
     
     # Check if user can view video (verified only)
@@ -345,7 +345,7 @@ def add_exam(request, lesson_id):
 
 @lesson_access
 def take_exam(request, lesson_id):
-    """Learner takes an exam."""
+    """Learner takes an exam and is redirected to the result page."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
     exam = Exam.objects.filter(lesson=lesson, status='approved').first()
     
@@ -407,7 +407,6 @@ def take_exam(request, lesson_id):
                 [settings.ADMIN_EMAIL],
                 fail_silently=True,
             )
-            messages.success(request, f'🎉 You passed! Score: {percentage}%. Certificate generated!')
         else:
             create_notification(
                 user=request.user,
@@ -416,11 +415,16 @@ def take_exam(request, lesson_id):
                 message=f'You scored {percentage}% on "{exam.title}". You need {exam.passing_score}% to pass. Keep trying!',
                 link=f'/courses/lesson/{lesson.id}/'
             )
-            messages.info(request, f'Score: {percentage}%. You need {exam.passing_score}% to pass.')
         
-        return redirect('view_lesson', lesson_id=lesson.id)
+        return redirect('exam_result', result_id=result.id)
     
     return render(request, 'courses/take_exam.html', {'exam': exam, 'lesson': lesson})
+
+
+def exam_result(request, result_id):
+    """Display the result of an exam."""
+    result = get_object_or_404(ExamResult, id=result_id, user=request.user)
+    return render(request, 'courses/exam_result.html', {'result': result})
 
 
 # ====== CONVERT LESSON TO VIDEO ======

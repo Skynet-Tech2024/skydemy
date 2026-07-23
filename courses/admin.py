@@ -72,6 +72,9 @@ class ExamAdmin(admin.ModelAdmin):
     search_fields = ('title', 'lesson__title')
     actions = ['approve_exams', 'reject_exams']
     
+    # Custom delete confirmation template with SweetAlert2
+    delete_confirmation_template = 'admin/courses/exam/delete_confirmation.html'
+    
     def approve_exams(self, request, queryset):
         updated = 0
         for exam in queryset:

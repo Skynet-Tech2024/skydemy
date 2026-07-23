@@ -15,6 +15,7 @@ from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_exempt
 from .forms import LessonForm, ExamForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
+from .utils import convert_uploaded_file_to_pdf  # <-- NEW IMPORT
 
 # ====== Core Lesson Views ======
 
@@ -41,7 +42,7 @@ def lesson_list(request):
 
 @upload_access
 def upload_lesson(request):
-    """Teachers upload a new lesson – level is forced to teacher's level."""
+    """Teachers upload a new lesson – level is forced to teacher's level, with Word to PDF conversion."""
     if request.user.profile.role != 'teacher':
         messages.error(request, 'Only teachers can upload lessons.')
         return redirect('home')
@@ -66,6 +67,24 @@ def upload_lesson(request):
             lesson.status = 'pending'
             # Force lesson level to match teacher's level
             lesson.level = teacher_level
+
+            # --- NEW: Handle file conversion (Word to PDF) ---
+            uploaded_file = request.FILES.get('pdf_file')
+            if uploaded_file:
+                ext = os.path.splitext(uploaded_file.name)[1].lower()
+                if ext in ['.doc', '.docx']:
+                    try:
+                        pdf_file_obj = convert_uploaded_file_to_pdf(uploaded_file)
+                        lesson.pdf_file = pdf_file_obj
+                        lesson.is_converted = True
+                        lesson.original_file = uploaded_file
+                    except Exception as e:
+                        messages.error(request, f"Failed to convert Word document: {e}")
+                        return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
+                else:
+                    # It's already a PDF
+                    lesson.pdf_file = uploaded_file
+                    lesson.is_converted = False
 
             if lesson.level in ['primary', 'secondary'] and not lesson.subject:
                 messages.error(request, 'Please select a subject for primary/secondary level.')

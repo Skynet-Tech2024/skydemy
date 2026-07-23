@@ -50,6 +50,8 @@ class Lesson(models.Model):
     
     # Lesson content files
     pdf_file = models.FileField(upload_to='lessons/pdfs/', null=True, blank=True, help_text="Upload PDF lesson")
+    original_file = models.FileField(upload_to='lessons/originals/', blank=True, null=True, help_text="Original uploaded file (for Word documents)")
+    is_converted = models.BooleanField(default=False, help_text="True if this lesson was converted from a Word document")
     converted_html = models.TextField(blank=True, help_text="System will convert PDF to HTML for web view")
     video_url = models.URLField(max_length=500, blank=True, help_text="YouTube or Vimeo link")
     video_file = models.FileField(upload_to='lessons/videos/', null=True, blank=True, help_text="Upload video file")
@@ -111,7 +113,7 @@ class Exam(models.Model):
     passing_score = models.IntegerField(default=50)
     questions = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
-        # New fields for exam management
+    # New fields for exam management
     exam_type = models.CharField(max_length=20, choices=(
         ('fslc', 'FSLC Papers'),
         ('mock', 'Mock Exam'),

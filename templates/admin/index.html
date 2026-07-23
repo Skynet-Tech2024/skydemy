@@ -61,18 +61,18 @@
     📊 Dashboard
 </div>
 
-<!-- ===== STATISTICS CARDS (HARDCODED URLS) ===== -->
+<!-- ===== STATISTICS CARDS ===== -->
 <div class="stats-grid">
-    <!-- Students (hardcoded URL) -->
-    <a href="/admin/users/userprofile/?role__exact=learner" class="stat-card-link">
+    <!-- Students (links to custom student_list view) -->
+    <a href="{% url 'student_list' %}" class="stat-card-link">
         <div class="stat-card">
             <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
             <div class="stat-label">Students</div>
         </div>
     </a>
 
-    <!-- Teachers (hardcoded URL) -->
-    <a href="/admin/users/userprofile/?role__exact=teacher" class="stat-card-link">
+    <!-- Teachers (links to custom teacher_list view) -->
+    <a href="{% url 'teacher_list' %}" class="stat-card-link">
         <div class="stat-card gold">
             <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
             <div class="stat-label">Teachers</div>

@@ -11,6 +11,7 @@ from django.views.decorators.cache import never_cache
 from django.template.loader import get_template
 from django.conf import settings
 from pathlib import Path
+from django.contrib.admin.views.decorators import staff_member_required
 
 def home(request):
     # Always show the public landing page
@@ -347,3 +348,17 @@ def debug_templates(request):
     <p><strong>DEBUG:</strong> {settings.DEBUG}</p>
     """
     return HttpResponse(response)
+
+
+# ===== STUDENT AND TEACHER LIST VIEWS =====
+@staff_member_required
+def student_list(request):
+    """Admin view to list all students (users with role=learner)."""
+    students = UserProfile.objects.filter(role='learner').select_related('user')
+    return render(request, 'dashboard/student_list.html', {'students': students})
+
+@staff_member_required
+def teacher_list(request):
+    """Admin view to list all teachers (users with role=teacher)."""
+    teachers = UserProfile.objects.filter(role='teacher').select_related('user')
+    return render(request, 'dashboard/teacher_list.html', {'teachers': teachers})

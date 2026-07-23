@@ -14,29 +14,12 @@ def register(request):
         form = RegisterStep1Form(request.POST)
         if form.is_valid():
             try:
-                username = form.cleaned_data['username']
-                password = form.cleaned_data['password1']
-                email = form.cleaned_data.get('email', '')
-
-                user = User.objects.create_user(
-                    username=username,
-                    password=password,
-                    email=email
-                )
-
-                profile, created = UserProfile.objects.get_or_create(
-                    user=user,
-                    defaults={
-                        'role': 'learner',
-                        'verification_status': 'pending'
-                    }
-                )
-                if not created:
-                    profile.verification_status = 'pending'
-                    profile.save()
-
+                # The form's save() already creates the user and saves full_name to profile
+                user = form.save()  # This saves user and profile
+                
+                # Store user ID in session for Step 2
                 request.session['temp_user_id'] = user.id
-                print(f"🟢 User and profile created: {username}, ID: {user.id}")
+                print(f"🟢 User and profile created: {user.username}, ID: {user.id}")
 
                 messages.success(request, "✅ Account created! Please complete your profile.")
                 return redirect('/users/complete-profile/')
@@ -47,7 +30,6 @@ def register(request):
                 traceback.print_exc()
                 messages.error(request, f"We couldn't create your account: {str(e)}")
         else:
-            # Do NOT add field errors as messages; show a generic error instead.
             print("❌ Form invalid:")
             print(form.errors)
             messages.error(request, "Please correct the errors below.")
@@ -69,12 +51,14 @@ def complete_profile(request):
     profile = user.profile
 
     if request.method == 'POST':
+        # Collect profile fields
         level = request.POST.get('level')
-        whatsapp_number = request.POST.get('whatsapp_number')
+        phone_number = request.POST.get('phone_number')  # changed from whatsapp_number
         address = request.POST.get('address')
         role = request.POST.get('role')
         school_name = request.POST.get('school_name', '')
 
+        # Validate required fields
         if not level:
             messages.error(request, "Education level is required.")
             return render(request, 'users/complete_profile.html', {
@@ -83,8 +67,8 @@ def complete_profile(request):
                 'level_choices': UserProfile.LEVEL_CHOICES,
                 'role_choices': UserProfile.ROLE_CHOICES,
             })
-        if not whatsapp_number:
-            messages.error(request, "WhatsApp number is required.")
+        if not phone_number:
+            messages.error(request, "Phone number is required.")
             return render(request, 'users/complete_profile.html', {
                 'user': user,
                 'profile': profile,
@@ -117,14 +101,16 @@ def complete_profile(request):
                 'role_choices': UserProfile.ROLE_CHOICES,
             })
 
+        # Update profile
         profile.level = level
-        profile.whatsapp_number = whatsapp_number
+        profile.phone_number = phone_number  # changed from whatsapp_number
         profile.address = address
         profile.role = role
-        # Uncomment if school_name field exists in UserProfile:
+        # Uncomment if you add school_name field to UserProfile:
         # profile.school_name = school_name
         profile.save()
 
+        # Clear session and log in the user
         del request.session['temp_user_id']
         login(request, user)
 

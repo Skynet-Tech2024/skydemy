@@ -125,7 +125,7 @@
             font-size: 13px;
             color: #DC2626;
             margin-top: 4px;
-            display: none; /* hidden by default */
+            display: none;
         }
         .form-group.has-error .error-text {
             display: block;
@@ -268,10 +268,23 @@
                 </div>
 
                 <!-- Full Names -->
-                <div class="form-group {% if form.username.errors %}has-error{% endif %}">
-                    <label for="id_username">Full Names <span class="required">*</span></label>
-                    <input type="text" name="username" id="id_username" 
+                <div class="form-group {% if form.full_name.errors %}has-error{% endif %}">
+                    <label for="id_full_name">Full Names <span class="required">*</span></label>
+                    <input type="text" name="full_name" id="id_full_name" 
                            placeholder="Enter your full names" 
+                           value="{{ form.full_name.value|default:'' }}"
+                           required>
+                    <div class="help-text">{{ form.full_name.help_text }}</div>
+                    {% if form.full_name.errors %}
+                        <div class="error-text">{{ form.full_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Choose Username -->
+                <div class="form-group {% if form.username.errors %}has-error{% endif %}">
+                    <label for="id_username">Choose Username <span class="required">*</span></label>
+                    <input type="text" name="username" id="id_username" 
+                           placeholder="Choose a unique username" 
                            value="{{ form.username.value|default:'' }}"
                            required>
                     <div class="help-text">{{ form.username.help_text }}</div>
@@ -285,7 +298,7 @@
                     <label for="id_password1">Password <span class="required">*</span></label>
                     <div class="password-wrapper">
                         <input type="password" name="password1" id="id_password1" 
-                               placeholder="Create a strong password" required>
+                               placeholder="Create a password" required>
                         <button type="button" class="toggle-password" onclick="togglePassword('id_password1')">
                             👁️
                         </button>

@@ -21,7 +21,6 @@
             width: 100%;
             max-width: 500px;
         }
-        /* ===== CARD ===== */
         .card {
             background: #FFFFFF;
             border-radius: 16px;
@@ -29,7 +28,6 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.06);
             border: 1px solid #E5E7EB;
         }
-        /* ===== LOGO ===== */
         .logo {
             text-align: center;
             margin-bottom: 24px;
@@ -48,7 +46,6 @@
             font-size: 14px;
             margin-top: 4px;
         }
-        /* ===== PROGRESS INDICATOR ===== */
         .progress {
             display: flex;
             align-items: center;
@@ -86,7 +83,6 @@
         .progress-line.active {
             background: #0B7A3B;
         }
-        /* ===== HEADING ===== */
         .heading {
             text-align: center;
             margin-bottom: 28px;
@@ -101,7 +97,6 @@
             font-size: 14px;
             margin-top: 4px;
         }
-        /* ===== FORM ===== */
         .form-group {
             margin-bottom: 18px;
         }
@@ -150,7 +145,6 @@
             color: #DC2626;
             margin-top: 4px;
         }
-        /* ===== ROLE SELECTION ===== */
         .role-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -185,14 +179,12 @@
             color: #1F2937;
             font-size: 14px;
         }
-        /* ===== CONDITIONAL FIELD ===== */
         .conditional-field {
             display: none;
         }
         .conditional-field.visible {
             display: block;
         }
-        /* ===== BUTTONS ===== */
         .button-group {
             display: flex;
             gap: 12px;
@@ -233,11 +225,6 @@
         .btn-primary:active {
             transform: scale(0.98);
         }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        /* ===== MESSAGES ===== */
         .messages {
             margin-bottom: 20px;
         }
@@ -257,7 +244,6 @@
             color: #065F46;
             border: 1px solid #A7F3D0;
         }
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .card { padding: 28px 20px; }
             .logo h1 { font-size: 24px; }
@@ -273,13 +259,11 @@
 <body>
     <div class="profile-container">
         <div class="card">
-            <!-- LOGO -->
             <div class="logo">
                 <h1>SKY<span>DEMY</span></h1>
                 <p>Complete your profile</p>
             </div>
 
-            <!-- PROGRESS INDICATOR -->
             <div class="progress">
                 <div class="progress-step">
                     <span class="progress-dot active"></span>
@@ -292,13 +276,11 @@
                 </div>
             </div>
 
-            <!-- HEADING -->
             <div class="heading">
                 <h2>Complete Your Profile</h2>
                 <p>Help us personalize your learning experience.</p>
             </div>
 
-            <!-- MESSAGES -->
             {% if messages %}
                 <div class="messages">
                     {% for message in messages %}
@@ -307,7 +289,6 @@
                 </div>
             {% endif %}
 
-            <!-- FORM -->
             <form method="post" novalidate>
                 {% csrf_token %}
 
@@ -322,19 +303,16 @@
                             </option>
                         {% endfor %}
                     </select>
-                    {% if level_errors %}
-                        <div class="error-text">{{ level_errors.0 }}</div>
-                    {% endif %}
                 </div>
 
-                <!-- WhatsApp Number -->
+                <!-- Phone Number (was WhatsApp Number) -->
                 <div class="form-group">
-                    <label for="whatsapp_number">WhatsApp Number <span class="required">*</span></label>
-                    <input type="tel" name="whatsapp_number" id="whatsapp_number" 
+                    <label for="phone_number">Phone Number <span class="required">*</span></label>
+                    <input type="tel" name="phone_number" id="phone_number" 
                            placeholder="+237 6XX XXX XXX" 
-                           value="{{ profile.whatsapp_number|default:'' }}"
+                           value="{{ profile.phone_number|default:'' }}"
                            required>
-                    <div class="help-text">For announcements and updates</div>
+                    <div class="help-text">For login and notifications</div>
                 </div>
 
                 <!-- Address -->
@@ -379,17 +357,12 @@
     </div>
 
     <script>
-        // ===== ROLE SELECTION =====
         function selectRole(role) {
-            // Update UI
             document.querySelectorAll('.role-option').forEach(el => {
                 el.classList.toggle('selected', el.dataset.role === role);
             });
-            
-            // Check the radio button
             document.querySelector(`input[name="role"][value="${role}"]`).checked = true;
             
-            // Show/hide school name field
             const schoolField = document.getElementById('school-field');
             if (role === 'learner') {
                 schoolField.classList.add('visible');
@@ -400,14 +373,11 @@
             }
         }
 
-        // ===== INITIAL STATE =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if a role is already selected
             const selectedRadio = document.querySelector('input[name="role"]:checked');
             if (selectedRadio) {
                 selectRole(selectedRadio.value);
             } else {
-                // If no role selected, default to showing school field? We'll leave it hidden.
                 document.getElementById('school-field').classList.remove('visible');
             }
         });

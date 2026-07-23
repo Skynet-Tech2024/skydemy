@@ -3,19 +3,24 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile
 
-# ===== STEP 1 FORM – Full Names (no restrictions), Password (no restrictions) =====
 class RegisterStep1Form(UserCreationForm):
+    # ===== Full Name (stored in UserProfile) =====
+    full_name = forms.CharField(
+        max_length=200,
+        label="Full Names",
+        help_text="Enter your full name (e.g., CHE KENNETH).",
+    )
+    # ===== Username (stored in User) =====
     username = forms.CharField(
         max_length=150,
-        label="Full Names",
-        help_text="Enter your full name.",
-        validators=[],  # Remove all validators – any characters allowed
+        label="Choose Username",
+        help_text="This will be your login name. Must be unique.",
     )
     password1 = forms.CharField(
         label="Password",
         widget=forms.PasswordInput,
         help_text="Enter your password (any length, any characters).",
-        validators=[],  # No validators – even 1 character is allowed
+        validators=[],
     )
     password2 = forms.CharField(
         label="Confirm Password",
@@ -26,26 +31,40 @@ class RegisterStep1Form(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'password1', 'password2']
+        fields = ['full_name', 'username', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Force-clear any validators that might be added by parent classes
+        self.fields['username'].validators = []
+        self.fields['password1'].validators = []
+        self.fields['password2'].validators = []
 
     def clean_username(self):
-        username = self.cleaned_data['username']
-        # Only strip leading/trailing spaces; keep everything else
+        username = self.cleaned_data.get('username', '')
+        # Only strip spaces; no other restrictions
         return username.strip()
 
     def clean_password2(self):
-        """Skip all Django password validators – accept anything."""
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Passwords do not match.")
-        # DO NOT call validate_password – this bypasses all validators
+        # Bypass all Django password validators
         return password2
 
     def save(self, commit=True):
         user = super().save(commit=False)
         if commit:
             user.save()
+            # Get or create profile and save full_name
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.full_name = self.cleaned_data['full_name']
+            # Set default role (will be updated in Step 2)
+            if created:
+                profile.role = 'learner'
+                profile.verification_status = 'pending'
+            profile.save()
         return user
 
 

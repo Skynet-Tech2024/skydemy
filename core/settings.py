@@ -74,9 +74,6 @@ DATABASES = {
     )
 }
 
-# ===== DEBUG: Check if DATABASE_URL is set =====
-print("DATABASE_URL:", os.environ.get('DATABASE_URL', 'NOT SET'))
-
 # ===== CLOUDINARY CONFIGURATION =====
 cloudinary.config(
     cloud_name='dgtt5qsq',
@@ -90,6 +87,7 @@ CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'dgtt5qsq',
     'API_KEY': '981561537385896',
     'API_SECRET': 'A-DGV9yMeUi8j2_saH6_bKVEhQM',
+    'SECURE': True,          # Force HTTPS for all Cloudinary URLs
 }
 
 AUTH_PASSWORD_VALIDATORS = [

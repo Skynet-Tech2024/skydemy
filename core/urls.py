@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.http import JsonResponse
 from users.views import register, custom_login, custom_logout, complete_profile
-
+from core.migration_view import run_migrations
 # Debug views
 def debug_templates(request):
     import os
@@ -46,7 +46,7 @@ def debug_templates(request):
 urlpatterns = [
     # Service worker
     path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw.js'),
-    
+ path('migrate/', run_migrations, name='run_migrations'),   
     # Captcha
     path('captcha/', include('captcha.urls')),
     

@@ -1,10 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import UserProfile, Follow, Wishlist, Message, Notification, ProgressHistory, WhatsAppAnnouncement
+from .models import UserProfile
 
-# Register UserProfile
-@admin.register(UserProfile)
+# Register UserProfile explicitly
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'level', 'verification_status', 'is_premium', 'is_suspended')
     list_filter = ('role', 'level', 'verification_status', 'is_premium', 'is_suspended')
@@ -31,16 +30,5 @@ class UserProfileAdmin(admin.ModelAdmin):
         }),
     )
 
-# Register other models if needed
-# @admin.register(Follow)
-# class FollowAdmin(admin.ModelAdmin): ...
-# @admin.register(Wishlist)
-# class WishlistAdmin(admin.ModelAdmin): ...
-# @admin.register(Message)
-# class MessageAdmin(admin.ModelAdmin): ...
-# @admin.register(Notification)
-# class NotificationAdmin(admin.ModelAdmin): ...
-# @admin.register(ProgressHistory)
-# class ProgressHistoryAdmin(admin.ModelAdmin): ...
-# @admin.register(WhatsAppAnnouncement)
-# class WhatsAppAnnouncementAdmin(admin.ModelAdmin): ...
+# Explicit registration
+admin.site.register(UserProfile, UserProfileAdmin)

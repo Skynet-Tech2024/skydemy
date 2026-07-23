@@ -515,7 +515,6 @@
                         <th scope="col">Status</th>
                         <th scope="col">Teacher</th>
                         <th scope="col">Created</th>
-                        <th scope="col" style="text-align:center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -540,14 +539,10 @@
                         </td>
                         <td>{{ lesson.teacher.username }}</td>
                         <td>{{ lesson.created_at|date:"M d, Y" }}</td>
-                        <td style="text-align:center; white-space:nowrap;">
-                            <a href="{% url 'admin:courses_lesson_change' lesson.id %}" class="btn-green">✏️ Edit</a>
-                            <a href="{% url 'admin:courses_lesson_delete' lesson.id %}" class="btn-danger">🗑️ Delete</a>
-                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" style="text-align:center; padding:40px; color:#6B7280;">
+                        <td colspan="6" style="text-align:center; padding:40px; color:#6B7280;">
                             <div style="font-size:48px; margin-bottom:12px;">📭</div>
                             <div style="font-size:18px; font-weight:600; color:#1F2933;">No lessons found</div>
                             <div style="font-size:14px; color:#4B5563;">Click "Add Lesson" to create the first one.</div>

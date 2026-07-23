@@ -1,5 +1,9 @@
 from django.contrib import admin
 from datetime import datetime
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.contrib import messages
 from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
 from users.utils import create_notification
 from core.admin import admin_site
@@ -22,9 +26,16 @@ class LessonAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at', 'views')
     actions = ['approve_lessons', 'reject_lessons']
     
-    # Custom delete confirmation template with SweetAlert2
+    # Single delete confirmation template (SweetAlert)
     delete_confirmation_template = 'admin/courses/lesson/delete_confirmation.html'
-    
+
+    def get_actions(self, request):
+        # Remove the default delete_selected action
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
     def approve_lessons(self, request, queryset):
         updated = 0
         for lesson in queryset:
@@ -60,6 +71,33 @@ class LessonAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} lesson(s) rejected.')
     reject_lessons.short_description = "Reject selected lessons"
 
+    # Custom changelist view for bulk delete with SweetAlert
+    def changelist_view(self, request, extra_context=None):
+        if request.method == 'POST' and request.POST.get('action') == 'delete_selected':
+            if not request.POST.get('confirm'):
+                selected_pks = request.POST.getlist('_selected_action')
+                if not selected_pks:
+                    messages.warning(request, "No items selected.")
+                    return HttpResponseRedirect(request.get_full_path())
+                
+                context = {
+                    'selected_pks': selected_pks,
+                    'selected_count': len(selected_pks),
+                    'is_popup': request.GET.get('_popup', False),
+                    'to_field': request.GET.get('to_field', None),
+                }
+                return render(request, 'admin/courses/lesson/bulk_delete_confirmation.html', context)
+            else:
+                selected_pks = request.POST.getlist('_selected_action')
+                if selected_pks:
+                    Lesson.objects.filter(pk__in=selected_pks).delete()
+                    messages.success(request, f"Successfully deleted {len(selected_pks)} lesson(s).")
+                else:
+                    messages.warning(request, "No items selected.")
+                return HttpResponseRedirect(reverse('admin:courses_lesson_changelist'))
+        
+        return super().changelist_view(request, extra_context)
+
 # ===== Progress Admin =====
 class ProgressAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'progress_percentage', 'completed', 'last_accessed')
@@ -72,9 +110,15 @@ class ExamAdmin(admin.ModelAdmin):
     search_fields = ('title', 'lesson__title')
     actions = ['approve_exams', 'reject_exams']
     
-    # Custom delete confirmation template with SweetAlert2
+    # Single delete confirmation template (SweetAlert)
     delete_confirmation_template = 'admin/courses/exam/delete_confirmation.html'
-    
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
     def approve_exams(self, request, queryset):
         updated = 0
         for exam in queryset:
@@ -109,6 +153,33 @@ class ExamAdmin(admin.ModelAdmin):
             )
         self.message_user(request, f'{updated} exam(s) rejected.')
     reject_exams.short_description = "Reject selected exams"
+
+    # Custom changelist view for bulk delete with SweetAlert
+    def changelist_view(self, request, extra_context=None):
+        if request.method == 'POST' and request.POST.get('action') == 'delete_selected':
+            if not request.POST.get('confirm'):
+                selected_pks = request.POST.getlist('_selected_action')
+                if not selected_pks:
+                    messages.warning(request, "No items selected.")
+                    return HttpResponseRedirect(request.get_full_path())
+                
+                context = {
+                    'selected_pks': selected_pks,
+                    'selected_count': len(selected_pks),
+                    'is_popup': request.GET.get('_popup', False),
+                    'to_field': request.GET.get('to_field', None),
+                }
+                return render(request, 'admin/courses/exam/bulk_delete_confirmation.html', context)
+            else:
+                selected_pks = request.POST.getlist('_selected_action')
+                if selected_pks:
+                    Exam.objects.filter(pk__in=selected_pks).delete()
+                    messages.success(request, f"Successfully deleted {len(selected_pks)} exam(s).")
+                else:
+                    messages.warning(request, "No items selected.")
+                return HttpResponseRedirect(reverse('admin:courses_exam_changelist'))
+        
+        return super().changelist_view(request, extra_context)
 
 # ===== ExamResult Admin =====
 class ExamResultAdmin(admin.ModelAdmin):

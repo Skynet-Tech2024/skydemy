@@ -75,7 +75,7 @@
         <h2>📖 Description</h2>
         <p>{{ lesson.description }}</p>
 
-        {% if lesson.pdf_file %}
+        {% if lesson.pdf_url %}
             <h2>📄 Lesson Content</h2>
             <div class="pdf-container">
                 <canvas id="pdf-canvas"></canvas>
@@ -84,10 +84,10 @@
                 <button id="prev-page">◀</button>
                 <span id="page-num">1</span> / <span id="page-count">1</span>
                 <button id="next-page">▶</button>
-                <a href="{{ lesson.pdf_file.url|replace:"image/upload,raw/upload" }}" target="_blank" class="btn btn-secondary" style="margin-left:auto;">📄 Open PDF</a>
+                <a href="{{ lesson.pdf_url }}" target="_blank" class="btn btn-secondary" style="margin-left:auto;">📄 Open PDF</a>
             </div>
             {% if user.is_authenticated and user.profile.is_premium %}
-                <p><a href="{{ lesson.pdf_file.url }}" download class="btn btn-success">⬇️ Download PDF</a></p>
+                <p><a href="{{ lesson.pdf_url }}" download class="btn btn-success">⬇️ Download PDF</a></p>
             {% else %}
                 <div class="premium-badge">
                     <strong>⭐ Premium Feature:</strong> Download this PDF by subscribing to our premium plan.
@@ -135,7 +135,7 @@
 <script>
     // ===== PDF.js Viewer =====
     (function() {
-        const pdfUrl = "{{ lesson.pdf_file.url|default:'' }}";
+        const pdfUrl = "{{ lesson.pdf_url|default:'' }}";
         if (!pdfUrl) {
             return;
         }
@@ -152,7 +152,6 @@
         let pageRendering = false;
         let pageNumPending = null;
 
-        // Set the worker source
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         function renderPage(num) {
@@ -197,7 +196,6 @@
             queueRenderPage(pageNum);
         }
 
-        // Load the PDF
         pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
             pdfDoc = pdfDoc_;
             pageCountSpan.textContent = pdfDoc.numPages;
@@ -214,7 +212,6 @@
             }
         });
 
-        // Event listeners
         prevBtn.addEventListener('click', onPrevPage);
         nextBtn.addEventListener('click', onNextPage);
     })();

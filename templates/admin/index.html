@@ -63,11 +63,7 @@
             gap: 20px !important;
             margin-bottom: 30px !important;
         }
-        .stat-card-link {
-            text-decoration: none !important;
-            color: inherit !important;
-            display: block !important;
-        }
+        /* ===== ALL stat cards get hover effect ===== */
         .stat-card {
             background: #FFFFFF !important;
             border-radius: 16px !important;
@@ -78,12 +74,13 @@
             border-left: 4px solid #0B7A3B !important;
             cursor: default !important;
         }
-        .stat-card-link .stat-card {
-            cursor: pointer !important;
-        }
-        .stat-card-link .stat-card:hover {
+        .stat-card:hover {
             transform: translateY(-4px) !important;
             box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15) !important;
+        }
+        /* clickable cards get pointer cursor */
+        .stat-card-link .stat-card {
+            cursor: pointer !important;
         }
         .stat-card .stat-icon {
             font-size: 24px !important;
@@ -110,6 +107,7 @@
         .stat-card.blue .stat-icon { color: #2563EB !important; }
         .stat-card.purple { border-left-color: #8B5CF6 !important; }
         .stat-card.purple .stat-icon { color: #8B5CF6 !important; }
+
         .dashboard .module {
             background: #FFFFFF !important;
             border-radius: 16px !important;
@@ -231,7 +229,7 @@
 
 <!-- ===== STATISTICS CARDS ===== -->
 <div class="stats-grid">
-    <!-- Students (display only, not clickable) -->
+    <!-- Students (display only, but with hover effect) -->
     <div class="stat-card">
         <div>
             <span class="stat-icon">👨‍🎓</span>
@@ -240,7 +238,7 @@
         <div class="stat-label">Students</div>
     </div>
 
-    <!-- Teachers (display only, not clickable) -->
+    <!-- Teachers (display only, but with hover effect) -->
     <div class="stat-card gold">
         <div>
             <span class="stat-icon">👨‍🏫</span>

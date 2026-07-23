@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from users.models import UserProfile          # <-- FIXED import
+from users.models import UserProfile
 from cloudinary.models import CloudinaryField
 import uuid
 
@@ -22,7 +22,7 @@ class Subject(models.Model):
     
     # Approval workflow
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    admin_notes = models.TextField(blank=True, help_text="Notes from admin")
+    admin_notes = models.TextField(blank=True, default='', help_text="Notes from admin")  # <-- default added
     reviewed_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='reviewed_subjects'
@@ -39,7 +39,6 @@ class Subject(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def save(self, *args, **kwargs):
-        # Force name to uppercase
         if self.name:
             self.name = self.name.upper()
         super().save(*args, **kwargs)
@@ -48,7 +47,6 @@ class Subject(models.Model):
         return f"{self.name} ({self.get_level_display()})"
 
 class Course(models.Model):
-    """For university courses (e.g., CS101, Physics 201)"""
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=20)
     description = models.TextField(blank=True)
@@ -62,7 +60,6 @@ class Lesson(models.Model):
         ('secondary', 'Secondary School'),
         ('university', 'University / Higher Institution'),
     )
-    
     STATUS_CHOICES = (
         ('pending', 'Pending Review'),
         ('approved', 'Approved'),
@@ -73,7 +70,6 @@ class Lesson(models.Model):
     description = models.TextField(blank=True)
     level = models.CharField(max_length=10, choices=LEVEL_CHOICES)
     
-    # For primary/secondary -> select a Subject (only approved subjects allowed)
     subject = models.ForeignKey(
         Subject,
         on_delete=models.CASCADE,
@@ -83,10 +79,8 @@ class Lesson(models.Model):
         help_text="Only approved subjects can be used."
     )
     
-    # For university -> select a Course
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     
-    # PDF file stored on Cloudinary
     pdf_file = CloudinaryField(
         'PDF',
         resource_type='raw',
@@ -101,29 +95,24 @@ class Lesson(models.Model):
     video_url = models.URLField(max_length=500, blank=True, help_text="YouTube or Vimeo link")
     video_file = models.FileField(upload_to='lessons/videos/', null=True, blank=True, help_text="Upload video file")
     
-    # Teacher who uploaded this lesson
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'profile__role': 'teacher'})
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    # Engagement fields
     views = models.IntegerField(default=0)
     
-    # Approval workflow
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    admin_notes = models.TextField(blank=True, help_text="Admin notes for review")
+    admin_notes = models.TextField(blank=True, default='', help_text="Admin notes for review")  # <-- default added
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_lessons')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     
     @property
     def pdf_url(self):
-        """Return the Cloudinary URL with 'raw/upload' instead of 'image/upload'."""
         if self.pdf_file:
             return self.pdf_file.url.replace('image/upload', 'raw/upload')
         return None
     
     def get_engagement_stats(self):
-        """Return engagement statistics for this lesson"""
         likes_count = self.likes.count()
         comments_count = self.comments.count()
         return {
@@ -137,7 +126,6 @@ class Lesson(models.Model):
         return self.title
 
 class Progress(models.Model):
-    """Tracks student reading progress for each lesson"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='progress')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='progress')
     progress_percentage = models.IntegerField(default=0)
@@ -153,7 +141,6 @@ class Progress(models.Model):
         return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"
 
 class Exam(models.Model):
-    """Exam associated with a lesson"""
     STATUS_CHOICES = (
         ('pending', 'Pending Review'),
         ('approved', 'Approved'),
@@ -178,7 +165,7 @@ class Exam(models.Model):
     marking_guide = models.TextField(blank=True, help_text="Teaching guide with suggested answers and explanations")
     
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    admin_notes = models.TextField(blank=True, help_text="Admin notes for review")
+    admin_notes = models.TextField(blank=True, default='', help_text="Admin notes for review")  # <-- default added
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_exams')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     
@@ -195,7 +182,6 @@ class Exam(models.Model):
         return f"{self.title} - {self.lesson.title}"
 
 class ExamResult(models.Model):
-    """Student's exam attempt result"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     score = models.IntegerField()
@@ -207,7 +193,6 @@ class ExamResult(models.Model):
         return f"{self.user.username} - {self.exam.title} - {self.percentage}%"
 
 class Certificate(models.Model):
-    """Auto-generated certificate after passing an exam"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, null=True, blank=True)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, null=True, blank=True)
@@ -223,7 +208,7 @@ class Certificate(models.Model):
     def __str__(self):
         return f"Certificate for {self.user.username} - {self.lesson.title if self.lesson else self.exam.title}"
 
-# ===== Social Features: Likes and Comments =====
+# ===== Social Features =====
 
 class LessonLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

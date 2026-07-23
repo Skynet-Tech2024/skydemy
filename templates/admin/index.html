@@ -17,10 +17,9 @@
 
 {% block extrahead %}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ============================================================
-           SKYDEMY ADMIN DASHBOARD – Green/White/Gold Theme
+           SKYDEMY ADMIN DASHBOARD – Green/White/Gold Theme (safe version)
            ============================================================ */
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -30,7 +29,6 @@
             background: #F6F7F9 !important;
         }
 
-        /* ----- Header (Green) ----- */
         #header {
             background: #0B7A3B !important;
             color: #fff !important;
@@ -63,7 +61,6 @@
             color: #D4AF37 !important;
         }
 
-        /* ----- Dashboard Container ----- */
         .dashboard #content {
             max-width: 1400px !important;
             margin: 0 auto !important;
@@ -85,8 +82,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
             border: none !important;
             transition: transform 0.2s, box-shadow 0.2s !important;
-            text-align: left !important;
-            cursor: default !important;
             border-left: 4px solid #0B7A3B !important;
         }
         .stat-card:hover {
@@ -114,90 +109,12 @@
             margin-top: 2px !important;
         }
 
-        .stat-card.gold {
-            border-left-color: #D4AF37 !important;
-        }
-        .stat-card.gold .stat-icon {
-            color: #D4AF37 !important;
-        }
-
-        .stat-card.blue {
-            border-left-color: #2563EB !important;
-        }
-        .stat-card.blue .stat-icon {
-            color: #2563EB !important;
-        }
-
-        .stat-card.purple {
-            border-left-color: #8B5CF6 !important;
-        }
-        .stat-card.purple .stat-icon {
-            color: #8B5CF6 !important;
-        }
-
-        .stat-card.teal {
-            border-left-color: #0D9488 !important;
-        }
-        .stat-card.teal .stat-icon {
-            color: #0D9488 !important;
-        }
-
-        /* ----- Quick Actions ----- */
-        .quick-actions {
-            display: flex !important;
-            flex-wrap: wrap !important;
-            gap: 12px !important;
-            margin-bottom: 30px !important;
-            background: #FFFFFF !important;
-            padding: 20px !important;
-            border-radius: 16px !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
-        }
-
-        .quick-actions .section-title {
-            width: 100% !important;
-            font-weight: 700 !important;
-            font-size: 16px !important;
-            color: #1F2937 !important;
-            margin-bottom: 8px !important;
-        }
-
-        .quick-actions a {
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            padding: 10px 20px !important;
-            border-radius: 10px !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            text-decoration: none !important;
-            transition: 0.2s !important;
-            background: #F6F7F9 !important;
-            color: #1F2937 !important;
-            border: 1px solid #E5E7EB !important;
-        }
-        .quick-actions a:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08) !important;
-            border-color: #0B7A3B !important;
-        }
-        .quick-actions a.primary {
-            background: #0B7A3B !important;
-            color: #fff !important;
-            border-color: #0B7A3B !important;
-        }
-        .quick-actions a.primary:hover {
-            background: #1E9E58 !important;
-            border-color: #1E9E58 !important;
-        }
-        .quick-actions a.gold {
-            background: #D4AF37 !important;
-            color: #fff !important;
-            border-color: #D4AF37 !important;
-        }
-        .quick-actions a.gold:hover {
-            background: #C4A030 !important;
-        }
+        .stat-card.gold { border-left-color: #D4AF37 !important; }
+        .stat-card.gold .stat-icon { color: #D4AF37 !important; }
+        .stat-card.blue { border-left-color: #2563EB !important; }
+        .stat-card.blue .stat-icon { color: #2563EB !important; }
+        .stat-card.purple { border-left-color: #8B5CF6 !important; }
+        .stat-card.purple .stat-icon { color: #8B5CF6 !important; }
 
         /* ----- Module Cards ----- */
         .dashboard .module {
@@ -268,7 +185,6 @@
         }
         .dashboard .module td a.addlink:hover {
             background: #1E9E58 !important;
-            transform: scale(1.02) !important;
         }
         .dashboard .module td a.changelink {
             background: #2563EB !important;
@@ -276,7 +192,6 @@
         }
         .dashboard .module td a.changelink:hover {
             background: #1D4ED8 !important;
-            transform: scale(1.02) !important;
         }
 
         /* ----- Recent Actions ----- */
@@ -302,66 +217,32 @@
             margin-left: auto !important;
         }
 
-        /* ----- Responsive ----- */
         @media (max-width: 992px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
-
         @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr !important;
-                gap: 12px !important;
-            }
-            .stat-card {
-                padding: 16px !important;
-            }
-            .stat-card .stat-number {
-                font-size: 22px !important;
-            }
-            .quick-actions a {
-                padding: 8px 16px !important;
-                font-size: 13px !important;
-            }
-            #header {
-                padding: 12px 16px !important;
-            }
-            #header h1 {
-                font-size: 18px !important;
-            }
+            .stats-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+            .stat-card { padding: 16px !important; }
+            .stat-card .stat-number { font-size: 22px !important; }
+            #header { padding: 12px 16px !important; }
+            #header h1 { font-size: 18px !important; }
         }
-
         @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr !important;
-                gap: 10px !important;
-            }
-            .stat-card .stat-number {
-                font-size: 18px !important;
-            }
-            .stat-card .stat-label {
-                font-size: 12px !important;
-            }
-            .dashboard .module td {
-                padding: 8px 14px !important;
-                font-size: 13px !important;
-            }
-            .dashboard .module td a {
-                padding: 4px 10px !important;
-                font-size: 12px !important;
-            }
+            .stats-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+            .stat-card .stat-number { font-size: 18px !important; }
+            .stat-card .stat-label { font-size: 12px !important; }
+            .dashboard .module td { padding: 8px 14px !important; font-size: 13px !important; }
+            .dashboard .module td a { padding: 4px 10px !important; font-size: 12px !important; }
         }
     </style>
 {% endblock %}
 
 {% block content %}
 <div style="background: linear-gradient(135deg, #0B7A3B, #1E9E58); color: #fff; padding: 18px 24px; border-radius: 12px; margin-bottom: 30px; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 6px solid #D4AF37;">
-    <i class="fas fa-chart-pie" style="margin-right: 12px;"></i>
-    Dashboard
+    📊 Dashboard
 </div>
 
-<!-- ===== STATISTICS CARDS ===== -->
+<!-- ===== STATISTICS CARDS (no links) ===== -->
 <div class="stats-grid">
     <div class="stat-card">
         <div>
@@ -393,19 +274,7 @@
     </div>
 </div>
 
-<!-- ===== QUICK ACTIONS ===== -->
-<div class="quick-actions">
-    <div class="section-title"><i class="fas fa-bolt" style="color:#D4AF37;"></i> Quick Actions</div>
-    <a href="{% url 'admin:courses_lesson_add' %}" class="primary"><i class="fas fa-plus-circle"></i> Add Lesson</a>
-    <a href="{% url 'admin:courses_exam_add' %}" class="primary"><i class="fas fa-plus-circle"></i> Create Exam</a>
-    <a href="{% url 'admin:users_userprofile_add' %}" class="gold"><i class="fas fa-user-plus"></i> Add Student</a>
-    <a href="{% url 'admin:users_userprofile_add' %}" class="gold"><i class="fas fa-user-tie"></i> Add Teacher</a>
-    <a href="{% url 'admin:courses_certificate_add' %}" class="gold"><i class="fas fa-award"></i> Issue Certificate</a>
-    <a href="#" style="background: #0B7A3B; color:#fff; border-color:#0B7A3B;"><i class="fas fa-users"></i> View Users</a>
-    <a href="#" style="background: #D4AF37; color:#fff; border-color:#D4AF37;"><i class="fas fa-chart-bar"></i> Reports</a>
-</div>
-
-<!-- ===== ORIGINAL DJANGO MODULES ===== -->
+<!-- ===== ORIGINAL DJANGO MODULES (with Add/Change links) ===== -->
 <div id="content-main">
     {% if app_list %}
         {% for app in app_list %}
@@ -429,10 +298,10 @@
                                 </td>
                                 <td>
                                     {% if model.add_url %}
-                                        <a href="{{ model.add_url }}" class="addlink"><i class="fas fa-plus-circle"></i> Add</a>
+                                        <a href="{{ model.add_url }}" class="addlink">➕ Add</a>
                                     {% endif %}
                                     {% if model.admin_url %}
-                                        <a href="{{ model.admin_url }}" class="changelink"><i class="fas fa-edit"></i> Change</a>
+                                        <a href="{{ model.admin_url }}" class="changelink">✏️ Change</a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -465,9 +334,7 @@
                     <span class="action-time">{{ action.action_time|date:"M d, Y H:i" }}</span>
                 </li>
             {% empty %}
-                <li style="color: #94A3B8; padding: 16px 24px;">
-                    <i class="fas fa-clock" style="margin-right: 8px;"></i> No recent actions.
-                </li>
+                <li style="color: #94A3B8; padding: 16px 24px;">No recent actions.</li>
             {% endfor %}
         </ul>
     </div>

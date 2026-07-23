@@ -4,64 +4,176 @@
 {% block title %}Students - SKYDEMY Admin{% endblock %}
 
 {% block content %}
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <h1 style="font-size: 28px; font-weight: 700; color: #0B7A3B;">
             👨‍🎓 Students
             <span style="font-size: 16px; font-weight: 400; color: #64748B; margin-left: 12px;">
                 ({{ students.count }} total)
             </span>
         </h1>
-        <a href="{% url 'admin:index' %}" style="background: #0B7A3B; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-            ← Back to Dashboard
-        </a>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'admin:index' %}" style="background: #0B7A3B; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                ← Dashboard
+            </a>
+        </div>
     </div>
 
-    <div style="background: #fff; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead style="background: #F8FAFC; border-bottom: 1px solid #E5E7EB;">
-                <tr>
-                    <th style="padding: 12px 20px; text-align: left; font-weight: 600; color: #1F2937;">#</th>
-                    <th style="padding: 12px 20px; text-align: left; font-weight: 600; color: #1F2937;">Username</th>
-                    <th style="padding: 12px 20px; text-align: left; font-weight: 600; color: #1F2937;">Email</th>
-                    <th style="padding: 12px 20px; text-align: left; font-weight: 600; color: #1F2937;">Level</th>
-                    <th style="padding: 12px 20px; text-align: left; font-weight: 600; color: #1F2937;">Verified</th>
-                    <th style="padding: 12px 20px; text-align: left; font-weight: 600; color: #1F2937;">Joined</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in students %}
-                    <tr style="border-bottom: 1px solid #F1F5F9;">
-                        <td style="padding: 12px 20px; color: #64748B;">{{ forloop.counter }}</td>
-                        <td style="padding: 12px 20px; font-weight: 500; color: #1F2937;">
-                            {{ student.user.username }}
-                        </td>
-                        <td style="padding: 12px 20px; color: #475569;">
-                            {{ student.user.email|default:"—" }}
-                        </td>
-                        <td style="padding: 12px 20px; color: #475569;">
-                            {{ student.get_level_display|default:"Not set" }}
-                        </td>
-                        <td style="padding: 12px 20px;">
-                            {% if student.verification_status == "verified" or student.verification_status == "approved" %}
-                                <span style="background: #D1FAE5; color: #065F46; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">✅ Verified</span>
-                            {% else %}
-                                <span style="background: #FEF3C7; color: #92400E; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">⏳ Pending</span>
-                            {% endif %}
-                        </td>
-                        <td style="padding: 12px 20px; color: #64748B; font-size: 14px;">
-                            {{ student.joined_date|date:"M d, Y" }}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6" style="padding: 40px 20px; text-align: center; color: #94A3B8; font-size: 16px;">
-                            No students registered yet.
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- ===== ACTION BUTTONS ===== -->
+    <div style="background: #F8FAFC; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; border: 1px solid #E5E7EB;">
+        <span style="font-weight: 600; color: #1F2937; font-size: 14px; margin-right: 8px;">Actions:</span>
+        <button onclick="batchAction('approve')" style="background: #0B7A3B; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s;">
+            ✅ Approve
+        </button>
+        <button onclick="batchAction('verify')" style="background: #2563EB; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s;">
+            🔵 Verify
+        </button>
+        <button onclick="batchAction('suspend')" style="background: #D97706; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s;">
+            ⛔ Suspend
+        </button>
+        <button onclick="batchAction('activate')" style="background: #059669; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s;">
+            ▶️ Activate
+        </button>
+        <button onclick="batchAction('delete')" style="background: #DC2626; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s;">
+            🗑️ Delete
+        </button>
+        <span id="selected-count" style="color: #64748B; font-size: 13px; margin-left: auto;">0 selected</span>
     </div>
+
+    <!-- ===== TABLE ===== -->
+    <form id="batch-form" method="post" action="{% url 'batch_student_action' %}">
+        {% csrf_token %}
+        <div style="background: #fff; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+                <thead style="background: #F8FAFC; border-bottom: 2px solid #E5E7EB;">
+                    <tr>
+                        <th style="padding: 12px 16px; text-align: left; width: 40px;">
+                            <input type="checkbox" id="select-all" onchange="toggleAll(this)" style="width: 16px; height: 16px; cursor: pointer;">
+                        </th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">#</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Username</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Email</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Level</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Status</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                        <tr style="border-bottom: 1px solid #F1F5F9; transition: 0.2s;" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='transparent'">
+                            <td style="padding: 12px 16px;">
+                                <input type="checkbox" name="selected_ids" value="{{ student.id }}" class="row-checkbox" onchange="updateSelectedCount()" style="width: 16px; height: 16px; cursor: pointer;">
+                            </td>
+                            <td style="padding: 12px 16px; color: #64748B; font-size: 14px;">{{ forloop.counter }}</td>
+                            <td style="padding: 12px 16px; font-weight: 500; color: #1F2937; font-size: 14px;">
+                                {{ student.user.username }}
+                            </td>
+                            <td style="padding: 12px 16px; color: #475569; font-size: 14px;">
+                                {{ student.user.email|default:"—" }}
+                            </td>
+                            <td style="padding: 12px 16px; color: #475569; font-size: 14px;">
+                                {{ student.get_level_display|default:"Not set" }}
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                {% if student.is_suspended %}
+                                    <span style="background: #FEE2E2; color: #991B1B; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">⛔ Suspended</span>
+                                {% elif student.verification_status == "verified" or student.verification_status == "approved" %}
+                                    <span style="background: #D1FAE5; color: #065F46; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">✅ Active</span>
+                                {% else %}
+                                    <span style="background: #FEF3C7; color: #92400E; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">⏳ Pending</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 12px 16px; color: #64748B; font-size: 13px;">
+                                {{ student.joined_date|date:"M d, Y" }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" style="padding: 60px 20px; text-align: center; color: #94A3B8; font-size: 16px;">
+                                📭 No students registered yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <input type="hidden" name="action" id="action-input" value="">
+    </form>
 </div>
+
+<!-- ===== SweetAlert2 ===== -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // ===== SELECT ALL / DESELECT ALL =====
+    function toggleAll(master) {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
+        updateSelectedCount();
+    }
+
+    // ===== UPDATE SELECTED COUNT =====
+    function updateSelectedCount() {
+        const checked = document.querySelectorAll('.row-checkbox:checked').length;
+        document.getElementById('selected-count').textContent = checked + ' selected';
+    }
+
+    // ===== BATCH ACTION =====
+    function batchAction(action) {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        if (checked.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Users Selected',
+                text: 'Please select at least one student.',
+                confirmButtonColor: '#0B7A3B',
+            });
+            return;
+        }
+
+        const actionLabels = {
+            'approve': 'Approve',
+            'verify': 'Verify',
+            'suspend': 'Suspend',
+            'activate': 'Activate',
+            'delete': 'Delete'
+        };
+
+        const actionIcons = {
+            'approve': '✅',
+            'verify': '🔵',
+            'suspend': '⛔',
+            'activate': '▶️',
+            'delete': '🗑️'
+        };
+
+        const actionColors = {
+            'approve': '#0B7A3B',
+            'verify': '#2563EB',
+            'suspend': '#D97706',
+            'activate': '#059669',
+            'delete': '#DC2626'
+        };
+
+        const isDestructive = action === 'delete' || action === 'suspend';
+
+        Swal.fire({
+            title: `${actionIcons[action]} ${actionLabels[action]} Users?`,
+            text: `You are about to ${actionLabels[action].toLowerCase()} ${checked.length} selected student(s). ${isDestructive ? 'This action cannot be undone!' : ''}`,
+            icon: isDestructive ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonColor: actionColors[action],
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: `Yes, ${actionLabels[action].toLowerCase()} them`,
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('action-input').value = action;
+                document.getElementById('batch-form').submit();
+            }
+        });
+    }
+
+    // ===== AUTO UPDATE COUNT ON PAGE LOAD =====
+    document.addEventListener('DOMContentLoaded', updateSelectedCount);
+</script>
 {% endblock %}

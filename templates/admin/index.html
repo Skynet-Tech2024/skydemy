@@ -57,6 +57,14 @@
 {% endblock %}
 
 {% block content %}
+<!-- ===== DEBUG BLOCK ===== -->
+<div style="background: #f8d7da; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
+    <strong>Debug Info:</strong><br>
+    userprofile_admin_url: {{ userprofile_admin_url|default:"NOT SET" }}<br>
+    student_count: {{ student_count|default:"NOT SET" }}<br>
+    teacher_count: {{ teacher_count|default:"NOT SET" }}
+</div>
+<!-- ===== END DEBUG ===== -->
 <div style="background: linear-gradient(135deg, #0B7A3B, #1E9E58); color: #fff; padding: 18px 24px; border-radius: 12px; margin-bottom: 30px; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 6px solid #D4AF37;">
     📊 Dashboard
 </div>

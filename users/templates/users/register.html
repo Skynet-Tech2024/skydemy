@@ -125,11 +125,6 @@
             color: #64748B;
             margin-top: 4px;
         }
-        .form-group .error-text {
-            font-size: 13px;
-            color: #DC2626;
-            margin-top: 4px;
-        }
         /* ===== PASSWORD TOGGLE ===== */
         .password-wrapper {
             position: relative;
@@ -217,6 +212,16 @@
             color: #1E40AF;
             border: 1px solid #BFDBFE;
         }
+        /* ===== REQUIRED FIELDS NOTE ===== */
+        .required-note {
+            text-align: right;
+            font-size: 13px;
+            color: #64748B;
+            margin-bottom: 16px;
+        }
+        .required-note span {
+            color: #DC2626;
+        }
         /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .card { padding: 28px 20px; }
@@ -261,6 +266,11 @@
             <form method="post" novalidate>
                 {% csrf_token %}
 
+                <!-- Required fields note -->
+                <div class="required-note">
+                    <span>*</span> Required fields
+                </div>
+
                 <!-- Username -->
                 <div class="form-group">
                     <label for="id_username">Full Name <span class="required">*</span></label>
@@ -269,9 +279,6 @@
                            value="{{ form.username.value|default:'' }}"
                            required>
                     <div class="help-text">{{ form.username.help_text }}</div>
-                    {% if form.username.errors %}
-                        <div class="error-text">{{ form.username.errors.0 }}</div>
-                    {% endif %}
                 </div>
 
                 <!-- Password -->
@@ -285,9 +292,6 @@
                         </button>
                     </div>
                     <div class="help-text">{{ form.password1.help_text }}</div>
-                    {% if form.password1.errors %}
-                        <div class="error-text">{{ form.password1.errors.0 }}</div>
-                    {% endif %}
                 </div>
 
                 <!-- Confirm Password -->
@@ -300,9 +304,6 @@
                             👁️
                         </button>
                     </div>
-                    {% if form.password2.errors %}
-                        <div class="error-text">{{ form.password2.errors.0 }}</div>
-                    {% endif %}
                 </div>
 
                 <!-- Submit -->

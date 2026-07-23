@@ -3,6 +3,7 @@
 import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
+from django.utils import timezone
 
 
 class Migration(migrations.Migration):
@@ -16,12 +17,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subject',
             name='admin_notes',
-            field=models.TextField(blank=True, help_text='Notes from admin'),
+            field=models.TextField(blank=True, default='', help_text='Notes from admin'),
         ),
         migrations.AddField(
             model_name='subject',
             name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=''),
+            field=models.DateTimeField(auto_now_add=True, default=timezone.now),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -47,7 +48,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subject',
             name='updated_at',
-            field=models.DateTimeField(auto_now=True),
+            field=models.DateTimeField(auto_now=True, default=timezone.now),
+            preserve_default=False,
         ),
         migrations.AlterField(
             model_name='lesson',

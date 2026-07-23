@@ -18,14 +18,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             var deleteForm = document.getElementById('delete-form');
             Swal.fire({
-                title: '⚠️ Delete exam?',
+                title: '⚠️ Delete lesson?',
                 html: `You are about to delete <strong>"{{ object.title }}"</strong>.<br>This action cannot be undone.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#B42318',
                 cancelButtonColor: '#0B5D3B',
                 confirmButtonText: '🗑️ Yes, delete permanently',
-                cancelButtonText: '✖ Cancel, keep exam'
+                cancelButtonText: '✖ Cancel, keep lesson'
             }).then((result) => {
                 if (result.isConfirmed) {
                     deleteForm.submit();

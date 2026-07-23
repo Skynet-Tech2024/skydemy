@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from users.models import UserProfile
+from users.models import UserProfile          # <-- FIXED import
 from cloudinary.models import CloudinaryField
 import uuid
 
@@ -10,9 +10,39 @@ class Subject(models.Model):
         ('primary', 'Primary School'),
         ('secondary', 'Secondary School'),
     )
+    STATUS_CHOICES = (
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+    
     name = models.CharField(max_length=100)
     level = models.CharField(max_length=10, choices=LEVEL_CHOICES)
     description = models.TextField(blank=True)
+    
+    # Approval workflow
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    admin_notes = models.TextField(blank=True, help_text="Notes from admin")
+    reviewed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reviewed_subjects'
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Teacher who proposed the subject
+    proposed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='proposed_subjects'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        # Force name to uppercase
+        if self.name:
+            self.name = self.name.upper()
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.name} ({self.get_level_display()})"
@@ -43,8 +73,15 @@ class Lesson(models.Model):
     description = models.TextField(blank=True)
     level = models.CharField(max_length=10, choices=LEVEL_CHOICES)
     
-    # For primary/secondary -> select a Subject
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, null=True, blank=True)
+    # For primary/secondary -> select a Subject (only approved subjects allowed)
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        limit_choices_to={'status': 'approved'},
+        help_text="Only approved subjects can be used."
+    )
     
     # For university -> select a Course
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
@@ -52,7 +89,7 @@ class Lesson(models.Model):
     # PDF file stored on Cloudinary
     pdf_file = CloudinaryField(
         'PDF',
-        resource_type='raw',          # Allows any file type
+        resource_type='raw',
         null=True,
         blank=True,
         help_text="Upload PDF lesson"
@@ -78,14 +115,12 @@ class Lesson(models.Model):
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_lessons')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     
-    # ----- NEW: Property to get correct PDF URL -----
     @property
     def pdf_url(self):
         """Return the Cloudinary URL with 'raw/upload' instead of 'image/upload'."""
         if self.pdf_file:
             return self.pdf_file.url.replace('image/upload', 'raw/upload')
         return None
-    # ------------------------------------------------
     
     def get_engagement_stats(self):
         """Return engagement statistics for this lesson"""
@@ -105,11 +140,11 @@ class Progress(models.Model):
     """Tracks student reading progress for each lesson"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='progress')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='progress')
-    progress_percentage = models.IntegerField(default=0)  # 0-100
+    progress_percentage = models.IntegerField(default=0)
     completed = models.BooleanField(default=False)
     last_accessed = models.DateTimeField(auto_now=True)
-    pages_read = models.IntegerField(default=0)  # For PDF page tracking
-    total_pages = models.IntegerField(default=0)  # Total pages in the PDF
+    pages_read = models.IntegerField(default=0)
+    total_pages = models.IntegerField(default=0)
     
     class Meta:
         unique_together = ('user', 'lesson')
@@ -130,28 +165,24 @@ class Exam(models.Model):
     passing_score = models.IntegerField(default=50)
     questions = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
-    # New fields for exam management
     exam_type = models.CharField(max_length=20, choices=(
         ('fslc', 'FSLC Papers'),
         ('mock', 'Mock Exam'),
         ('gce', 'GCE Past Questions'),
     ), blank=True, null=True)
     
-    year = models.CharField(max_length=4, blank=True, null=True)  # For GCE
-    level = models.CharField(max_length=20, blank=True, null=True)  # ordinary/advanced
+    year = models.CharField(max_length=4, blank=True, null=True)
+    level = models.CharField(max_length=20, blank=True, null=True)
     subject = models.ForeignKey('Subject', on_delete=models.SET_NULL, null=True, blank=True, related_name='exams')
     teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='exams_created')
-    # Teaching guide / marking guide
     marking_guide = models.TextField(blank=True, help_text="Teaching guide with suggested answers and explanations")
     
-    # Approval workflow
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     admin_notes = models.TextField(blank=True, help_text="Admin notes for review")
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_exams')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     
     def get_engagement_stats(self):
-        """Return engagement statistics for this exam"""
         likes_count = self.likes.count()
         comments_count = self.comments.count()
         return {

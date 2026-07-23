@@ -1,42 +1,47 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile
-import re
 
-class RegisterForm(forms.Form):
-    username = forms.CharField(max_length=150, label="Username")
-    phone_number = forms.CharField(max_length=20, required=False, label="Phone Number (optional, for recovery)")
-    password = forms.CharField(widget=forms.PasswordInput, label="Password")
-    password_confirm = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
-    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, label="I am a")
-
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        if User.objects.filter(username=username).exists():
-            raise forms.ValidationError("This username is already taken.")
-        return username
-
-    def clean_phone_number(self):
-        phone = self.cleaned_data.get('phone_number')
-        if phone:
-            if not re.match(r'^[\d\s\+-]+$', phone):
-                raise forms.ValidationError("Phone number can only contain digits, spaces, + and -.")
-            phone = re.sub(r'\s+', ' ', phone).strip()
-        return phone
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        password_confirm = cleaned_data.get('password_confirm')
-        if password and password_confirm and password != password_confirm:
-            raise forms.ValidationError("Passwords do not match.")
-        return cleaned_data
+class RegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True)
+    level = forms.ChoiceField(choices=UserProfile.LEVEL_CHOICES, required=True)
+    
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2', 'role', 'level']
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+            profile = user.profile
+            profile.role = self.cleaned_data['role']
+            profile.level = self.cleaned_data['level']
+            profile.save()
+        return user
 
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['avatar', 'level', 'whatsapp_number']
+        fields = [
+            'bio',
+            'avatar',
+            'level',
+            'date_of_birth',
+            'address',
+        ]
         widgets = {
-            'avatar': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
+            'bio': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'level': forms.Select(attrs={'class': 'form-control'}),
+        }
+        help_texts = {
+            'level': 'Your education level (required)',
+            'date_of_birth': 'Your date of birth',
+            'address': 'Your physical address',
         }

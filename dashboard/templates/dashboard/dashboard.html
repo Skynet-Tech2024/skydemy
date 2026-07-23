@@ -1,0 +1,75 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Dashboard - SKYDEMY{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 28px; font-weight: 800; color: #1F2933; margin: 0;">👋 Welcome back, <span style="color: #0B5D3B;">{{ user.username }}</span>!</h1>
+            <p style="color: #4B5563; font-size: 16px; margin: 4px 0 0;">
+                Level: <strong>{{ user.profile.get_level_display }}</strong> · Rating: {{ user.profile.rating|floatformat:2 }}
+            </p>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="{% url 'profile' %}" style="background: #0B5D3B; color: #fff; padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600;">👤 My Profile</a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 30px;">
+        <div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e9ecef; text-align: center;">
+            <div style="font-size: 32px; font-weight: 800; color: #0B5D3B;">{{ user.profile.total_lessons_completed }}</div>
+            <div style="font-size: 14px; color: #4B5563;">Lessons Completed</div>
+        </div>
+        <div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e9ecef; text-align: center;">
+            <div style="font-size: 32px; font-weight: 800; color: #C9A227;">{{ certificates_count|default:"0" }}</div>
+            <div style="font-size: 14px; color: #4B5563;">Certificates Earned</div>
+        </div>
+        <div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e9ecef; text-align: center;">
+            <div style="font-size: 32px; font-weight: 800; color: #2563EB;">{{ exams_taken_count|default:"0" }}</div>
+            <div style="font-size: 14px; color: #4B5563;">Exams Taken</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px;">
+        <a href="{% url 'lesson_list' %}" style="background: #0B5D3B; color: #fff; padding: 14px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; text-align: center; box-shadow: 0 2px 8px rgba(11,93,59,0.2);">
+            📚 Browse Lessons
+        </a>
+        <a href="{% url 'lesson_list' %}" style="background: #C9A227; color: #fff; padding: 14px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; text-align: center; box-shadow: 0 2px 8px rgba(201,162,39,0.2);">
+            🚀 Take an Exam
+        </a>
+        <a href="{% url 'progress_chart' %}" style="background: #6B7280; color: #fff; padding: 14px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; text-align: center;">
+            📊 View Progress Chart
+        </a>
+    </div>
+
+    <!-- My Progress (lessons in progress) -->
+    <div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e9ecef;">
+        <h3 style="font-size: 18px; font-weight: 700; color: #1F2933; margin: 0 0 16px 0;">📖 My Progress</h3>
+        {% if progress_list %}
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                {% for progress in progress_list %}
+                    <li style="padding: 10px 0; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 600; color: #1F2933;">{{ progress.lesson.title }}</span>
+                        <span style="font-size: 14px; color: #4B5563;">
+                            {% if progress.completed %}
+                                ✅ Completed
+                            {% else %}
+                                ⏳ {{ progress.progress_percentage }}% In Progress
+                            {% endif %}
+                        </span>
+                    </li>
+                {% empty %}
+                    <li style="padding: 16px 0; color: #4B5563; text-align: center;">
+                        You haven't started any lessons yet.
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #4B5563;">Start a lesson to track your progress.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

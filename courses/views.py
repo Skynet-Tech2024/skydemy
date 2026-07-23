@@ -152,6 +152,13 @@ def view_lesson(request, lesson_id):
     lesson.views += 1
     lesson.save()
     
+    # ----- FIX: Correct Cloudinary URL for PDFs (replace image/upload with raw/upload) -----
+    if lesson.pdf_file:
+        lesson.pdf_url = lesson.pdf_file.url.replace('image/upload', 'raw/upload')
+    else:
+        lesson.pdf_url = None
+    # ------------------------------------------------------------------------------------
+    
     if request.user.is_authenticated and request.user.profile.role == 'learner':
         progress, created = Progress.objects.get_or_create(
             user=request.user,

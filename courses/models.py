@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from users.models import UserProfile
+from cloudinary.models import CloudinaryField
 import uuid
 
 class Subject(models.Model):
@@ -48,8 +49,15 @@ class Lesson(models.Model):
     # For university -> select a Course
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     
-    # Lesson content files
-    pdf_file = models.FileField(upload_to='lessons/pdfs/', null=True, blank=True, help_text="Upload PDF lesson")
+    # PDF file stored on Cloudinary
+    pdf_file = CloudinaryField(
+        'PDF',
+        resource_type='raw',          # Allows any file type
+        null=True,
+        blank=True,
+        help_text="Upload PDF lesson"
+    )
+    
     original_file = models.FileField(upload_to='lessons/originals/', blank=True, null=True, help_text="Original uploaded file (for Word documents)")
     is_converted = models.BooleanField(default=False, help_text="True if this lesson was converted from a Word document")
     converted_html = models.TextField(blank=True, help_text="System will convert PDF to HTML for web view")
@@ -69,6 +77,15 @@ class Lesson(models.Model):
     admin_notes = models.TextField(blank=True, help_text="Admin notes for review")
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_lessons')
     reviewed_at = models.DateTimeField(null=True, blank=True)
+    
+    # ----- NEW: Property to get correct PDF URL -----
+    @property
+    def pdf_url(self):
+        """Return the Cloudinary URL with 'raw/upload' instead of 'image/upload'."""
+        if self.pdf_file:
+            return self.pdf_file.url.replace('image/upload', 'raw/upload')
+        return None
+    # ------------------------------------------------
     
     def get_engagement_stats(self):
         """Return engagement statistics for this lesson"""

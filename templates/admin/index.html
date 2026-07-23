@@ -18,9 +18,6 @@
 {% block extrahead %}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ============================================================
-           SKYDEMY ADMIN DASHBOARD – Green/White/Gold Theme (safe version)
-           ============================================================ */
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
@@ -67,12 +64,17 @@
             padding: 30px !important;
         }
 
-        /* ----- Stats Grid (4 columns) ----- */
         .stats-grid {
             display: grid !important;
             grid-template-columns: repeat(4, 1fr) !important;
             gap: 20px !important;
             margin-bottom: 30px !important;
+        }
+
+        .stat-card-link {
+            text-decoration: none !important;
+            color: inherit !important;
+            display: block !important;
         }
 
         .stat-card {
@@ -83,10 +85,11 @@
             border: none !important;
             transition: transform 0.2s, box-shadow 0.2s !important;
             border-left: 4px solid #0B7A3B !important;
+            cursor: pointer !important;
         }
         .stat-card:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.10) !important;
+            transform: translateY(-4px) !important;
+            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15) !important;
         }
 
         .stat-card .stat-icon {
@@ -116,7 +119,6 @@
         .stat-card.purple { border-left-color: #8B5CF6 !important; }
         .stat-card.purple .stat-icon { color: #8B5CF6 !important; }
 
-        /* ----- Module Cards ----- */
         .dashboard .module {
             background: #FFFFFF !important;
             border-radius: 16px !important;
@@ -194,7 +196,6 @@
             background: #1D4ED8 !important;
         }
 
-        /* ----- Recent Actions ----- */
         .recent-actions-list {
             list-style: none !important;
             padding: 0 !important;
@@ -242,39 +243,47 @@
     📊 Dashboard
 </div>
 
-<!-- ===== STATISTICS CARDS (no links) ===== -->
+<!-- ===== STATISTICS CARDS (CLICKABLE) ===== -->
 <div class="stats-grid">
-    <div class="stat-card">
-        <div>
-            <span class="stat-icon">👨‍🎓</span>
-            <span class="stat-number">{{ student_count|default:"0" }}</span>
+    <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=learner" class="stat-card-link">
+        <div class="stat-card">
+            <div>
+                <span class="stat-icon">👨‍🎓</span>
+                <span class="stat-number">{{ student_count|default:"0" }}</span>
+            </div>
+            <div class="stat-label">Students</div>
         </div>
-        <div class="stat-label">Students</div>
-    </div>
-    <div class="stat-card gold">
-        <div>
-            <span class="stat-icon">👨‍🏫</span>
-            <span class="stat-number">{{ teacher_count|default:"0" }}</span>
+    </a>
+    <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=teacher" class="stat-card-link">
+        <div class="stat-card gold">
+            <div>
+                <span class="stat-icon">👨‍🏫</span>
+                <span class="stat-number">{{ teacher_count|default:"0" }}</span>
+            </div>
+            <div class="stat-label">Teachers</div>
         </div>
-        <div class="stat-label">Teachers</div>
-    </div>
-    <div class="stat-card blue">
-        <div>
-            <span class="stat-icon">📚</span>
-            <span class="stat-number">{{ course_count|default:"0" }}</span>
+    </a>
+    <a href="{% url 'admin:courses_lesson_changelist' %}" class="stat-card-link">
+        <div class="stat-card blue">
+            <div>
+                <span class="stat-icon">📚</span>
+                <span class="stat-number">{{ course_count|default:"0" }}</span>
+            </div>
+            <div class="stat-label">Courses</div>
         </div>
-        <div class="stat-label">Courses</div>
-    </div>
-    <div class="stat-card purple">
-        <div>
-            <span class="stat-icon">📝</span>
-            <span class="stat-number">{{ exam_count|default:"0" }}</span>
+    </a>
+    <a href="{% url 'admin:courses_exam_changelist' %}" class="stat-card-link">
+        <div class="stat-card purple">
+            <div>
+                <span class="stat-icon">📝</span>
+                <span class="stat-number">{{ exam_count|default:"0" }}</span>
+            </div>
+            <div class="stat-label">Exams</div>
         </div>
-        <div class="stat-label">Exams</div>
-    </div>
+    </a>
 </div>
 
-<!-- ===== ORIGINAL DJANGO MODULES (with Add/Change links) ===== -->
+<!-- ===== ORIGINAL DJANGO MODULES ===== -->
 <div id="content-main">
     {% if app_list %}
         {% for app in app_list %}

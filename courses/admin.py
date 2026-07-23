@@ -72,6 +72,9 @@ class LessonAdmin(admin.ModelAdmin):
 
     # Custom changelist view to handle bulk actions with SweetAlert
     def changelist_view(self, request, extra_context=None):
+        # DEBUG: print to check if this view is called
+        print("🔵 Custom changelist_view called with action:", request.POST.get('action'))
+        
         # Intercept POST for delete, approve, reject
         if request.method == 'POST' and request.POST.get('action') in ['delete_selected', 'approve_lessons', 'reject_lessons']:
             action = request.POST.get('action')

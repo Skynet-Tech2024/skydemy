@@ -3,6 +3,8 @@
 <head>
     <title>{{ lesson.title }} - SKYDEMY</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PDF.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; padding: 15px; }
@@ -21,14 +23,25 @@
         .btn-secondary:hover { background: #5a6268; }
         .btn-warning { background: #ffc107; color: #000; }
         .btn-warning:hover { background: #e0a800; }
-        .pdf-container { width: 100%; height: clamp(300px, 60vh, 600px); border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #f8f9fa; }
-        .pdf-container iframe { width: 100%; height: 100%; border: none; }
+        .btn-primary { background: #007bff; }
+        .btn-primary:hover { background: #0069d9; }
+        .btn-info { background: #17a2b8; color: #fff; }
+        .btn-info:hover { background: #138496; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .pdf-container { width: 100%; height: clamp(300px, 60vh, 600px); border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #f8f9fa; position: relative; }
+        #pdf-canvas { width: 100%; height: 100%; }
+        .pdf-controls { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+        .pdf-controls button { padding: 6px 16px; border: none; border-radius: 4px; cursor: pointer; background: #e9ecef; font-weight: 600; }
+        .pdf-controls button:hover { background: #dee2e6; }
+        .pdf-controls span { font-size: 14px; }
         .pdf-fallback { padding: 40px 20px; text-align: center; border: 2px dashed #ddd; border-radius: 4px; background: #f8f9fa; }
         .pdf-fallback p { font-size: clamp(16px, 2vw, 20px); color: #6c757d; }
         .pdf-fallback .btn { margin-top: 15px; }
         .premium-badge { background: #fff3cd; padding: 10px; border-radius: 4px; border: 1px solid #ffeeba; font-size: clamp(13px, 1.1vw, 15px); }
-        .exam-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; display: flex; flex-wrap: wrap; gap: 10px; }
-        
+        .exam-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .action-section { margin-top: 20px; }
+        .alert { padding: 12px 16px; border-radius: 4px; margin: 15px 0; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
         @media (max-width: 480px) {
             body { padding: 10px; }
             .container { padding: 15px; }
@@ -39,65 +52,172 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="nav">
-            <a href="{% url 'home' %}">🏠 Home</a>
-            <a href="{% url 'dashboard' %}">📊 Dashboard</a>
-            <a href="{% url 'logout' %}">🚪 Logout</a>
-        </div>
-        
-        <h1>{{ lesson.title }}</h1>
-        
-        <div class="lesson-meta">
-            <p><strong>Level:</strong> {{ lesson.get_level_display }}</p>
-            {% if lesson.subject %}<p><strong>Subject:</strong> {{ lesson.subject.name }}</p>{% endif %}
-            {% if lesson.course %}<p><strong>Course:</strong> {{ lesson.course.name }}</p>{% endif %}
-            <p><strong>Teacher:</strong> {{ lesson.teacher.username }}</p>
-            <p><strong>Uploaded:</strong> {{ lesson.created_at|date:"F d, Y" }}</p>
-            <p><strong>Views:</strong> {{ lesson.views }}</p>
-            <p><strong>Rating:</strong> {{ lesson.rating }}/5.0</p>
-        </div>
-        
-        <div class="lesson-content">
-            <h2>📖 Description</h2>
-            <p>{{ lesson.description }}</p>
-            
-            {% if lesson.pdf_file %}
-                <h2>📄 Lesson Content</h2>
-                <div class="pdf-container">
-                    <iframe src="https://docs.google.com/viewer?url={{ request.build_absolute_uri }}{{ lesson.pdf_file.url }}&embedded=true"></iframe>
-                </div>
-                <p style="margin-top: 10px;">
-                    <a href="{{ lesson.pdf_file.url }}" target="_blank" class="btn btn-secondary">📄 Open PDF</a>
-                </p>
-                {% if user.is_authenticated and user.profile.is_premium %}
-                    <p><a href="{{ lesson.pdf_file.url }}" download class="btn btn-success">⬇️ Download PDF</a></p>
-                {% else %}
-                    <div class="premium-badge">
-                        <strong>⭐ Premium Feature:</strong> Download this PDF by subscribing to our premium plan.
-                        <a href="#" style="color: #f39c12;">Upgrade now</a>
-                    </div>
-                {% endif %}
-            {% endif %}
-            
-            {% if lesson.video_url %}
-                <h2>🎬 Lesson Video</h2>
-                <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:4px;">
-                    <iframe src="{{ lesson.video_url }}" style="position:absolute; top:0; left:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
-                </div>
-            {% endif %}
-        </div>
-        
-        <div class="exam-section">
-            {% if exam %}
-                <a href="{% url 'take_exam' lesson.id %}" class="btn btn-warning">📝 Take Exam</a>
-            {% else %}
-                {% if user.is_authenticated and user.profile.role == 'teacher' %}
-                    <a href="{% url 'add_exam' lesson.id %}" class="btn btn-warning">➕ Add Exam</a>
-                {% endif %}
-            {% endif %}
-            <a href="{% url 'dashboard' %}" class="btn btn-success">← Back to Dashboard</a>
-        </div>
+<div class="container">
+    <div class="nav">
+        <a href="{% url 'home' %}">🏠 Home</a>
+        <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+        <a href="{% url 'logout' %}">🚪 Logout</a>
     </div>
+
+    <h1>{{ lesson.title }}</h1>
+
+    <div class="lesson-meta">
+        <p><strong>Level:</strong> {{ lesson.get_level_display }}</p>
+        {% if lesson.subject %}<p><strong>Subject:</strong> {{ lesson.subject.name }}</p>{% endif %}
+        {% if lesson.course %}<p><strong>Course:</strong> {{ lesson.course.name }}</p>{% endif %}
+        <p><strong>Teacher:</strong> {{ lesson.teacher.username }}</p>
+        <p><strong>Uploaded:</strong> {{ lesson.created_at|date:"F d, Y" }}</p>
+        <p><strong>Views:</strong> {{ lesson.views }}</p>
+        <p><strong>Rating:</strong> {{ lesson.rating }}/5.0</p>
+    </div>
+
+    <div class="lesson-content">
+        <h2>📖 Description</h2>
+        <p>{{ lesson.description }}</p>
+
+        {% if lesson.pdf_file %}
+            <h2>📄 Lesson Content</h2>
+            <div class="pdf-container">
+                <canvas id="pdf-canvas"></canvas>
+            </div>
+            <div class="pdf-controls">
+                <button id="prev-page">◀</button>
+                <span id="page-num">1</span> / <span id="page-count">1</span>
+                <button id="next-page">▶</button>
+                <a href="{{ lesson.pdf_file.url }}" target="_blank" class="btn btn-secondary" style="margin-left:auto;">📄 Open PDF</a>
+            </div>
+            {% if user.is_authenticated and user.profile.is_premium %}
+                <p><a href="{{ lesson.pdf_file.url }}" download class="btn btn-success">⬇️ Download PDF</a></p>
+            {% else %}
+                <div class="premium-badge">
+                    <strong>⭐ Premium Feature:</strong> Download this PDF by subscribing to our premium plan.
+                    <a href="#" style="color: #f39c12;">Upgrade now</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="pdf-fallback">
+                <p>📄 No PDF uploaded for this lesson.</p>
+            </div>
+        {% endif %}
+
+        {% if lesson.video_url %}
+            <h2>🎬 Lesson Video</h2>
+            <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:4px;">
+                <iframe src="{{ lesson.video_url }}" style="position:absolute; top:0; left:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Action buttons -->
+    {% if user.is_authenticated and user.profile.role == 'teacher' %}
+        <div class="action-section">
+            <div class="alert alert-info">
+                <strong>🎬 Teacher Tool:</strong> Convert this lesson into an illustrative video.
+            </div>
+            <div class="btn-group">
+                <a href="{% url 'convert_to_video' lesson.id %}" class="btn btn-info">🎬 Convert to Video</a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="exam-section">
+        {% if exam %}
+            <a href="{% url 'take_exam' lesson.id %}" class="btn btn-warning">📝 Take Exam</a>
+        {% else %}
+            {% if user.is_authenticated and user.profile.role == 'teacher' %}
+                <a href="{% url 'add_exam' lesson.id %}" class="btn btn-warning">➕ Add Exam</a>
+            {% endif %}
+        {% endif %}
+        <a href="{% url 'dashboard' %}" class="btn btn-success">← Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+    // ===== PDF.js Viewer =====
+    (function() {
+        const pdfUrl = "{{ lesson.pdf_file.url|default:'' }}";
+        if (!pdfUrl) {
+            return;
+        }
+
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        const pageNumSpan = document.getElementById('page-num');
+        const pageCountSpan = document.getElementById('page-count');
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+
+        // Set the worker source
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport = page.getViewport({ scale: 1.5 });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                const renderTask = page.render(renderContext);
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+            pageNumSpan.textContent = num;
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function onPrevPage() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        }
+
+        function onNextPage() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        }
+
+        // Load the PDF
+        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+            pdfDoc = pdfDoc_;
+            pageCountSpan.textContent = pdfDoc.numPages;
+            renderPage(pageNum);
+        }).catch(function(err) {
+            console.error('PDF load error:', err);
+            const container = document.querySelector('.pdf-container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="padding:20px; text-align:center; color:#c62828;">
+                        <p>⚠️ Could not load the PDF. <a href="${pdfUrl}" target="_blank">Open PDF directly</a></p>
+                    </div>
+                `;
+            }
+        });
+
+        // Event listeners
+        prevBtn.addEventListener('click', onPrevPage);
+        nextBtn.addEventListener('click', onNextPage);
+    })();
+</script>
 </body>
 </html>

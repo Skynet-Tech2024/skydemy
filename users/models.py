@@ -1,175 +1,98 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from cloudinary.models import CloudinaryField
+import json
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class UserProfile(models.Model):
     ROLE_CHOICES = (
-        ('teacher', 'Teacher'),
         ('learner', 'Learner'),
+        ('teacher', 'Teacher'),
+        ('admin', 'Admin'),
+    )
+    
+    VERIFICATION_STATUS_CHOICES = (
+        ('pending', 'Pending Review'),
+        ('verified', 'Verified'),
+        ('approved', 'Approved'),
+        ('suspended', 'Suspended'),
     )
     
     LEVEL_CHOICES = (
         ('primary', 'Primary School'),
         ('secondary', 'Secondary School'),
         ('university', 'University / Higher Institution'),
-    )
-    
-    VERIFICATION_CHOICES = (
-        ('pending', 'Pending Review'),
-        ('approved', 'Approved'),
-        ('verified', 'Verified'),
-        ('rejected', 'Rejected'),
-    )
-    
-    ID_DOCUMENT_TYPES = (
-        ('national_id', 'National ID Card'),
-        ('school_id', 'School ID Card'),
-        ('drivers_license', "Driver's License"),
-        ('passport', 'International Passport'),
+        ('', 'Not set'),  # Empty string as default
     )
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='learner')
-    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='primary')
-    whatsapp_number = models.CharField(max_length=20, blank=True, null=True, help_text="Optional WhatsApp number for announcements")
-    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+    
+    # --- Profile fields ---
+    bio = models.TextField(blank=True)
+    avatar = CloudinaryField('avatar', blank=True, null=True)
+    
+    # --- Level (now required) ---
+    level = models.CharField(
+        max_length=10, 
+        choices=LEVEL_CHOICES, 
+        default='', 
+        help_text="Your education level"
+    )
+    
+    # --- Date of Birth (new) ---
+    date_of_birth = models.DateField(
+        null=True, 
+        blank=True, 
+        help_text="Your date of birth"
+    )
+    
+    # --- Address (new) ---
+    address = models.TextField(
+        blank=True, 
+        help_text="Your physical address"
+    )
+    
+    # --- WhatsApp number removed ---
+    # whatsapp_number removed per user request
+    
+    # --- Verification ---
+    verification_status = models.CharField(
+        max_length=10, 
+        choices=VERIFICATION_STATUS_CHOICES, 
+        default='pending'
+    )
+    verification_notes = models.TextField(blank=True)
+    
+    # --- Premium ---
+    is_premium = models.BooleanField(default=False)
+    subscription_expiry = models.DateTimeField(null=True, blank=True)
+    
+    # --- Suspension ---
+    is_suspended = models.BooleanField(default=False)
+    
+    # --- Stats ---
     total_lessons_completed = models.IntegerField(default=0)
-    is_premium = models.BooleanField(default=False, help_text="Premium subscription for PDF downloads")
-    subscription_expiry = models.DateTimeField(null=True, blank=True, help_text="When premium subscription expires")
-    verification_status = models.CharField(max_length=10, choices=VERIFICATION_CHOICES, default='pending')
-    verification_notes = models.TextField(blank=True, help_text="Admin notes for verification")
-    last_active = models.DateTimeField(null=True, blank=True, help_text="Last time the user was active")
-    is_suspended = models.BooleanField(default=False, help_text="Manually suspend this user")
+    rating = models.FloatField(default=0.0, validators=[MinValueValidator(0), MaxValueValidator(5)])
     
-    # Profile picture
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, default='avatars/default.png')
-    
-    # ===== NEW: Identity Verification =====
-    id_document = models.FileField(
-        upload_to='id_documents/',
-        blank=True,
-        null=True,
-        verbose_name="Identity Document"
-    )
-    id_document_type = models.CharField(
-        max_length=20,
-        choices=ID_DOCUMENT_TYPES,
-        blank=True,
-        null=True,
-        verbose_name="Document Type"
-    )
-    
-    # ===== NEW: Location Verification =====
-    utility_bill = models.FileField(
-        upload_to='utility_bills/',
-        blank=True,
-        null=True,
-        verbose_name="Utility Bill (for address verification)"
-    )
-    location_verified = models.BooleanField(
-        default=False,
-        verbose_name="Location Verified"
-    )
-    # Optional geolocation (if user permits)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    
-    def get_status(self):
-        if self.is_suspended:
-            return 'Suspended'
-        if self.verification_status == 'pending':
-            return 'Pending'
-        if self.verification_status == 'rejected':
-            return 'Rejected'
-        if self.last_active:
-            days_inactive = (timezone.now() - self.last_active).days
-            if days_inactive > 90:
-                return 'Inactive'
-        return 'Active'
-    
-    def get_avatar_url(self):
-        """Return the avatar URL or a default if not set"""
-        if self.avatar and hasattr(self.avatar, 'url'):
-            return self.avatar.url
-        return '/static/images/default-avatar.png'
-    
-    def calculate_rating(self):
-        """Calculate rating based on likes, comments, and views of user's lessons"""
-        from courses.models import Lesson, LessonLike, LessonComment
-        from django.db.models import Sum, Count
-        
-        lessons = Lesson.objects.filter(teacher=self.user)
-        if not lessons.exists():
-            return 0.0
-        
-        total_likes = LessonLike.objects.filter(lesson__in=lessons).count()
-        total_comments = LessonComment.objects.filter(lesson__in=lessons).count()
-        total_views = lessons.aggregate(Sum('views'))['views__sum'] or 0
-        
-        engagement_score = total_likes + total_comments
-        if total_views > 0:
-            rating = (engagement_score / total_views) * 5
-        else:
-            rating = 0
-        
-        return min(round(rating, 2), 5.0)
+    # --- Timestamps ---
+    joined_date = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def update_rating(self):
-        """Update the rating field with the calculated value"""
-        self.rating = self.calculate_rating()
+        """Calculate rating based on engagement and completed lessons"""
+        base_rating = min(self.total_lessons_completed / 10, 5)
+        self.rating = round(base_rating, 1)
         self.save(update_fields=['rating'])
     
-    def get_rating_display(self):
-        """Return rating as stars with percentage"""
-        if self.rating == 0:
-            return "⭐ 0.00 (0%)"
-        percentage = (self.rating / 5) * 100
-        full_stars = int(self.rating)
-        half_star = 1 if self.rating - full_stars >= 0.5 else 0
-        stars = '★' * full_stars + ('½' if half_star else '')
-        empty_stars = '☆' * (5 - full_stars - half_star)
-        return f"{stars}{empty_stars} {self.rating:.2f} ({percentage:.0f}%)"
-    
-    def get_display_role(self):
-        """Return display role: 'Admin' for superusers/staff, otherwise the actual role"""
-        if self.user.is_superuser or self.user.is_staff:
-            return 'Admin'
-        return self.get_role_display()
-    
     def __str__(self):
-        return f"{self.user.username} - {self.get_role_display()}"
-
-
-class Notification(models.Model):
-    NOTIFICATION_TYPES = (
-        ('lesson_approved', 'Lesson Approved'),
-        ('exam_result', 'Exam Result'),
-        ('certificate_earned', 'Certificate Earned'),
-        ('system', 'System Notification'),
-    )
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES, default='system')
-    title = models.CharField(max_length=100)
-    message = models.TextField()
-    link = models.URLField(blank=True, null=True, help_text="Optional link to redirect when clicked")
-    is_read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f"{self.user.username} - {self.title} ({self.created_at})"
-    
-    def mark_as_read(self):
-        self.is_read = True
-        self.save()
-
+        return f"{self.user.username} ({self.get_role_display()})"
 
 class Follow(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
-    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers', limit_choices_to={'profile__role': 'teacher'})
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -178,9 +101,8 @@ class Follow(models.Model):
     def __str__(self):
         return f"{self.follower.username} follows {self.following.username}"
 
-
 class Wishlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist_items')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')
     lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE, related_name='wishlisted_by')
     added_at = models.DateTimeField(auto_now_add=True)
     
@@ -190,71 +112,80 @@ class Wishlist(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title}"
 
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    subject = models.CharField(max_length=200)
+    content = models.TextField()
+    is_read = models.BooleanField(default=False)
+    sent_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    parent_message = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    
+    def __str__(self):
+        return f"{self.sender.username} -> {self.receiver.username}: {self.subject[:30]}"
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('system', 'System Notification'),
+        ('message', 'New Message'),
+        ('exam_result', 'Exam Result'),
+        ('certificate_earned', 'Certificate Earned'),
+        ('lesson_approved', 'Lesson Approved'),
+        ('lesson_rejected', 'Lesson Rejected'),
+    )
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    link = models.CharField(max_length=500, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"
 
 class ProgressHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='progress_history')
     total_lessons_completed = models.IntegerField(default=0)
-    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+    rating = models.FloatField(default=0.0)
     recorded_at = models.DateTimeField(auto_now_add=True)
     
-    class Meta:
-        ordering = ['recorded_at']
-    
     def __str__(self):
-        return f"{self.user.username} - {self.total_lessons_completed} lessons - {self.recorded_at.strftime('%Y-%m-%d %H:%M')}"
-
+        return f"{self.user.username} - {self.recorded_at.date()}"
 
 class WhatsAppAnnouncement(models.Model):
-    TARGET_CHOICES = (
-        ('all', 'All Users'),
-        ('teachers', 'Teachers Only'),
-        ('learners', 'Learners Only'),
-        ('premium', 'Premium Users'),
+    """For sending announcements via WhatsApp (placeholder)"""
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('sent', 'Sent'),
+        ('failed', 'Failed'),
     )
     
     title = models.CharField(max_length=200)
-    message = models.TextField()
-    target = models.CharField(max_length=20, choices=TARGET_CHOICES, default='all')
-    sent_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_announcements')
-    sent_at = models.DateTimeField(auto_now_add=True)
-    is_sent = models.BooleanField(default=False)
-    
-    class Meta:
-        verbose_name = "WhatsApp Announcement"
-        verbose_name_plural = "WhatsApp Announcements"
-    
-    def __str__(self):
-        return f"{self.title} - {self.sent_at.strftime('%Y-%m-%d %H:%M')}"
-    
-    def get_recipients(self):
-        from users.models import UserProfile
-        if self.target == 'all':
-            return User.objects.all()
-        elif self.target == 'teachers':
-            return User.objects.filter(profile__role='teacher')
-        elif self.target == 'learners':
-            return User.objects.filter(profile__role='learner')
-        elif self.target == 'premium':
-            return User.objects.filter(profile__is_premium=True)
-        return User.objects.none()
-
-
-class Message(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
-    subject = models.CharField(max_length=200, blank=True, null=True)
     content = models.TextField()
-    is_read = models.BooleanField(default=False)
+    target_audience = models.CharField(max_length=20, choices=(
+        ('all', 'All Users'),
+        ('students', 'Students Only'),
+        ('teachers', 'Teachers Only'),
+        ('premium', 'Premium Users'),
+    ))
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    sent_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='announcements')
     created_at = models.DateTimeField(auto_now_add=True)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
-    
-    class Meta:
-        ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.sender.username} -> {self.receiver.username}: {self.content[:30]}"
-    
-    def mark_as_read(self):
-        if not self.is_read:
-            self.is_read = True
-            self.save()
+        return self.title
+
+# ===== Signal to create UserProfile automatically =====
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

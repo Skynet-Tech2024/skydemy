@@ -1,8 +1,7 @@
 <style>
     html, body {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #1E3A5F 60%, #0F172A 100%) !important;
+        background: #F6F7F9 !important;
         min-height: 100vh !important;
-        background-attachment: fixed !important;
         margin: 0 !important;
         padding: 0 !important;
     }
@@ -18,23 +17,26 @@
 
 {% block extrahead %}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ============================================================
+           SKYDEMY ADMIN DASHBOARD – Green/White/Gold Theme
+           ============================================================ */
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
 
         body {
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #1E3A5F 60%, #0F172A 100%) !important;
-            min-height: 100vh !important;
-            background-attachment: fixed !important;
+            background: #F6F7F9 !important;
         }
 
+        /* ----- Header (Green) ----- */
         #header {
-            background: #1E293B !important;
+            background: #0B7A3B !important;
             color: #fff !important;
             padding: 16px 30px !important;
             box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
-            border-bottom: 3px solid #16A34A !important;
+            border-bottom: 3px solid #D4AF37 !important;
         }
 
         #header h1 {
@@ -47,28 +49,159 @@
             color: #fff !important;
         }
         #header h1 a span.gold {
-            color: #FBBF24 !important;
+            color: #D4AF37 !important;
         }
 
         .user-tools {
             font-size: 14px !important;
         }
         .user-tools a {
-            color: #94A3B8 !important;
+            color: #E5E7EB !important;
             transition: color 0.2s !important;
         }
         .user-tools a:hover {
-            color: #fff !important;
+            color: #D4AF37 !important;
         }
 
+        /* ----- Dashboard Container ----- */
         .dashboard #content {
             max-width: 1400px !important;
             margin: 0 auto !important;
             padding: 30px !important;
         }
 
+        /* ----- Stats Grid (4 columns) ----- */
+        .stats-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 20px !important;
+            margin-bottom: 30px !important;
+        }
+
+        .stat-card {
+            background: #FFFFFF !important;
+            border-radius: 16px !important;
+            padding: 20px 24px !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
+            border: none !important;
+            transition: transform 0.2s, box-shadow 0.2s !important;
+            text-align: left !important;
+            cursor: default !important;
+            border-left: 4px solid #0B7A3B !important;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.10) !important;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 24px !important;
+            color: #0B7A3B !important;
+            display: inline-block !important;
+            margin-right: 10px !important;
+        }
+        .stat-card .stat-number {
+            font-size: 28px !important;
+            font-weight: 800 !important;
+            color: #1F2937 !important;
+            line-height: 1.2 !important;
+            display: inline-block !important;
+        }
+        .stat-card .stat-label {
+            font-size: 14px !important;
+            color: #64748B !important;
+            font-weight: 500 !important;
+            margin-top: 2px !important;
+        }
+
+        .stat-card.gold {
+            border-left-color: #D4AF37 !important;
+        }
+        .stat-card.gold .stat-icon {
+            color: #D4AF37 !important;
+        }
+
+        .stat-card.blue {
+            border-left-color: #2563EB !important;
+        }
+        .stat-card.blue .stat-icon {
+            color: #2563EB !important;
+        }
+
+        .stat-card.purple {
+            border-left-color: #8B5CF6 !important;
+        }
+        .stat-card.purple .stat-icon {
+            color: #8B5CF6 !important;
+        }
+
+        .stat-card.teal {
+            border-left-color: #0D9488 !important;
+        }
+        .stat-card.teal .stat-icon {
+            color: #0D9488 !important;
+        }
+
+        /* ----- Quick Actions ----- */
+        .quick-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 12px !important;
+            margin-bottom: 30px !important;
+            background: #FFFFFF !important;
+            padding: 20px !important;
+            border-radius: 16px !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+        }
+
+        .quick-actions .section-title {
+            width: 100% !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            color: #1F2937 !important;
+            margin-bottom: 8px !important;
+        }
+
+        .quick-actions a {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 10px 20px !important;
+            border-radius: 10px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            text-decoration: none !important;
+            transition: 0.2s !important;
+            background: #F6F7F9 !important;
+            color: #1F2937 !important;
+            border: 1px solid #E5E7EB !important;
+        }
+        .quick-actions a:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08) !important;
+            border-color: #0B7A3B !important;
+        }
+        .quick-actions a.primary {
+            background: #0B7A3B !important;
+            color: #fff !important;
+            border-color: #0B7A3B !important;
+        }
+        .quick-actions a.primary:hover {
+            background: #1E9E58 !important;
+            border-color: #1E9E58 !important;
+        }
+        .quick-actions a.gold {
+            background: #D4AF37 !important;
+            color: #fff !important;
+            border-color: #D4AF37 !important;
+        }
+        .quick-actions a.gold:hover {
+            background: #C4A030 !important;
+        }
+
+        /* ----- Module Cards ----- */
         .dashboard .module {
-            background: #fff !important;
+            background: #FFFFFF !important;
             border-radius: 16px !important;
             border: 1px solid #E5E7EB !important;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
@@ -96,11 +229,11 @@
             font-size: 22px !important;
         }
         .dashboard .module h2 .module-badge {
-            background: #E5E7EB !important;
-            color: #475569 !important;
+            background: #0B7A3B !important;
+            color: #fff !important;
             font-size: 12px !important;
             font-weight: 600 !important;
-            padding: 2px 10px !important;
+            padding: 2px 12px !important;
             border-radius: 20px !important;
             margin-left: auto !important;
         }
@@ -130,11 +263,11 @@
             transition: 0.2s !important;
         }
         .dashboard .module td a.addlink {
-            background: #16A34A !important;
+            background: #0B7A3B !important;
             color: #fff !important;
         }
         .dashboard .module td a.addlink:hover {
-            background: #15803D !important;
+            background: #1E9E58 !important;
             transform: scale(1.02) !important;
         }
         .dashboard .module td a.changelink {
@@ -146,6 +279,7 @@
             transform: scale(1.02) !important;
         }
 
+        /* ----- Recent Actions ----- */
         .recent-actions-list {
             list-style: none !important;
             padding: 0 !important;
@@ -168,12 +302,46 @@
             margin-left: auto !important;
         }
 
+        /* ----- Responsive ----- */
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
         @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+            .stat-card {
+                padding: 16px !important;
+            }
+            .stat-card .stat-number {
+                font-size: 22px !important;
+            }
+            .quick-actions a {
+                padding: 8px 16px !important;
+                font-size: 13px !important;
+            }
             #header {
                 padding: 12px 16px !important;
             }
             #header h1 {
                 font-size: 18px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+            .stat-card .stat-number {
+                font-size: 18px !important;
+            }
+            .stat-card .stat-label {
+                font-size: 12px !important;
             }
             .dashboard .module td {
                 padding: 8px 14px !important;
@@ -188,11 +356,54 @@
 {% endblock %}
 
 {% block content %}
-<div style="background: linear-gradient(135deg, #1E293B, #0F172A); color: #fff; padding: 18px 24px; border-radius: 12px; margin-bottom: 30px; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-    📊 Dashboard
+<div style="background: linear-gradient(135deg, #0B7A3B, #1E9E58); color: #fff; padding: 18px 24px; border-radius: 12px; margin-bottom: 30px; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 6px solid #D4AF37;">
+    <i class="fas fa-chart-pie" style="margin-right: 12px;"></i>
+    Dashboard
 </div>
 
-<!-- ===== REMOVED STAT CARDS AND QUICK ACTIONS TO AVOID URL ERRORS ===== -->
+<!-- ===== STATISTICS CARDS ===== -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div>
+            <span class="stat-icon">👨‍🎓</span>
+            <span class="stat-number">{{ student_count|default:"0" }}</span>
+        </div>
+        <div class="stat-label">Students</div>
+    </div>
+    <div class="stat-card gold">
+        <div>
+            <span class="stat-icon">👨‍🏫</span>
+            <span class="stat-number">{{ teacher_count|default:"0" }}</span>
+        </div>
+        <div class="stat-label">Teachers</div>
+    </div>
+    <div class="stat-card blue">
+        <div>
+            <span class="stat-icon">📚</span>
+            <span class="stat-number">{{ course_count|default:"0" }}</span>
+        </div>
+        <div class="stat-label">Courses</div>
+    </div>
+    <div class="stat-card purple">
+        <div>
+            <span class="stat-icon">📝</span>
+            <span class="stat-number">{{ exam_count|default:"0" }}</span>
+        </div>
+        <div class="stat-label">Exams</div>
+    </div>
+</div>
+
+<!-- ===== QUICK ACTIONS ===== -->
+<div class="quick-actions">
+    <div class="section-title"><i class="fas fa-bolt" style="color:#D4AF37;"></i> Quick Actions</div>
+    <a href="{% url 'admin:courses_lesson_add' %}" class="primary"><i class="fas fa-plus-circle"></i> Add Lesson</a>
+    <a href="{% url 'admin:courses_exam_add' %}" class="primary"><i class="fas fa-plus-circle"></i> Create Exam</a>
+    <a href="{% url 'admin:users_userprofile_add' %}" class="gold"><i class="fas fa-user-plus"></i> Add Student</a>
+    <a href="{% url 'admin:users_userprofile_add' %}" class="gold"><i class="fas fa-user-tie"></i> Add Teacher</a>
+    <a href="{% url 'admin:courses_certificate_add' %}" class="gold"><i class="fas fa-award"></i> Issue Certificate</a>
+    <a href="#" style="background: #0B7A3B; color:#fff; border-color:#0B7A3B;"><i class="fas fa-users"></i> View Users</a>
+    <a href="#" style="background: #D4AF37; color:#fff; border-color:#D4AF37;"><i class="fas fa-chart-bar"></i> Reports</a>
+</div>
 
 <!-- ===== ORIGINAL DJANGO MODULES ===== -->
 <div id="content-main">
@@ -218,10 +429,10 @@
                                 </td>
                                 <td>
                                     {% if model.add_url %}
-                                        <a href="{{ model.add_url }}" class="addlink">➕ Add</a>
+                                        <a href="{{ model.add_url }}" class="addlink"><i class="fas fa-plus-circle"></i> Add</a>
                                     {% endif %}
                                     {% if model.admin_url %}
-                                        <a href="{{ model.admin_url }}" class="changelink">✏️ Change</a>
+                                        <a href="{{ model.admin_url }}" class="changelink"><i class="fas fa-edit"></i> Change</a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -238,8 +449,8 @@
     <div class="module">
         <h2>
             <span class="module-icon">📋</span>
-            Recent Actions
-            <span class="module-badge">Latest activity</span>
+            Recent Activity
+            <span class="module-badge">Latest updates</span>
         </h2>
         <ul class="recent-actions-list">
             {% for action in recent_actions %}
@@ -254,7 +465,9 @@
                     <span class="action-time">{{ action.action_time|date:"M d, Y H:i" }}</span>
                 </li>
             {% empty %}
-                <li style="color: #94A3B8; padding: 16px 24px;">No recent actions.</li>
+                <li style="color: #94A3B8; padding: 16px 24px;">
+                    <i class="fas fa-clock" style="margin-right: 8px;"></i> No recent actions.
+                </li>
             {% endfor %}
         </ul>
     </div>

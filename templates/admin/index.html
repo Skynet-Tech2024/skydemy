@@ -61,51 +61,24 @@
     📊 Dashboard
 </div>
 
-<!-- ===== STATISTICS CARDS ===== -->
+<!-- ===== STATISTICS CARDS (HARDCODED URLS) ===== -->
 <div class="stats-grid">
-    {% for app in app_list %}
-        {% if app.name == "Users" %}
-            {% for model in app.models %}
-                {% if model.object_name == "UserProfile" %}
-                    {% with userprofile_url=model.admin_url %}
-                        <a href="{{ userprofile_url }}?role__exact=learner" class="stat-card-link">
-                            <div class="stat-card">
-                                <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
-                                <div class="stat-label">Students</div>
-                            </div>
-                        </a>
-                        <a href="{{ userprofile_url }}?role__exact=teacher" class="stat-card-link">
-                            <div class="stat-card gold">
-                                <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
-                                <div class="stat-label">Teachers</div>
-                            </div>
-                        </a>
-                    {% endwith %}
-                {% else %}
-                    <!-- UserProfile not found in this app -->
-                    <div class="stat-card">
-                        <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
-                        <div class="stat-label">Students</div>
-                    </div>
-                    <div class="stat-card gold">
-                        <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
-                        <div class="stat-label">Teachers</div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% else %}
-            <!-- Users app not found in app_list -->
-            <div class="stat-card">
-                <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
-                <div class="stat-label">Students</div>
-            </div>
-            <div class="stat-card gold">
-                <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
-                <div class="stat-label">Teachers</div>
-            </div>
-        {% endif %}
-    {% endfor %}
-    
+    <!-- Students (hardcoded URL) -->
+    <a href="/admin/users/userprofile/?role__exact=learner" class="stat-card-link">
+        <div class="stat-card">
+            <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
+            <div class="stat-label">Students</div>
+        </div>
+    </a>
+
+    <!-- Teachers (hardcoded URL) -->
+    <a href="/admin/users/userprofile/?role__exact=teacher" class="stat-card-link">
+        <div class="stat-card gold">
+            <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
+            <div class="stat-label">Teachers</div>
+        </div>
+    </a>
+
     <!-- Courses -->
     <a href="{% url 'admin:courses_lesson_changelist' %}" class="stat-card-link">
         <div class="stat-card blue">
@@ -113,7 +86,7 @@
             <div class="stat-label">Courses</div>
         </div>
     </a>
-    
+
     <!-- Exams -->
     <a href="{% url 'admin:courses_exam_changelist' %}" class="stat-card-link">
         <div class="stat-card purple">

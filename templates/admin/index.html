@@ -243,26 +243,27 @@
     📊 Dashboard
 </div>
 
-<!-- ===== STATISTICS CARDS (CLICKABLE) ===== -->
+<!-- ===== STATISTICS CARDS (Only Courses and Exams are clickable) ===== -->
 <div class="stats-grid">
-    <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=learner" class="stat-card-link">
-        <div class="stat-card">
-            <div>
-                <span class="stat-icon">👨‍🎓</span>
-                <span class="stat-number">{{ student_count|default:"0" }}</span>
-            </div>
-            <div class="stat-label">Students</div>
+    <!-- Students (display only, not clickable) -->
+    <div class="stat-card">
+        <div>
+            <span class="stat-icon">👨‍🎓</span>
+            <span class="stat-number">{{ student_count|default:"0" }}</span>
         </div>
-    </a>
-    <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=teacher" class="stat-card-link">
-        <div class="stat-card gold">
-            <div>
-                <span class="stat-icon">👨‍🏫</span>
-                <span class="stat-number">{{ teacher_count|default:"0" }}</span>
-            </div>
-            <div class="stat-label">Teachers</div>
+        <div class="stat-label">Students</div>
+    </div>
+
+    <!-- Teachers (display only, not clickable) -->
+    <div class="stat-card gold">
+        <div>
+            <span class="stat-icon">👨‍🏫</span>
+            <span class="stat-number">{{ teacher_count|default:"0" }}</span>
         </div>
-    </a>
+        <div class="stat-label">Teachers</div>
+    </div>
+
+    <!-- Courses (clickable) -->
     <a href="{% url 'admin:courses_lesson_changelist' %}" class="stat-card-link">
         <div class="stat-card blue">
             <div>
@@ -272,6 +273,8 @@
             <div class="stat-label">Courses</div>
         </div>
     </a>
+
+    <!-- Exams (clickable) -->
     <a href="{% url 'admin:courses_exam_changelist' %}" class="stat-card-link">
         <div class="stat-card purple">
             <div>

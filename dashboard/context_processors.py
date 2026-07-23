@@ -1,44 +1,39 @@
 from users.models import UserProfile
-from courses.models import Lesson, Exam, Certificate  # Import the models
+from courses.models import Lesson, Exam, Certificate
+from django.contrib.admin import site
+from django.urls import reverse
 
 def admin_stats(request):
-    """Admin dashboard statistics for user management and content counts."""
+    """Admin dashboard statistics and URLs."""
 
-    # Get the current queryset from the changelist if available
-    queryset = UserProfile.objects.all()
+    # Counts
+    total = UserProfile.objects.count()
+    learners = UserProfile.objects.filter(role='learner').count()
+    teachers = UserProfile.objects.filter(role='teacher').count()
+    verified = UserProfile.objects.filter(verification_status='verified').count()
+    approved = UserProfile.objects.filter(verification_status='approved').count()
+    pending = UserProfile.objects.filter(verification_status='pending').count()
+    premium = UserProfile.objects.filter(is_premium=True).count()
 
-    # Check if we're on the userprofile changelist with filters
-    if request.path == '/admin/users/userprofile/':
-        # Get filters from GET parameters
-        get_params = request.GET
+    course_count = Lesson.objects.count()
+    exam_count = Exam.objects.count()
+    certificate_count = Certificate.objects.count()
 
-        # Apply filters to the queryset if they exist
-        if 'role__exact' in get_params and get_params['role__exact']:
-            queryset = queryset.filter(role=get_params['role__exact'])
-        if 'verification_status__exact' in get_params and get_params['verification_status__exact']:
-            queryset = queryset.filter(verification_status=get_params['verification_status__exact'])
-        if 'level__exact' in get_params and get_params['level__exact']:
-            queryset = queryset.filter(level=get_params['level__exact'])
-        if 'is_premium__exact' in get_params:
-            val = get_params['is_premium__exact']
-            if val == 'True':
-                queryset = queryset.filter(is_premium=True)
-            elif val == 'False':
-                queryset = queryset.filter(is_premium=False)
-
-    # Counts based on the filtered queryset (for user stats)
-    total = queryset.count()
-    learners = queryset.filter(role='learner').count()
-    teachers = queryset.filter(role='teacher').count()
-    verified = queryset.filter(verification_status='verified').count()
-    approved = queryset.filter(verification_status='approved').count()
-    pending = queryset.filter(verification_status='pending').count()
-    premium = queryset.filter(is_premium=True).count()
-
-    # ===== ADD COUNTS FOR OTHER MODELS =====
-    course_count = Lesson.objects.count()         # Total lessons (linked to "Courses" card)
-    exam_count = Exam.objects.count()             # Total exams
-    certificate_count = Certificate.objects.count()  # Total certificates
+    # Get admin URLs for UserProfile
+    # The admin site may already have the model registered
+    try:
+        userprofile_model_admin = site._registry.get(UserProfile)
+        if userprofile_model_admin:
+            app_label = UserProfile._meta.app_label
+            model_name = UserProfile._meta.model_name
+            userprofile_changelist_url = reverse(f'admin:{app_label}_{model_name}_changelist')
+            userprofile_add_url = reverse(f'admin:{app_label}_{model_name}_add')
+        else:
+            userprofile_changelist_url = None
+            userprofile_add_url = None
+    except Exception:
+        userprofile_changelist_url = None
+        userprofile_add_url = None
 
     return {
         'student_count': learners,
@@ -48,8 +43,9 @@ def admin_stats(request):
         'pending_count': pending,
         'premium_count': premium,
         'total_count': total,
-        # New counts for the dashboard cards
         'course_count': course_count,
         'exam_count': exam_count,
         'certificate_count': certificate_count,
+        'userprofile_changelist_url': userprofile_changelist_url,
+        'userprofile_add_url': userprofile_add_url,
     }

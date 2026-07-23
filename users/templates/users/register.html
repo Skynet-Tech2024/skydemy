@@ -21,7 +21,6 @@
             width: 100%;
             max-width: 460px;
         }
-        /* ===== CARD ===== */
         .card {
             background: #FFFFFF;
             border-radius: 16px;
@@ -29,7 +28,6 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.06);
             border: 1px solid #E5E7EB;
         }
-        /* ===== LOGO ===== */
         .logo {
             text-align: center;
             margin-bottom: 28px;
@@ -48,7 +46,6 @@
             font-size: 14px;
             margin-top: 4px;
         }
-        /* ===== PROGRESS INDICATOR ===== */
         .progress {
             display: flex;
             align-items: center;
@@ -86,7 +83,6 @@
         .progress-line.active {
             background: #0B7A3B;
         }
-        /* ===== FORM ===== */
         .form-group {
             margin-bottom: 20px;
         }
@@ -125,7 +121,18 @@
             color: #64748B;
             margin-top: 4px;
         }
-        /* ===== PASSWORD TOGGLE ===== */
+        .form-group .error-text {
+            font-size: 13px;
+            color: #DC2626;
+            margin-top: 4px;
+            display: none; /* hidden by default */
+        }
+        .form-group.has-error .error-text {
+            display: block;
+        }
+        .form-group.has-error input {
+            border-color: #DC2626;
+        }
         .password-wrapper {
             position: relative;
         }
@@ -147,7 +154,6 @@
         .toggle-password:hover {
             color: #0B7A3B;
         }
-        /* ===== BUTTON ===== */
         .btn-primary {
             width: 100%;
             padding: 14px;
@@ -172,7 +178,6 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
-        /* ===== FOOTER ===== */
         .footer {
             text-align: center;
             margin-top: 20px;
@@ -187,7 +192,6 @@
         .footer a:hover {
             text-decoration: underline;
         }
-        /* ===== MESSAGES ===== */
         .messages {
             margin-bottom: 20px;
         }
@@ -212,7 +216,6 @@
             color: #1E40AF;
             border: 1px solid #BFDBFE;
         }
-        /* ===== REQUIRED FIELDS NOTE ===== */
         .required-note {
             text-align: right;
             font-size: 13px;
@@ -222,7 +225,6 @@
         .required-note span {
             color: #DC2626;
         }
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .card { padding: 28px 20px; }
             .logo h1 { font-size: 24px; }
@@ -234,13 +236,11 @@
 <body>
     <div class="register-container">
         <div class="card">
-            <!-- LOGO -->
             <div class="logo">
                 <h1>SKY<span>DEMY</span></h1>
                 <p>Create your account</p>
             </div>
 
-            <!-- PROGRESS INDICATOR -->
             <div class="progress">
                 <div class="progress-step active">
                     <span class="progress-dot active"></span>
@@ -253,7 +253,6 @@
                 </div>
             </div>
 
-            <!-- MESSAGES -->
             {% if messages %}
                 <div class="messages">
                     {% for message in messages %}
@@ -262,27 +261,27 @@
                 </div>
             {% endif %}
 
-            <!-- FORM -->
             <form method="post" novalidate>
                 {% csrf_token %}
-
-                <!-- Required fields note -->
                 <div class="required-note">
                     <span>*</span> Required fields
                 </div>
 
-                <!-- Full Names (username field) -->
-                <div class="form-group">
+                <!-- Full Names -->
+                <div class="form-group {% if form.username.errors %}has-error{% endif %}">
                     <label for="id_username">Full Names <span class="required">*</span></label>
                     <input type="text" name="username" id="id_username" 
                            placeholder="Enter your full names" 
                            value="{{ form.username.value|default:'' }}"
                            required>
                     <div class="help-text">{{ form.username.help_text }}</div>
+                    {% if form.username.errors %}
+                        <div class="error-text">{{ form.username.errors.0 }}</div>
+                    {% endif %}
                 </div>
 
                 <!-- Password -->
-                <div class="form-group">
+                <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
                     <label for="id_password1">Password <span class="required">*</span></label>
                     <div class="password-wrapper">
                         <input type="password" name="password1" id="id_password1" 
@@ -292,10 +291,13 @@
                         </button>
                     </div>
                     <div class="help-text">{{ form.password1.help_text }}</div>
+                    {% if form.password1.errors %}
+                        <div class="error-text">{{ form.password1.errors.0 }}</div>
+                    {% endif %}
                 </div>
 
                 <!-- Confirm Password -->
-                <div class="form-group">
+                <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
                     <label for="id_password2">Confirm Password <span class="required">*</span></label>
                     <div class="password-wrapper">
                         <input type="password" name="password2" id="id_password2" 
@@ -304,13 +306,14 @@
                             👁️
                         </button>
                     </div>
+                    {% if form.password2.errors %}
+                        <div class="error-text">{{ form.password2.errors.0 }}</div>
+                    {% endif %}
                 </div>
 
-                <!-- Submit -->
                 <button type="submit" class="btn-primary">Create Account →</button>
             </form>
 
-            <!-- FOOTER -->
             <div class="footer">
                 Already have an account? <a href="{% url 'login' %}">Sign In</a>
             </div>

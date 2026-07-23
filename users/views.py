@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .forms import RegisterForm  # Only RegisterForm, no ProfileCompletionForm
+from .forms import RegisterStep1Form  # Import the new form
 from .models import UserProfile
 
 # ===== STEP 1: Account Creation =====
@@ -11,42 +11,38 @@ def register(request):
     print("🔵 Registration view called (Step 1)")
     if request.method == 'POST':
         print("🟡 POST request received")
-        form = RegisterForm(request.POST)
+        form = RegisterStep1Form(request.POST)  # Use the new form
         if form.is_valid():
             try:
                 # Create user
                 username = form.cleaned_data['username']
-                password = form.cleaned_data['password']
-                phone_number = form.cleaned_data.get('phone_number', '')
-                role = form.cleaned_data['role']
+                password = form.cleaned_data['password1']
+                email = form.cleaned_data.get('email', '')
 
                 user = User.objects.create_user(
                     username=username,
                     password=password,
-                    email=phone_number  # Use phone as email for recovery
+                    email=email
                 )
 
-                # Create or get the profile to avoid duplicate constraint errors
+                # Create a default profile (will be completed in Step 2)
                 profile, created = UserProfile.objects.get_or_create(
                     user=user,
                     defaults={
-                        'role': role,
+                        'role': 'learner',  # Default role, will be updated in Step 2
                         'verification_status': 'pending'
                     }
                 )
-                # If the profile already existed, update its role and status
                 if not created:
-                    profile.role = role
                     profile.verification_status = 'pending'
                     profile.save()
 
                 # Store user ID in session for Step 2
                 request.session['temp_user_id'] = user.id
 
-                print(f"🟢 User and profile created/updated: {username}, ID: {user.id}")
+                print(f"🟢 User and profile created: {username}, ID: {user.id}")
 
-                messages.success(request, "Account created! Please complete your profile.")
-                # Use direct URL path instead of name lookup to avoid NoReverseMatch
+                messages.success(request, "✅ Account created! Please complete your profile.")
                 return redirect('/users/complete-profile/')
 
             except Exception as e:
@@ -61,11 +57,12 @@ def register(request):
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
     else:
-        form = RegisterForm()
+        form = RegisterStep1Form()
+    
     return render(request, 'users/register.html', {'form': form})
 
 
-# ===== STEP 2: Profile Completion (optional) =====
+# ===== STEP 2: Profile Completion (required) =====
 def complete_profile(request):
     print("🔵 Profile completion view called (Step 2)")
     user_id = request.session.get('temp_user_id')
@@ -77,34 +74,88 @@ def complete_profile(request):
     profile = user.profile  # Should exist from registration
 
     if request.method == 'POST':
-        # Collect optional profile fields manually
+        # Collect profile fields
         level = request.POST.get('level')
         whatsapp_number = request.POST.get('whatsapp_number')
-        avatar = request.FILES.get('avatar')
+        address = request.POST.get('address')
+        role = request.POST.get('role')
+        school_name = request.POST.get('school_name', '')
 
-        if level:
-            profile.level = level
-        if whatsapp_number:
-            profile.whatsapp_number = whatsapp_number
-        if avatar:
-            profile.avatar = avatar
+        # Validate required fields
+        if not level:
+            messages.error(request, "Education level is required.")
+            return render(request, 'users/complete_profile.html', {
+                'user': user,
+                'profile': profile,
+                'level_choices': UserProfile.LEVEL_CHOICES,
+                'role_choices': UserProfile.ROLE_CHOICES,
+            })
+        if not whatsapp_number:
+            messages.error(request, "WhatsApp number is required.")
+            return render(request, 'users/complete_profile.html', {
+                'user': user,
+                'profile': profile,
+                'level_choices': UserProfile.LEVEL_CHOICES,
+                'role_choices': UserProfile.ROLE_CHOICES,
+            })
+        if not address:
+            messages.error(request, "Address is required.")
+            return render(request, 'users/complete_profile.html', {
+                'user': user,
+                'profile': profile,
+                'level_choices': UserProfile.LEVEL_CHOICES,
+                'role_choices': UserProfile.ROLE_CHOICES,
+            })
+        if not role:
+            messages.error(request, "Role is required.")
+            return render(request, 'users/complete_profile.html', {
+                'user': user,
+                'profile': profile,
+                'level_choices': UserProfile.LEVEL_CHOICES,
+                'role_choices': UserProfile.ROLE_CHOICES,
+            })
+        
+        # If role is 'learner', school_name is required
+        if role == 'learner' and not school_name:
+            messages.error(request, "School name is required for learners.")
+            return render(request, 'users/complete_profile.html', {
+                'user': user,
+                'profile': profile,
+                'level_choices': UserProfile.LEVEL_CHOICES,
+                'role_choices': UserProfile.ROLE_CHOICES,
+            })
+
+        # Update profile
+        profile.level = level
+        profile.whatsapp_number = whatsapp_number
+        profile.address = address
+        profile.role = role
+        # Store school_name somewhere – we need to add it to the model later, or store in a custom field
+        # For now, we'll save it in a custom field or create a separate model
+        # If you have a school_name field in UserProfile, uncomment:
+        # profile.school_name = school_name
         profile.save()
 
         # Clear session data
         del request.session['temp_user_id']
 
+        # Log the user in
+        login(request, user)
+
         messages.success(
             request,
-            "✅ Your profile is complete! Your account is pending review. You can now log in."
+            "✅ Registration complete! Welcome to SKYDEMY."
         )
-        return redirect('login')
+        return redirect('dashboard')
 
     # GET request - show profile completion form
     level_choices = UserProfile.LEVEL_CHOICES
+    role_choices = UserProfile.ROLE_CHOICES
     return render(request, 'users/complete_profile.html', {
         'user': user,
         'profile': profile,
         'level_choices': level_choices,
+        'role_choices': role_choices,
     })
 
 
@@ -136,6 +187,6 @@ def custom_logout(request):
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'
     redirect_authenticated_user = True
-    
+
     def get_success_url(self):
         return 'dashboard'

@@ -1,109 +1,329 @@
-{% extends "dashboard/base.html" %}
-{% load static %}
-
-{% block title %}Create Account - SKYDEMY{% endblock %}
-
-{% block content %}
-<div style="max-width: 600px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-    <h1 style="font-size: 28px; font-weight: 800; color: #0B7A3B; margin-bottom: 8px;">Create Account</h1>
-    <p style="color: #64748B; margin-bottom: 24px; font-size: 15px;">Join SKYDEMY and start learning today!</p>
-
-    <form method="post" novalidate>
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-            <div style="background: #FEE2E2; color: #991B1B; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
-                {% for error in form.non_field_errors %}
-                    <p style="margin: 0;">{{ error }}</p>
-                {% endfor %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - SKYDEMY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F6F7F9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .register-container {
+            width: 100%;
+            max-width: 460px;
+        }
+        /* ===== CARD ===== */
+        .card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 40px 36px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            border: 1px solid #E5E7EB;
+        }
+        /* ===== LOGO ===== */
+        .logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0B7A3B;
+            letter-spacing: -0.5px;
+        }
+        .logo h1 span {
+            color: #D4AF37;
+        }
+        .logo p {
+            color: #64748B;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        /* ===== PROGRESS INDICATOR ===== */
+        .progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #94A3B8;
+        }
+        .progress-step.active {
+            color: #0B7A3B;
+        }
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #E5E7EB;
+            transition: 0.3s;
+        }
+        .progress-dot.active {
+            background: #0B7A3B;
+        }
+        .progress-line {
+            width: 40px;
+            height: 2px;
+            background: #E5E7EB;
+            border-radius: 2px;
+        }
+        .progress-line.active {
+            background: #0B7A3B;
+        }
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 6px;
+        }
+        .form-group label .required {
+            color: #DC2626;
+            margin-left: 2px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #FFFFFF;
+            color: #1F2937;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #0B7A3B;
+            box-shadow: 0 0 0 3px rgba(11, 122, 59, 0.12);
+        }
+        .form-group input::placeholder {
+            color: #94A3B8;
+        }
+        .form-group .help-text {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+        .form-group .error-text {
+            font-size: 13px;
+            color: #DC2626;
+            margin-top: 4px;
+        }
+        /* ===== PASSWORD TOGGLE ===== */
+        .password-wrapper {
+            position: relative;
+        }
+        .password-wrapper input {
+            padding-right: 48px;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94A3B8;
+            font-size: 16px;
+            padding: 4px;
+        }
+        .toggle-password:hover {
+            color: #0B7A3B;
+        }
+        /* ===== BUTTON ===== */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #0B7A3B;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 4px;
+        }
+        .btn-primary:hover {
+            background: #1E9E58;
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #64748B;
+        }
+        .footer a {
+            color: #0B7A3B;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        /* ===== MESSAGES ===== */
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .message.error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+        .message.success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+        .message.info {
+            background: #DBEAFE;
+            color: #1E40AF;
+            border: 1px solid #BFDBFE;
+        }
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .card { padding: 28px 20px; }
+            .logo h1 { font-size: 24px; }
+            .progress { gap: 8px; }
+            .progress-line { width: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="card">
+            <!-- LOGO -->
+            <div class="logo">
+                <h1>SKY<span>DEMY</span></h1>
+                <p>Create your account</p>
             </div>
-        {% endif %}
 
-        <!-- Username -->
-        <div style="margin-bottom: 16px;">
-            <label for="{{ form.username.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Username</label>
-            <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" 
-                   value="{{ form.username.value|default:'' }}" 
-                   class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: 0.2s;">
-            {% if form.username.errors %}
-                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.username.errors.0 }}</div>
-            {% endif %}
-            <div style="color: #6B7280; font-size: 13px; margin-top: 4px;">150 characters or fewer. Letters, digits, and @/./+/-/_ are valid.</div>
-        </div>
+            <!-- PROGRESS INDICATOR -->
+            <div class="progress">
+                <div class="progress-step active">
+                    <span class="progress-dot active"></span>
+                    Step 1 of 2
+                </div>
+                <span class="progress-line active"></span>
+                <div class="progress-step">
+                    <span class="progress-dot"></span>
+                    Step 2 of 2
+                </div>
+            </div>
 
-        <!-- Email (optional) -->
-        <div style="margin-bottom: 16px;">
-            <label for="{{ form.email.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Email (optional)</label>
-            <input type="email" name="{{ form.email.html_name }}" id="{{ form.email.id_for_label }}" 
-                   value="{{ form.email.value|default:'' }}" 
-                   placeholder="your@email.com"
-                   class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: 0.2s;">
-            {% if form.email.errors %}
-                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.email.errors.0 }}</div>
+            <!-- MESSAGES -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
             {% endif %}
-            <div style="color: #6B7280; font-size: 13px; margin-top: 4px;">Used for password recovery and notifications.</div>
-        </div>
 
-        <!-- Password 1 -->
-        <div style="margin-bottom: 16px;">
-            <label for="{{ form.password1.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Password</label>
-            <input type="password" name="{{ form.password1.html_name }}" id="{{ form.password1.id_for_label }}" 
-                   class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: 0.2s;">
-            {% if form.password1.errors %}
-                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.password1.errors.0 }}</div>
-            {% endif %}
-            <div style="color: #6B7280; font-size: 13px; margin-top: 4px;">
-                <span style="display: inline-block; margin-right: 8px;">✓ Not sent to hackers</span>
-                <span style="display: inline-block; margin-right: 8px;">✓ Not sent to social media</span>
-                <span style="display: inline-block;">✓ Not sent to a number</span>
+            <!-- FORM -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="id_username">Full Name <span class="required">*</span></label>
+                    <input type="text" name="username" id="id_username" 
+                           placeholder="Enter your full name" 
+                           value="{{ form.username.value|default:'' }}"
+                           required>
+                    <div class="help-text">{{ form.username.help_text }}</div>
+                    {% if form.username.errors %}
+                        <div class="error-text">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="id_password1">Password <span class="required">*</span></label>
+                    <div class="password-wrapper">
+                        <input type="password" name="password1" id="id_password1" 
+                               placeholder="Create a strong password" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('id_password1')">
+                            👁️
+                        </button>
+                    </div>
+                    <div class="help-text">{{ form.password1.help_text }}</div>
+                    {% if form.password1.errors %}
+                        <div class="error-text">{{ form.password1.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label for="id_password2">Confirm Password <span class="required">*</span></label>
+                    <div class="password-wrapper">
+                        <input type="password" name="password2" id="id_password2" 
+                               placeholder="Confirm your password" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('id_password2')">
+                            👁️
+                        </button>
+                    </div>
+                    {% if form.password2.errors %}
+                        <div class="error-text">{{ form.password2.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-primary">Create Account →</button>
+            </form>
+
+            <!-- FOOTER -->
+            <div class="footer">
+                Already have an account? <a href="{% url 'login' %}">Sign In</a>
             </div>
         </div>
+    </div>
 
-        <!-- Password 2 (confirm) -->
-        <div style="margin-bottom: 20px;">
-            <label for="{{ form.password2.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Confirm Password</label>
-            <input type="password" name="{{ form.password2.html_name }}" id="{{ form.password2.id_for_label }}" 
-                   class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: 0.2s;">
-            {% if form.password2.errors %}
-                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.password2.errors.0 }}</div>
-            {% endif %}
-        </div>
-
-        <!-- Role -->
-        <div style="margin-bottom: 20px;">
-            <label for="{{ form.role.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">I am a:</label>
-            <select name="{{ form.role.html_name }}" id="{{ form.role.id_for_label }}" 
-                    class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; background: #fff; appearance: auto;">
-                {% for value, label in form.role.field.choices %}
-                    <option value="{{ value }}" {% if form.role.value == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            {% if form.role.errors %}
-                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.role.errors.0 }}</div>
-            {% endif %}
-        </div>
-
-        <!-- Level (hidden in form but required) -->
-        <div style="margin-bottom: 20px;">
-            <label for="{{ form.level.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Education Level</label>
-            <select name="{{ form.level.html_name }}" id="{{ form.level.id_for_label }}" 
-                    class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; background: #fff; appearance: auto;">
-                {% for value, label in form.level.field.choices %}
-                    <option value="{{ value }}" {% if form.level.value == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            {% if form.level.errors %}
-                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.level.errors.0 }}</div>
-            {% endif %}
-        </div>
-
-        <button type="submit" style="width: 100%; background: #0B7A3B; color: #fff; border: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s;">
-            Create Account
-        </button>
-    </form>
-
-    <p style="margin-top: 20px; text-align: center; color: #64748B; font-size: 14px;">
-        Already have an account? <a href="{% url 'login' %}" style="color: #0B7A3B; font-weight: 600; text-decoration: none;">Sign in</a>
-    </p>
-</div>
-{% endblock %}
+    <script>
+        function togglePassword(fieldId) {
+            const input = document.getElementById(fieldId);
+            const isPassword = input.getAttribute('type') === 'password';
+            input.setAttribute('type', isPassword ? 'text' : 'password');
+            const btn = input.parentElement.querySelector('.toggle-password');
+            btn.textContent = isPassword ? '🙈' : '👁️';
+        }
+    </script>
+</body>
+</html>

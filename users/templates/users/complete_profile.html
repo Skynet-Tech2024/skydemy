@@ -1,60 +1,416 @@
-{% extends 'dashboard/base.html' %}
-{% block title %}Complete Profile - SKYDEMY{% endblock %}
-
-{% block content %}
-<div style="max-width: 480px; margin: 0 auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #f39c12;">
-    <h2 style="text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 5px;">Complete Your Profile</h2>
-    <p style="text-align: center; color: #666; font-size: 15px; margin-bottom: 25px;">
-        Hi <strong>{{ user.username }}</strong>! Tell us a bit more about yourself (optional).
-    </p>
-
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <!-- Level -->
-        <div style="margin-bottom: 18px;">
-            <label style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Your Level <span style="color: #888; font-weight:400;">(optional)</span>
-            </label>
-            <select name="level" style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px;">
-                <option value="">Select your education level</option>
-                {% for value, label in level_choices %}
-                    <option value="{{ value }}" {% if profile.level == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <!-- WhatsApp -->
-        <div style="margin-bottom: 18px;">
-            <label style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                WhatsApp Number <span style="color: #888; font-weight:400;">(optional)</span>
-            </label>
-            <input type="text" name="whatsapp_number" value="{{ profile.whatsapp_number|default:'' }}" placeholder="e.g., +237 6XX XXX XXX" style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px;">
-            <p style="font-size:12px; color:#888; margin-top:4px;">For announcements and updates</p>
-        </div>
-
-        <!-- Avatar -->
-        <div style="margin-bottom: 18px;">
-            <label style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Profile Photo <span style="color: #888; font-weight:400;">(optional)</span>
-            </label>
-            <div style="border: 2px dashed #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fafafa;">
-                <input type="file" name="avatar" accept="image/*">
-                <p style="font-size: 12px; color: #888; margin-top: 5px;">Upload a profile picture (optional)</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile - SKYDEMY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F6F7F9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .profile-container {
+            width: 100%;
+            max-width: 500px;
+        }
+        /* ===== CARD ===== */
+        .card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 40px 36px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            border: 1px solid #E5E7EB;
+        }
+        /* ===== LOGO ===== */
+        .logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0B7A3B;
+            letter-spacing: -0.5px;
+        }
+        .logo h1 span {
+            color: #D4AF37;
+        }
+        .logo p {
+            color: #64748B;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        /* ===== PROGRESS INDICATOR ===== */
+        .progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #94A3B8;
+        }
+        .progress-step.active {
+            color: #0B7A3B;
+        }
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #E5E7EB;
+            transition: 0.3s;
+        }
+        .progress-dot.active {
+            background: #0B7A3B;
+        }
+        .progress-line {
+            width: 40px;
+            height: 2px;
+            background: #E5E7EB;
+            border-radius: 2px;
+        }
+        .progress-line.active {
+            background: #0B7A3B;
+        }
+        /* ===== HEADING ===== */
+        .heading {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .heading h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .heading p {
+            color: #64748B;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 6px;
+        }
+        .form-group label .required {
+            color: #DC2626;
+            margin-left: 2px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #FFFFFF;
+            color: #1F2937;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0B7A3B;
+            box-shadow: 0 0 0 3px rgba(11, 122, 59, 0.12);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        .form-group .help-text {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+        .form-group .error-text {
+            font-size: 13px;
+            color: #DC2626;
+            margin-top: 4px;
+        }
+        /* ===== ROLE SELECTION ===== */
+        .role-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .role-option {
+            padding: 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: #F8FAFC;
+        }
+        .role-option:hover {
+            border-color: #0B7A3B;
+        }
+        .role-option.selected {
+            border-color: #0B7A3B;
+            background: #F0FDF4;
+        }
+        .role-option input[type="radio"] {
+            display: none;
+        }
+        .role-option .role-icon {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .role-option .role-label {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 14px;
+        }
+        /* ===== CONDITIONAL FIELD ===== */
+        .conditional-field {
+            display: none;
+        }
+        .conditional-field.visible {
+            display: block;
+        }
+        /* ===== BUTTONS ===== */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .btn-secondary {
+            flex: 1;
+            padding: 14px;
+            background: #F1F5F9;
+            color: #1F2937;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #E2E8F0;
+        }
+        .btn-primary {
+            flex: 2;
+            padding: 14px;
+            background: #0B7A3B;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-primary:hover {
+            background: #1E9E58;
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        /* ===== MESSAGES ===== */
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .message.error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+        .message.success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .card { padding: 28px 20px; }
+            .logo h1 { font-size: 24px; }
+            .progress { gap: 8px; }
+            .progress-line { width: 24px; }
+            .role-options { grid-template-columns: 1fr; }
+            .button-group { flex-direction: column; }
+            .btn-secondary { flex: none; }
+            .btn-primary { flex: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="card">
+            <!-- LOGO -->
+            <div class="logo">
+                <h1>SKY<span>DEMY</span></h1>
+                <p>Complete your profile</p>
             </div>
-        </div>
 
-        <div style="display: flex; gap: 12px; margin-top: 10px;">
-            <button type="submit" style="flex:1; padding: 14px; background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.2s;">
-                Complete Profile
-            </button>
-            <a href="{% url 'login' %}" style="flex:1; padding: 14px; background: #e9ecef; color: #1a1a2e; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; text-align: center; text-decoration: none; transition: 0.2s;">
-                Skip for now
-            </a>
-        </div>
-    </form>
+            <!-- PROGRESS INDICATOR -->
+            <div class="progress">
+                <div class="progress-step">
+                    <span class="progress-dot active"></span>
+                    Step 1 of 2
+                </div>
+                <span class="progress-line active"></span>
+                <div class="progress-step active">
+                    <span class="progress-dot active"></span>
+                    Step 2 of 2
+                </div>
+            </div>
 
-    <p style="text-align: center; margin-top: 20px; color: #888; font-size: 13px;">
-        You can always update your profile later from your dashboard.
-    </p>
-</div>
-{% endblock %}
+            <!-- HEADING -->
+            <div class="heading">
+                <h2>Complete Your Profile</h2>
+                <p>Help us personalize your learning experience.</p>
+            </div>
+
+            <!-- MESSAGES -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- FORM -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- Education Level -->
+                <div class="form-group">
+                    <label for="level">Education Level <span class="required">*</span></label>
+                    <select name="level" id="level" required>
+                        <option value="">Select your level</option>
+                        {% for value, label in level_choices %}
+                            <option value="{{ value }}" {% if profile.level == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if level_errors %}
+                        <div class="error-text">{{ level_errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- WhatsApp Number -->
+                <div class="form-group">
+                    <label for="whatsapp_number">WhatsApp Number <span class="required">*</span></label>
+                    <input type="tel" name="whatsapp_number" id="whatsapp_number" 
+                           placeholder="+237 6XX XXX XXX" 
+                           value="{{ profile.whatsapp_number|default:'' }}"
+                           required>
+                    <div class="help-text">For announcements and updates</div>
+                </div>
+
+                <!-- Address -->
+                <div class="form-group">
+                    <label for="address">Address <span class="required">*</span></label>
+                    <input type="text" name="address" id="address" 
+                           placeholder="Your physical address" 
+                           value="{{ profile.address|default:'' }}"
+                           required>
+                </div>
+
+                <!-- Role -->
+                <div class="form-group">
+                    <label>Role <span class="required">*</span></label>
+                    <div class="role-options" id="role-options">
+                        {% for value, label in role_choices %}
+                            <div class="role-option" data-role="{{ value }}" onclick="selectRole('{{ value }}')">
+                                <input type="radio" name="role" value="{{ value }}" 
+                                       {% if profile.role == value %}checked{% endif %}>
+                                <span class="role-icon">{% if value == 'learner' %}👨‍🎓{% else %}👨‍🏫{% endif %}</span>
+                                <span class="role-label">{{ label }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- School Name (conditional - only for learners) -->
+                <div class="form-group conditional-field" id="school-field">
+                    <label for="school_name">School Name <span class="required">*</span></label>
+                    <input type="text" name="school_name" id="school_name" 
+                           placeholder="e.g., Government Bilingual High School Yaoundé">
+                    <div class="help-text">Required for learners</div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <a href="{% url 'register' %}" class="btn-secondary">← Back</a>
+                    <button type="submit" class="btn-primary">Complete Registration ✓</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ===== ROLE SELECTION =====
+        function selectRole(role) {
+            // Update UI
+            document.querySelectorAll('.role-option').forEach(el => {
+                el.classList.toggle('selected', el.dataset.role === role);
+            });
+            
+            // Check the radio button
+            document.querySelector(`input[name="role"][value="${role}"]`).checked = true;
+            
+            // Show/hide school name field
+            const schoolField = document.getElementById('school-field');
+            if (role === 'learner') {
+                schoolField.classList.add('visible');
+                document.getElementById('school_name').required = true;
+            } else {
+                schoolField.classList.remove('visible');
+                document.getElementById('school_name').required = false;
+            }
+        }
+
+        // ===== INITIAL STATE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if a role is already selected
+            const selectedRadio = document.querySelector('input[name="role"]:checked');
+            if (selectedRadio) {
+                selectRole(selectedRadio.value);
+            } else {
+                // If no role selected, default to showing school field? We'll leave it hidden.
+                document.getElementById('school-field').classList.remove('visible');
+            }
+        });
+    </script>
+</body>
+</html>

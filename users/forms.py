@@ -3,27 +3,44 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile
 
-# ===== STEP 1 FORM (only username, password, confirm) =====
+# ===== STEP 1 FORM – Full Names (no restrictions), Password (no restrictions) =====
 class RegisterStep1Form(UserCreationForm):
-    """Simplified registration form – Step 1: Create Account."""
     username = forms.CharField(
         max_length=150,
-        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+        label="Full Names",
+        help_text="Enter your full name.",
+        validators=[],  # Remove all validators – any characters allowed
     )
     password1 = forms.CharField(
         label="Password",
         widget=forms.PasswordInput,
-        help_text="Your password must contain at least 8 characters."
+        help_text="Enter your password (any length, any characters).",
+        validators=[],  # No validators – even 1 character is allowed
     )
     password2 = forms.CharField(
         label="Confirm Password",
         widget=forms.PasswordInput,
-        help_text="Enter the same password as above, for verification."
+        help_text="Enter the same password as above.",
+        validators=[],
     )
 
     class Meta:
         model = User
         fields = ['username', 'password1', 'password2']
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        # Only strip leading/trailing spaces; keep everything else
+        return username.strip()
+
+    def clean_password2(self):
+        """Skip all Django password validators – accept anything."""
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords do not match.")
+        # DO NOT call validate_password – this bypasses all validators
+        return password2
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -34,7 +51,6 @@ class RegisterStep1Form(UserCreationForm):
 
 # ===== OLD FORM (kept for reference – NOT used in new flow) =====
 class RegisterForm(UserCreationForm):
-    """Original registration form – kept for backward compatibility."""
     email = forms.EmailField(
         required=False,
         help_text="Optional. Used for password recovery and notifications."

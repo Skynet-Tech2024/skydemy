@@ -57,54 +57,56 @@
 {% endblock %}
 
 {% block content %}
-<!-- ===== DEBUG BLOCK ===== -->
-<div style="background: #f8d7da; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
-    <strong>Debug Info:</strong><br>
-    userprofile_admin_url: {{ userprofile_admin_url|default:"NOT SET" }}<br>
-    student_count: {{ student_count|default:"NOT SET" }}<br>
-    teacher_count: {{ teacher_count|default:"NOT SET" }}
-</div>
-<!-- ===== END DEBUG ===== -->
-
-<!-- ===== 2nd DEBUG: Check if context processor is loaded ===== -->
-<div style="background: #d1ecf1; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #bee5eb; color: #0c5460;">
-    <strong>Context Check:</strong><br>
-    'userprofile_admin_url' in context: {% if userprofile_admin_url %}YES{% else %}NO{% endif %}<br>
-    'teacher_count' in context: {% if teacher_count %}YES{% else %}NO{% endif %}<br>
-    'student_count' in context: {% if student_count %}YES{% else %}NO{% endif %}
-</div>
-
 <div style="background: linear-gradient(135deg, #0B7A3B, #1E9E58); color: #fff; padding: 18px 24px; border-radius: 12px; margin-bottom: 30px; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 6px solid #D4AF37;">
     📊 Dashboard
 </div>
 
-<!-- ===== SIMPLIFIED STAT CARDS (Using context variables directly) ===== -->
+<!-- ===== STATISTICS CARDS ===== -->
 <div class="stats-grid">
-    {% if userprofile_admin_url %}
-        <a href="{{ userprofile_admin_url }}?role__exact=learner" class="stat-card-link">
+    {% for app in app_list %}
+        {% if app.name == "Users" %}
+            {% for model in app.models %}
+                {% if model.object_name == "UserProfile" %}
+                    {% with userprofile_url=model.admin_url %}
+                        <a href="{{ userprofile_url }}?role__exact=learner" class="stat-card-link">
+                            <div class="stat-card">
+                                <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
+                                <div class="stat-label">Students</div>
+                            </div>
+                        </a>
+                        <a href="{{ userprofile_url }}?role__exact=teacher" class="stat-card-link">
+                            <div class="stat-card gold">
+                                <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
+                                <div class="stat-label">Teachers</div>
+                            </div>
+                        </a>
+                    {% endwith %}
+                {% else %}
+                    <!-- UserProfile not found in this app -->
+                    <div class="stat-card">
+                        <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
+                        <div class="stat-label">Students</div>
+                    </div>
+                    <div class="stat-card gold">
+                        <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
+                        <div class="stat-label">Teachers</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <!-- Users app not found in app_list -->
             <div class="stat-card">
                 <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
                 <div class="stat-label">Students</div>
             </div>
-        </a>
-        <a href="{{ userprofile_admin_url }}?role__exact=teacher" class="stat-card-link">
             <div class="stat-card gold">
                 <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
                 <div class="stat-label">Teachers</div>
             </div>
-        </a>
-    {% else %}
-        <!-- Fallback: display only -->
-        <div class="stat-card">
-            <div><span class="stat-icon">👨‍🎓</span><span class="stat-number">{{ student_count|default:"0" }}</span></div>
-            <div class="stat-label">Students</div>
-        </div>
-        <div class="stat-card gold">
-            <div><span class="stat-icon">👨‍🏫</span><span class="stat-number">{{ teacher_count|default:"0" }}</span></div>
-            <div class="stat-label">Teachers</div>
-        </div>
-    {% endif %}
+        {% endif %}
+    {% endfor %}
     
+    <!-- Courses -->
     <a href="{% url 'admin:courses_lesson_changelist' %}" class="stat-card-link">
         <div class="stat-card blue">
             <div><span class="stat-icon">📚</span><span class="stat-number">{{ course_count|default:"0" }}</span></div>
@@ -112,6 +114,7 @@
         </div>
     </a>
     
+    <!-- Exams -->
     <a href="{% url 'admin:courses_exam_changelist' %}" class="stat-card-link">
         <div class="stat-card purple">
             <div><span class="stat-icon">📝</span><span class="stat-number">{{ exam_count|default:"0" }}</span></div>

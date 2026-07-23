@@ -1,7 +1,7 @@
 from users.models import UserProfile, Follow, Wishlist, Message
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Count
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -12,6 +12,7 @@ from django.template.loader import get_template
 from django.conf import settings
 from pathlib import Path
 from django.contrib.admin.views.decorators import staff_member_required
+from django.urls import reverse
 
 def home(request):
     # Always show the public landing page
@@ -362,3 +363,44 @@ def teacher_list(request):
     """Admin view to list all teachers (users with role=teacher)."""
     teachers = UserProfile.objects.filter(role='teacher').select_related('user')
     return render(request, 'dashboard/teacher_list.html', {'teachers': teachers})
+
+
+# ===== BATCH STUDENT ACTION VIEW =====
+@staff_member_required
+def batch_student_action(request):
+    """Process batch actions on students (approve, verify, suspend, activate, delete)."""
+    if request.method != 'POST':
+        return redirect('student_list')
+    
+    action = request.POST.get('action')
+    selected_ids = request.POST.getlist('selected_ids')
+    
+    if not selected_ids:
+        messages.warning(request, "No students selected.")
+        return redirect('student_list')
+    
+    profiles = UserProfile.objects.filter(id__in=selected_ids, role='learner')
+    
+    if action == 'approve':
+        profiles.update(verification_status='approved')
+        messages.success(request, f"Approved {profiles.count()} student(s).")
+    elif action == 'verify':
+        profiles.update(verification_status='verified')
+        messages.success(request, f"Verified {profiles.count()} student(s).")
+    elif action == 'suspend':
+        profiles.update(is_suspended=True)
+        messages.success(request, f"Suspended {profiles.count()} student(s).")
+    elif action == 'activate':
+        profiles.update(is_suspended=False)
+        messages.success(request, f"Activated {profiles.count()} student(s).")
+    elif action == 'delete':
+        # Delete the User accounts (and profiles via cascade)
+        user_ids = profiles.values_list('user_id', flat=True)
+        count = profiles.count()
+        profiles.delete()
+        User.objects.filter(id__in=user_ids).delete()
+        messages.success(request, f"Deleted {count} student(s).")
+    else:
+        messages.error(request, "Invalid action.")
+    
+    return redirect('student_list')

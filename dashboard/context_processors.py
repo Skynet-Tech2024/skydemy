@@ -13,9 +13,9 @@ def admin_stats(request):
     certificate_count = Certificate.objects.count()
 
     # Get UserProfile admin URL
-    userprofile_changelist_url = None
+    userprofile_admin_url = None
     try:
-        userprofile_changelist_url = reverse('admin:users_userprofile_changelist')
+        userprofile_admin_url = reverse('admin:users_userprofile_changelist')
     except NoReverseMatch:
         pass
 
@@ -25,5 +25,5 @@ def admin_stats(request):
         'course_count': course_count,
         'exam_count': exam_count,
         'certificate_count': certificate_count,
-        'userprofile_changelist_url': userprofile_changelist_url,
+        'userprofile_admin_url': userprofile_admin_url,
     }

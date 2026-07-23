@@ -81,14 +81,26 @@ cloudinary.config(
     api_secret='A-DGV9yMeUi8j2_saH6_bKVEhQM'
 )
 
-# Use Cloudinary as default storage for media files
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'dgtt5qsq',
     'API_KEY': '981561537385896',
     'API_SECRET': 'A-DGV9yMeUi8j2_saH6_bKVEhQM',
-    'SECURE': True,          # Force HTTPS for all Cloudinary URLs
+    'SECURE': True,
+    'RESOURCE_TYPE': 'raw',         
 }
+
+# ===== STORAGES CONFIGURATION =====
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+# Retained for backward compatibility with older Django versions
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 AUTH_PASSWORD_VALIDATORS = [
     {

@@ -84,7 +84,7 @@
                 <button id="prev-page">◀</button>
                 <span id="page-num">1</span> / <span id="page-count">1</span>
                 <button id="next-page">▶</button>
-                <a href="{{ lesson.pdf_file.url }}" target="_blank" class="btn btn-secondary" style="margin-left:auto;">📄 Open PDF</a>
+                <a href="{{ lesson.pdf_file.url|replace:"image/upload,raw/upload" }}" target="_blank" class="btn btn-secondary" style="margin-left:auto;">📄 Open PDF</a>
             </div>
             {% if user.is_authenticated and user.profile.is_premium %}
                 <p><a href="{{ lesson.pdf_file.url }}" download class="btn btn-success">⬇️ Download PDF</a></p>

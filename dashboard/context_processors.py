@@ -1,7 +1,6 @@
 from users.models import UserProfile
 from courses.models import Lesson, Exam, Certificate
-from django.urls import reverse
-from django.core.exceptions import NoReverseMatch
+from django.urls import reverse, NoReverseMatch
 
 def admin_stats(request):
     """Admin dashboard statistics and URLs."""
@@ -17,11 +16,10 @@ def admin_stats(request):
     userprofile_changelist_url = None
     userprofile_add_url = None
     try:
-        # Construct URL using standard naming convention
         userprofile_changelist_url = reverse('admin:users_userprofile_changelist')
         userprofile_add_url = reverse('admin:users_userprofile_add')
     except NoReverseMatch:
-        # If registration is missing, these will remain None
+        # URLs not available – UserProfile may not be registered
         pass
 
     return {

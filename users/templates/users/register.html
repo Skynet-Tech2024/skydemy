@@ -1,286 +1,109 @@
-{% extends 'dashboard/base.html' %}
+{% extends "dashboard/base.html" %}
+{% load static %}
 
-{% block title %}Register - SKYDEMY{% endblock %}
+{% block title %}Create Account - SKYDEMY{% endblock %}
 
 {% block content %}
-<div style="max-width: 480px; margin: 0 auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #f39c12;">
-    <h2 style="text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 5px;">Create Account</h2>
-    <p style="text-align: center; color: #666; font-size: 15px; margin-bottom: 25px;">Join SKYDEMY and start learning today!</p>
-    
-    <!-- Display Django messages -->
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding: 12px 16px; border-radius: 6px; margin-bottom: 15px; 
-                        {% if message.tags == 'error' %}background: #fde8e8; color: #c0392b; border-left: 4px solid #e74c3c;
-                        {% else %}background: #d4edda; color: #155724; border-left: 4px solid #28a745;{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-    
-    <!-- Display non-field errors from the form -->
-    {% if form.non_field_errors %}
-        <div style="padding: 12px 16px; border-radius: 6px; margin-bottom: 15px; background: #fde8e8; color: #c0392b; border-left: 4px solid #e74c3c;">
-            {% for error in form.non_field_errors %}
-                <strong>⚠️ {{ error }}</strong>
-            {% endfor %}
-        </div>
-    {% endif %}
-    
-    <form method="post" enctype="multipart/form-data" id="register-form">
+<div style="max-width: 600px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    <h1 style="font-size: 28px; font-weight: 800; color: #0B7A3B; margin-bottom: 8px;">Create Account</h1>
+    <p style="color: #64748B; margin-bottom: 24px; font-size: 15px;">Join SKYDEMY and start learning today!</p>
+
+    <form method="post" novalidate>
         {% csrf_token %}
-        
-        <!-- Username -->
-        <div style="margin-bottom: 18px;">
-            <label for="id_username" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Username <span style="color: #e74c3c;">*</span>
-            </label>
-            <input type="text" name="username" id="id_username" class="form-control" placeholder="Choose a username" style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" required>
-            {% if form.username.errors %}
-                <div style="background: #fde8e8; padding: 8px 12px; border-radius: 4px; margin-top: 6px; border-left: 3px solid #e74c3c;">
-                    {% for error in form.username.errors %}
-                        <p style="color: #c0392b; font-size: 13px; margin: 2px 0;">❌ {{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <p style="font-size: 12px; color: #888; margin-top: 4px;">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</p>
-        </div>
 
-        <!-- Phone Number (optional) - Restrict input -->
-        <div style="margin-bottom: 18px;">
-            <label for="id_phone_number" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Phone Number <span style="color: #888; font-weight:400;">(optional, for recovery)</span>
-            </label>
-            <input type="tel" name="phone_number" id="id_phone_number" class="form-control" placeholder="e.g., +237 6XX XXX XXX" pattern="[\d\s\+\-]*" title="Only digits, spaces, +, and - allowed." style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;">
-            {% if form.phone_number.errors %}
-                <div style="background: #fde8e8; padding: 8px 12px; border-radius: 4px; margin-top: 6px; border-left: 3px solid #e74c3c;">
-                    {% for error in form.phone_number.errors %}
-                        <p style="color: #c0392b; font-size: 13px; margin: 2px 0;">❌ {{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <p style="font-size: 12px; color: #888; margin-top: 4px;">Used for password recovery.</p>
-        </div>
-
-        <!-- Password -->
-        <div style="margin-bottom: 18px;">
-            <label for="id_password" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Password <span style="color: #e74c3c;">*</span>
-            </label>
-            <input type="password" name="password" id="id_password" class="form-control" placeholder="Enter your password" style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" required>
-            <div id="password-requirements" style="margin-top: 10px; font-size: 13px; background: #f8f9fa; padding: 12px 16px; border-radius: 8px;">
-                <div id="req-length" style="color: #888; padding: 3px 0; transition: all 0.3s;">❌ At least 8 characters</div>
-                <div id="req-uppercase" style="color: #888; padding: 3px 0; transition: all 0.3s;">❌ Must contain a capital letter</div>
-                <div id="req-number" style="color: #888; padding: 3px 0; transition: all 0.3s;">❌ Must contain a number</div>
+        {% if form.non_field_errors %}
+            <div style="background: #FEE2E2; color: #991B1B; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+                {% for error in form.non_field_errors %}
+                    <p style="margin: 0;">{{ error }}</p>
+                {% endfor %}
             </div>
-            {% if form.password.errors %}
-                <div style="background: #fde8e8; padding: 8px 12px; border-radius: 4px; margin-top: 6px; border-left: 3px solid #e74c3c;">
-                    {% for error in form.password.errors %}
-                        <p style="color: #c0392b; font-size: 13px; margin: 2px 0;">❌ {{ error }}</p>
-                    {% endfor %}
-                </div>
+        {% endif %}
+
+        <!-- Username -->
+        <div style="margin-bottom: 16px;">
+            <label for="{{ form.username.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Username</label>
+            <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" 
+                   value="{{ form.username.value|default:'' }}" 
+                   class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: 0.2s;">
+            {% if form.username.errors %}
+                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.username.errors.0 }}</div>
             {% endif %}
+            <div style="color: #6B7280; font-size: 13px; margin-top: 4px;">150 characters or fewer. Letters, digits, and @/./+/-/_ are valid.</div>
         </div>
 
-        <!-- Password confirmation -->
-        <div style="margin-bottom: 18px;">
-            <label for="id_password_confirm" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                Confirm Password <span style="color: #e74c3c;">*</span>
-            </label>
-            <input type="password" name="password_confirm" id="id_password_confirm" class="form-control" placeholder="Confirm your password" style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s;" required>
-            <div id="password-match-feedback" style="margin-top: 8px; font-size: 13px; color: #888; padding: 4px 12px; border-radius: 6px; background: #f8f9fa;">⬜ Confirm your password</div>
-            {% if form.password_confirm.errors %}
-                <div style="background: #fde8e8; padding: 8px 12px; border-radius: 4px; margin-top: 6px; border-left: 3px solid #e74c3c;">
-                    {% for error in form.password_confirm.errors %}
-                        <p style="color: #c0392b; font-size: 13px; margin: 2px 0;">❌ {{ error }}</p>
-                    {% endfor %}
-                </div>
+        <!-- Email (optional) -->
+        <div style="margin-bottom: 16px;">
+            <label for="{{ form.email.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Email (optional)</label>
+            <input type="email" name="{{ form.email.html_name }}" id="{{ form.email.id_for_label }}" 
+                   value="{{ form.email.value|default:'' }}" 
+                   placeholder="your@email.com"
+                   class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: 0.2s;">
+            {% if form.email.errors %}
+                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.email.errors.0 }}</div>
+            {% endif %}
+            <div style="color: #6B7280; font-size: 13px; margin-top: 4px;">Used for password recovery and notifications.</div>
+        </div>
+
+        <!-- Password 1 -->
+        <div style="margin-bottom: 16px;">
+            <label for="{{ form.password1.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Password</label>
+            <input type="password" name="{{ form.password1.html_name }}" id="{{ form.password1.id_for_label }}" 
+                   class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: 0.2s;">
+            {% if form.password1.errors %}
+                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.password1.errors.0 }}</div>
+            {% endif %}
+            <div style="color: #6B7280; font-size: 13px; margin-top: 4px;">
+                <span style="display: inline-block; margin-right: 8px;">✓ Not sent to hackers</span>
+                <span style="display: inline-block; margin-right: 8px;">✓ Not sent to social media</span>
+                <span style="display: inline-block;">✓ Not sent to a number</span>
+            </div>
+        </div>
+
+        <!-- Password 2 (confirm) -->
+        <div style="margin-bottom: 20px;">
+            <label for="{{ form.password2.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Confirm Password</label>
+            <input type="password" name="{{ form.password2.html_name }}" id="{{ form.password2.id_for_label }}" 
+                   class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: 0.2s;">
+            {% if form.password2.errors %}
+                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.password2.errors.0 }}</div>
             {% endif %}
         </div>
 
         <!-- Role -->
-        <div style="margin-bottom: 18px;">
-            <label for="id_role" style="display: block; font-weight: 600; color: #1a1a2e; font-size: 14px; margin-bottom: 5px;">
-                I am a <span style="color: #e74c3c;">*</span>
-            </label>
-            <select name="role" id="id_role" class="form-control" style="width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; box-sizing:border-box; background:#fafafa; transition: all 0.3s; appearance:auto;" required>
-                <option value="">Select your role</option>
-                {% for value, label in form.fields.role.choices %}
+        <div style="margin-bottom: 20px;">
+            <label for="{{ form.role.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">I am a:</label>
+            <select name="{{ form.role.html_name }}" id="{{ form.role.id_for_label }}" 
+                    class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; background: #fff; appearance: auto;">
+                {% for value, label in form.role.field.choices %}
                     <option value="{{ value }}" {% if form.role.value == value %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
             {% if form.role.errors %}
-                <div style="background: #fde8e8; padding: 8px 12px; border-radius: 4px; margin-top: 6px; border-left: 3px solid #e74c3c;">
-                    {% for error in form.role.errors %}
-                        <p style="color: #c0392b; font-size: 13px; margin: 2px 0;">❌ {{ error }}</p>
-                    {% endfor %}
-                </div>
+                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.role.errors.0 }}</div>
             {% endif %}
         </div>
 
-        <!-- Submit button -->
-        <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);">
-            🚀 Create Account
+        <!-- Level (hidden in form but required) -->
+        <div style="margin-bottom: 20px;">
+            <label for="{{ form.level.id_for_label }}" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Education Level</label>
+            <select name="{{ form.level.html_name }}" id="{{ form.level.id_for_label }}" 
+                    class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; background: #fff; appearance: auto;">
+                {% for value, label in form.level.field.choices %}
+                    <option value="{{ value }}" {% if form.level.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% if form.level.errors %}
+                <div style="color: #DC2626; font-size: 13px; margin-top: 4px;">{{ form.level.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" style="width: 100%; background: #0B7A3B; color: #fff; border: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s;">
+            Create Account
         </button>
     </form>
-    
-    <p style="text-align: center; margin-top: 20px; color: #666; font-size: 15px;">
-        Already have an account? <a href="{% url 'login' %}" style="color: #f39c12; text-decoration: none; font-weight: 600;">Sign in</a>
+
+    <p style="margin-top: 20px; text-align: center; color: #64748B; font-size: 14px;">
+        Already have an account? <a href="{% url 'login' %}" style="color: #0B7A3B; font-weight: 600; text-decoration: none;">Sign in</a>
     </p>
 </div>
-
-<style>
-    .form-control {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1.5px solid #ddd;
-        border-radius: 8px;
-        font-size: 15px;
-        transition: all 0.3s;
-        box-sizing: border-box;
-        background: #fafafa;
-    }
-    .form-control:focus {
-        outline: none;
-        border-color: #f39c12;
-        box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.12);
-        background: #fff;
-    }
-    .form-control:hover {
-        border-color: #bbb;
-        background: #fff;
-    }
-    .form-control::placeholder {
-        color: #aaa;
-        font-weight: 300;
-    }
-    
-    input[type="file"] {
-        padding: 8px;
-        background: #f9f9f9;
-        border: none;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-    
-    .helptext {
-        font-size: 12px;
-        color: #888;
-        margin-top: 4px;
-        display: block;
-    }
-    ul {
-        list-style: none;
-        padding: 0;
-        margin: 4px 0 0;
-    }
-    ul li {
-        font-size: 12px;
-        color: #666;
-        padding: 2px 0;
-    }
-    .errorlist {
-        background: #fde8e8;
-        padding: 8px 12px;
-        border-radius: 4px;
-        border-left: 3px solid #e74c3c;
-    }
-    .errorlist li {
-        color: #c0392b !important;
-        font-weight: 500;
-    }
-    .req-met {
-        color: #27ae60 !important;
-        font-weight: 500;
-    }
-    .req-not-met {
-        color: #e74c3c !important;
-        font-weight: 500;
-    }
-    select {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1.5px solid #ddd;
-        border-radius: 8px;
-        font-size: 15px;
-        box-sizing: border-box;
-        background: #fafafa;
-        transition: all 0.3s;
-    }
-    select:focus {
-        outline: none;
-        border-color: #f39c12;
-        box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.12);
-        background: #fff;
-    }
-</style>
-
-<script>
-    (function() {
-        const passwordField = document.getElementById('id_password');
-        const confirmField = document.getElementById('id_password_confirm');
-        const reqLength = document.getElementById('req-length');
-        const reqUppercase = document.getElementById('req-uppercase');
-        const reqNumber = document.getElementById('req-number');
-        const matchFeedback = document.getElementById('password-match-feedback');
-
-        if (!passwordField) return;
-
-        function checkRequirements() {
-            const pwd = passwordField.value;
-
-            const lengthOk = pwd.length >= 8;
-            updateRequirement(reqLength, lengthOk);
-
-            const uppercaseOk = /[A-Z]/.test(pwd);
-            updateRequirement(reqUppercase, uppercaseOk);
-
-            const numberOk = /\d/.test(pwd);
-            updateRequirement(reqNumber, numberOk);
-
-            if (confirmField) {
-                const match = pwd === confirmField.value && pwd.length > 0;
-                if (match) {
-                    matchFeedback.textContent = '✅ Passwords match';
-                    matchFeedback.style.color = '#27ae60';
-                    matchFeedback.style.background = '#e8f5e9';
-                } else if (confirmField.value.length > 0) {
-                    matchFeedback.textContent = '❌ Passwords do not match';
-                    matchFeedback.style.color = '#e74c3c';
-                    matchFeedback.style.background = '#fde8e8';
-                } else {
-                    matchFeedback.textContent = '⬜ Confirm your password';
-                    matchFeedback.style.color = '#888';
-                    matchFeedback.style.background = '#f8f9fa';
-                }
-            }
-        }
-
-        function updateRequirement(element, isMet) {
-            const text = element.textContent.replace(/[✅❌⬜]\s*/, '');
-            if (isMet) {
-                element.className = 'req-met';
-                element.textContent = '✅ ' + text;
-            } else {
-                element.className = 'req-not-met';
-                element.textContent = '❌ ' + text;
-            }
-        }
-
-        checkRequirements();
-
-        passwordField.addEventListener('input', checkRequirements);
-        if (confirmField) {
-            confirmField.addEventListener('input', checkRequirements);
-        }
-    })();
-
-    // ===== FIX: Hide preloader when page loads =====
-    document.addEventListener('DOMContentLoaded', function() {
-        var preloader = document.getElementById('preloader');
-        if (preloader) {
-            preloader.classList.add('hidden');
-        }
-    });
-</script>
 {% endblock %}

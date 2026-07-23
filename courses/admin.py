@@ -22,6 +22,9 @@ class LessonAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at', 'views')
     actions = ['approve_lessons', 'reject_lessons']
     
+    # Custom delete confirmation template with SweetAlert2
+    delete_confirmation_template = 'admin/courses/lesson/delete_confirmation.html'
+    
     def approve_lessons(self, request, queryset):
         updated = 0
         for lesson in queryset:

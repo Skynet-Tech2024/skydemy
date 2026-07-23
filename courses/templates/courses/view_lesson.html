@@ -84,10 +84,12 @@
                 <button id="prev-page">◀</button>
                 <span id="page-num">1</span> / <span id="page-count">1</span>
                 <button id="next-page">▶</button>
-                <a href="{{ lesson.pdf_url }}" target="_blank" class="btn btn-secondary" style="margin-left:auto;">📄 Open PDF</a>
+                <a href="{{ lesson.pdf_file.url }}" target="_blank" class="btn btn-secondary" style="margin-left:auto;" 
+                   onclick="this.href = this.href.replace('image/upload', 'raw/upload');">📄 Open PDF</a>
             </div>
             {% if user.is_authenticated and user.profile.is_premium %}
-                <p><a href="{{ lesson.pdf_url }}" download class="btn btn-success">⬇️ Download PDF</a></p>
+                <p><a href="{{ lesson.pdf_file.url }}" download class="btn btn-success" 
+                      onclick="this.href = this.href.replace('image/upload', 'raw/upload');">⬇️ Download PDF</a></p>
             {% else %}
                 <div class="premium-badge">
                     <strong>⭐ Premium Feature:</strong> Download this PDF by subscribing to our premium plan.
@@ -135,10 +137,13 @@
 <script>
     // ===== PDF.js Viewer =====
     (function() {
-        const pdfUrl = "{{ lesson.pdf_url|default:'' }}";
+        // Use the original URL, then fix it in JavaScript
+        let pdfUrl = "{{ lesson.pdf_file.url|default:'' }}";
         if (!pdfUrl) {
             return;
         }
+        // Replace 'image/upload' with 'raw/upload'
+        pdfUrl = pdfUrl.replace('image/upload', 'raw/upload');
 
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');

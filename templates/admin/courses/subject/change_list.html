@@ -5,10 +5,6 @@
 {% block extrastyle %}
     {{ block.super }}
     <style>
-        /* ============================================
-           SUBJECTS PAGE - STUDENTS PAGE DESIGN COPY
-           ============================================ */
-
         /* ----- Stat Cards ----- */
         .subject-stats {
             display: flex;
@@ -37,12 +33,7 @@
             font-weight: 500;
             margin-top: 0.25rem;
         }
-        .subject-stats .stat-card .sub-label {
-            color: #9CA3AF;
-            font-size: 0.75rem;
-        }
 
-        /* ----- Header ----- */
         .subject-header {
             display: flex;
             justify-content: space-between;
@@ -79,7 +70,6 @@
             color: #ffffff;
         }
 
-        /* ----- Search Bar ----- */
         .subject-search {
             margin-bottom: 1.5rem;
         }
@@ -100,7 +90,6 @@
             color: #9CA3AF;
         }
 
-        /* ----- Table ----- */
         .subject-table {
             background: #ffffff;
             border-radius: 0.75rem;
@@ -128,7 +117,6 @@
         .subject-table tbody tr:hover {
             background-color: #f8fafc;
         }
-        /* Selected row contrast fix */
         .subject-table tbody tr.selected {
             background-color: #e5f0fa !important;
         }
@@ -136,7 +124,6 @@
             color: #1e293b !important;
         }
 
-        /* ----- Status Badges ----- */
         .badge-status {
             padding: 0.2rem 0.75rem;
             border-radius: 9999px;
@@ -155,45 +142,6 @@
             background-color: #dc2626;
         }
 
-        /* ----- Action Buttons (inline) ----- */
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .action-buttons .btn-sm {
-            padding: 0.2rem 0.6rem;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-        .action-buttons .btn-approve {
-            background-color: #16a34a;
-            color: #ffffff;
-        }
-        .action-buttons .btn-reject {
-            background-color: #dc2626;
-            color: #ffffff;
-        }
-        .action-buttons .btn-delete {
-            background-color: #ef4444;
-            color: #ffffff;
-        }
-        .action-buttons .btn-edit {
-            background-color: #3b82f6;
-            color: #ffffff;
-        }
-        .action-buttons .btn-sm:hover {
-            opacity: 0.85;
-        }
-
-        /* ----- Footer Info ----- */
         .subject-footer {
             margin-top: 1.25rem;
             padding-top: 0.75rem;
@@ -215,7 +163,6 @@
 {% block content %}
 <div class="module filtered" id="changelist">
     
-    <!-- ===== STAT CARDS ===== -->
     <div class="subject-stats">
         <div class="stat-card">
             <div class="number">{{ cl.result_count }}</div>
@@ -235,7 +182,6 @@
         </div>
     </div>
 
-    <!-- ===== HEADER ===== -->
     <div class="subject-header">
         <h1>📚 Subjects</h1>
         <div class="header-actions">
@@ -245,12 +191,10 @@
         </div>
     </div>
 
-    <!-- ===== SEARCH ===== -->
     <div class="subject-search">
         {% block search %}{{ block.super }}{% endblock %}
     </div>
 
-    <!-- ===== TABLE ===== -->
     <div class="subject-table">
         {% block result_list %}
             {% if action_form and actions_on_top and cl.show_admin_actions %}
@@ -263,7 +207,6 @@
         {% endblock %}
     </div>
 
-    <!-- ===== FOOTER ===== -->
     <div class="subject-footer">
         <span>
             Showing <span class="count">{{ cl.result_count }}</span> subject{{ cl.result_count|pluralize }}
@@ -275,7 +218,6 @@
         </span>
     </div>
 
-    <!-- ===== PAGINATION ===== -->
     {% block pagination %}{{ block.super }}{% endblock %}
 
 </div>

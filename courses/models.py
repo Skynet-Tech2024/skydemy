@@ -17,12 +17,17 @@ class Subject(models.Model):
     )
     
     name = models.CharField(max_length=100)
+    code = models.CharField(  # <-- NEW FIELD
+        max_length=20,
+        blank=True,
+        help_text="Subject code (e.g., MATH101, PHY201)"
+    )
     level = models.CharField(max_length=10, choices=LEVEL_CHOICES)
     description = models.TextField(blank=True)
     
     # Approval workflow
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    admin_notes = models.TextField(blank=True, default='', help_text="Notes from admin")  # <-- default added
+    admin_notes = models.TextField(blank=True, default='', help_text="Notes from admin")
     reviewed_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='reviewed_subjects'
@@ -41,6 +46,9 @@ class Subject(models.Model):
     def save(self, *args, **kwargs):
         if self.name:
             self.name = self.name.upper()
+        # Optionally uppercase code (optional, but consistent)
+        if self.code:
+            self.code = self.code.upper()
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -102,7 +110,7 @@ class Lesson(models.Model):
     views = models.IntegerField(default=0)
     
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    admin_notes = models.TextField(blank=True, default='', help_text="Admin notes for review")  # <-- default added
+    admin_notes = models.TextField(blank=True, default='', help_text="Admin notes for review")
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_lessons')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     
@@ -165,7 +173,7 @@ class Exam(models.Model):
     marking_guide = models.TextField(blank=True, help_text="Teaching guide with suggested answers and explanations")
     
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    admin_notes = models.TextField(blank=True, default='', help_text="Admin notes for review")  # <-- default added
+    admin_notes = models.TextField(blank=True, default='', help_text="Admin notes for review")
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_exams')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     

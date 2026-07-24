@@ -8,15 +8,44 @@ from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certifi
 from users.utils import create_notification
 from core.admin import admin_site
 
-# ===== Subject Admin =====
+# ===== Subject Admin (Enhanced with actions and custom theme) =====
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'level')
-    list_filter = ('level',)
+    list_display = ('name', 'code', 'level', 'status', 'proposed_by', 'created_at')
+    list_filter = ('level', 'status')
+    search_fields = ('name', 'code')
+    actions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects']
+
+    def changelist_view(self, request, extra_context=None):
+        # Add counts for the template
+        extra_context = extra_context or {}
+        extra_context['pending_count'] = Subject.objects.filter(status='pending').count()
+        extra_context['approved_count'] = Subject.objects.filter(status='approved').count()
+        extra_context['rejected_count'] = Subject.objects.filter(status='rejected').count()
+        return super().changelist_view(request, extra_context=extra_context)
+
+    # ---- Batch Actions ----
+    def approve_subjects(self, request, queryset):
+        count = queryset.update(status='approved')
+        self.message_user(request, f"{count} subject(s) approved.", messages.SUCCESS)
+    approve_subjects.short_description = "Approve selected subjects"
+
+    def reject_subjects(self, request, queryset):
+        count = queryset.update(status='rejected')
+        self.message_user(request, f"{count} subject(s) rejected.", messages.SUCCESS)
+    reject_subjects.short_description = "Reject selected subjects"
+
+    def delete_selected_subjects(self, request, queryset):
+        count = queryset.count()
+        queryset.delete()
+        self.message_user(request, f"{count} subject(s) deleted.", messages.SUCCESS)
+    delete_selected_subjects.short_description = "Delete selected subjects"
+
 
 # ===== Course Admin =====
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('code', 'name')
     search_fields = ('code', 'name')
+
 
 # ===== Lesson Admin =====
 class LessonAdmin(admin.ModelAdmin):
@@ -126,10 +155,12 @@ class LessonAdmin(admin.ModelAdmin):
         # Default behavior for other actions
         return super().changelist_view(request, extra_context)
 
+
 # ===== Progress Admin =====
 class ProgressAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'progress_percentage', 'completed', 'last_accessed')
     list_filter = ('completed',)
+
 
 # ===== Exam Admin =====
 class ExamAdmin(admin.ModelAdmin):
@@ -208,15 +239,18 @@ class ExamAdmin(admin.ModelAdmin):
         
         return super().changelist_view(request, extra_context)
 
+
 # ===== ExamResult Admin =====
 class ExamResultAdmin(admin.ModelAdmin):
     list_display = ('user', 'exam', 'percentage', 'passed', 'date_taken')
     list_filter = ('passed',)
 
+
 # ===== Certificate Admin =====
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'certificate_number', 'issued_date')
     search_fields = ('certificate_number',)
+
 
 # ===== Register all models with the custom admin site =====
 admin_site.register(Subject, SubjectAdmin)

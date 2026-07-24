@@ -69,29 +69,56 @@ class RegisterStep1Form(UserCreationForm):
 
 
 # ===== OLD FORM (kept for reference – NOT used in new flow) =====
-class RegisterForm(UserCreationForm):
-    email = forms.EmailField(
-        required=False,
-        help_text="Optional. Used for password recovery and notifications."
+class RegisterStep1Form(UserCreationForm):
+    full_name = forms.CharField(
+        max_length=200,
+        label="Full Names",
+        help_text="Enter your full name (e.g., CHE KENNETH).",
     )
-    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True)
-    level = forms.ChoiceField(choices=UserProfile.LEVEL_CHOICES, required=True)
-    
+    username = forms.CharField(
+        max_length=150,
+        label="Choose Username",
+        help_text="This will be your login name. Must be unique.",
+    )
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput,
+        help_text="Enter your password (any length, any characters).",
+        validators=[],
+    )
+    password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput,
+        help_text="Enter the same password as above.",
+        validators=[],
+    )
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'role', 'level']
-    
+        fields = ['full_name', 'username', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].validators = []
+        self.fields['password1'].validators = []
+        self.fields['password2'].validators = []
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '')
+        return username.strip()
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords do not match.")
+        return password2
+
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
         if commit:
             user.save()
-            profile = user.profile
-            profile.role = self.cleaned_data['role']
-            profile.level = self.cleaned_data['level']
-            profile.save()
         return user
-
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:

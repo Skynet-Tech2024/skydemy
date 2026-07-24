@@ -15,7 +15,14 @@ def register(request):
         if form.is_valid():
             try:
                 # The form's save() already creates the user and saves full_name to profile
-                user = form.save()  # This saves user and profile
+               user = form.save()
+
+# Update profile with full_name and default values
+profile = user.profile  # This should exist because of the signal
+profile.full_name = form.cleaned_data['full_name']
+profile.role = 'learner'  # default role
+profile.verification_status = 'pending'  # pending approval
+profile.save()  # This saves user and profile
                 
                 # Store user ID in session for Step 2
                 request.session['temp_user_id'] = user.id

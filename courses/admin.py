@@ -43,7 +43,7 @@ class CourseAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         # Redirect to custom Course dashboard page
-        return redirect('course_list')
+        return redirect('lesson_list')
 
 
 # ===== Lesson Admin =====

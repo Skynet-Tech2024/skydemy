@@ -6,7 +6,8 @@ from .views import (
     progress_chart, inbox, send_message, service_worker,
     debug_templates, student_list, teacher_list, batch_student_action,
     batch_teacher_action, subject_list, batch_subject_action,
-    exam_list, batch_exam_action
+    exam_list, batch_exam_action,
+    certificate_list, batch_certificate_action  # <-- ADDED
 )
 
 urlpatterns = [
@@ -23,6 +24,10 @@ urlpatterns = [
     # Exams
     path('exams/', exam_list, name='exam_list'),
     path('batch-exam-action/', batch_exam_action, name='batch_exam_action'),
+    
+    # Certificates  <-- NEW SECTION
+    path('certificates/', certificate_list, name='certificate_list'),
+    path('batch-certificate-action/', batch_certificate_action, name='batch_certificate_action'),
     
     # Notifications
     path('notifications/', notifications, name='notifications'),

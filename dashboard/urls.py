@@ -10,7 +10,7 @@ from .views import (
     certificate_list, batch_certificate_action,
     course_list, batch_course_action,
     examresult_list, batch_examresult_action,
-    lesson_list, batch_lesson_action  # <-- ADDED
+    lesson_list, batch_lesson_action
 )
 
 urlpatterns = [

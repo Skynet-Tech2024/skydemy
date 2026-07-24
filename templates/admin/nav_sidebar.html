@@ -1,0 +1,44 @@
+{% load i18n %}
+{% if app_list %}
+  <div id="nav-sidebar" class="nav-sidebar">
+    {% for app in app_list %}
+      <div class="module{% if app.app_url in request.path %} current-app{% endif %}">
+        <h2>
+          <span class="section-title">{{ app.name }}</span>
+        </h2>
+        <ul>
+          {% for model in app.models %}
+            <li class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current-model{% endif %}">
+              <a href="{{ model.admin_url }}"{% if model.admin_url in request.path %} aria-current="page"{% endif %}>
+                {% with model.name|lower as model_name %}
+                  {% if 'student' in model_name %}
+                    <i class="fas fa-user-graduate"></i>
+                  {% elif 'teacher' in model_name %}
+                    <i class="fas fa-chalkboard-teacher"></i>
+                  {% elif 'course' in model_name %}
+                    <i class="fas fa-book"></i>
+                  {% elif 'lesson' in model_name %}
+                    <i class="fas fa-video"></i>
+                  {% elif 'exam' in model_name and 'result' not in model_name %}
+                    <i class="fas fa-pencil-alt"></i>
+                  {% elif 'result' in model_name %}
+                    <i class="fas fa-chart-bar"></i>
+                  {% elif 'certificate' in model_name %}
+                    <i class="fas fa-certificate"></i>
+                  {% elif 'subject' in model_name %}
+                    <i class="fas fa-book-open"></i>
+                  {% elif 'progress' in model_name %}
+                    <i class="fas fa-chart-line"></i>
+                  {% else %}
+                    <i class="fas fa-cube"></i>
+                  {% endif %}
+                {% endwith %}
+                {{ model.name }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

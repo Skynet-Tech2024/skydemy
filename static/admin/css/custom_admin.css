@@ -131,3 +131,74 @@
   #header { height: auto !important; padding: 10px 16px !important; flex-wrap: wrap; gap: 10px; }
   .header-right { gap: 12px; }
 }
+/* ===== SIDEBAR ===== */
+#nav-sidebar {
+  background: #1e293b !important; /* dark slate */
+  color: #e2e8f0 !important;
+  padding: 12px 0 !important;
+  width: 260px !important;
+}
+
+#nav-sidebar .module h2 {
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 12px 20px 6px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+#nav-sidebar ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#nav-sidebar ul li {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#nav-sidebar ul li a {
+  display: block !important;
+  padding: 8px 20px 8px 48px !important;
+  color: #cbd5e1 !important;
+  text-decoration: none !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+}
+
+#nav-sidebar ul li a i {
+  position: absolute !important;
+  left: 20px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 20px !important;
+  text-align: center !important;
+  font-size: 16px !important;
+  color: #94a3b8 !important;
+  transition: color 0.2s ease !important;
+}
+
+#nav-sidebar ul li a:hover {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+#nav-sidebar ul li a:hover i {
+  color: #D4AF37 !important; /* gold */
+}
+
+#nav-sidebar ul li.current-model a {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-right: 3px solid #D4AF37 !important;
+}
+#nav-sidebar ul li.current-model a i {
+  color: #D4AF37 !important;
+}
+
+/* Collapse sections? No, keep it simple */

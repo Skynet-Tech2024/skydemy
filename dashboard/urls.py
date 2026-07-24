@@ -5,31 +5,40 @@ from .views import (
     unread_notification_count, toggle_follow, toggle_wishlist,
     progress_chart, inbox, send_message, service_worker,
     debug_templates, student_list, teacher_list, batch_student_action,
-    batch_teacher_action, subject_list  # <-- Added subject_list
+    batch_teacher_action, subject_list, batch_subject_action
 )
 
 urlpatterns = [
+    # Main pages
     path('', home, name='home'),
     path('dashboard/', dashboard, name='dashboard'),
     path('profile/', profile, name='profile'),
-    path('leaderboard/', leaderboard, 
-path('subjects/', views.subject_list, name='subject_list'),name='leaderboard'),
+    path('leaderboard/', leaderboard, name='leaderboard'),
+    
+    # Subjects (new)
+    path('subjects/', subject_list, name='subject_list'),
+    path('batch-subject-action/', batch_subject_action, name='batch_subject_action'),
+    
+    # Notifications
     path('notifications/', notifications, name='notifications'),
     path('notifications/unread-count/', unread_notification_count, name='unread_notification_count'),
+    
+    # Social features
     path('follow/<int:teacher_id>/', toggle_follow, name='toggle_follow'),
     path('wishlist/<int:lesson_id>/', toggle_wishlist, name='toggle_wishlist'),
+    
+    # Progress & messaging
     path('progress-chart/', progress_chart, name='progress_chart'),
     path('inbox/', inbox, name='inbox'),
     path('send-message/', send_message, name='send_message'),
+    
+    # Service worker & debug
     path('sw.js/', service_worker, name='sw.js'),
     path('debug/', debug_templates, name='debug_templates'),
     
     # Admin user lists
     path('students/', student_list, name='student_list'),
     path('teachers/', teacher_list, name='teacher_list'),
-    
-    # Subjects list
-    path('subjects/', subject_list, name='subject_list'),
     
     # Batch actions
     path('students/batch-action/', batch_student_action, name='batch_student_action'),

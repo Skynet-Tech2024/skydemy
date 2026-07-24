@@ -4,7 +4,8 @@ from .views import (
     home, dashboard, profile, leaderboard, notifications,
     unread_notification_count, toggle_follow, toggle_wishlist,
     progress_chart, inbox, send_message, service_worker,
-    debug_templates, student_list, teacher_list, batch_student_action
+    debug_templates, student_list, teacher_list, batch_student_action,
+    batch_teacher_action  # <-- Added
 )
 
 urlpatterns = [
@@ -26,6 +27,7 @@ urlpatterns = [
     path('students/', student_list, name='student_list'),
     path('teachers/', teacher_list, name='teacher_list'),
     
-    # Batch action
+    # Batch actions
     path('students/batch-action/', batch_student_action, name='batch_student_action'),
+    path('teachers/batch-action/', batch_teacher_action, name='batch_teacher_action'),  # <-- Added
 ]

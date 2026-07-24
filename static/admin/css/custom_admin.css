@@ -202,3 +202,227 @@
 }
 
 /* Collapse sections? No, keep it simple */
+/* ============================================
+   STEP 6: BETTER SPACING & TYPOGRAPHY
+   ============================================ */
+
+/* ----- Main Content Area ----- */
+#content {
+    padding: 30px 40px !important;
+    margin: 0 !important;
+}
+
+/* ----- Page Title ----- */
+#content h1 {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin-bottom: 24px !important;
+    letter-spacing: -0.5px !important;
+}
+
+/* ----- Module / Section Headers ----- */
+.module h2,
+.module caption {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    padding: 12px 16px !important;
+    background: #f8fafc !important;
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+/* ----- Tables ----- */
+#content-main table {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+}
+
+#content-main table th {
+    padding: 14px 16px !important;
+    background: #f8fafc !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: #1e293b !important;
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+#content-main table td {
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    color: #334155 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+#content-main table tr:hover td {
+    background: #f8fafc !important;
+}
+
+/* ----- Buttons ----- */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    transition: all 0.2s !important;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
+}
+
+/* ----- Forms ----- */
+.form-row {
+    padding: 16px 0 !important;
+}
+
+.form-row label {
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    font-size: 14px !important;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="url"],
+textarea,
+select {
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    border: 1px solid #d1d5db !important;
+    font-size: 14px !important;
+    transition: border 0.2s, box-shadow 0.2s !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #0E8A3A !important;
+    box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15) !important;
+    outline: none !important;
+}
+
+/* ----- Submit Row (bottom of forms) ----- */
+.submit-row {
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    padding: 16px 20px !important;
+    margin-top: 24px !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* ----- Breadcrumbs ----- */
+div.breadcrumbs {
+    background: #f8fafc !important;
+    padding: 12px 40px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    font-size: 14px !important;
+    color: #475569 !important;
+}
+
+div.breadcrumbs a {
+    color: #0B7A3B !important;
+    font-weight: 500 !important;
+}
+
+/* ----- Messages ----- */
+.messagelist li {
+    border-radius: 8px !important;
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    margin-bottom: 8px !important;
+}
+
+/* ----- Pagination ----- */
+.paginator {
+    padding: 16px 0 !important;
+    font-size: 14px !important;
+}
+
+.paginator a,
+.paginator .this-page {
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+    margin: 0 2px !important;
+}
+
+.paginator .this-page {
+    background: #0E8A3A !important;
+    color: #fff !important;
+}
+
+/* ----- Filter Sidebar ----- */
+#changelist-filter {
+    border-radius: 12px !important;
+    border: 1px solid #e5e7eb !important;
+    overflow: hidden !important;
+}
+
+#changelist-filter h2 {
+    background: #f8fafc !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+#changelist-filter a {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+}
+
+#changelist-filter a:hover {
+    background: #f1f5f9 !important;
+}
+
+/* ----- Responsive: Mobile ----- */
+@media (max-width: 767px) {
+    #content {
+        padding: 16px !important;
+    }
+    #content h1 {
+        font-size: 22px !important;
+    }
+    .dashboard-stats {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+    }
+    .stat-card {
+        padding: 14px 16px !important;
+    }
+    .stat-card .info .number {
+        font-size: 22px !important;
+    }
+    .quick-actions a {
+        padding: 4px 12px !important;
+        font-size: 12px !important;
+    }
+    .charts-row {
+        grid-template-columns: 1fr !important;
+    }
+    #content-main table {
+        font-size: 13px !important;
+    }
+    #content-main table th,
+    #content-main table td {
+        padding: 8px 10px !important;
+    }
+}

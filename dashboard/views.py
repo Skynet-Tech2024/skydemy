@@ -1,6 +1,6 @@
 from users.models import UserProfile, Follow, Wishlist, Message
 from django.contrib.auth import get_user_model
-from django.db.models import Sum, Count, Avg  # <-- Added Avg
+from django.db.models import Sum, Count, Avg
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -13,6 +13,8 @@ from django.conf import settings
 from pathlib import Path
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
+from datetime import datetime  # <-- added for batch_lesson_action
+from users.utils import create_notification  # <-- added for notifications
 
 def home(request):
     return render(request, 'dashboard/landing.html')
@@ -557,3 +559,71 @@ def batch_examresult_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('examresult_list')
+
+# ===== LESSON LIST VIEW =====
+@staff_member_required
+def lesson_list(request):
+    """Admin view to list all lessons with stat cards and batch actions."""
+    lessons = Lesson.objects.select_related('teacher').all().order_by('-created_at')
+    total_count = lessons.count()
+    pending_count = lessons.filter(status='pending').count()
+    approved_count = lessons.filter(status='approved').count()
+    rejected_count = lessons.filter(status='rejected').count()
+    context = {
+        'lessons': lessons,
+        'total_count': total_count,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+    }
+    return render(request, 'dashboard/lesson_list.html', context)
+
+# ===== BATCH LESSON ACTION =====
+@staff_member_required
+def batch_lesson_action(request):
+    if request.method != 'POST':
+        return redirect('lesson_list')
+    action = request.POST.get('action')
+    selected_ids = request.POST.getlist('selected_ids')
+    if not selected_ids:
+        messages.warning(request, "No lessons selected.")
+        return redirect('lesson_list')
+    queryset = Lesson.objects.filter(id__in=selected_ids)
+    if action == 'approve_lessons':
+        count = 0
+        for lesson in queryset:
+            lesson.status = 'approved'
+            lesson.reviewed_by = request.user
+            lesson.reviewed_at = datetime.now()
+            lesson.save()
+            count += 1
+            create_notification(
+                user=lesson.teacher,
+                notification_type='lesson_approved',
+                title='✅ Lesson Approved!',
+                message=f'Your lesson "{lesson.title}" has been approved and is now live on the platform.',
+                link=f'/courses/lesson/{lesson.id}/'
+            )
+        messages.success(request, f"{count} lesson(s) approved.")
+    elif action == 'reject_lessons':
+        count = 0
+        for lesson in queryset:
+            lesson.status = 'rejected'
+            lesson.reviewed_by = request.user
+            lesson.reviewed_at = datetime.now()
+            lesson.save()
+            count += 1
+            create_notification(
+                user=lesson.teacher,
+                notification_type='system',
+                title='❌ Lesson Rejected',
+                message=f'Your lesson "{lesson.title}" has been rejected. Please review and resubmit.'
+            )
+        messages.success(request, f"{count} lesson(s) rejected.")
+    elif action == 'delete_selected_lessons':
+        count = queryset.count()
+        queryset.delete()
+        messages.success(request, f"{count} lesson(s) deleted.")
+    else:
+        messages.error(request, "Invalid action.")
+    return redirect('lesson_list')

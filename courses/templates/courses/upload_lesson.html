@@ -287,6 +287,12 @@
                         <input type="text" name="new_subject_name" id="new_subject_name" placeholder="e.g., Further Mathematics">
                         <div class="help-text">If you enter a name here, a new subject will be created automatically at your level.</div>
                     </div>
+                    <!-- NEW: Subject code field -->
+                    <div class="form-group">
+                        <label for="new_subject_code">Subject code <span class="optional">(optional)</span></label>
+                        <input type="text" name="new_subject_code" id="new_subject_code" placeholder="e.g., MATH101">
+                        <div class="help-text">A short code to identify the subject (e.g., MATH101, PHY201).</div>
+                    </div>
                     <!-- Hidden level for the new subject – auto‑set to teacher's level -->
                     <input type="hidden" name="new_subject_level" value="{{ teacher_level|default:'' }}">
                 </div>

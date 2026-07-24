@@ -41,6 +41,10 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('code', 'name')
     search_fields = ('code', 'name')
 
+    def changelist_view(self, request, extra_context=None):
+        # Redirect to custom Course dashboard page
+        return redirect('course_list')
+
 
 # ===== Lesson Admin =====
 class LessonAdmin(admin.ModelAdmin):

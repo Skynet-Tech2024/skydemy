@@ -1,235 +1,372 @@
-from django.contrib import admin
-from datetime import datetime
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.contrib import messages
-from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
-from users.utils import create_notification
-from core.admin import admin_site
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
 
-# ===== Subject Admin =====
-class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'level', 'status', 'proposed_by', 'created_at')
-    list_filter = ('level', 'status')
-    search_fields = ('name',)
-    actions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects']
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        /* ----- Stat Cards ----- */
+        .subject-stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .subject-stats .stat-card {
+            flex: 1 1 180px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .subject-stats .stat-card .number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0B7A3B;
+            line-height: 1.2;
+        }
+        .subject-stats .stat-card .label {
+            color: #4B5563;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
 
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['pending_count'] = Subject.objects.filter(status='pending').count()
-        extra_context['approved_count'] = Subject.objects.filter(status='approved').count()
-        extra_context['rejected_count'] = Subject.objects.filter(status='rejected').count()
-        return super().changelist_view(request, extra_context=extra_context)
+        /* ----- Header ----- */
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .subject-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+        .subject-header .btn-primary {
+            background-color: #0B7A3B;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .subject-header .btn-primary:hover {
+            background-color: #09632f;
+            color: #ffffff;
+        }
 
-    def approve_subjects(self, request, queryset):
-        count = queryset.update(status='approved')
-        self.message_user(request, f"{count} subject(s) approved.", messages.SUCCESS)
-    approve_subjects.short_description = "Approve selected subjects"
+        /* ----- Search Bar ----- */
+        .subject-search {
+            margin-bottom: 20px;
+        }
+        .subject-search #searchbar {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            font-size: 15px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 18px;
+            color: #0f172a;
+        }
+        .subject-search #searchbar::placeholder {
+            color: #9CA3AF;
+        }
 
-    def reject_subjects(self, request, queryset):
-        count = queryset.update(status='rejected')
-        self.message_user(request, f"{count} subject(s) rejected.", messages.SUCCESS)
-    reject_subjects.short_description = "Reject selected subjects"
+        /* ----- Action Buttons Bar ----- */
+        .action-bar {
+            background: #F8FAFC;
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #E5E7EB;
+        }
+        .action-bar .label {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        .action-bar .btn-action {
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            color: #ffffff;
+            transition: opacity 0.2s;
+        }
+        .action-bar .btn-action:hover {
+            opacity: 0.85;
+        }
+        .btn-approve {
+            background-color: #16A34A;
+        }
+        .btn-reject {
+            background-color: #DC2626;
+        }
+        .btn-delete {
+            background-color: #EF4444;
+        }
+        #selected-count {
+            color: #64748B;
+            font-size: 13px;
+            margin-left: auto;
+        }
 
-    def delete_selected_subjects(self, request, queryset):
-        count = queryset.count()
-        queryset.delete()
-        self.message_user(request, f"{count} subject(s) deleted.", messages.SUCCESS)
-    delete_selected_subjects.short_description = "Delete selected subjects"
+        /* ----- Table Container ----- */
+        .subject-table {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            overflow: auto;
+            border: 1px solid #E5E7EB;
+        }
+        .subject-table table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+        .subject-table thead th {
+            background-color: #F8FAFC;
+            border-bottom: 2px solid #E5E7EB;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 13px;
+        }
+        .subject-table tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #F1F5F9;
+            color: #1E293B;
+            font-size: 14px;
+        }
+        .subject-table tbody tr:hover {
+            background-color: #F8FAFC;
+        }
+        .subject-table tbody tr.selected {
+            background-color: #e5f0fa !important;
+        }
+        .subject-table tbody tr.selected td {
+            color: #1e293b !important;
+        }
 
+        /* ----- Status Badges ----- */
+        .badge-status {
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge-status.approved {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        .badge-status.pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .badge-status.rejected {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
 
-# ===== Course Admin =====
-class CourseAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name')
-    search_fields = ('code', 'name')
+        /* ----- Footer ----- */
+        .subject-footer {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #E5E7EB;
+            color: #6B7280;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .subject-footer .count {
+            font-weight: 500;
+            color: #0B7A3B;
+        }
 
+        /* ----- Hide default admin action dropdown ----- */
+        .actions {
+            display: none !important;
+        }
+    </style>
+{% endblock %}
 
-# ===== Lesson Admin =====
-class LessonAdmin(admin.ModelAdmin):
-    list_display = ('title', 'level', 'status', 'teacher', 'created_at', 'views')
-    list_filter = ('level', 'status', 'teacher')
-    search_fields = ('title', 'description')
-    readonly_fields = ('created_at', 'updated_at', 'views')
-    actions = ['approve_lessons', 'reject_lessons']
+{% block content %}
+<div id="content-main">
 
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
+    <!-- ===== STAT CARDS ===== -->
+    <div class="subject-stats">
+        <div class="stat-card">
+            <div class="number">{{ cl.result_count }}</div>
+            <div class="label">Total Subjects</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ pending_count|default:"0" }}</div>
+            <div class="label">Pending</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ approved_count|default:"0" }}</div>
+            <div class="label">Approved</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ rejected_count|default:"0" }}</div>
+            <div class="label">Rejected</div>
+        </div>
+    </div>
 
-    def approve_lessons(self, request, queryset):
-        updated = 0
-        for lesson in queryset:
-            lesson.status = 'approved'
-            lesson.reviewed_by = request.user
-            lesson.reviewed_at = datetime.now()
-            lesson.save()
-            updated += 1
-            create_notification(
-                user=lesson.teacher,
-                notification_type='lesson_approved',
-                title='✅ Lesson Approved!',
-                message=f'Your lesson "{lesson.title}" has been approved and is now live on the platform.',
-                link=f'/courses/lesson/{lesson.id}/'
-            )
-        self.message_user(request, f'{updated} lesson(s) approved.')
-    approve_lessons.short_description = "Approve selected lessons"
+    <!-- ===== HEADER ===== -->
+    <div class="subject-header">
+        <h1>📚 Subjects</h1>
+        <div>
+            {% if has_add_permission %}
+                <a href="{% url 'admin:courses_subject_add' %}" class="btn-primary">+ New Subject</a>
+            {% endif %}
+        </div>
+    </div>
 
-    def reject_lessons(self, request, queryset):
-        updated = 0
-        for lesson in queryset:
-            lesson.status = 'rejected'
-            lesson.reviewed_by = request.user
-            lesson.reviewed_at = datetime.now()
-            lesson.save()
-            updated += 1
-            create_notification(
-                user=lesson.teacher,
-                notification_type='system',
-                title='❌ Lesson Rejected',
-                message=f'Your lesson "{lesson.title}" has been rejected. Please review and resubmit.'
-            )
-        self.message_user(request, f'{updated} lesson(s) rejected.')
-    reject_lessons.short_description = "Reject selected lessons"
+    <!-- ===== SEARCH ===== -->
+    <div class="subject-search">
+        {% block search %}
+            {{ block.super }}
+        {% endblock %}
+    </div>
 
-    def changelist_view(self, request, extra_context=None):
-        if request.method == 'POST' and request.POST.get('action') in ['delete_selected', 'approve_lessons', 'reject_lessons']:
-            action = request.POST.get('action')
-            if not request.POST.get('confirm'):
-                selected_pks = request.POST.getlist('_selected_action')
-                if not selected_pks:
-                    messages.warning(request, "No items selected.")
-                    return HttpResponseRedirect(request.get_full_path())
-                action_display = {
-                    'delete_selected': 'Delete',
-                    'approve_lessons': 'Approve',
-                    'reject_lessons': 'Reject'
-                }.get(action, action)
-                context = {
-                    'selected_pks': selected_pks,
-                    'selected_count': len(selected_pks),
-                    'action': action,
-                    'action_display': action_display,
-                    'is_popup': request.GET.get('_popup', False),
-                    'to_field': request.GET.get('to_field', None),
-                }
-                return render(request, 'admin/courses/lesson/action_confirmation.html', context)
-            else:
-                selected_pks = request.POST.getlist('_selected_action')
-                if not selected_pks:
-                    messages.warning(request, "No items selected.")
-                    return HttpResponseRedirect(request.get_full_path())
-                queryset = Lesson.objects.filter(pk__in=selected_pks)
-                if action == 'delete_selected':
-                    count = queryset.count()
-                    queryset.delete()
-                    messages.success(request, f"Successfully deleted {count} lesson(s).")
-                elif action == 'approve_lessons':
-                    self.approve_lessons(request, queryset)
-                elif action == 'reject_lessons':
-                    self.reject_lessons(request, queryset)
-                return HttpResponseRedirect(reverse('admin:courses_lesson_changelist'))
-        return super().changelist_view(request, extra_context)
+    <!-- ===== FORM ===== -->
+    <form id="changelist-form" method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" name="action" id="action-input" value="">
 
+        <!-- ===== ACTION BUTTONS BAR ===== -->
+        <div class="action-bar">
+            <span class="label">Actions:</span>
+            <button type="button" class="btn-action btn-approve" onclick="batchAction('approve_subjects')">✅ Approve</button>
+            <button type="button" class="btn-action btn-reject" onclick="batchAction('reject_subjects')">❌ Reject</button>
+            <button type="button" class="btn-action btn-delete" onclick="batchAction('delete_selected_subjects')">🗑️ Delete</button>
+            <span id="selected-count">0 selected</span>
+        </div>
 
-# ===== Progress Admin =====
-class ProgressAdmin(admin.ModelAdmin):
-    list_display = ('user', 'lesson', 'progress_percentage', 'completed', 'last_accessed')
-    list_filter = ('completed',)
+        <!-- ===== TABLE ===== -->
+        <div class="subject-table">
+            {% block result_list %}
+                {% result_list cl %}
+            {% endblock %}
+        </div>
+    </form>
 
+    <!-- ===== FOOTER ===== -->
+    <div class="subject-footer">
+        <span>
+            Showing <span class="count">{{ cl.result_count }}</span> subject{{ cl.result_count|pluralize }}
+        </span>
+        <span>
+            {% if cl.paginator.num_pages > 1 %}
+                Page {{ cl.page_num }} of {{ cl.paginator.num_pages }}
+            {% endif %}
+        </span>
+    </div>
 
-# ===== Exam Admin =====
-class ExamAdmin(admin.ModelAdmin):
-    list_display = ('title', 'lesson', 'status', 'passing_score', 'created_at')
-    list_filter = ('status', 'lesson__level')
-    search_fields = ('title', 'lesson__title')
-    actions = ['approve_exams', 'reject_exams']
+    <!-- ===== PAGINATION ===== -->
+    {% block pagination %}
+        {{ block.super }}
+    {% endblock %}
 
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
+</div>
 
-    def approve_exams(self, request, queryset):
-        updated = 0
-        for exam in queryset:
-            exam.status = 'approved'
-            exam.reviewed_by = request.user
-            exam.reviewed_at = datetime.now()
-            exam.save()
-            updated += 1
-            create_notification(
-                user=exam.lesson.teacher,
-                notification_type='system',
-                title='📝 Exam Approved!',
-                message=f'Your exam "{exam.title}" for lesson "{exam.lesson.title}" has been approved.',
-                link=f'/courses/lesson/{exam.lesson.id}/'
-            )
-        self.message_user(request, f'{updated} exam(s) approved.')
-    approve_exams.short_description = "Approve selected exams"
+<!-- ===== SweetAlert2 ===== -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // ===== UPDATE SELECTED COUNT =====
+    function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('#result_list tbody input[type="checkbox"][name="_selected_action"]:checked');
+        document.getElementById('selected-count').textContent = checkboxes.length + ' selected';
+    }
 
-    def reject_exams(self, request, queryset):
-        updated = 0
-        for exam in queryset:
-            exam.status = 'rejected'
-            exam.reviewed_by = request.user
-            exam.reviewed_at = datetime.now()
-            exam.save()
-            updated += 1
-            create_notification(
-                user=exam.lesson.teacher,
-                notification_type='system',
-                title='❌ Exam Rejected',
-                message=f'Your exam "{exam.title}" for lesson "{exam.lesson.title}" has been rejected.'
-            )
-        self.message_user(request, f'{updated} exam(s) rejected.')
-    reject_exams.short_description = "Reject selected exams"
+    // ===== SELECT ALL / DESELECT ALL =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAll = document.querySelector('#result_list thead input[type="checkbox"]');
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('#result_list tbody input[type="checkbox"][name="_selected_action"]');
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                updateSelectedCount();
+            });
+        }
+        // Update count on any checkbox change
+        document.querySelectorAll('#result_list tbody input[type="checkbox"][name="_selected_action"]').forEach(cb => {
+            cb.addEventListener('change', updateSelectedCount);
+        });
+        updateSelectedCount();
+    });
 
-    def changelist_view(self, request, extra_context=None):
-        if request.method == 'POST' and request.POST.get('action') == 'delete_selected':
-            if not request.POST.get('confirm'):
-                selected_pks = request.POST.getlist('_selected_action')
-                if not selected_pks:
-                    messages.warning(request, "No items selected.")
-                    return HttpResponseRedirect(request.get_full_path())
-                context = {
-                    'selected_pks': selected_pks,
-                    'selected_count': len(selected_pks),
-                    'is_popup': request.GET.get('_popup', False),
-                    'to_field': request.GET.get('to_field', None),
-                }
-                return render(request, 'admin/courses/exam/bulk_delete_confirmation.html', context)
-            else:
-                selected_pks = request.POST.getlist('_selected_action')
-                if selected_pks:
-                    Exam.objects.filter(pk__in=selected_pks).delete()
-                    messages.success(request, f"Successfully deleted {len(selected_pks)} exam(s).")
-                else:
-                    messages.warning(request, "No items selected.")
-                return HttpResponseRedirect(reverse('admin:courses_exam_changelist'))
-        return super().changelist_view(request, extra_context)
+    // ===== BATCH ACTION =====
+    function batchAction(action) {
+        const checkboxes = document.querySelectorAll('#result_list tbody input[type="checkbox"][name="_selected_action"]:checked');
+        if (checkboxes.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Subjects Selected',
+                text: 'Please select at least one subject.',
+                confirmButtonColor: '#0B7A3B',
+            });
+            return;
+        }
 
+        const actionLabels = {
+            'approve_subjects': 'Approve',
+            'reject_subjects': 'Reject',
+            'delete_selected_subjects': 'Delete'
+        };
+        const actionIcons = {
+            'approve_subjects': '✅',
+            'reject_subjects': '❌',
+            'delete_selected_subjects': '🗑️'
+        };
+        const actionColors = {
+            'approve_subjects': '#16A34A',
+            'reject_subjects': '#DC2626',
+            'delete_selected_subjects': '#EF4444'
+        };
+        const isDestructive = (action === 'delete_selected_subjects');
 
-# ===== ExamResult Admin =====
-class ExamResultAdmin(admin.ModelAdmin):
-    list_display = ('user', 'exam', 'percentage', 'passed', 'date_taken')
-    list_filter = ('passed',)
-
-
-# ===== Certificate Admin =====
-class CertificateAdmin(admin.ModelAdmin):
-    list_display = ('user', 'lesson', 'certificate_number', 'issued_date')
-    search_fields = ('certificate_number',)
-
-
-# ===== Register all models with the custom admin site =====
-admin_site.register(Subject, SubjectAdmin)
-admin_site.register(Course, CourseAdmin)
-admin_site.register(Lesson, LessonAdmin)
-admin_site.register(Progress, ProgressAdmin)
-admin_site.register(Exam, ExamAdmin)
-admin_site.register(ExamResult, ExamResultAdmin)
-admin_site.register(Certificate, CertificateAdmin)
+        Swal.fire({
+            title: `${actionIcons[action]} ${actionLabels[action]} Subjects?`,
+            text: `You are about to ${actionLabels[action].toLowerCase()} ${checkboxes.length} selected subject(s). ${isDestructive ? 'This action cannot be undone!' : ''}`,
+            icon: isDestructive ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonColor: actionColors[action],
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: `Yes, ${actionLabels[action].toLowerCase()} them`,
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('action-input').value = action;
+                document.getElementById('changelist-form').submit();
+            }
+        });
+    }
+</script>
+{% endblock %}

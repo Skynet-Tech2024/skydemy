@@ -96,43 +96,8 @@ class LessonAdmin(admin.ModelAdmin):
     reject_lessons.short_description = "Reject selected lessons"
 
     def changelist_view(self, request, extra_context=None):
-        if request.method == 'POST' and request.POST.get('action') in ['delete_selected', 'approve_lessons', 'reject_lessons']:
-            action = request.POST.get('action')
-            if not request.POST.get('confirm'):
-                selected_pks = request.POST.getlist('_selected_action')
-                if not selected_pks:
-                    messages.warning(request, "No items selected.")
-                    return HttpResponseRedirect(request.get_full_path())
-                action_display = {
-                    'delete_selected': 'Delete',
-                    'approve_lessons': 'Approve',
-                    'reject_lessons': 'Reject'
-                }.get(action, action)
-                context = {
-                    'selected_pks': selected_pks,
-                    'selected_count': len(selected_pks),
-                    'action': action,
-                    'action_display': action_display,
-                    'is_popup': request.GET.get('_popup', False),
-                    'to_field': request.GET.get('to_field', None),
-                }
-                return render(request, 'admin/courses/lesson/action_confirmation.html', context)
-            else:
-                selected_pks = request.POST.getlist('_selected_action')
-                if not selected_pks:
-                    messages.warning(request, "No items selected.")
-                    return HttpResponseRedirect(request.get_full_path())
-                queryset = Lesson.objects.filter(pk__in=selected_pks)
-                if action == 'delete_selected':
-                    count = queryset.count()
-                    queryset.delete()
-                    messages.success(request, f"Successfully deleted {count} lesson(s).")
-                elif action == 'approve_lessons':
-                    self.approve_lessons(request, queryset)
-                elif action == 'reject_lessons':
-                    self.reject_lessons(request, queryset)
-                return HttpResponseRedirect(reverse('admin:courses_lesson_changelist'))
-        return super().changelist_view(request, extra_context)
+        # Redirect to custom Lesson dashboard page
+        return redirect('lesson_list')
 
 
 # ===== Progress Admin =====

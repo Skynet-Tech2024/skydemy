@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject, Exam
+from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject, Exam, Course
 from django.views.decorators.cache import never_cache
 from django.template.loader import get_template
 from django.conf import settings
@@ -483,3 +483,39 @@ def batch_certificate_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('certificate_list')
+
+# ===== COURSE LIST VIEW =====
+@staff_member_required
+def course_list(request):
+    """Admin view to list all courses with stat cards and batch actions."""
+    courses = Course.objects.all().order_by('code')
+    total_count = courses.count()
+    with_lessons_count = courses.filter(lesson__isnull=False).distinct().count()
+    without_lessons_count = total_count - with_lessons_count
+    for course in courses:
+        course.lesson_count = Lesson.objects.filter(course=course).count()
+    context = {
+        'courses': courses,
+        'total_count': total_count,
+        'with_lessons_count': with_lessons_count,
+        'without_lessons_count': without_lessons_count,
+    }
+    return render(request, 'dashboard/course_list.html', context)
+
+# ===== BATCH COURSE ACTION =====
+@staff_member_required
+def batch_course_action(request):
+    if request.method != 'POST':
+        return redirect('course_list')
+    action = request.POST.get('action')
+    selected_ids = request.POST.getlist('selected_ids')
+    if not selected_ids:
+        messages.warning(request, "No courses selected.")
+        return redirect('course_list')
+    if action == 'delete_selected_courses':
+        count = Course.objects.filter(id__in=selected_ids).count()
+        Course.objects.filter(id__in=selected_ids).delete()
+        messages.success(request, f"{count} course(s) deleted.")
+    else:
+        messages.error(request, "Invalid action.")
+    return redirect('course_list')

@@ -6,14 +6,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate
+from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject
 from django.views.decorators.cache import never_cache
 from django.template.loader import get_template
 from django.conf import settings
 from pathlib import Path
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
-from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject
 
 def home(request):
     return render(request, 'dashboard/landing.html')
@@ -256,7 +255,6 @@ self.addEventListener('fetch', (event) => {
 '''
     return HttpResponse(content.strip(), content_type='application/javascript')
 
-
 def debug_templates(request):
     base_dir = settings.BASE_DIR
     templates_path = base_dir / 'templates'
@@ -287,7 +285,6 @@ def debug_templates(request):
     """
     return HttpResponse(response)
 
-
 # ===== STUDENT AND TEACHER LIST VIEWS =====
 @staff_member_required
 def student_list(request):
@@ -298,7 +295,6 @@ def student_list(request):
 def teacher_list(request):
     teachers = UserProfile.objects.filter(role='teacher').select_related('user')
     return render(request, 'dashboard/teacher_list.html', {'teachers': teachers})
-
 
 # ===== BATCH STUDENT ACTION =====
 @staff_member_required
@@ -333,7 +329,6 @@ def batch_student_action(request):
         messages.error(request, "Invalid action.")
     return redirect('student_list')
 
-
 # ===== BATCH TEACHER ACTION =====
 @staff_member_required
 def batch_teacher_action(request):
@@ -366,21 +361,16 @@ def batch_teacher_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('teacher_list')
+
 # ===== SUBJECT LIST VIEW =====
 @staff_member_required
 def subject_list(request):
-    """Admin view to list all subjects with their details."""
-    subjects = Subject.objects.select_related('proposed_by').all().order_by('name')
-    return render(request, 'dashboard/subject_list.html', {'subjects': subjects})
-def subject_list(request):
-    from courses.models import Subject
+    """Admin view to list all subjects with stat cards and batch actions."""
     subjects = Subject.objects.all().order_by('-created_at')
-    
     total_count = subjects.count()
     pending_count = subjects.filter(status='pending').count()
     approved_count = subjects.filter(status='approved').count()
     rejected_count = subjects.filter(status='rejected').count()
-    
     context = {
         'subjects': subjects,
         'total_count': total_count,
@@ -389,3 +379,28 @@ def subject_list(request):
         'rejected_count': rejected_count,
     }
     return render(request, 'dashboard/subject_list.html', context)
+
+# ===== BATCH SUBJECT ACTION =====
+@staff_member_required
+def batch_subject_action(request):
+    if request.method != 'POST':
+        return redirect('subject_list')
+    action = request.POST.get('action')
+    selected_ids = request.POST.getlist('selected_ids')
+    if not selected_ids:
+        messages.warning(request, "No subjects selected.")
+        return redirect('subject_list')
+    queryset = Subject.objects.filter(id__in=selected_ids)
+    if action == 'approve_subjects':
+        count = queryset.update(status='approved')
+        messages.success(request, f"{count} subject(s) approved.")
+    elif action == 'reject_subjects':
+        count = queryset.update(status='rejected')
+        messages.success(request, f"{count} subject(s) rejected.")
+    elif action == 'delete_selected_subjects':
+        count = queryset.count()
+        queryset.delete()
+        messages.success(request, f"{count} subject(s) deleted.")
+    else:
+        messages.error(request, "Invalid action.")
+    return redirect('subject_list')

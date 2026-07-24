@@ -1,6 +1,6 @@
 from django.contrib import admin
 from datetime import datetime
-from django.shortcuts import render
+from django.shortcuts import render, redirect  # <-- added redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
@@ -16,11 +16,8 @@ class SubjectAdmin(admin.ModelAdmin):
     actions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects']
 
     def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['pending_count'] = Subject.objects.filter(status='pending').count()
-        extra_context['approved_count'] = Subject.objects.filter(status='approved').count()
-        extra_context['rejected_count'] = Subject.objects.filter(status='rejected').count()
-        return super().changelist_view(request, extra_context=extra_context)
+        # Redirect to custom Subjects dashboard page
+        return redirect('subject_list')
 
     def approve_subjects(self, request, queryset):
         count = queryset.update(status='approved')

@@ -17,7 +17,12 @@ class Subject(models.Model):
     )
     
     name = models.CharField(max_length=100)
-    # code field removed – no longer needed
+    code = models.CharField(  # <-- ADDED BACK
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Subject code (e.g., MATH101, PHY201)"
+    )
     level = models.CharField(max_length=10, choices=LEVEL_CHOICES)
     description = models.TextField(blank=True)
     
@@ -42,7 +47,8 @@ class Subject(models.Model):
     def save(self, *args, **kwargs):
         if self.name:
             self.name = self.name.upper()
-        # No code field to uppercase
+        if self.code:
+            self.code = self.code.upper()  # optional
         super().save(*args, **kwargs)
     
     def __str__(self):

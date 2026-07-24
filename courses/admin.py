@@ -10,7 +10,7 @@ from core.admin import admin_site
 
 # ===== Subject Admin (with actions and professional theme, no 'code' field) =====
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'level', 'status', 'proposed_by', 'created_at')
+  list_display = ('name', 'code', 'level', 'status', 'proposed_by', 'created_at')
     list_filter = ('level', 'status')
     search_fields = ('name',)  # Removed 'code' from search_fields
     actions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects']

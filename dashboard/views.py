@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject
+from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject, Exam
 from django.views.decorators.cache import never_cache
 from django.template.loader import get_template
 from django.conf import settings
@@ -404,3 +404,46 @@ def batch_subject_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('subject_list')
+
+# ===== EXAM LIST VIEW =====
+@staff_member_required
+def exam_list(request):
+    """Admin view to list all exams with stat cards and batch actions."""
+    exams = Exam.objects.select_related('lesson').all().order_by('-created_at')
+    total_count = exams.count()
+    pending_count = exams.filter(status='pending').count()
+    approved_count = exams.filter(status='approved').count()
+    rejected_count = exams.filter(status='rejected').count()
+    context = {
+        'exams': exams,
+        'total_count': total_count,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+    }
+    return render(request, 'dashboard/exam_list.html', context)
+
+# ===== BATCH EXAM ACTION =====
+@staff_member_required
+def batch_exam_action(request):
+    if request.method != 'POST':
+        return redirect('exam_list')
+    action = request.POST.get('action')
+    selected_ids = request.POST.getlist('selected_ids')
+    if not selected_ids:
+        messages.warning(request, "No exams selected.")
+        return redirect('exam_list')
+    queryset = Exam.objects.filter(id__in=selected_ids)
+    if action == 'approve_exams':
+        count = queryset.update(status='approved')
+        messages.success(request, f"{count} exam(s) approved.")
+    elif action == 'reject_exams':
+        count = queryset.update(status='rejected')
+        messages.success(request, f"{count} exam(s) rejected.")
+    elif action == 'delete_selected_exams':
+        count = queryset.count()
+        queryset.delete()
+        messages.success(request, f"{count} exam(s) deleted.")
+    else:
+        messages.error(request, "Invalid action.")
+    return redirect('exam_list')

@@ -1,15 +1,12 @@
-﻿{% extends "admin/base.html" %}
+﻿{% extends "admin/base_site.html" %}
 {% load static %}
 
 {% block title %}{{ title }} | SKYDEMY Admin{% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Custom Admin Styles -->
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
-    <!-- Custom Admin JS -->
     <script src="{% static 'admin/js/custom_admin.js' %}"></script>
 {% endblock %}
 
@@ -23,13 +20,10 @@
 
 {% block usertools %}
     <div class="header-right">
-        <!-- Notification Bell -->
         <a href="{% url 'admin:index' %}" class="notification-bell" title="Notifications">
             <i class="fas fa-bell"></i>
-            <span class="badge">0</span> {# You can replace with dynamic count later #}
+            <span class="badge">0</span>
         </a>
-
-        <!-- Profile Dropdown -->
         <div class="profile-dropdown">
             <div class="avatar">
                 {{ user.username|slice:":1"|upper }}
@@ -44,4 +38,7 @@
     </div>
 {% endblock %}
 
-{# Keep the rest of the admin content unchanged #}
+{# ===== FOOTER ===== #}
+{% block footer %}
+    {% include "admin/footer.html" %}
+{% endblock %}

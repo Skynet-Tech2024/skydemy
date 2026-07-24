@@ -33,6 +33,22 @@ class UserProfile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     address = models.TextField(blank=True, default='')
 
+    # ===== NEW FIELDS =====
+    full_name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,  # <-- ADDED to allow NULL in the database
+        help_text="User's full name (e.g., CHE KENNETH)"
+    )
+    phone_number = models.CharField(
+        max_length=20,
+        blank=True,
+        unique=True,
+        null=True,
+        help_text="WhatsApp number for login and notifications"
+    )
+    # =====================
+
     verification_status = models.CharField(max_length=10, choices=VERIFICATION_STATUS_CHOICES, default='pending')
     verification_notes = models.TextField(blank=True)
 
@@ -52,7 +68,9 @@ class UserProfile(models.Model):
         self.save(update_fields=['rating'])
 
     def __str__(self):
-        return f"{self.user.username} ({self.get_role_display()})"
+        # Display full_name if available, otherwise username
+        name = self.full_name or self.user.username
+        return f"{name} ({self.get_role_display()})"
 
 
 class Follow(models.Model):
@@ -159,3 +177,26 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+from users.utils import create_notification
+
+@receiver(post_save, sender=UserProfile)
+def notify_user_on_verification(sender, instance, created, **kwargs):
+    """
+    Send a notification to the user when their account is approved or verified.
+    """
+    if not created:
+        # Check if the status changed to 'approved' or 'verified'
+        try:
+            old_instance = UserProfile.objects.get(pk=instance.pk)
+            old_status = old_instance.verification_status
+            new_status = instance.verification_status
+            if old_status != new_status and new_status in ['approved', 'verified']:
+                create_notification(
+                    user=instance.user,
+                    notification_type='system',
+                    title='✅ Account Approved!',
+                    message='Your account has been approved. You can now access all features.',
+                    link='/dashboard/'
+                )
+        except UserProfile.DoesNotExist:
+            pass

@@ -21,7 +21,7 @@ def register(request):
                 request.session['temp_user_id'] = user.id
                 print(f"🟢 User and profile created: {user.username}, ID: {user.id}")
 
-                messages.success(request, "✅ Account created! Please complete your profile.")
+                messages.success(request, "✅ Account created! Your account is now pending review. You'll receive a notification once approved. Please complete your profile!")
                 return redirect('/users/complete-profile/')
 
             except Exception as e:

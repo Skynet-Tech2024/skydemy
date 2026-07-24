@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from cloudinary.models import CloudinaryField
 from django.core.validators import MinValueValidator, MaxValueValidator
+from users.utils import create_notification
 
 class UserProfile(models.Model):
     ROLE_CHOICES = (
@@ -33,11 +34,11 @@ class UserProfile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     address = models.TextField(blank=True, default='')
 
-    # ===== NEW FIELDS =====
+    # NEW FIELDS
     full_name = models.CharField(
         max_length=200,
         blank=True,
-        null=True,  # <-- ADDED to allow NULL in the database
+        null=True,
         help_text="User's full name (e.g., CHE KENNETH)"
     )
     phone_number = models.CharField(
@@ -47,7 +48,6 @@ class UserProfile(models.Model):
         null=True,
         help_text="WhatsApp number for login and notifications"
     )
-    # =====================
 
     verification_status = models.CharField(max_length=10, choices=VERIFICATION_STATUS_CHOICES, default='pending')
     verification_notes = models.TextField(blank=True)
@@ -68,7 +68,6 @@ class UserProfile(models.Model):
         self.save(update_fields=['rating'])
 
     def __str__(self):
-        # Display full_name if available, otherwise username
         name = self.full_name or self.user.username
         return f"{name} ({self.get_role_display()})"
 
@@ -168,24 +167,13 @@ class WhatsAppAnnouncement(models.Model):
         return self.title
 
 
-# ===== Signal to create UserProfile automatically =====
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-from users.utils import create_notification
-
+# ===== Signal to send notification when account is approved/verified =====
 @receiver(post_save, sender=UserProfile)
 def notify_user_on_verification(sender, instance, created, **kwargs):
     """
     Send a notification to the user when their account is approved or verified.
     """
     if not created:
-        # Check if the status changed to 'approved' or 'verified'
         try:
             old_instance = UserProfile.objects.get(pk=instance.pk)
             old_status = old_instance.verification_status

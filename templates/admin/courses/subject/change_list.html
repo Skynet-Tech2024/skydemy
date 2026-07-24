@@ -6,7 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* ============================================================
-           SKYDEMY SUBJECT ADMIN – Modern Dashboard Style
+           SKYDEMY SUBJECT ADMIN – Modern Dashboard Style (High Contrast)
            ============================================================ */
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -16,13 +16,13 @@
             background: #F6F7F9 !important;
         }
 
-        /* ----- Header (Green with Gold) ----- */
+        /* ----- Header ----- */
         #header {
             background: #0B7A3B !important;
             color: #fff !important;
             padding: 16px 30px !important;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
             border-bottom: 3px solid #D4AF37 !important;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
         }
         #header h1 a {
             color: #fff !important;
@@ -30,7 +30,6 @@
         #header h1 a span.gold {
             color: #D4AF37 !important;
         }
-
         .user-tools {
             font-size: 14px !important;
         }
@@ -75,7 +74,7 @@
         }
         .page-header .title-section .subtitle {
             font-size: 14px !important;
-            color: #64748B !important;
+            color: #4B5563 !important; /* darker gray for contrast */
             font-weight: 400 !important;
         }
         .page-header .actions {
@@ -105,7 +104,7 @@
             box-shadow: 0 4px 16px rgba(11, 122, 59, 0.35) !important;
         }
 
-        /* ----- Stats Cards Grid ----- */
+        /* ----- Stats Cards (High contrast numbers) ----- */
         .stats-grid {
             display: grid !important;
             grid-template-columns: repeat(4, 1fr) !important;
@@ -142,7 +141,7 @@
         }
         .stat-card .stat-label {
             font-size: 14px !important;
-            color: #64748B !important;
+            color: #4B5563 !important; /* darker for contrast */
             font-weight: 500 !important;
             margin-top: 2px !important;
             padding-left: 32px !important;
@@ -167,7 +166,7 @@
             width: 100% !important;
             max-width: 420px !important;
             padding: 12px 18px 12px 46px !important;
-            border: 1.5px solid #E5E7EB !important;
+            border: 1.5px solid #D1D5DB !important;
             border-radius: 40px !important;
             font-size: 14px !important;
             background: #FFFFFF !important;
@@ -181,14 +180,14 @@
             box-shadow: 0 0 0 3px rgba(11, 122, 59, 0.1) !important;
         }
         #searchbar::placeholder {
-            color: #94A3B8 !important;
+            color: #6B7280 !important; /* darker placeholder */
         }
         .search-icon {
             position: absolute !important;
             left: 16px !important;
             top: 50% !important;
             transform: translateY(-50%) !important;
-            color: #94A3B8 !important;
+            color: #6B7280 !important;
             font-size: 16px !important;
             pointer-events: none !important;
         }
@@ -202,7 +201,7 @@
             border-left: none !important;
         }
         .breadcrumbs a {
-            color: #64748B !important;
+            color: #4B5563 !important;
             font-size: 13px !important;
             text-decoration: none !important;
         }
@@ -214,7 +213,7 @@
             font-weight: 600 !important;
         }
         .breadcrumbs .separator {
-            color: #94A3B8 !important;
+            color: #9CA3AF !important;
             margin: 0 6px !important;
         }
 
@@ -231,11 +230,11 @@
             border-collapse: collapse !important;
         }
         table th {
-            background: #F8FAFC !important;
+            background: #F1F5F9 !important; /* slightly darker for contrast */
             color: #1F2937 !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
             padding: 14px 18px !important;
-            border-bottom: 1.5px solid #E5E7EB !important;
+            border-bottom: 2px solid #E5E7EB !important;
             font-size: 12px !important;
             text-transform: uppercase !important;
             letter-spacing: 0.4px !important;
@@ -256,27 +255,28 @@
             border-bottom: none !important;
         }
 
-        /* ----- Status Badges ----- */
+        /* ----- Status Badges (High Contrast) ----- */
         .status-badge {
             display: inline-flex !important;
             align-items: center !important;
             gap: 6px !important;
-            padding: 5px 16px !important;
+            padding: 6px 18px !important;
             border-radius: 40px !important;
             font-size: 13px !important;
             font-weight: 600 !important;
+            letter-spacing: 0.3px !important;
         }
         .status-badge.approved {
-            background: #D1FAE5 !important;
-            color: #065F46 !important;
+            background: #0B7A3B !important;
+            color: #FFFFFF !important;
         }
         .status-badge.pending {
-            background: #FEF3C7 !important;
-            color: #92400E !important;
+            background: #D97706 !important;
+            color: #FFFFFF !important;
         }
         .status-badge.rejected {
-            background: #FEE2E2 !important;
-            color: #991B1B !important;
+            background: #DC2626 !important;
+            color: #FFFFFF !important;
         }
 
         /* ----- Add Button (inside table) ----- */
@@ -317,7 +317,7 @@
         /* ----- Pagination ----- */
         .paginator {
             background: transparent !important;
-            color: #64748B !important;
+            color: #4B5563 !important;
             padding: 16px 0 0 !important;
         }
         .paginator a {
@@ -352,7 +352,7 @@
             margin-bottom: 12px !important;
         }
         #changelist-filter a {
-            color: #64748B !important;
+            color: #4B5563 !important;
             font-size: 13px !important;
             text-decoration: none !important;
             display: block !important;
@@ -533,7 +533,7 @@
             });
         })();
 
-        // ===== Add status badges to the table =====
+        // ===== Add high-contrast status badges to the table =====
         document.addEventListener('DOMContentLoaded', function() {
             const cells = document.querySelectorAll('td');
             cells.forEach(cell => {

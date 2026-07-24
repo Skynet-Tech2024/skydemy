@@ -199,6 +199,10 @@ class ExamResultAdmin(admin.ModelAdmin):
     list_display = ('user', 'exam', 'percentage', 'passed', 'date_taken')
     list_filter = ('passed',)
 
+    def changelist_view(self, request, extra_context=None):
+        # Redirect to custom Exam Result dashboard page
+        return redirect('examresult_list')
+
 
 # ===== Certificate Admin =====
 class CertificateAdmin(admin.ModelAdmin):

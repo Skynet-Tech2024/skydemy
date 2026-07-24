@@ -1,6 +1,6 @@
 from django.contrib import admin
 from datetime import datetime
-from django.shortcuts import render, redirect  # <-- added redirect
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
@@ -186,28 +186,8 @@ class ExamAdmin(admin.ModelAdmin):
     reject_exams.short_description = "Reject selected exams"
 
     def changelist_view(self, request, extra_context=None):
-        if request.method == 'POST' and request.POST.get('action') == 'delete_selected':
-            if not request.POST.get('confirm'):
-                selected_pks = request.POST.getlist('_selected_action')
-                if not selected_pks:
-                    messages.warning(request, "No items selected.")
-                    return HttpResponseRedirect(request.get_full_path())
-                context = {
-                    'selected_pks': selected_pks,
-                    'selected_count': len(selected_pks),
-                    'is_popup': request.GET.get('_popup', False),
-                    'to_field': request.GET.get('to_field', None),
-                }
-                return render(request, 'admin/courses/exam/bulk_delete_confirmation.html', context)
-            else:
-                selected_pks = request.POST.getlist('_selected_action')
-                if selected_pks:
-                    Exam.objects.filter(pk__in=selected_pks).delete()
-                    messages.success(request, f"Successfully deleted {len(selected_pks)} exam(s).")
-                else:
-                    messages.warning(request, "No items selected.")
-                return HttpResponseRedirect(reverse('admin:courses_exam_changelist'))
-        return super().changelist_view(request, extra_context)
+        # Redirect to custom Exam dashboard page
+        return redirect('exam_list')
 
 
 # ===== ExamResult Admin =====

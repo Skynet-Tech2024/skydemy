@@ -14,21 +14,21 @@ def register(request):
         form = RegisterStep1Form(request.POST)
         if form.is_valid():
             try:
-                # The form's save() already creates the user and saves full_name to profile
-               user = form.save()
+                # Create the user (form saves only User, not profile)
+                user = form.save()
 
-# Update profile with full_name and default values
-profile = user.profile  # This should exist because of the signal
-profile.full_name = form.cleaned_data['full_name']
-profile.role = 'learner'  # default role
-profile.verification_status = 'pending'  # pending approval
-profile.save()  # This saves user and profile
-                
+                # Now update the profile
+                profile = user.profile
+                profile.full_name = form.cleaned_data['full_name']
+                profile.role = 'learner'
+                profile.verification_status = 'pending'
+                profile.save()
+
                 # Store user ID in session for Step 2
                 request.session['temp_user_id'] = user.id
                 print(f"🟢 User and profile created: {user.username}, ID: {user.id}")
 
-                messages.success(request, "✅ Account created! Your account is now pending review. You'll receive a notification once approved. Please complete your profile!")
+                messages.success(request, "✅ Account created! Please complete your profile.")
                 return redirect('/users/complete-profile/')
 
             except Exception as e:
@@ -60,7 +60,7 @@ def complete_profile(request):
     if request.method == 'POST':
         # Collect profile fields
         level = request.POST.get('level')
-        phone_number = request.POST.get('phone_number')  # changed from whatsapp_number
+        phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
         role = request.POST.get('role')
         school_name = request.POST.get('school_name', '')
@@ -110,10 +110,10 @@ def complete_profile(request):
 
         # Update profile
         profile.level = level
-        profile.phone_number = phone_number  # changed from whatsapp_number
+        profile.phone_number = phone_number
         profile.address = address
         profile.role = role
-        # Uncomment if you add school_name field to UserProfile:
+        # Uncomment if you have school_name field:
         # profile.school_name = school_name
         profile.save()
 

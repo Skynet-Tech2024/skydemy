@@ -447,3 +447,39 @@ def batch_exam_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('exam_list')
+
+# ===== CERTIFICATE LIST VIEW =====
+@staff_member_required
+def certificate_list(request):
+    """Admin view to list all certificates with stat cards and batch actions."""
+    certificates = Certificate.objects.select_related('user', 'lesson', 'exam').all().order_by('-issued_date')
+    total_count = certificates.count()
+    by_lesson_count = certificates.exclude(lesson=None).count()
+    by_exam_count = certificates.exclude(exam=None).count()
+    unique_users_count = certificates.values('user').distinct().count()
+    context = {
+        'certificates': certificates,
+        'total_count': total_count,
+        'by_lesson_count': by_lesson_count,
+        'by_exam_count': by_exam_count,
+        'unique_users_count': unique_users_count,
+    }
+    return render(request, 'dashboard/certificate_list.html', context)
+
+# ===== BATCH CERTIFICATE ACTION =====
+@staff_member_required
+def batch_certificate_action(request):
+    if request.method != 'POST':
+        return redirect('certificate_list')
+    action = request.POST.get('action')
+    selected_ids = request.POST.getlist('selected_ids')
+    if not selected_ids:
+        messages.warning(request, "No certificates selected.")
+        return redirect('certificate_list')
+    if action == 'delete_selected_certificates':
+        count = Certificate.objects.filter(id__in=selected_ids).count()
+        Certificate.objects.filter(id__in=selected_ids).delete()
+        messages.success(request, f"{count} certificate(s) deleted.")
+    else:
+        messages.error(request, "Invalid action.")
+    return redirect('certificate_list')

@@ -372,3 +372,20 @@ def subject_list(request):
     """Admin view to list all subjects with their details."""
     subjects = Subject.objects.select_related('proposed_by').all().order_by('name')
     return render(request, 'dashboard/subject_list.html', {'subjects': subjects})
+def subject_list(request):
+    from courses.models import Subject
+    subjects = Subject.objects.all().order_by('-created_at')
+    
+    total_count = subjects.count()
+    pending_count = subjects.filter(status='pending').count()
+    approved_count = subjects.filter(status='approved').count()
+    rejected_count = subjects.filter(status='rejected').count()
+    
+    context = {
+        'subjects': subjects,
+        'total_count': total_count,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+    }
+    return render(request, 'dashboard/subject_list.html', context)

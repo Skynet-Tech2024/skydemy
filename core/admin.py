@@ -7,6 +7,12 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.conf import settings
+from django.utils import timezone
+from django.db.models import Count
+
+# Import models for statistics
+from courses.models import Course, Lesson, Exam, ExamResult, Certificate
+from users.models import UserProfile
 
 
 class SKYDEMYAdminSite(AdminSite):
@@ -63,6 +69,57 @@ class SKYDEMYAdminSite(AdminSite):
         <p><strong>DEBUG:</strong> {settings.DEBUG}</p>
         """
         return HttpResponse(response)
+
+    def index(self, request, extra_context=None):
+        """
+        Override the default admin index to add statistics, charts data,
+        and quick actions context for the dashboard.
+        """
+        extra_context = extra_context or {}
+
+        # ===== STATISTICS COUNTS =====
+        # Student and teacher counts
+        extra_context['total_students'] = UserProfile.objects.filter(role='learner').count()
+        extra_context['total_teachers'] = UserProfile.objects.filter(role='teacher').count()
+
+        # Course and lesson counts
+        extra_context['total_courses'] = Course.objects.count()
+        extra_context['total_lessons'] = Lesson.objects.count()
+
+        # Exam and certificate counts
+        extra_context['total_exams'] = Exam.objects.count()
+        extra_context['total_certificates'] = Certificate.objects.count()
+
+        # Active today (users who logged in today)
+        today = timezone.now().date()
+        extra_context['active_today'] = UserProfile.objects.filter(
+            user__last_login__date=today
+        ).count()
+
+        # ===== CHART DATA (sample – replace with real data later) =====
+        # Student registrations over time (last 6 months)
+        extra_context['student_chart_data'] = [5, 10, 15, 20, 25, 30, 35]
+
+        # Course completion breakdown (sample)
+        total_lessons = Lesson.objects.count()
+        if total_lessons > 0:
+            # For demo: completed, in-progress, not-started
+            completed = Lesson.objects.filter(progress__completed=True).distinct().count()
+            in_progress = Lesson.objects.filter(progress__completed=False).distinct().count()
+            not_started = total_lessons - (completed + in_progress)
+            extra_context['completion_data'] = [completed, in_progress, not_started]
+        else:
+            extra_context['completion_data'] = [0, 0, 100]
+
+        # ===== RECENT ACTIVITIES (sample – replace with real data later) =====
+        extra_context['recent_activities'] = [
+            {'user': 'John Doe', 'action': 'enrolled in Mathematics', 'time': '2 minutes ago'},
+            {'user': 'Jane Smith', 'action': 'uploaded Algebra Lesson', 'time': '15 minutes ago'},
+            {'user': 'Peter Pan', 'action': 'completed HTML Course', 'time': '1 hour ago'},
+            {'user': 'Mary Jane', 'action': 'created a new exam', 'time': '3 hours ago'},
+        ]
+
+        return super().index(request, extra_context)
 
 
 # Create an instance of the custom admin site

@@ -4,7 +4,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from cloudinary.models import CloudinaryField
 from django.core.validators import MinValueValidator, MaxValueValidator
-from users.utils import create_notification
 
 class UserProfile(models.Model):
     ROLE_CHOICES = (
@@ -179,6 +178,8 @@ def notify_user_on_verification(sender, instance, created, **kwargs):
             old_status = old_instance.verification_status
             new_status = instance.verification_status
             if old_status != new_status and new_status in ['approved', 'verified']:
+                # Local import to avoid circular dependency
+                from users.utils import create_notification
                 create_notification(
                     user=instance.user,
                     notification_type='system',

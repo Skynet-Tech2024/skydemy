@@ -144,7 +144,8 @@ class Progress(models.Model):
     
     class Meta:
         unique_together = ('user', 'lesson')
-    
+        verbose_name_plural = "Progress"   # <-- FIXED TYPO
+
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"
 

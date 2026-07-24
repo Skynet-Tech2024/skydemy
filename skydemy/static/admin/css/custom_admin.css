@@ -1,0 +1,16 @@
+﻿/* Force high contrast on selected table rows */
+.change-list .results table tbody tr.selected {
+    background-color: #e5f0fa !important;
+}
+.change-list .results table tbody tr.selected td {
+    color: #1e293b !important;
+}
+.change-list .results table tbody tr.row-selected {
+    background-color: #e5f0fa !important;
+}
+.change-list .results table tbody tr.row-selected td {
+    color: #1e293b !important;
+}
+.change-list .results table tbody tr td.action-checkbox {
+    vertical-align: middle;
+}

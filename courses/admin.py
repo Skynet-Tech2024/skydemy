@@ -8,22 +8,20 @@ from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certifi
 from users.utils import create_notification
 from core.admin import admin_site
 
-# ===== Subject Admin (with actions and professional theme, no 'code' field) =====
+# ===== Subject Admin =====
 class SubjectAdmin(admin.ModelAdmin):
-  list_display = ('name', 'code', 'level', 'status', 'proposed_by', 'created_at')
+    list_display = ('name', 'code', 'level', 'status', 'proposed_by', 'created_at')
     list_filter = ('level', 'status')
-    search_fields = ('name',)  # Removed 'code' from search_fields
+    search_fields = ('name',)
     actions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects']
 
     def changelist_view(self, request, extra_context=None):
-        # Add counts for the template
         extra_context = extra_context or {}
         extra_context['pending_count'] = Subject.objects.filter(status='pending').count()
         extra_context['approved_count'] = Subject.objects.filter(status='approved').count()
         extra_context['rejected_count'] = Subject.objects.filter(status='rejected').count()
         return super().changelist_view(request, extra_context=extra_context)
 
-    # ---- Batch Actions ----
     def approve_subjects(self, request, queryset):
         count = queryset.update(status='approved')
         self.message_user(request, f"{count} subject(s) approved.", messages.SUCCESS)
@@ -54,8 +52,6 @@ class LessonAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description')
     readonly_fields = ('created_at', 'updated_at', 'views')
     actions = ['approve_lessons', 'reject_lessons']
-    
-    delete_confirmation_template = 'admin/courses/lesson/delete_confirmation.html'
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -80,7 +76,7 @@ class LessonAdmin(admin.ModelAdmin):
             )
         self.message_user(request, f'{updated} lesson(s) approved.')
     approve_lessons.short_description = "Approve selected lessons"
-    
+
     def reject_lessons(self, request, queryset):
         updated = 0
         for lesson in queryset:
@@ -98,7 +94,6 @@ class LessonAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} lesson(s) rejected.')
     reject_lessons.short_description = "Reject selected lessons"
 
-    # Custom changelist view to handle bulk actions with SweetAlert
     def changelist_view(self, request, extra_context=None):
         if request.method == 'POST' and request.POST.get('action') in ['delete_selected', 'approve_lessons', 'reject_lessons']:
             action = request.POST.get('action')
@@ -107,13 +102,11 @@ class LessonAdmin(admin.ModelAdmin):
                 if not selected_pks:
                     messages.warning(request, "No items selected.")
                     return HttpResponseRedirect(request.get_full_path())
-                
                 action_display = {
                     'delete_selected': 'Delete',
                     'approve_lessons': 'Approve',
                     'reject_lessons': 'Reject'
                 }.get(action, action)
-                
                 context = {
                     'selected_pks': selected_pks,
                     'selected_count': len(selected_pks),
@@ -128,9 +121,7 @@ class LessonAdmin(admin.ModelAdmin):
                 if not selected_pks:
                     messages.warning(request, "No items selected.")
                     return HttpResponseRedirect(request.get_full_path())
-                
                 queryset = Lesson.objects.filter(pk__in=selected_pks)
-                
                 if action == 'delete_selected':
                     count = queryset.count()
                     queryset.delete()
@@ -139,9 +130,7 @@ class LessonAdmin(admin.ModelAdmin):
                     self.approve_lessons(request, queryset)
                 elif action == 'reject_lessons':
                     self.reject_lessons(request, queryset)
-                
                 return HttpResponseRedirect(reverse('admin:courses_lesson_changelist'))
-        
         return super().changelist_view(request, extra_context)
 
 
@@ -157,8 +146,6 @@ class ExamAdmin(admin.ModelAdmin):
     list_filter = ('status', 'lesson__level')
     search_fields = ('title', 'lesson__title')
     actions = ['approve_exams', 'reject_exams']
-    
-    delete_confirmation_template = 'admin/courses/exam/delete_confirmation.html'
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -183,7 +170,7 @@ class ExamAdmin(admin.ModelAdmin):
             )
         self.message_user(request, f'{updated} exam(s) approved.')
     approve_exams.short_description = "Approve selected exams"
-    
+
     def reject_exams(self, request, queryset):
         updated = 0
         for exam in queryset:
@@ -208,7 +195,6 @@ class ExamAdmin(admin.ModelAdmin):
                 if not selected_pks:
                     messages.warning(request, "No items selected.")
                     return HttpResponseRedirect(request.get_full_path())
-                
                 context = {
                     'selected_pks': selected_pks,
                     'selected_count': len(selected_pks),
@@ -224,7 +210,6 @@ class ExamAdmin(admin.ModelAdmin):
                 else:
                     messages.warning(request, "No items selected.")
                 return HttpResponseRedirect(reverse('admin:courses_exam_changelist'))
-        
         return super().changelist_view(request, extra_context)
 
 

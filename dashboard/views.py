@@ -13,6 +13,7 @@ from django.conf import settings
 from pathlib import Path
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
+from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject
 
 def home(request):
     return render(request, 'dashboard/landing.html')
@@ -365,3 +366,9 @@ def batch_teacher_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('teacher_list')
+# ===== SUBJECT LIST VIEW =====
+@staff_member_required
+def subject_list(request):
+    """Admin view to list all subjects with their details."""
+    subjects = Subject.objects.select_related('proposed_by').all().order_by('name')
+    return render(request, 'dashboard/subject_list.html', {'subjects': subjects})

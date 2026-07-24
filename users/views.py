@@ -76,25 +76,9 @@ def complete_profile(request):
         role = request.POST.get('role')
         school_name = request.POST.get('school_name', '')
 
-        # Validate required fields
+        # Validate required fields (only level and role are required)
         if not level:
             messages.error(request, "Education level is required.")
-            return render(request, 'users/complete_profile.html', {
-                'user': user,
-                'profile': profile,
-                'level_choices': UserProfile.LEVEL_CHOICES,
-                'role_choices': allowed_roles,
-            })
-        if not phone_number:
-            messages.error(request, "Phone number is required.")
-            return render(request, 'users/complete_profile.html', {
-                'user': user,
-                'profile': profile,
-                'level_choices': UserProfile.LEVEL_CHOICES,
-                'role_choices': allowed_roles,
-            })
-        if not address:
-            messages.error(request, "Address is required.")
             return render(request, 'users/complete_profile.html', {
                 'user': user,
                 'profile': profile,
@@ -131,8 +115,8 @@ def complete_profile(request):
 
         # Update profile
         profile.level = level
-        profile.phone_number = phone_number
-        profile.address = address
+        profile.phone_number = phone_number  # optional
+        profile.address = address            # optional
         profile.role = role
         # Uncomment if you have school_name field:
         # profile.school_name = school_name

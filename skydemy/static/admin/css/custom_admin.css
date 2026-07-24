@@ -1,4 +1,8 @@
-﻿/* Force high contrast on selected table rows */
+﻿/* ============================================
+   SKYDEMY ADMIN - COMPLETE CONTRAST FIXES
+   ============================================ */
+
+/* ===== 1. SELECTED ROW CONTRAST ===== */
 .change-list .results table tbody tr.selected {
     background-color: #e5f0fa !important;
 }
@@ -11,6 +15,114 @@
 .change-list .results table tbody tr.row-selected td {
     color: #1e293b !important;
 }
-.change-list .results table tbody tr td.action-checkbox {
-    vertical-align: middle;
+
+/* ===== 2. TABLE ROW HOVER ===== */
+.change-list .results table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+.change-list .results table tbody tr:hover td {
+    color: #0f172a !important;
+}
+
+/* ===== 3. STATUS BADGES - HIGH CONTRAST ===== */
+.field-status .badge,
+.field-status .pill,
+.badge.status-pending,
+.badge.status-approved,
+.badge.status-rejected {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+}
+
+/* Pending - Orange */
+.field-status .badge.status-pending,
+.badge-pending {
+    background-color: #f59e0b !important;
+    color: #ffffff !important;
+}
+
+/* Approved - Green */
+.field-status .badge.status-approved,
+.badge-approved {
+    background-color: #16a34a !important;
+    color: #ffffff !important;
+}
+
+/* Rejected - Red */
+.field-status .badge.status-rejected,
+.badge-rejected {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+}
+
+/* ===== 4. TABLE HEADERS ===== */
+.change-list .results table thead th {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
+}
+
+/* ===== 5. SEARCH BAR ===== */
+#searchbar {
+    color: #0f172a !important;
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+}
+#searchbar::placeholder {
+    color: #64748b !important;
+    opacity: 1 !important;
+}
+
+/* ===== 6. STAT CARDS ===== */
+.module .card,
+.dashboard-module .card {
+    background-color: #ffffff !important;
+}
+.module .card .card-title,
+.dashboard-module .card .card-title {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+.module .card .card-number {
+    color: #0b7a3b !important;
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+}
+
+/* ===== 7. ACTION BUTTONS ===== */
+.actions .button,
+.actions input[type="submit"] {
+    background-color: #0b7a3b !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 0.3rem 1rem !important;
+    border-radius: 0.25rem !important;
+}
+.actions select {
+    padding: 0.3rem 1rem !important;
+    border-radius: 0.25rem !important;
+    border: 1px solid #d1d5db !important;
+}
+
+/* ===== 8. SIDEBAR LINKS ===== */
+#nav-sidebar .model-name,
+#nav-sidebar a {
+    color: #1e293b !important;
+}
+#nav-sidebar .model-name:hover,
+#nav-sidebar a:hover {
+    color: #0b7a3b !important;
+}
+
+/* ===== 9. PAGE TITLE ===== */
+#content h1 {
+    color: #0f172a !important;
+}
+
+/* ===== 10. SUBTEXT / HELP TEXT ===== */
+.help,
+.help-text {
+    color: #4b5563 !important;
 }

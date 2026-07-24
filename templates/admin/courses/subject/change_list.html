@@ -269,7 +269,69 @@
         </form>
     </div>
 
+    <!-- ===== SWEETALERT CONFIRMATION ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        (function() {
+            const form = document.getElementById('changelist-form');
+            if (!form) return;
+
+            form.addEventListener('submit', function(e) {
+                // Get selected action and selected items
+                const actionSelect = document.querySelector('select[name="action"]');
+                const selectedAction = actionSelect ? actionSelect.value : '';
+                const checkedBoxes = document.querySelectorAll('input[name="_selected_action"]:checked');
+                const count = checkedBoxes.length;
+
+                // Only intercept our custom actions
+                const customActions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects'];
+                if (!selectedAction || !customActions.includes(selectedAction) || count === 0) {
+                    return; // let default behavior continue
+                }
+
+                e.preventDefault(); // stop submission
+
+                // Build the confirmation dialog
+                let actionLabel = '';
+                let icon = 'question';
+                let confirmColor = '#0B7A3B';
+                let confirmText = 'Yes, proceed';
+
+                if (selectedAction === 'approve_subjects') {
+                    actionLabel = 'Approve';
+                    icon = 'success';
+                    confirmColor = '#0B7A3B';
+                    confirmText = `Yes, approve ${count} subject(s)`;
+                } else if (selectedAction === 'reject_subjects') {
+                    actionLabel = 'Reject';
+                    icon = 'warning';
+                    confirmColor = '#D97706';
+                    confirmText = `Yes, reject ${count} subject(s)`;
+                } else if (selectedAction === 'delete_selected_subjects') {
+                    actionLabel = 'Delete';
+                    icon = 'error';
+                    confirmColor = '#DC2626';
+                    confirmText = `Yes, delete ${count} subject(s)`;
+                }
+
+                Swal.fire({
+                    title: `Are you sure?`,
+                    html: `You are about to <strong>${actionLabel.toLowerCase()}</strong> <strong>${count}</strong> subject(s).<br>This action cannot be undone.`,
+                    icon: icon,
+                    showCancelButton: true,
+                    confirmButtonColor: confirmColor,
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Re-submit the form without the event listener blocking
+                        form.submit();
+                    }
+                });
+            });
+        })();
+
         // ===== Add status badges to the table =====
         document.addEventListener('DOMContentLoaded', function() {
             const cells = document.querySelectorAll('td');

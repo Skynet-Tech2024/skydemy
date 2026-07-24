@@ -1,0 +1,288 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== SKYDEMY Admin Styling ===== */
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important; }
+        
+        body {
+            background: #0F172A !important;
+        }
+
+        #header {
+            background: #0B7A3B !important;
+            color: #fff !important;
+            border-bottom: 3px solid #D4AF37 !important;
+        }
+        #header h1 a { color: #fff !important; }
+        #header h1 a span.gold { color: #D4AF37 !important; }
+
+        /* ===== STATISTICS STRIP ===== */
+        .stats-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px 40px;
+            background: #1E293B;
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            border-left: 4px solid #D4AF37;
+            align-items: center;
+        }
+        .stats-strip .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #94A3B8;
+        }
+        .stats-strip .stat-item .stat-number {
+            font-weight: 700;
+            font-size: 20px;
+            color: #FFFFFF;
+        }
+        .stats-strip .stat-item .stat-label {
+            color: #94A3B8;
+            font-size: 13px;
+        }
+        .stats-strip .stat-divider {
+            width: 1px;
+            height: 30px;
+            background: #334155;
+        }
+        .stats-strip .stat-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .stat-badge.approved { background: #D1FAE5; color: #065F46; }
+        .stat-badge.pending { background: #FEF3C7; color: #92400E; }
+        .stat-badge.rejected { background: #FEE2E2; color: #991B1B; }
+
+        /* ===== TABLE ===== */
+        .results {
+            background: #1E293B !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            border: 1px solid #334155 !important;
+        }
+        table {
+            border-radius: 12px !important;
+            overflow: hidden !important;
+        }
+        table th {
+            background: #0F172A !important;
+            color: #94A3B8 !important;
+            font-weight: 600 !important;
+            padding: 14px 16px !important;
+            border-bottom: 1px solid #334155 !important;
+            font-size: 13px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+        }
+        table td {
+            padding: 14px 16px !important;
+            border-bottom: 1px solid #2D3748 !important;
+            color: #E2E8F0 !important;
+            font-size: 14px !important;
+            transition: background 0.2s !important;
+        }
+        table tr:hover td {
+            background: #2D3748 !important;
+        }
+        table tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.approved { background: #D1FAE5; color: #065F46; }
+        .status-badge.pending { background: #FEF3C7; color: #92400E; }
+        .status-badge.rejected { background: #FEE2E2; color: #991B1B; }
+
+        /* ===== ADD BUTTON ===== */
+        .addlink {
+            background: #0B7A3B !important;
+            color: #fff !important;
+            border-radius: 40px !important;
+            padding: 10px 24px !important;
+            font-weight: 600 !important;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s !important;
+            box-shadow: 0 2px 8px rgba(11, 122, 59, 0.3) !important;
+            border: none !important;
+            text-decoration: none !important;
+        }
+        .addlink:hover {
+            background: #1E9E58 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 16px rgba(11, 122, 59, 0.4) !important;
+        }
+        .addlink::before { content: "➕ "; }
+
+        /* ===== SEARCH BAR ===== */
+        #searchbar {
+            border-radius: 40px !important;
+            padding: 10px 18px 10px 40px !important;
+            background: #1E293B !important;
+            border: 1px solid #334155 !important;
+            color: #E2E8F0 !important;
+            font-size: 14px !important;
+            width: 280px !important;
+            transition: border-color 0.2s, box-shadow 0.2s !important;
+        }
+        #searchbar:focus {
+            outline: none !important;
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15) !important;
+        }
+        #searchbar::placeholder { color: #64748B !important; }
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+        .search-container .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748B;
+            font-size: 14px;
+        }
+
+        /* ===== BREADCRUMBS ===== */
+        .breadcrumbs {
+            background: #1E293B !important;
+            border-radius: 8px !important;
+            padding: 10px 20px !important;
+            margin-bottom: 20px !important;
+            border-left: 3px solid #D4AF37 !important;
+        }
+        .breadcrumbs a { color: #94A3B8 !important; }
+        .breadcrumbs a:hover { color: #D4AF37 !important; }
+        .breadcrumbs .current { color: #E2E8F0 !important; font-weight: 600 !important; }
+
+        /* ===== PAGINATION ===== */
+        .paginator {
+            background: transparent !important;
+            color: #94A3B8 !important;
+        }
+        .paginator a { color: #D4AF37 !important; }
+        .paginator .this-page { background: #0B7A3B !important; color: #fff !important; }
+
+        /* ===== FILTER ===== */
+        #changelist-filter {
+            background: #1E293B !important;
+            border-radius: 12px !important;
+            border: 1px solid #334155 !important;
+        }
+        #changelist-filter h3 { color: #E2E8F0 !important; }
+        #changelist-filter a { color: #94A3B8 !important; }
+        #changelist-filter a:hover { color: #D4AF37 !important; }
+        #changelist-filter .selected { color: #D4AF37 !important; font-weight: 600 !important; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .stats-strip { flex-direction: column; gap: 8px; align-items: flex-start; }
+            .stats-strip .stat-divider { display: none; }
+            #searchbar { width: 100% !important; }
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">🏠 Home</a>
+        &rsaquo; <a href="{% url 'admin:app_list' app_label='courses' %}">📚 Courses</a>
+        &rsaquo; <span class="current">📖 Subjects</span>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- ===== STATISTICS STRIP ===== -->
+    <div class="stats-strip">
+        <div class="stat-item">
+            <span class="stat-number">{{ cl.result_count }}</span>
+            <span class="stat-label">Total Subjects</span>
+        </div>
+        <span class="stat-divider"></span>
+        <div class="stat-item">
+            <span class="stat-number">{{ pending_count|default:"0" }}</span>
+            <span class="stat-label"><span class="stat-badge pending">🟡 Pending</span></span>
+        </div>
+        <span class="stat-divider"></span>
+        <div class="stat-item">
+            <span class="stat-number">{{ approved_count|default:"0" }}</span>
+            <span class="stat-label"><span class="stat-badge approved">🟢 Approved</span></span>
+        </div>
+        <span class="stat-divider"></span>
+        <div class="stat-item">
+            <span class="stat-number">{{ rejected_count|default:"0" }}</span>
+            <span class="stat-label"><span class="stat-badge rejected">🔴 Rejected</span></span>
+        </div>
+    </div>
+
+    <!-- ===== ORIGINAL CHANGE LIST ===== -->
+    <div id="content-main">
+        {% block object-tools %}
+            <div class="object-tools" style="margin-bottom: 16px;">
+                {% block object-tools-items %}
+                    <a href="{% url 'admin:courses_subject_add' %}" class="addlink">New Subject</a>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchbar" name="q" value="{{ cl.query }}" placeholder="Search by subject name..." oninput="this.form.submit()">
+        </div>
+
+        <form id="changelist-form" method="post" {% if cl.formset and cl.formset.is_multipart %}enctype="multipart/form-data"{% endif %} novalidate>
+            {% csrf_token %}
+            {% if cl.formset %}
+                <div>{{ cl.formset.management_form }}</div>
+            {% endif %}
+
+            <div class="results">
+                {% block result_list %}
+                    {% if action_form and actions_on_top and cl.show_admin_actions %}
+                        {% admin_actions %}
+                    {% endif %}
+                    {% result_list cl %}
+                    {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+                        {% admin_actions %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+
+            {% block pagination %}{{ block.super }}{% endblock %}
+        </form>
+    </div>
+
+    <script>
+        // ===== Add status badges to the table =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const cells = document.querySelectorAll('td');
+            cells.forEach(cell => {
+                const text = cell.textContent.trim();
+                if (text === 'Pending Review' || text === 'pending') {
+                    cell.innerHTML = '<span class="status-badge pending">🟡 Pending</span>';
+                } else if (text === 'Approved' || text === 'approved') {
+                    cell.innerHTML = '<span class="status-badge approved">🟢 Approved</span>';
+                } else if (text === 'Rejected' || text === 'rejected') {
+                    cell.innerHTML = '<span class="status-badge rejected">🔴 Rejected</span>';
+                }
+            });
+        });
+    </script>
+{% endblock %}

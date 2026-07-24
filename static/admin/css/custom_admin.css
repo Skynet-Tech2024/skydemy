@@ -426,3 +426,126 @@ div.breadcrumbs a {
         padding: 8px 10px !important;
     }
 }
+/* ============================================
+   STEP 7: FULL POLISH
+   ============================================ */
+
+/* ----- 1. Fade-in Animation ----- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.dashboard-stats .stat-card,
+.quick-actions,
+.chart-box,
+#recent-activities {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+.dashboard-stats .stat-card:nth-child(2) { animation-delay: 0.05s; }
+.dashboard-stats .stat-card:nth-child(3) { animation-delay: 0.10s; }
+.dashboard-stats .stat-card:nth-child(4) { animation-delay: 0.15s; }
+.dashboard-stats .stat-card:nth-child(5) { animation-delay: 0.20s; }
+.dashboard-stats .stat-card:nth-child(6) { animation-delay: 0.25s; }
+
+/* ----- 2. Stat Card Hover Enhancements ----- */
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+.stat-card:hover {
+    transform: translateY(-6px) scale(1.01) !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
+}
+.stat-card .icon {
+    transition: transform 0.3s ease;
+}
+.stat-card:hover .icon {
+    transform: scale(1.08) rotate(-2deg);
+}
+
+/* ----- 3. Sidebar polish ----- */
+#nav-sidebar ul li a {
+    transition: background 0.25s, color 0.25s, padding-left 0.25s !important;
+    position: relative;
+}
+#nav-sidebar ul li a:hover {
+    padding-left: 56px !important;
+    background: #0f172a !important;
+}
+#nav-sidebar ul li a:hover i {
+    color: #D4AF37 !important;
+    transition: color 0.3s;
+}
+#nav-sidebar ul li.current-model a {
+    background: #0f172a !important;
+    border-right: 4px solid #D4AF37 !important;
+}
+
+/* ----- 4. Header Sticky ----- */
+#header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 999 !important;
+    backdrop-filter: blur(4px);
+    background: rgba(14, 138, 58, 0.97) !important;
+}
+
+/* ----- 5. Gold accent on focus/active elements ----- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid #D4AF37 !important;
+    outline-offset: 2px;
+}
+
+/* ----- 6. Better scrollbar (optional, for modern browsers) ----- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #0E8A3A;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #06612A;
+}
+
+/* ----- 7. Responsive tweaks for small screens ----- */
+@media (max-width: 480px) {
+    .stat-card .info .number {
+        font-size: 18px !important;
+    }
+    .stat-card .icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    .quick-actions a {
+        font-size: 11px !important;
+        padding: 4px 10px !important;
+    }
+    #header {
+        height: auto !important;
+        padding: 8px 12px !important;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    #header h1 {
+        font-size: 18px !important;
+    }
+    .profile-dropdown .avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+}

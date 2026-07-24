@@ -1,0 +1,146 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Courses - SKYDEMY Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <h1 style="font-size: 28px; font-weight: 700; color: #0B7A3B;">
+            📚 Courses
+            <span style="font-size: 16px; font-weight: 400; color: #64748B; margin-left: 12px;">
+                ({{ courses.count }} total)
+            </span>
+        </h1>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'admin:courses_course_add' %}" style="background: #0B7A3B; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                + New Course
+            </a>
+            <a href="{% url 'admin:index' %}" style="background: #64748B; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                ← Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- ===== STAT CARDS ===== -->
+    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 24px;">
+        <div style="flex: 1 1 180px; background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #E5E7EB; text-align: center;">
+            <div style="font-size: 28px; font-weight: 700; color: #0B7A3B;">{{ total_count|default:courses.count }}</div>
+            <div style="color: #4B5563; font-size: 14px; font-weight: 500;">Total Courses</div>
+        </div>
+        <div style="flex: 1 1 180px; background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #E5E7EB; text-align: center;">
+            <div style="font-size: 28px; font-weight: 700; color: #2563EB;">{{ with_lessons_count|default:"0" }}</div>
+            <div style="color: #4B5563; font-size: 14px; font-weight: 500;">With Lessons</div>
+        </div>
+        <div style="flex: 1 1 180px; background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #E5E7EB; text-align: center;">
+            <div style="font-size: 28px; font-weight: 700; color: #7C3AED;">{{ without_lessons_count|default:"0" }}</div>
+            <div style="color: #4B5563; font-size: 14px; font-weight: 500;">Without Lessons</div>
+        </div>
+    </div>
+
+    <!-- ===== ACTION BUTTONS ===== -->
+    <div style="background: #F8FAFC; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; border: 1px solid #E5E7EB;">
+        <span style="font-weight: 600; color: #1F2937; font-size: 14px; margin-right: 8px;">Actions:</span>
+        <button onclick="batchAction('delete_selected_courses')" style="background: #EF4444; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s;">
+            🗑️ Delete
+        </button>
+        <span id="selected-count" style="color: #64748B; font-size: 13px; margin-left: auto;">0 selected</span>
+    </div>
+
+    <!-- ===== TABLE ===== -->
+    <form id="batch-form" method="post" action="{% url 'batch_course_action' %}">
+        {% csrf_token %}
+        <div style="background: #fff; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+                <thead style="background: #F8FAFC; border-bottom: 2px solid #E5E7EB;">
+                    <tr>
+                        <th style="padding: 12px 16px; text-align: left; width: 40px;">
+                            <input type="checkbox" id="select-all" onchange="toggleAll(this)" style="width: 16px; height: 16px; cursor: pointer;">
+                        </th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">#</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Code</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Name</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Description</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #1F2937; font-size: 13px;">Lessons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                        <tr style="border-bottom: 1px solid #F1F5F9; transition: 0.2s;" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='transparent'">
+                            <td style="padding: 12px 16px;">
+                                <input type="checkbox" name="selected_ids" value="{{ course.id }}" class="row-checkbox" onchange="updateSelectedCount()" style="width: 16px; height: 16px; cursor: pointer;">
+                            </td>
+                            <td style="padding: 12px 16px; color: #64748B; font-size: 14px;">{{ forloop.counter }}</td>
+                            <td style="padding: 12px 16px; font-weight: 500; color: #1F2937; font-size: 14px;">
+                                {{ course.code }}
+                            </td>
+                            <td style="padding: 12px 16px; color: #475569; font-size: 14px;">
+                                {{ course.name }}
+                            </td>
+                            <td style="padding: 12px 16px; color: #475569; font-size: 14px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ course.description|default:"—" }}
+                            </td>
+                            <td style="padding: 12px 16px; color: #475569; font-size: 14px; text-align: center;">
+                                {{ course.lesson_count|default:0 }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" style="padding: 60px 20px; text-align: center; color: #94A3B8; font-size: 16px;">
+                                📭 No courses created yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <input type="hidden" name="action" id="action-input" value="">
+    </form>
+</div>
+
+<!-- ===== SweetAlert2 ===== -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function toggleAll(master) {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
+        updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+        const checked = document.querySelectorAll('.row-checkbox:checked').length;
+        document.getElementById('selected-count').textContent = checked + ' selected';
+    }
+
+    function batchAction(action) {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        if (checked.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Courses Selected',
+                text: 'Please select at least one course.',
+                confirmButtonColor: '#0B7A3B',
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: '🗑️ Delete Courses?',
+            text: `You are about to delete ${checked.length} selected course(s). This action cannot be undone!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete them',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('action-input').value = 'delete_selected_courses';
+                document.getElementById('batch-form').submit();
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', updateSelectedCount);
+</script>
+{% endblock %}

@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_exempt
 from .forms import LessonForm, ExamForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
-from .utils import convert_uploaded_file_to_pdf  # <-- NEW IMPORT
+from .utils import convert_uploaded_file_to_pdf
 
 # ====== Core Lesson Views ======
 
@@ -25,7 +25,6 @@ def lesson_list(request):
     lessons = Lesson.objects.filter(status='approved').order_by('-created_at')
     
     if request.user.is_authenticated and request.user.profile.role == 'learner':
-        # Learner: only show lessons of their level
         lessons = lessons.filter(level=request.user.profile.level)
         following_ids = request.user.following.values_list('following_id', flat=True)
         wishlisted_ids = Wishlist.objects.filter(user=request.user).values_list('lesson_id', flat=True)
@@ -33,7 +32,6 @@ def lesson_list(request):
             lesson.is_following = lesson.teacher.id in following_ids
             lesson.is_wishlisted = lesson.id in wishlisted_ids
     else:
-        # Teacher/admin: show all lessons, no following/wishlist flags
         for lesson in lessons:
             lesson.is_following = False
             lesson.is_wishlisted = False
@@ -49,15 +47,12 @@ def upload_lesson(request):
 
     teacher_level = request.user.profile.level
 
-    # If the teacher has no level set, redirect them to profile
     if not teacher_level:
         messages.error(request, 'Please set your education level in your profile before uploading a lesson.')
         return redirect('profile')
 
     if request.method == 'POST':
-        # Use the form without the 'level' field
         form = LessonForm(request.POST, request.FILES)
-        # Remove 'level' from form fields so it's not validated
         if 'level' in form.fields:
             del form.fields['level']
         
@@ -65,10 +60,40 @@ def upload_lesson(request):
             lesson = form.save(commit=False)
             lesson.teacher = request.user
             lesson.status = 'pending'
-            # Force lesson level to match teacher's level
             lesson.level = teacher_level
 
-            # --- NEW: Handle file conversion (Word to PDF) ---
+            # --- Handle new subject creation ---
+            selected_subject_id = request.POST.get('subject')
+            new_subject_name = request.POST.get('new_subject_name', '').strip()
+            new_subject_code = request.POST.get('new_subject_code', '').strip()
+
+            # If a subject is selected from dropdown, use it
+            if selected_subject_id:
+                try:
+                    lesson.subject = Subject.objects.get(id=selected_subject_id)
+                except Subject.DoesNotExist:
+                    messages.error(request, 'Selected subject does not exist.')
+                    return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
+            elif new_subject_name:
+                # Check if subject already exists (case‑insensitive)
+                existing = Subject.objects.filter(name__iexact=new_subject_name, level=teacher_level).first()
+                if existing:
+                    lesson.subject = existing
+                    messages.info(request, f'Using existing subject "{existing.name}".')
+                else:
+                    # Create new subject with code
+                    subject = Subject.objects.create(
+                        name=new_subject_name,
+                        code=new_subject_code,
+                        level=teacher_level,
+                        proposed_by=request.user,
+                        status='pending'
+                    )
+                    lesson.subject = subject
+                    messages.success(request, f'New subject "{subject.name}" created and pending approval.')
+            # If no subject selected and no new name, lesson.subject will remain None
+
+            # --- Handle file conversion (Word to PDF) ---
             uploaded_file = request.FILES.get('pdf_file')
             if uploaded_file:
                 ext = os.path.splitext(uploaded_file.name)[1].lower()
@@ -82,12 +107,12 @@ def upload_lesson(request):
                         messages.error(request, f"Failed to convert Word document: {e}")
                         return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
                 else:
-                    # It's already a PDF
                     lesson.pdf_file = uploaded_file
                     lesson.is_converted = False
 
+            # Validate subject/course based on level
             if lesson.level in ['primary', 'secondary'] and not lesson.subject:
-                messages.error(request, 'Please select a subject for primary/secondary level.')
+                messages.error(request, 'Please select a subject or create a new one for primary/secondary level.')
                 return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
             if lesson.level == 'university' and not lesson.course:
                 messages.error(request, 'Please select a course for university level.')
@@ -109,10 +134,8 @@ def upload_lesson(request):
             messages.success(request, 'Lesson uploaded successfully and is pending admin review!')
             return redirect('dashboard')
         else:
-            # Form invalid – re‑render with teacher_level
             return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
     else:
-        # GET request – create form without the 'level' field
         form = LessonForm()
         if 'level' in form.fields:
             del form.fields['level']
@@ -152,12 +175,10 @@ def view_lesson(request, lesson_id):
     lesson.views += 1
     lesson.save()
     
-    # ----- FIX: Correct Cloudinary URL for PDFs (replace image/upload with raw/upload) -----
     if lesson.pdf_file:
         lesson.pdf_url = lesson.pdf_file.url.replace('image/upload', 'raw/upload')
     else:
         lesson.pdf_url = None
-    # ------------------------------------------------------------------------------------
     
     if request.user.is_authenticated and request.user.profile.role == 'learner':
         progress, created = Progress.objects.get_or_create(
@@ -171,11 +192,9 @@ def view_lesson(request, lesson_id):
                 progress.completed = True
                 profile = request.user.profile
                 profile.total_lessons_completed += 1
-                # Use the model's rating calculation instead of manual assignment
-                profile.update_rating()  # this calculates a 0-5 rating based on engagement
+                profile.update_rating()
             progress.save()
     
-    # Check if user can view video (verified only)
     can_view_video = False
     if request.user.is_authenticated and request.user.profile.verification_status == 'verified':
         can_view_video = True
@@ -187,7 +206,6 @@ def view_lesson(request, lesson_id):
         'exam': exam,
         'can_view_video': can_view_video
     })
-
 
 def parse_exam_file(file):
     """Parse exam file (PDF or DOCX) and return list of questions in JSON format."""
@@ -219,7 +237,6 @@ def parse_exam_file(file):
     if not content.strip():
         raise ValueError("No text could be extracted from the file.")
     
-    # Parse content into questions
     questions = []
     lines = content.split('\n')
     current_question = None
@@ -313,7 +330,6 @@ def parse_exam_file(file):
     
     return questions
 
-
 @upload_access
 def add_exam(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
@@ -367,7 +383,6 @@ def add_exam(request, lesson_id):
         return redirect('view_lesson', lesson_id=lesson.id)
     
     return render(request, 'courses/add_exam.html', {'lesson': lesson})
-
 
 @lesson_access
 def take_exam(request, lesson_id):
@@ -446,12 +461,10 @@ def take_exam(request, lesson_id):
     
     return render(request, 'courses/take_exam.html', {'exam': exam, 'lesson': lesson})
 
-
 def exam_result(request, result_id):
     """Display the result of an exam."""
     result = get_object_or_404(ExamResult, id=result_id, user=request.user)
     return render(request, 'courses/exam_result.html', {'result': result})
-
 
 # ====== CONVERT LESSON TO VIDEO ======
 
@@ -463,41 +476,25 @@ def convert_to_video(request, lesson_id):
     """
     lesson = get_object_or_404(Lesson, id=lesson_id)
     
-    # Check if the current user is the teacher of this lesson or an admin
     if request.user != lesson.teacher and not request.user.is_superuser:
         messages.error(request, "You can only convert your own lessons.")
         return redirect('view_lesson', lesson_id=lesson.id)
     
-    # Only verified users can convert to video
     if request.user.profile.verification_status != 'verified' and not request.user.is_superuser:
         messages.error(request, "Only verified teachers can convert lessons to video. Please contact admin.")
         return redirect('view_lesson', lesson_id=lesson.id)
     
-    # Check if lesson already has a video
     if lesson.video_url or lesson.video_file:
         messages.warning(request, "This lesson already has a video.")
         return redirect('view_lesson', lesson_id=lesson.id)
     
-    # --- VIDEO GENERATION LOGIC ---
-    # Placeholder: In production, integrate with a video generation service
-    # like HeyGen, Synthesia, or use a library like moviepy to create a video
-    # from lesson content (text-to-speech + slides)
-    
-    # For now, we'll simulate the process:
-    # 1. Extract content from lesson
-    # 2. Generate a video using a service
-    # 3. Store the video URL or file
-    
-    # Simulated video URL (replace with actual service call)
-    video_url = "https://example.com/videos/generated/" + str(lesson.id) + ".mp4"
+    # Placeholder for actual video generation
     video_url = None  # Keep as None until actual implementation
     
     if video_url:
         lesson.video_url = video_url
         lesson.save()
         messages.success(request, f'🎬 Video successfully generated for "{lesson.title}"!')
-        
-        # Notify the teacher
         create_notification(
             user=request.user,
             notification_type='system',
@@ -507,11 +504,8 @@ def convert_to_video(request, lesson_id):
         )
     else:
         messages.info(request, "Video conversion is being processed. You will be notified when it's ready.")
-        # Here you can trigger a background task (Celery, Redis, etc.)
-        # For now, just show a placeholder message
     
     return redirect('view_lesson', lesson_id=lesson.id)
-
 
 # ========== EXAM MANAGEMENT FOR TEACHERS ==========
 

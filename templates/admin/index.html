@@ -123,7 +123,7 @@
             color: #64748B !important;
             font-weight: 500 !important;
             margin-top: 2px !important;
-            padding-left: 32px !important;  /* aligns label under the number */
+            padding-left: 32px !important;
         }
 
         .stat-card.gold { border-left-color: #D4AF37 !important; }
@@ -263,8 +263,8 @@
 
 <!-- ===== STATISTICS CARDS ===== -->
 <div class="stats-grid">
-    <!-- Students -->
-    <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=learner" class="stat-card-link">
+    <!-- Students → dashboard student_list -->
+    <a href="{% url 'student_list' %}" class="stat-card-link">
         <div class="stat-card">
             <div class="stat-row">
                 <span class="stat-icon">👨‍🎓</span>
@@ -274,8 +274,8 @@
         </div>
     </a>
 
-    <!-- Teachers -->
-    <a href="{% url 'admin:users_userprofile_changelist' %}?role__exact=teacher" class="stat-card-link">
+    <!-- Teachers → dashboard teacher_list -->
+    <a href="{% url 'teacher_list' %}" class="stat-card-link">
         <div class="stat-card gold">
             <div class="stat-row">
                 <span class="stat-icon">👨‍🏫</span>
@@ -285,7 +285,7 @@
         </div>
     </a>
 
-    <!-- Courses -->
+    <!-- Courses → admin courses lesson list -->
     <a href="{% url 'admin:courses_lesson_changelist' %}" class="stat-card-link">
         <div class="stat-card blue">
             <div class="stat-row">
@@ -296,7 +296,7 @@
         </div>
     </a>
 
-    <!-- Exams -->
+    <!-- Exams → admin exams list -->
     <a href="{% url 'admin:courses_exam_changelist' %}" class="stat-card-link">
         <div class="stat-card purple">
             <div class="stat-row">

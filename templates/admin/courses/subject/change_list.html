@@ -1,0 +1,233 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        /* ----- Stat Cards ----- */
+        .subject-stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .subject-stats .stat-card {
+            flex: 1 1 180px;
+            background: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .subject-stats .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0B7A3B;
+            line-height: 1.2;
+        }
+        .subject-stats .stat-card .label {
+            color: #4B5563;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        /* ----- Header ----- */
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .subject-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+        .subject-header .btn-primary {
+            background-color: #0B7A3B;
+            color: #ffffff;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .subject-header .btn-primary:hover {
+            background-color: #09632f;
+            color: #ffffff;
+        }
+
+        /* ----- Search Bar ----- */
+        .subject-search {
+            margin-bottom: 1.5rem;
+        }
+        .subject-search #searchbar {
+            width: 100%;
+            max-width: 500px;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 0.75rem center;
+            background-size: 1.1rem;
+            color: #0f172a;
+        }
+        .subject-search #searchbar::placeholder {
+            color: #9CA3AF;
+        }
+
+        /* ----- Table ----- */
+        .subject-table {
+            background: #ffffff;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid #e5e7eb;
+        }
+        .subject-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .subject-table thead th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .subject-table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+        .subject-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        .subject-table tbody tr.selected {
+            background-color: #e5f0fa !important;
+        }
+        .subject-table tbody tr.selected td {
+            color: #1e293b !important;
+        }
+
+        /* ----- Status Badges ----- */
+        .badge-status {
+            padding: 0.2rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: inline-block;
+        }
+        .badge-status.pending {
+            background-color: #f59e0b;
+        }
+        .badge-status.approved {
+            background-color: #16a34a;
+        }
+        .badge-status.rejected {
+            background-color: #dc2626;
+        }
+
+        /* ----- Footer Info ----- */
+        .subject-footer {
+            margin-top: 1.25rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e5e7eb;
+            color: #6B7280;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .subject-footer .count {
+            font-weight: 500;
+            color: #0B7A3B;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+    <!-- ===== STAT CARDS ===== -->
+    <div class="subject-stats">
+        <div class="stat-card">
+            <div class="number">{{ cl.result_count }}</div>
+            <div class="label">Total Subjects</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ pending_count|default:"0" }}</div>
+            <div class="label">Pending</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ approved_count|default:"0" }}</div>
+            <div class="label">Approved</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ rejected_count|default:"0" }}</div>
+            <div class="label">Rejected</div>
+        </div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <div class="subject-header">
+        <h1>📚 Subjects</h1>
+        <div>
+            {% if has_add_permission %}
+                <a href="{% url 'admin:courses_subject_add' %}" class="btn-primary">+ New Subject</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ===== SEARCH ===== -->
+    <div class="subject-search">
+        {% block search %}
+            {{ block.super }}
+        {% endblock %}
+    </div>
+
+    <!-- ===== TABLE with ACTIONS ===== -->
+    <div class="subject-table">
+        {% block result_list %}
+            {% if action_form and actions_on_top and cl.show_admin_actions %}
+                {% include "admin/actions.html" %}
+            {% endif %}
+            {% result_list cl %}
+            {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+                {% include "admin/actions.html" %}
+            {% endif %}
+        {% endblock %}
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="subject-footer">
+        <span>
+            Showing <span class="count">{{ cl.result_count }}</span> subject{{ cl.result_count|pluralize }}
+        </span>
+        <span>
+            {% if cl.paginator.num_pages > 1 %}
+                Page {{ cl.page_num }} of {{ cl.paginator.num_pages }}
+            {% endif %}
+        </span>
+    </div>
+
+    <!-- ===== PAGINATION ===== -->
+    {% block pagination %}
+        {{ block.super }}
+    {% endblock %}
+
+</div>
+{% endblock %}

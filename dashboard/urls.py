@@ -9,7 +9,8 @@ from .views import (
     exam_list, batch_exam_action,
     certificate_list, batch_certificate_action,
     course_list, batch_course_action,
-    examresult_list, batch_examresult_action  # <-- added
+    examresult_list, batch_examresult_action,
+    lesson_list, batch_lesson_action  # <-- ADDED
 )
 
 urlpatterns = [
@@ -38,6 +39,10 @@ urlpatterns = [
     # Exam Results
     path('examresults/', examresult_list, name='examresult_list'),
     path('batch-examresult-action/', batch_examresult_action, name='batch_examresult_action'),
+
+    # Lessons
+    path('lessons/', lesson_list, name='lesson_list'),
+    path('batch-lesson-action/', batch_lesson_action, name='batch_lesson_action'),
 
     # Notifications
     path('notifications/', notifications, name='notifications'),

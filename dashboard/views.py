@@ -1,6 +1,6 @@
 from users.models import UserProfile, Follow, Wishlist, Message
 from django.contrib.auth import get_user_model
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Avg  # <-- Added Avg
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -519,3 +519,41 @@ def batch_course_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('course_list')
+
+# ===== EXAM RESULT LIST VIEW =====
+@staff_member_required
+def examresult_list(request):
+    """Admin view to list all exam results with stat cards and batch actions."""
+    from courses.models import ExamResult
+    results = ExamResult.objects.select_related('user', 'exam').all().order_by('-date_taken')
+    total_count = results.count()
+    passed_count = results.filter(passed=True).count()
+    failed_count = results.filter(passed=False).count()
+    avg_percentage = results.aggregate(avg=Avg('percentage'))['avg'] or 0
+    context = {
+        'results': results,
+        'total_count': total_count,
+        'passed_count': passed_count,
+        'failed_count': failed_count,
+        'avg_percentage': avg_percentage,
+    }
+    return render(request, 'dashboard/examresult_list.html', context)
+
+# ===== BATCH EXAM RESULT ACTION =====
+@staff_member_required
+def batch_examresult_action(request):
+    from courses.models import ExamResult
+    if request.method != 'POST':
+        return redirect('examresult_list')
+    action = request.POST.get('action')
+    selected_ids = request.POST.getlist('selected_ids')
+    if not selected_ids:
+        messages.warning(request, "No exam results selected.")
+        return redirect('examresult_list')
+    if action == 'delete_selected_examresults':
+        count = ExamResult.objects.filter(id__in=selected_ids).count()
+        ExamResult.objects.filter(id__in=selected_ids).delete()
+        messages.success(request, f"{count} exam result(s) deleted.")
+    else:
+        messages.error(request, "Invalid action.")
+    return redirect('examresult_list')

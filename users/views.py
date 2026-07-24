@@ -65,6 +65,9 @@ def complete_profile(request):
     user = get_object_or_404(User, id=user_id)
     profile = user.profile
 
+    # Define allowed roles (exclude admin)
+    allowed_roles = [choice for choice in UserProfile.ROLE_CHOICES if choice[0] != 'admin']
+
     if request.method == 'POST':
         # Collect profile fields
         level = request.POST.get('level')
@@ -80,7 +83,7 @@ def complete_profile(request):
                 'user': user,
                 'profile': profile,
                 'level_choices': UserProfile.LEVEL_CHOICES,
-                'role_choices': UserProfile.ROLE_CHOICES,
+                'role_choices': allowed_roles,
             })
         if not phone_number:
             messages.error(request, "Phone number is required.")
@@ -88,7 +91,7 @@ def complete_profile(request):
                 'user': user,
                 'profile': profile,
                 'level_choices': UserProfile.LEVEL_CHOICES,
-                'role_choices': UserProfile.ROLE_CHOICES,
+                'role_choices': allowed_roles,
             })
         if not address:
             messages.error(request, "Address is required.")
@@ -96,7 +99,7 @@ def complete_profile(request):
                 'user': user,
                 'profile': profile,
                 'level_choices': UserProfile.LEVEL_CHOICES,
-                'role_choices': UserProfile.ROLE_CHOICES,
+                'role_choices': allowed_roles,
             })
         if not role:
             messages.error(request, "Role is required.")
@@ -104,7 +107,17 @@ def complete_profile(request):
                 'user': user,
                 'profile': profile,
                 'level_choices': UserProfile.LEVEL_CHOICES,
-                'role_choices': UserProfile.ROLE_CHOICES,
+                'role_choices': allowed_roles,
+            })
+
+        # Prevent role being set to 'admin'
+        if role == 'admin':
+            messages.error(request, "Invalid role selection.")
+            return render(request, 'users/complete_profile.html', {
+                'user': user,
+                'profile': profile,
+                'level_choices': UserProfile.LEVEL_CHOICES,
+                'role_choices': allowed_roles,
             })
 
         if role == 'learner' and not school_name:
@@ -113,7 +126,7 @@ def complete_profile(request):
                 'user': user,
                 'profile': profile,
                 'level_choices': UserProfile.LEVEL_CHOICES,
-                'role_choices': UserProfile.ROLE_CHOICES,
+                'role_choices': allowed_roles,
             })
 
         # Update profile
@@ -133,12 +146,11 @@ def complete_profile(request):
         return redirect('dashboard')
 
     level_choices = UserProfile.LEVEL_CHOICES
-    role_choices = UserProfile.ROLE_CHOICES
     return render(request, 'users/complete_profile.html', {
         'user': user,
         'profile': profile,
         'level_choices': level_choices,
-        'role_choices': role_choices,
+        'role_choices': allowed_roles,
     })
 
 

@@ -202,7 +202,7 @@
                                 <td>
                                     <input type="checkbox" name="selected_ids" value="{{ result.pk }}" class="row-checkbox" onchange="updateSelectedCount()" style="width:16px; height:16px; cursor:pointer;">
                                 </td>
-                                {% for item in result|items %}
+                                {% for item in result %}
                                     <td>{{ item }}</td>
                                 {% endfor %}
                             </tr>

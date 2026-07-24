@@ -201,6 +201,10 @@ class CertificateAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'certificate_number', 'issued_date')
     search_fields = ('certificate_number',)
 
+    def changelist_view(self, request, extra_context=None):
+        # Redirect to custom Certificate dashboard page
+        return redirect('certificate_list')
+
 
 # ===== Register all models with the custom admin site =====
 admin_site.register(Subject, SubjectAdmin)

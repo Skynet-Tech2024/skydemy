@@ -219,7 +219,48 @@
             </div>
         </div>
     </div>
-
+<!-- ===== RECENT ACTIVITIES ===== -->
+<div style="background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
+    <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-clock" style="color: #0B7A3B;"></i> Recent Activities
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        {% for activity in recent_activities %}
+            <div style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; background: #F8FAFC; border-radius: 12px; border-left: 4px solid {% if activity.color == 'green' %}#0E8A3A{% elif activity.color == 'gold' %}#D4AF37{% elif activity.color == 'blue' %}#2563EB{% elif activity.color == 'purple' %}#7C3AED{% elif activity.color == 'orange' %}#F59E0B{% else %}#94A3B8{% endif %}; transition: background 0.2s;" onmouseenter="this.style.background='#F1F5F9'" onmouseleave="this.style.background='#F8FAFC'">
+                <!-- Avatar -->
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #0E8A3A; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0;">
+                    {{ activity.username|slice:":1"|upper }}
+                </div>
+                <!-- Activity details -->
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <strong style="color: #0f172a;">{{ activity.username }}</strong>
+                        <span style="color: #64748B; font-size: 14px;">
+                            <i class="fas {{ activity.icon }}" style="color: {% if activity.color == 'green' %}#0E8A3A{% elif activity.color == 'gold' %}#D4AF37{% elif activity.color == 'blue' %}#2563EB{% elif activity.color == 'purple' %}#7C3AED{% elif activity.color == 'orange' %}#F59E0B{% else %}#94A3B8{% endif %};"></i>
+                            {{ activity.description }}
+                        </span>
+                    </div>
+                    <div style="color: #94A3B8; font-size: 12px; margin-top: 2px;">
+                        <i class="far fa-clock"></i> {{ activity.time_ago }}
+                    </div>
+                </div>
+                <!-- Link (if exists) -->
+                {% if activity.link %}
+                    <a href="{{ activity.link }}" style="color: #0B7A3B; text-decoration: none; font-size: 13px; font-weight: 500; white-space: nowrap;">
+                        View <i class="fas fa-arrow-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div style="padding: 40px 20px; text-align: center; color: #94A3B8; font-size: 15px;">
+                <i class="fas fa-inbox" style="font-size: 32px; display: block; margin-bottom: 8px; color: #CBD5E1;"></i>
+                No recent activities yet.
+                <br>
+                <span style="font-size: 13px;">Activities will appear here as users interact with the platform.</span>
+            </div>
+        {% endfor %}
+    </div>
+</div>
     <!-- ===== QUICK ACTIONS ===== -->
     <div class="quick-actions">
         <span class="title"><i class="fas fa-bolt"></i> Quick Actions:</span>

@@ -189,3 +189,28 @@ def notify_user_on_verification(sender, instance, created, **kwargs):
                 )
         except UserProfile.DoesNotExist:
             pass
+class Activity(models.Model):
+    ACTION_TYPES = (
+        ('user_registered', 'User Registered'),
+        ('user_logged_in', 'User Logged In'),
+        ('course_created', 'Course Created'),
+        ('lesson_uploaded', 'Lesson Uploaded'),
+        ('exam_created', 'Exam Created'),
+        ('certificate_issued', 'Certificate Issued'),
+        ('lesson_completed', 'Lesson Completed'),
+        ('exam_passed', 'Exam Passed'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='activities')
+    action = models.CharField(max_length=50, choices=ACTION_TYPES)
+    description = models.CharField(max_length=255)
+    link = models.CharField(max_length=255, blank=True, null=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Activities"
+
+    def __str__(self):
+        return f"{self.get_action_display()} by {self.user.username if self.user else 'System'} at {self.created_at}"

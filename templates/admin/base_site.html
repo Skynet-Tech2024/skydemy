@@ -1,8 +1,47 @@
-﻿{% extends "admin/base_site.html" %}
-
+﻿{% extends "admin/base.html" %}
 {% load static %}
+
+{% block title %}{{ title }} | SKYDEMY Admin{% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom Admin Styles -->
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
+    <!-- Custom Admin JS -->
+    <script src="{% static 'admin/js/custom_admin.js' %}"></script>
 {% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <span class="gold">SKY</span>DEMY
+        </a>
+    </h1>
+{% endblock %}
+
+{% block usertools %}
+    <div class="header-right">
+        <!-- Notification Bell -->
+        <a href="{% url 'admin:index' %}" class="notification-bell" title="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="badge">0</span> {# You can replace with dynamic count later #}
+        </a>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown">
+            <div class="avatar">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <div class="dropdown-menu">
+                <div class="username">{{ user.username }}</div>
+                <a href="{% url 'admin:password_change' %}"><i class="fas fa-key"></i> Change Password</a>
+                <div class="divider"></div>
+                <a href="{% url 'admin:logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{# Keep the rest of the admin content unchanged #}

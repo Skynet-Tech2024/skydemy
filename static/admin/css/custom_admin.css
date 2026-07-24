@@ -1,0 +1,133 @@
+/* ============================================
+   SKYDEMY ADMIN - CUSTOM HEADER
+   ============================================ */
+
+:root {
+  --skydemy-green: #0E8A3A;
+  --skydemy-dark-green: #06612A;
+  --skydemy-gold: #D4AF37;
+  --skydemy-light-gold: #F4E7B5;
+  --skydemy-bg: #F8FAFC;
+}
+
+/* ----- Top Header Bar ----- */
+#header {
+  background: var(--skydemy-green) !important;
+  padding: 0 20px !important;
+  height: 70px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 3px solid var(--skydemy-gold) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Brand / Logo */
+#header h1 {
+  margin: 0 !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+}
+#header h1 a {
+  color: #fff !important;
+  text-decoration: none !important;
+}
+#header h1 a .gold {
+  color: var(--skydemy-gold) !important;
+}
+
+/* ----- Right Side (Notifications + Profile) ----- */
+.header-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+}
+
+/* Notification Bell */
+.notification-bell {
+  position: relative;
+  color: #fff !important;
+  font-size: 20px !important;
+  cursor: pointer;
+  text-decoration: none;
+}
+.notification-bell .badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: #DC2626;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.profile-dropdown .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--skydemy-gold);
+  color: var(--skydemy-dark-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+.profile-dropdown .dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 48px;
+  background: #fff;
+  min-width: 180px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  padding: 8px 0;
+  z-index: 1000;
+}
+.profile-dropdown .dropdown-menu.show {
+  display: block;
+}
+.profile-dropdown .dropdown-menu a {
+  display: block;
+  padding: 8px 20px;
+  color: #1F2937 !important;
+  text-decoration: none !important;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.profile-dropdown .dropdown-menu a:hover {
+  background: #F1F5F9;
+}
+.profile-dropdown .dropdown-menu .divider {
+  height: 1px;
+  background: #E5E7EB;
+  margin: 4px 0;
+}
+.profile-dropdown .dropdown-menu .username {
+  padding: 8px 20px;
+  font-weight: 600;
+  color: #0B7A3B;
+  font-size: 14px;
+  border-bottom: 1px solid #E5E7EB;
+  margin-bottom: 4px;
+}
+
+/* ----- Responsive tweaks ----- */
+@media (max-width: 767px) {
+  #header { height: auto !important; padding: 10px 16px !important; flex-wrap: wrap; gap: 10px; }
+  .header-right { gap: 12px; }
+}

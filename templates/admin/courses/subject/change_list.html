@@ -1,551 +1,277 @@
 {% extends "admin/change_list.html" %}
-{% load i18n static admin_urls admin_list %}
+{% load i18n admin_urls static %}
 
-{% block extrahead %}
+{% block extrastyle %}
     {{ block.super }}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ============================================================
-           SKYDEMY SUBJECT ADMIN – Modern Dashboard Style (High Contrast)
-           ============================================================ */
-        * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        }
+        /* ============================================
+           SUBJECTS PAGE - STUDENTS PAGE DESIGN COPY
+           ============================================ */
 
-        body {
-            background: #F6F7F9 !important;
+        /* ----- Stat Cards ----- */
+        .subject-stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .subject-stats .stat-card {
+            flex: 1 1 180px;
+            background: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .subject-stats .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0B7A3B;
+            line-height: 1.2;
+        }
+        .subject-stats .stat-card .label {
+            color: #4B5563;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+        .subject-stats .stat-card .sub-label {
+            color: #9CA3AF;
+            font-size: 0.75rem;
         }
 
         /* ----- Header ----- */
-        #header {
-            background: #0B7A3B !important;
-            color: #fff !important;
-            padding: 16px 30px !important;
-            border-bottom: 3px solid #D4AF37 !important;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
         }
-        #header h1 a {
-            color: #fff !important;
+        .subject-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
         }
-        #header h1 a span.gold {
-            color: #D4AF37 !important;
+        .subject-header .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
         }
-        .user-tools {
-            font-size: 14px !important;
+        .subject-header .btn-primary {
+            background-color: #0B7A3B;
+            color: #ffffff;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
         }
-        .user-tools a {
-            color: #E5E7EB !important;
-            transition: color 0.2s !important;
+        .subject-header .btn-primary:hover {
+            background-color: #09632f;
+            color: #ffffff;
         }
-        .user-tools a:hover {
-            color: #D4AF37 !important;
-        }
-
-        /* ----- Main Content Area ----- */
-        #content {
-            padding: 30px !important;
-            max-width: 1400px !important;
-            margin: 0 auto !important;
-        }
-
-        /* ----- Page Header ----- */
-        .page-header {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            margin-bottom: 28px !important;
-            flex-wrap: wrap !important;
-            gap: 12px !important;
-        }
-        .page-header .title-section {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 2px !important;
-        }
-        .page-header .title-section h1 {
-            font-size: 28px !important;
-            font-weight: 800 !important;
-            color: #1F2937 !important;
-            margin: 0 !important;
-            letter-spacing: -0.5px !important;
-        }
-        .page-header .title-section h1 .icon {
-            margin-right: 8px !important;
-        }
-        .page-header .title-section .subtitle {
-            font-size: 14px !important;
-            color: #4B5563 !important; /* darker gray for contrast */
-            font-weight: 400 !important;
-        }
-        .page-header .actions {
-            display: flex !important;
-            gap: 12px !important;
-            align-items: center !important;
-        }
-        .page-header .actions .btn-primary {
-            background: #0B7A3B !important;
-            color: #fff !important;
-            border: none !important;
-            border-radius: 40px !important;
-            padding: 10px 24px !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            text-decoration: none !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            transition: background 0.2s, transform 0.2s, box-shadow 0.2s !important;
-            box-shadow: 0 2px 8px rgba(11, 122, 59, 0.25) !important;
-            cursor: pointer !important;
-        }
-        .page-header .actions .btn-primary:hover {
-            background: #1E9E58 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 16px rgba(11, 122, 59, 0.35) !important;
-        }
-
-        /* ----- Stats Cards (High contrast numbers) ----- */
-        .stats-grid {
-            display: grid !important;
-            grid-template-columns: repeat(4, 1fr) !important;
-            gap: 16px !important;
-            margin-bottom: 28px !important;
-        }
-        .stat-card {
-            background: #FFFFFF !important;
-            border-radius: 12px !important;
-            padding: 18px 22px !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
-            border: none !important;
-            border-left: 4px solid #0B7A3B !important;
-            transition: transform 0.2s, box-shadow 0.2s !important;
-        }
-        .stat-card:hover {
-            transform: translateY(-3px) !important;
-            box-shadow: 0 8px 24px -6px rgba(0,0,0,0.12) !important;
-        }
-        .stat-card .stat-row {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-        }
-        .stat-card .stat-icon {
-            font-size: 22px !important;
-            line-height: 1 !important;
-        }
-        .stat-card .stat-number {
-            font-size: 28px !important;
-            font-weight: 800 !important;
-            color: #1F2937 !important;
-            line-height: 1.2 !important;
-        }
-        .stat-card .stat-label {
-            font-size: 14px !important;
-            color: #4B5563 !important; /* darker for contrast */
-            font-weight: 500 !important;
-            margin-top: 2px !important;
-            padding-left: 32px !important;
-        }
-        .stat-card.gold { border-left-color: #D4AF37 !important; }
-        .stat-card.gold .stat-icon { color: #D4AF37 !important; }
-        .stat-card.green { border-left-color: #0B7A3B !important; }
-        .stat-card.green .stat-icon { color: #0B7A3B !important; }
-        .stat-card.red { border-left-color: #DC2626 !important; }
-        .stat-card.red .stat-icon { color: #DC2626 !important; }
-        .stat-card.orange { border-left-color: #D97706 !important; }
-        .stat-card.orange .stat-icon { color: #D97706 !important; }
 
         /* ----- Search Bar ----- */
-        .search-wrapper {
-            margin-bottom: 20px !important;
-            position: relative !important;
-            display: flex !important;
-            align-items: center !important;
+        .subject-search {
+            margin-bottom: 1.5rem;
         }
-        #searchbar {
-            width: 100% !important;
-            max-width: 420px !important;
-            padding: 12px 18px 12px 46px !important;
-            border: 1.5px solid #D1D5DB !important;
-            border-radius: 40px !important;
-            font-size: 14px !important;
-            background: #FFFFFF !important;
-            color: #1F2937 !important;
-            transition: border-color 0.2s, box-shadow 0.2s !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+        .subject-search #searchbar {
+            width: 100%;
+            max-width: 500px;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 0.75rem center;
+            background-size: 1.1rem;
+            color: #0f172a;
         }
-        #searchbar:focus {
-            outline: none !important;
-            border-color: #0B7A3B !important;
-            box-shadow: 0 0 0 3px rgba(11, 122, 59, 0.1) !important;
-        }
-        #searchbar::placeholder {
-            color: #6B7280 !important; /* darker placeholder */
-        }
-        .search-icon {
-            position: absolute !important;
-            left: 16px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            color: #6B7280 !important;
-            font-size: 16px !important;
-            pointer-events: none !important;
-        }
-
-        /* ----- Breadcrumbs ----- */
-        .breadcrumbs {
-            background: transparent !important;
-            padding: 0 0 16px 0 !important;
-            margin: 0 !important;
-            border-radius: 0 !important;
-            border-left: none !important;
-        }
-        .breadcrumbs a {
-            color: #4B5563 !important;
-            font-size: 13px !important;
-            text-decoration: none !important;
-        }
-        .breadcrumbs a:hover {
-            color: #0B7A3B !important;
-        }
-        .breadcrumbs .current {
-            color: #1F2937 !important;
-            font-weight: 600 !important;
-        }
-        .breadcrumbs .separator {
-            color: #9CA3AF !important;
-            margin: 0 6px !important;
+        .subject-search #searchbar::placeholder {
+            color: #9CA3AF;
         }
 
         /* ----- Table ----- */
-        .results {
-            background: #FFFFFF !important;
-            border-radius: 12px !important;
-            overflow: hidden !important;
-            border: 1px solid #E5E7EB !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+        .subject-table {
+            background: #ffffff;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid #e5e7eb;
         }
-        table {
-            width: 100% !important;
-            border-collapse: collapse !important;
+        .subject-table table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        table th {
-            background: #F1F5F9 !important; /* slightly darker for contrast */
-            color: #1F2937 !important;
-            font-weight: 700 !important;
-            padding: 14px 18px !important;
-            border-bottom: 2px solid #E5E7EB !important;
-            font-size: 12px !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.4px !important;
-            text-align: left !important;
+        .subject-table thead th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
         }
-        table td {
-            padding: 14px 18px !important;
-            border-bottom: 1px solid #F1F5F9 !important;
-            color: #1F2937 !important;
-            font-size: 14px !important;
-            transition: background 0.15s !important;
-            vertical-align: middle !important;
+        .subject-table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
         }
-        table tr:hover td {
-            background: #F8FAFC !important;
+        .subject-table tbody tr:hover {
+            background-color: #f8fafc;
         }
-        table tr:last-child td {
-            border-bottom: none !important;
+        /* Selected row contrast fix */
+        .subject-table tbody tr.selected {
+            background-color: #e5f0fa !important;
+        }
+        .subject-table tbody tr.selected td {
+            color: #1e293b !important;
         }
 
-        /* ----- Status Badges (High Contrast) ----- */
-        .status-badge {
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 6px !important;
-            padding: 6px 18px !important;
-            border-radius: 40px !important;
-            font-size: 13px !important;
-            font-weight: 600 !important;
-            letter-spacing: 0.3px !important;
+        /* ----- Status Badges ----- */
+        .badge-status {
+            padding: 0.2rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: inline-block;
         }
-        .status-badge.approved {
-            background: #0B7A3B !important;
-            color: #FFFFFF !important;
+        .badge-status.pending {
+            background-color: #f59e0b;
         }
-        .status-badge.pending {
-            background: #D97706 !important;
-            color: #FFFFFF !important;
+        .badge-status.approved {
+            background-color: #16a34a;
         }
-        .status-badge.rejected {
-            background: #DC2626 !important;
-            color: #FFFFFF !important;
+        .badge-status.rejected {
+            background-color: #dc2626;
         }
 
-        /* ----- Add Button (inside table) ----- */
-        .addlink {
-            background: #0B7A3B !important;
-            color: #fff !important;
-            border-radius: 40px !important;
-            padding: 8px 20px !important;
-            font-weight: 600 !important;
-            font-size: 13px !important;
-            text-decoration: none !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 6px !important;
-            transition: background 0.2s, transform 0.2s !important;
+        /* ----- Action Buttons (inline) ----- */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
-        .addlink:hover {
-            background: #1E9E58 !important;
-            transform: translateY(-1px) !important;
+        .action-buttons .btn-sm {
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
-        .addlink::before {
-            content: "➕ ";
+        .action-buttons .btn-approve {
+            background-color: #16a34a;
+            color: #ffffff;
         }
-
-        /* ----- Changelink (Edit) ----- */
-        .changelink {
-            color: #2563EB !important;
-            text-decoration: none !important;
-            font-weight: 500 !important;
-            font-size: 13px !important;
-            transition: color 0.2s !important;
+        .action-buttons .btn-reject {
+            background-color: #dc2626;
+            color: #ffffff;
         }
-        .changelink:hover {
-            color: #1D4ED8 !important;
-            text-decoration: underline !important;
+        .action-buttons .btn-delete {
+            background-color: #ef4444;
+            color: #ffffff;
         }
-
-        /* ----- Pagination ----- */
-        .paginator {
-            background: transparent !important;
-            color: #4B5563 !important;
-            padding: 16px 0 0 !important;
+        .action-buttons .btn-edit {
+            background-color: #3b82f6;
+            color: #ffffff;
         }
-        .paginator a {
-            color: #0B7A3B !important;
-            text-decoration: none !important;
-            padding: 4px 10px !important;
-            border-radius: 6px !important;
-            transition: background 0.2s !important;
-        }
-        .paginator a:hover {
-            background: #F0FDF4 !important;
-        }
-        .paginator .this-page {
-            background: #0B7A3B !important;
-            color: #fff !important;
-            padding: 4px 12px !important;
-            border-radius: 6px !important;
+        .action-buttons .btn-sm:hover {
+            opacity: 0.85;
         }
 
-        /* ----- Filter Sidebar ----- */
-        #changelist-filter {
-            background: #FFFFFF !important;
-            border-radius: 12px !important;
-            border: 1px solid #E5E7EB !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
-            padding: 16px !important;
+        /* ----- Footer Info ----- */
+        .subject-footer {
+            margin-top: 1.25rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e5e7eb;
+            color: #6B7280;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
-        #changelist-filter h3 {
-            color: #1F2937 !important;
-            font-size: 14px !important;
-            font-weight: 700 !important;
-            margin-bottom: 12px !important;
-        }
-        #changelist-filter a {
-            color: #4B5563 !important;
-            font-size: 13px !important;
-            text-decoration: none !important;
-            display: block !important;
-            padding: 4px 0 !important;
-            transition: color 0.2s !important;
-        }
-        #changelist-filter a:hover {
-            color: #0B7A3B !important;
-        }
-        #changelist-filter .selected {
-            color: #0B7A3B !important;
-            font-weight: 600 !important;
-        }
-
-        /* ----- Responsive ----- */
-        @media (max-width: 992px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
-            .page-header { flex-direction: column !important; align-items: flex-start !important; }
-            .page-header .actions { width: 100% !important; }
-            .page-header .actions .btn-primary { width: 100% !important; justify-content: center !important; }
-            #searchbar { max-width: 100% !important; }
-            .stat-card .stat-number { font-size: 22px !important; }
-            .stat-card .stat-label { padding-left: 0 !important; }
-        }
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
-            .stat-card { padding: 14px 18px !important; }
-            .stat-card .stat-number { font-size: 20px !important; }
-            table td { padding: 10px 14px !important; font-size: 13px !important; }
-            table th { padding: 10px 14px !important; font-size: 11px !important; }
+        .subject-footer .count {
+            font-weight: 500;
+            color: #0B7A3B;
         }
     </style>
 {% endblock %}
 
-{% block breadcrumbs %}
-    <div class="breadcrumbs">
-        <a href="{% url 'admin:index' %}">🏠 Home</a>
-        <span class="separator">›</span>
-        <a href="{% url 'admin:app_list' app_label='courses' %}">📚 Courses</a>
-        <span class="separator">›</span>
-        <span class="current">📖 Subjects</span>
-    </div>
-{% endblock %}
-
 {% block content %}
-    <!-- ===== PAGE HEADER ===== -->
-    <div class="page-header">
-        <div class="title-section">
-            <h1><span class="icon">📚</span> Subjects</h1>
-            <span class="subtitle">Manage all learning subjects on SKYDEMY.</span>
+<div class="module filtered" id="changelist">
+    
+    <!-- ===== STAT CARDS ===== -->
+    <div class="subject-stats">
+        <div class="stat-card">
+            <div class="number">{{ cl.result_count }}</div>
+            <div class="label">Total Subjects</div>
         </div>
-        <div class="actions">
-            <a href="{% url 'admin:courses_subject_add' %}" class="btn-primary">➕ New Subject</a>
+        <div class="stat-card">
+            <div class="number">{{ pending_count|default:"0" }}</div>
+            <div class="label">Pending</div>
         </div>
-    </div>
-
-    <!-- ===== STATISTICS CARDS ===== -->
-    <div class="stats-grid">
-        <div class="stat-card green">
-            <div class="stat-row">
-                <span class="stat-icon">📚</span>
-                <span class="stat-number">{{ cl.result_count }}</span>
-            </div>
-            <div class="stat-label">Total Subjects</div>
+        <div class="stat-card">
+            <div class="number">{{ approved_count|default:"0" }}</div>
+            <div class="label">Approved</div>
         </div>
-        <div class="stat-card orange">
-            <div class="stat-row">
-                <span class="stat-icon">🟡</span>
-                <span class="stat-number">{{ pending_count|default:"0" }}</span>
-            </div>
-            <div class="stat-label">Pending</div>
-        </div>
-        <div class="stat-card green">
-            <div class="stat-row">
-                <span class="stat-icon">🟢</span>
-                <span class="stat-number">{{ approved_count|default:"0" }}</span>
-            </div>
-            <div class="stat-label">Approved</div>
-        </div>
-        <div class="stat-card red">
-            <div class="stat-row">
-                <span class="stat-icon">🔴</span>
-                <span class="stat-number">{{ rejected_count|default:"0" }}</span>
-            </div>
-            <div class="stat-label">Rejected</div>
+        <div class="stat-card">
+            <div class="number">{{ rejected_count|default:"0" }}</div>
+            <div class="label">Rejected</div>
         </div>
     </div>
 
-    <!-- ===== SEARCH BAR ===== -->
-    <div class="search-wrapper">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchbar" name="q" value="{{ cl.query }}" placeholder="Search by subject name..." oninput="this.form.submit()">
-    </div>
-
-    <!-- ===== ORIGINAL CHANGE LIST ===== -->
-    <div id="content-main">
-        <form id="changelist-form" method="post" {% if cl.formset and cl.formset.is_multipart %}enctype="multipart/form-data"{% endif %} novalidate>
-            {% csrf_token %}
-            {% if cl.formset %}
-                <div>{{ cl.formset.management_form }}</div>
+    <!-- ===== HEADER ===== -->
+    <div class="subject-header">
+        <h1>📚 Subjects</h1>
+        <div class="header-actions">
+            {% if has_add_permission %}
+                <a href="{% url 'admin:courses_subject_add' %}" class="btn-primary">+ New Subject</a>
             {% endif %}
-
-            <div class="results">
-                {% block result_list %}
-                    {% if action_form and actions_on_top and cl.show_admin_actions %}
-                        {% admin_actions %}
-                    {% endif %}
-                    {% result_list cl %}
-                    {% if action_form and actions_on_bottom and cl.show_admin_actions %}
-                        {% admin_actions %}
-                    {% endif %}
-                {% endblock %}
-            </div>
-
-            {% block pagination %}{{ block.super }}{% endblock %}
-        </form>
+        </div>
     </div>
 
-    <!-- ===== SWEETALERT CONFIRMATION ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        (function() {
-            const form = document.getElementById('changelist-form');
-            if (!form) return;
+    <!-- ===== SEARCH ===== -->
+    <div class="subject-search">
+        {% block search %}{{ block.super }}{% endblock %}
+    </div>
 
-            form.addEventListener('submit', function(e) {
-                const actionSelect = document.querySelector('select[name="action"]');
-                const selectedAction = actionSelect ? actionSelect.value : '';
-                const checkedBoxes = document.querySelectorAll('input[name="_selected_action"]:checked');
-                const count = checkedBoxes.length;
+    <!-- ===== TABLE ===== -->
+    <div class="subject-table">
+        {% block result_list %}
+            {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+            {% result_list cl %}
+            {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+        {% endblock %}
+    </div>
 
-                const customActions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects'];
-                if (!selectedAction || !customActions.includes(selectedAction) || count === 0) {
-                    return;
-                }
+    <!-- ===== FOOTER ===== -->
+    <div class="subject-footer">
+        <span>
+            Showing <span class="count">{{ cl.result_count }}</span> subject{{ cl.result_count|pluralize }}
+        </span>
+        <span>
+            {% if cl.paginator.num_pages > 1 %}
+                Page {{ cl.page_num }} of {{ cl.paginator.num_pages }}
+            {% endif %}
+        </span>
+    </div>
 
-                e.preventDefault();
+    <!-- ===== PAGINATION ===== -->
+    {% block pagination %}{{ block.super }}{% endblock %}
 
-                let actionLabel = '';
-                let icon = 'question';
-                let confirmColor = '#0B7A3B';
-                let confirmText = 'Yes, proceed';
-
-                if (selectedAction === 'approve_subjects') {
-                    actionLabel = 'Approve';
-                    icon = 'success';
-                    confirmColor = '#0B7A3B';
-                    confirmText = `Yes, approve ${count} subject(s)`;
-                } else if (selectedAction === 'reject_subjects') {
-                    actionLabel = 'Reject';
-                    icon = 'warning';
-                    confirmColor = '#D97706';
-                    confirmText = `Yes, reject ${count} subject(s)`;
-                } else if (selectedAction === 'delete_selected_subjects') {
-                    actionLabel = 'Delete';
-                    icon = 'error';
-                    confirmColor = '#DC2626';
-                    confirmText = `Yes, delete ${count} subject(s)`;
-                }
-
-                Swal.fire({
-                    title: `Are you sure?`,
-                    html: `You are about to <strong>${actionLabel.toLowerCase()}</strong> <strong>${count}</strong> subject(s).<br>This action cannot be undone.`,
-                    icon: icon,
-                    showCancelButton: true,
-                    confirmButtonColor: confirmColor,
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: confirmText,
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
-        })();
-
-        // ===== Add high-contrast status badges to the table =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const cells = document.querySelectorAll('td');
-            cells.forEach(cell => {
-                const text = cell.textContent.trim();
-                if (text === 'Pending Review' || text === 'pending') {
-                    cell.innerHTML = '<span class="status-badge pending">🟡 Pending</span>';
-                } else if (text === 'Approved' || text === 'approved') {
-                    cell.innerHTML = '<span class="status-badge approved">🟢 Approved</span>';
-                } else if (text === 'Rejected' || text === 'rejected') {
-                    cell.innerHTML = '<span class="status-badge rejected">🔴 Rejected</span>';
-                }
-            });
-        });
-    </script>
+</div>
 {% endblock %}

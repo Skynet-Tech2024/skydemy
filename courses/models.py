@@ -94,7 +94,7 @@ class Lesson(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        limit_choices_to={'status': 'approved'},
+        # limit_choices_to={'status': 'approved'},
         help_text="Only approved subjects can be used."
     )
     

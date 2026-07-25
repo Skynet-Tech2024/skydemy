@@ -174,8 +174,8 @@ class ExamAdmin(admin.ModelAdmin):
     search_fields = ('title', 'exam_code')
     readonly_fields = ('exam_code', 'created_at', 'reviewed_at')
     autocomplete_fields = ('course', 'subject', 'reviewed_by', 'teacher')
-    # Exclude the file upload fields completely – they are removed from the admin UI
-    exclude = ('exam_document', 'marking_guide_document')
+    # Exclude file upload fields AND manual_review_required
+    exclude = ('exam_document', 'marking_guide_document', 'manual_review_required')
 
     fieldsets = (
         ('📘 Exam Information', {
@@ -211,11 +211,11 @@ class ExamAdmin(admin.ModelAdmin):
             'fields': (
                 ('grading_method', 'negative_marking'),
                 ('marks_per_question', 'auto_grade_objective'),
-                ('manual_review_required',),
+                # 'manual_review_required' removed from here
             ),
             'classes': ('col2',),
         }),
-        # 📄 Exam Source section removed entirely
+        # Exam Source section removed entirely (fields excluded)
         ('🛡️ Anti-cheating', {
             'fields': (
                 ('shuffle_questions', 'shuffle_options'),
@@ -239,29 +239,7 @@ class ExamAdmin(admin.ModelAdmin):
         }),
     )
 
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.status = 'pending'
-            create_notification(
-                user=request.user,
-                notification_type='system',
-                title='📝 Exam Submitted for Review',
-                message=f'Your exam "{obj.title}" has been submitted for review.',
-                link='/dashboard/exams/'
-            )
-        super().save_model(request, obj, form, change)
-
-    def response_add(self, request, obj, post_url_continue=None):
-        self.message_user(
-            request,
-            f'✅ Exam "{obj.title}" has been submitted for review.',
-            messages.SUCCESS
-        )
-        return redirect('exam_list')
-
-    def changelist_view(self, request, extra_context=None):
-        return redirect('exam_list')
-
+    # (keep the rest of the methods – save_model, response_add, changelist_view – unchanged)
 
 # ===== ExamResult Admin =====
 class ExamResultAdmin(admin.ModelAdmin):

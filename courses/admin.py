@@ -167,7 +167,7 @@ class ProgressAdmin(admin.ModelAdmin):
     list_filter = ('completed',)
 
 
-# ===== Exam Admin (with two‑column layout) =====
+# ===== Exam Admin (with date-only widgets) =====
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('title', 'exam_type', 'status', 'created_at')
     list_filter = ('status', 'exam_type', 'visibility')
@@ -246,6 +246,13 @@ class ExamAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
     )
+
+    # ----- Override date/time fields to show date-only widgets -----
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        from django.contrib.admin.widgets import AdminDateWidget
+        if db_field.name in ('start_date', 'end_date'):
+            kwargs['widget'] = AdminDateWidget(attrs={'style': 'width: 100%;'})
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
         if not change:

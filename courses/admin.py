@@ -248,7 +248,11 @@ class ExamAdmin(admin.ModelAdmin):
     )
 
     # ----- Override date/time fields to show date-only widgets -----
-    def formfield_for_dbfield(self, db_field, request, **kwargs):
+ def formfield_for_dbfield(self, db_field, request, **kwargs):
+    from django.contrib.admin.widgets import AdminDateWidget
+    if db_field.name in ('start_date', 'end_date'):
+        kwargs['widget'] = AdminDateWidget(attrs={'style': 'width: 100%;'})
+    return super().formfield_for_dbfield(db_field, request, **kwargs)
         from django.contrib.admin.widgets import AdminDateWidget
         if db_field.name in ('start_date', 'end_date'):
             kwargs['widget'] = AdminDateWidget(attrs={'style': 'width: 100%;'})

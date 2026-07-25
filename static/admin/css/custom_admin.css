@@ -610,3 +610,17 @@ input:focus-visible {
 #footer a:hover {
     color: #D4AF37 !important;
 }
+/* Footer – lighter dark background */
+#footer {
+    background: transparent !important;
+    color: #cbd5e1 !important;
+    border-top: 1px solid #4a5568 !important;
+    font-weight: 600 !important;
+}
+#footer a {
+    color: #e2e8f0 !important;
+    font-weight: 600 !important;
+}
+#footer a:hover {
+    color: #D4AF37 !important;
+}

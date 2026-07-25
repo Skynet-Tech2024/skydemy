@@ -936,3 +936,14 @@ select {
     color: #1e293b !important;
     font-weight: 600 !important;
 }
+/* Force white background for Exam Information fields */
+.field-title input,
+.field-exam_type select,
+.field-course select,
+.field-subject select,
+.field-academic_session select,
+.field-term select {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #d1d5db !important;
+}

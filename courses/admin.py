@@ -211,16 +211,10 @@ class ExamAdmin(admin.ModelAdmin):
             'fields': (
                 ('grading_method', 'negative_marking'),
                 ('marks_per_question', 'auto_grade_objective'),
-                # 'manual_review_required' removed
             ),
             'classes': ('col2',),
         }),
-        # 🛡️ Anti-cheating section removed
-        # 📢 Notifications section removed
-        ('Approval Workflow', {
-            'fields': ('status', 'admin_notes', 'reviewed_by', 'reviewed_at'),
-            'classes': ('collapse',),
-        }),
+        # Anti-cheating, Notifications, and Approval Workflow sections removed
     )
 
     def save_model(self, request, obj, form, change):
@@ -244,7 +238,9 @@ class ExamAdmin(admin.ModelAdmin):
         return redirect('exam_list')
 
     def changelist_view(self, request, extra_context=None):
-        return redirect('exam_list')# ===== ExamResult Admin =====
+        return redirect('exam_list')
+
+# ===== ExamResult Admin =====
 class ExamResultAdmin(admin.ModelAdmin):
     list_display = ('user', 'exam', 'percentage', 'passed', 'date_taken')
     list_filter = ('passed',)

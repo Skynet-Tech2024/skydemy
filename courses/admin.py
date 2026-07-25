@@ -40,13 +40,12 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', 'status', 'created_at')
     list_filter = ('status',)
     search_fields = ('code', 'name')
-    readonly_fields = ('status',)  # status is read-only, but we show it only in change form
+    readonly_fields = ('status',)
 
     def get_fields(self, request, obj=None):
-        # When editing (change form), show status; when adding, hide it
-        if obj:  # obj exists => change form
+        if obj:
             return ('name', 'code', 'description', 'status')
-        else:    # add form
+        else:
             return ('name', 'code', 'description')
 
     def save_model(self, request, obj, form, change):
@@ -56,7 +55,7 @@ class CourseAdmin(admin.ModelAdmin):
                 user=request.user,
                 notification_type='system',
                 title='📚 Course Submitted for Review',
-                message=f'Your course "{obj.name}" has been submitted for review. The admin will review it shortly.',
+                message=f'Your course "{obj.name}" has been submitted for review.',
                 link='/dashboard/courses/'
             )
         super().save_model(request, obj, form, change)
@@ -64,13 +63,15 @@ class CourseAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, post_url_continue=None):
         self.message_user(
             request,
-            f'✅ Course "{obj.name}" has been submitted for review. You will be notified once approved.',
+            f'✅ Course "{obj.name}" has been submitted for review.',
             messages.SUCCESS
         )
         return redirect('course_list')
 
     def changelist_view(self, request, extra_context=None):
         return redirect('course_list')
+
+
 # ===== Lesson Admin =====
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'level', 'status', 'teacher', 'created_at', 'views')
@@ -80,17 +81,16 @@ class LessonAdmin(admin.ModelAdmin):
     actions = ['approve_lessons', 'reject_lessons']
 
     def get_fields(self, request, obj=None):
-        if obj:  # change form
-            return ('title', 'level', 'description', 'subject', 'course', 
+        if obj:
+            return ('title', 'level', 'description', 'subject', 'course',
                     'pdf_file', 'original_file', 'is_converted', 'converted_html',
                     'video_url', 'video_file', 'status', 'admin_notes')
-        else:   # add form
+        else:
             return ('title', 'level', 'description', 'subject', 'course',
                     'pdf_file', 'original_file', 'is_converted', 'converted_html',
                     'video_url', 'video_file')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        # Only show approved subjects
         if db_field.name == "subject":
             kwargs["queryset"] = Subject.objects.filter(status='approved')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
@@ -103,7 +103,7 @@ class LessonAdmin(admin.ModelAdmin):
                 user=request.user,
                 notification_type='system',
                 title='📖 Lesson Submitted for Review',
-                message=f'Your lesson "{obj.title}" has been submitted for review. The admin will review it shortly.',
+                message=f'Your lesson "{obj.title}" has been submitted for review.',
                 link='/dashboard/lessons/'
             )
         super().save_model(request, obj, form, change)
@@ -111,7 +111,7 @@ class LessonAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, post_url_continue=None):
         self.message_user(
             request,
-            f'✅ Lesson "{obj.title}" has been submitted for review. You will be notified once approved.',
+            f'✅ Lesson "{obj.title}" has been submitted for review.',
             messages.SUCCESS
         )
         return redirect('lesson_list')
@@ -159,6 +159,8 @@ class LessonAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         return redirect('lesson_list')
+
+
 # ===== Progress Admin =====
 class ProgressAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'progress_percentage', 'completed', 'last_accessed')
@@ -166,7 +168,6 @@ class ProgressAdmin(admin.ModelAdmin):
 
 
 # ===== Exam Admin =====
-
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('title', 'exam_type', 'status', 'created_at')
     list_filter = ('status', 'exam_type', 'visibility')
@@ -240,7 +241,6 @@ class ExamAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.status = 'pending'
-            # Send notification
             create_notification(
                 user=request.user,
                 notification_type='system',
@@ -268,7 +268,6 @@ class ExamResultAdmin(admin.ModelAdmin):
     list_filter = ('passed',)
 
     def changelist_view(self, request, extra_context=None):
-        # Redirect to custom Exam Result dashboard page
         return redirect('examresult_list')
 
 
@@ -278,7 +277,6 @@ class CertificateAdmin(admin.ModelAdmin):
     search_fields = ('certificate_number',)
 
     def changelist_view(self, request, extra_context=None):
-        # Redirect to custom Certificate dashboard page
         return redirect('certificate_list')
 
 

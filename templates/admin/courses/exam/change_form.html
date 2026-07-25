@@ -11,9 +11,9 @@
         }
         .skydemy-form-card {
             background: #ffffff;
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 30px 35px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
             border: 1px solid #e5e7eb;
             margin-top: 10px;
             animation: fadeUp 0.4s ease-out;
@@ -86,14 +86,20 @@
             outline: none !important;
         }
 
-        /* ----- File input styling (green‑white‑gold theme) ----- */
-        .col2 .form-row input[type="file"] {
+        /* ----- Premium file input with preview ----- */
+        .file-upload-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .file-upload-wrapper input[type="file"] {
             padding: 0 !important;
             height: auto !important;
             border: none !important;
             background: transparent !important;
         }
-        .col2 .form-row input[type="file"]::file-selector-button {
+        .file-upload-wrapper input[type="file"]::file-selector-button {
             background: #0E8A3A !important;
             color: #ffffff !important;
             border: none !important;
@@ -106,22 +112,58 @@
             transition: all 0.2s !important;
             margin-right: 12px !important;
         }
-        .col2 .form-row input[type="file"]::file-selector-button:hover {
+        .file-upload-wrapper input[type="file"]::file-selector-button:hover {
             background: #06612A !important;
             transform: translateY(-1px) !important;
             box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
         }
-        .col2 .form-row input[type="file"]:focus {
+        .file-upload-wrapper input[type="file"]:focus {
             outline: none !important;
         }
-        .col2 .form-row input[type="file"]:focus::file-selector-button {
+        .file-upload-wrapper input[type="file"]:focus::file-selector-button {
             outline: 2px solid #D4AF37 !important;
             outline-offset: 2px;
         }
-        /* File name text (dark) */
-        .col2 .form-row input[type="file"] {
+        .file-upload-wrapper input[type="file"] {
             color: #212529 !important;
             font-size: 14px !important;
+        }
+        /* File preview info */
+        .file-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #1e293b;
+            margin-top: 4px;
+            min-height: 40px;
+        }
+        .file-preview .file-icon {
+            font-size: 18px;
+            color: #0E8A3A;
+        }
+        .file-preview .file-name {
+            font-weight: 500;
+            flex: 1;
+        }
+        .file-preview .file-size {
+            color: #6B7280;
+            font-size: 13px;
+        }
+        .file-preview .file-status {
+            color: #16A34A;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .file-preview .file-status.empty {
+            color: #9CA3AF;
+        }
+        .file-preview .file-status.error {
+            color: #DC2626;
         }
 
         /* ----- Help text (darker) ----- */
@@ -172,6 +214,7 @@
             gap: 10px !important;
             box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
             transition: all 0.2s !important;
+            height: 50px !important;
         }
         .submit-row .btn-submit-review:hover {
             background: #06612A !important;
@@ -198,7 +241,57 @@
 {% block submit_buttons_bottom %}
     <div class="submit-row">
         <button type="submit" name="_save" class="btn-submit-review">
-            <i class="fas fa-paper-plane"></i> Submit for Review
+            <i class="fas fa-paper-plane"></i> Submit Exam for Review
         </button>
     </div>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add file preview to all file inputs
+            document.querySelectorAll('input[type="file"]').forEach(function(fileInput) {
+                // Create preview container
+                var wrapper = document.createElement('div');
+                wrapper.className = 'file-upload-wrapper';
+                fileInput.parentNode.insertBefore(wrapper, fileInput);
+                wrapper.appendChild(fileInput);
+
+                var preview = document.createElement('div');
+                preview.className = 'file-preview';
+                preview.innerHTML = `
+                    <span class="file-icon">📄</span>
+                    <span class="file-name">No file chosen</span>
+                    <span class="file-size"></span>
+                    <span class="file-status empty">—</span>
+                `;
+                wrapper.appendChild(preview);
+
+                fileInput.addEventListener('change', function() {
+                    var fileName = this.files.length > 0 ? this.files[0].name : 'No file chosen';
+                    var fileSize = '';
+                    var status = '';
+                    var icon = '📄';
+                    if (this.files.length > 0) {
+                        var size = this.files[0].size;
+                        if (size < 1024 * 1024) {
+                            fileSize = (size / 1024).toFixed(1) + ' KB';
+                        } else {
+                            fileSize = (size / (1024 * 1024)).toFixed(1) + ' MB';
+                        }
+                        status = '✅ Ready';
+                        icon = '📄';
+                    } else {
+                        status = '—';
+                        icon = '📄';
+                    }
+                    preview.querySelector('.file-name').textContent = fileName;
+                    preview.querySelector('.file-size').textContent = fileSize;
+                    preview.querySelector('.file-status').textContent = status;
+                    preview.querySelector('.file-status').className = 'file-status' + (this.files.length > 0 ? '' : ' empty');
+                });
+            });
+        });
+    </script>
 {% endblock %}

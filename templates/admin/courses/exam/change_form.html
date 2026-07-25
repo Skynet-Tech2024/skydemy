@@ -54,33 +54,69 @@
         .col2 .form-row .field-box label {
             min-width: auto !important;
             font-weight: 600 !important;
-            font-size: 14px !important;
+            font-size: 15px !important;
             color: #1e293b !important;
+            margin-bottom: 2px;
         }
 
-        /* ----- Inputs ----- */
+        /* ----- Inputs (high contrast) ----- */
         .col2 .form-row input,
         .col2 .form-row select,
         .col2 .form-row textarea {
             max-width: 100% !important;
-            height: 42px !important;
-            padding: 8px 14px !important;
+            height: 46px !important;
+            padding: 10px 16px !important;
             border-radius: 8px !important;
-            border: 1px solid #d1d5db !important;
-            font-size: 14px !important;
+            border: 1px solid #ced4da !important;
+            font-size: 15px !important;
             font-weight: 500 !important;
+            color: #212529 !important;           /* Dark text */
+            background: #ffffff !important;
             transition: border 0.2s, box-shadow 0.2s !important;
         }
         .col2 .form-row textarea {
             height: auto !important;
-            min-height: 80px !important;
+            min-height: 100px !important;
         }
+
+        /* ----- Focus state (green) ----- */
         .col2 .form-row input:focus,
         .col2 .form-row select:focus,
         .col2 .form-row textarea:focus {
             border-color: #0E8A3A !important;
             box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15) !important;
             outline: none !important;
+        }
+
+        /* ----- Placeholder text (darker) ----- */
+        .col2 .form-row input::placeholder,
+        .col2 .form-row textarea::placeholder {
+            color: #6b7280 !important;           /* Darker placeholder */
+            font-weight: 400 !important;
+            font-size: 14px !important;
+        }
+
+        /* ----- Dropdown options (high contrast) ----- */
+        .col2 .form-row select option {
+            color: #212529 !important;
+            background: #ffffff !important;
+            padding: 8px 12px !important;
+        }
+        .col2 .form-row select option:checked {
+            background: #0E8A3A !important;
+            color: #ffffff !important;
+        }
+        .col2 .form-row select option:hover {
+            background: #e8f5e9 !important;
+            color: #0E8A3A !important;
+        }
+
+        /* ----- Help text (darker) ----- */
+        .help, .help-text {
+            color: #6b7280 !important;
+            font-size: 13px !important;
+            font-weight: 400 !important;
+            margin-top: 2px !important;
         }
 
         /* ----- Hide duplicate title ----- */

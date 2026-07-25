@@ -947,3 +947,14 @@ select {
     color: #1e293b !important;
     border-color: #d1d5db !important;
 }
+/* Force white background for autocomplete (select2) widgets */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple,
+.select2-search__field {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #d1d5db !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #1e293b !important;
+}

@@ -197,16 +197,15 @@
             </div>
         </a>
 
-        <a href="{% url 'admin:auth_user_changelist' %}" style="text-decoration: none; color: inherit; display: block;">
-            <div class="stat-card">
-                <div class="icon teal"><i class="fas fa-users"></i></div>
-                <div class="info">
-                    <div class="number">{{ active_today|default:0 }}</div>
-                    <div class="label">Active Today</div>
-                    <div class="growth neutral"><i class="fas fa-minus"></i> Real-time</div>
-                </div>
+        <!-- Active Today (static, no link) -->
+        <div class="stat-card">
+            <div class="icon teal"><i class="fas fa-users"></i></div>
+            <div class="info">
+                <div class="number">{{ active_today|default:0 }}</div>
+                <div class="label">Active Today</div>
+                <div class="growth neutral"><i class="fas fa-minus"></i> Real-time</div>
             </div>
-        </a>
+        </div>
     </div>
 
     <!-- ===== RECENT ACTIVITIES ===== -->

@@ -173,7 +173,7 @@ class ExamAdmin(admin.ModelAdmin):
     list_filter = ('status', 'exam_type', 'visibility')
     search_fields = ('title', 'exam_code')
     readonly_fields = ('exam_code', 'created_at', 'reviewed_at')
-    autocomplete_fields = ('course', 'subject', 'reviewed_by', 'teacher')  # <-- ADDED
+    autocomplete_fields = ('course', 'subject', 'reviewed_by', 'teacher')
 
     fieldsets = (
         ('📘 Exam Information', {
@@ -219,10 +219,6 @@ class ExamAdmin(admin.ModelAdmin):
                 ('exam_document', 'marking_guide_document'),
             ),
             'classes': ('col2',),
-        }),
-        ('📎 Additional Resources', {
-            'fields': ('additional_resources',),
-            'classes': ('collapse',),
         }),
         ('🛡️ Anti-cheating', {
             'fields': (

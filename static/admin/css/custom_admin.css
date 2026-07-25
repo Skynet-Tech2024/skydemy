@@ -638,3 +638,85 @@ input:focus-visible {
 #footer a:hover {
     color: #06612A !important;
 }
+/* ============================================
+   SKYDEMY THEME: FIELDSET HEADERS & DIVIDERS
+   ============================================ */
+
+/* ----- Fieldset headers (collapsible sections) ----- */
+.module h2,
+.module caption {
+    background: #0E8A3A !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 10px 18px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+.module h2 .collapse-toggle,
+.module caption .collapse-toggle {
+    color: #D4AF37 !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+}
+.module h2:hover {
+    background: #06612A !important;
+}
+
+/* ----- Fieldset content (expanded area) ----- */
+.module .form-row {
+    border-bottom: 1px solid #e5e7eb !important;
+}
+.module .form-row:last-child {
+    border-bottom: none !important;
+}
+
+/* ----- Horizontal rule between sections ----- */
+.module hr,
+#content-main hr {
+    border: none !important;
+    height: 2px !important;
+    background: linear-gradient(to right, #D4AF37, #0E8A3A) !important;
+    margin: 20px 0 !important;
+}
+
+/* ----- Accordion toggle icon (gold) ----- */
+.collapse-toggle {
+    color: #D4AF37 !important;
+    font-size: 14px !important;
+    margin-left: auto !important;
+}
+.collapse-toggle:hover {
+    color: #f4e7b5 !important;
+}
+
+/* ----- Section title inside fieldsets (Exam Information, etc.) ----- */
+.fieldset-title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #0E8A3A !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #D4AF37 !important;
+    margin: 20px 0 12px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+.fieldset-title:first-of-type {
+    margin-top: 0 !important;
+}
+
+/* ----- Inline help text (align with theme) ----- */
+.help,
+.help-text {
+    color: #6b7280 !important;
+}
+
+/* ----- Collapsible section hover (gold accent) ----- */
+.module h2 .collapse-toggle:hover {
+    color: #f4e7b5 !important;
+}

@@ -166,55 +166,99 @@ class ProgressAdmin(admin.ModelAdmin):
 
 
 # ===== Exam Admin =====
+
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ('title', 'lesson', 'status', 'passing_score', 'created_at')
-    list_filter = ('status', 'lesson__level')
-    search_fields = ('title', 'lesson__title')
-    actions = ['approve_exams', 'reject_exams']
+    list_display = ('title', 'exam_type', 'status', 'created_at')
+    list_filter = ('status', 'exam_type', 'visibility')
+    search_fields = ('title', 'exam_code')
+    readonly_fields = ('exam_code', 'created_at', 'reviewed_at')
 
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
-
-    def approve_exams(self, request, queryset):
-        updated = 0
-        for exam in queryset:
-            exam.status = 'approved'
-            exam.reviewed_by = request.user
-            exam.reviewed_at = datetime.now()
-            exam.save()
-            updated += 1
-            create_notification(
-                user=exam.lesson.teacher,
-                notification_type='system',
-                title='📝 Exam Approved!',
-                message=f'Your exam "{exam.title}" for lesson "{exam.lesson.title}" has been approved.',
-                link=f'/courses/lesson/{exam.lesson.id}/'
+    fieldsets = (
+        ('Exam Information', {
+            'fields': (
+                'title', 'course', 'subject', 'exam_type',
+                'academic_session', 'term', 'level', 'exam_code',
+                'language', 'duration_minutes', 'total_marks',
+                'passing_score', 'number_of_questions', 'instructions'
             )
-        self.message_user(request, f'{updated} exam(s) approved.')
-    approve_exams.short_description = "Approve selected exams"
-
-    def reject_exams(self, request, queryset):
-        updated = 0
-        for exam in queryset:
-            exam.status = 'rejected'
-            exam.reviewed_by = request.user
-            exam.reviewed_at = datetime.now()
-            exam.save()
-            updated += 1
-            create_notification(
-                user=exam.lesson.teacher,
-                notification_type='system',
-                title='❌ Exam Rejected',
-                message=f'Your exam "{exam.title}" for lesson "{exam.lesson.title}" has been rejected.'
+        }),
+        ('Availability', {
+            'fields': (
+                'start_date', 'end_date', 'time_limit_minutes',
+                'attempts_allowed', 'question_order', 'answer_order',
+                'show_result_immediately', 'show_correct_answers',
+                'auto_submit', 'late_submission'
             )
-        self.message_user(request, f'{updated} exam(s) rejected.')
-    reject_exams.short_description = "Reject selected exams"
+        }),
+        ('Access Control', {
+            'fields': (
+                'visibility', 'require_password', 'exam_password',
+                'require_safe_browser', 'require_webcam', 'randomize_questions'
+            )
+        }),
+        ('Grading', {
+            'fields': (
+                'grading_method', 'negative_marking', 'marks_per_question',
+                'auto_grade_objective', 'manual_review_required'
+            )
+        }),
+        ('Exam Source', {
+            'fields': (
+                'exam_source', 'exam_document', 'marking_guide_document'
+            ),
+            'description': 'Choose how the exam will be created.'
+        }),
+        ('Additional Resources', {
+            'fields': ('additional_resources',),
+            'classes': ('collapse',)
+        }),
+        ('Anti-cheating', {
+            'fields': (
+                'shuffle_questions', 'shuffle_options', 'fullscreen_mode',
+                'disable_copy_paste', 'browser_lock', 'webcam_monitoring',
+                'screen_recording', 'tab_switching_detection', 'ip_restriction'
+            ),
+            'classes': ('collapse',)
+        }),
+        ('Notifications', {
+            'fields': (
+                'notify_immediately', 'notify_on_publish',
+                'notify_before_deadline', 'notify_after_grading'
+            ),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields (for compatibility)', {
+            'fields': ('lesson', 'passing_score_old', 'questions', 'exam_type_old', 'year', 'teacher', 'marking_guide'),
+            'classes': ('collapse',)
+        }),
+        ('Approval Workflow', {
+            'fields': ('status', 'admin_notes', 'reviewed_by', 'reviewed_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.status = 'pending'
+            # Send notification
+            create_notification(
+                user=request.user,
+                notification_type='system',
+                title='📝 Exam Submitted for Review',
+                message=f'Your exam "{obj.title}" has been submitted for review.',
+                link='/dashboard/exams/'
+            )
+        super().save_model(request, obj, form, change)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        self.message_user(
+            request,
+            f'✅ Exam "{obj.title}" has been submitted for review.',
+            messages.SUCCESS
+        )
+        return redirect('exam_list')
 
     def changelist_view(self, request, extra_context=None):
-        # Redirect to custom Exam dashboard page
         return redirect('exam_list')
 
 

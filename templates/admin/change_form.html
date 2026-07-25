@@ -6,16 +6,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ============================================
-           GLOBAL – LIGHTER DARK GREY BACKGROUND
+           GLOBAL – LIGHT BACKGROUND
            ============================================ */
         body {
-            background: #2d3748 !important; /* Medium dark grey */
+            background: #f4f6f9 !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        }
-
-        /* All text bold globally */
-        body, div, p, span, label, input, textarea, select, button, a {
-            font-weight: 600 !important; /* bold */
         }
 
         /* ============================================
@@ -26,7 +21,7 @@
             padding: 16px 0 8px 0 !important;
             border-bottom: none !important;
             font-size: 14px !important;
-            color: #cbd5e1 !important;
+            color: #6B7280 !important;
             max-width: 900px;
             margin: 0 auto;
             display: flex;
@@ -34,24 +29,20 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            font-weight: 600 !important;
+            font-weight: 500 !important;
         }
         div.breadcrumbs a {
-            color: #f1f5f9 !important;
+            color: #0E8A3A !important;
             font-weight: 600 !important;
             text-decoration: none !important;
         }
         div.breadcrumbs a:hover {
-            color: #D4AF37 !important;
+            color: #06612A !important;
             text-decoration: underline !important;
         }
         div.breadcrumbs .separator {
-            color: #94a3b8 !important;
+            color: #9CA3AF !important;
             margin: 0 6px;
-        }
-        .breadcrumbs-right {
-            display: flex;
-            gap: 12px;
         }
 
         /* ============================================
@@ -68,14 +59,14 @@
         }
         .skydemy-page-header .header-left .subtitle {
             font-size: 14px;
-            color: #cbd5e1;
-            font-weight: 600;
+            color: #6B7280;
+            font-weight: 400;
             margin-top: 2px;
         }
         .skydemy-page-header .header-left h1 {
             font-size: 32px !important;
             font-weight: 700 !important;
-            color: #ffffff !important;
+            color: #0f172a !important;
             margin: 0 !important;
             display: flex;
             align-items: center;
@@ -87,10 +78,9 @@
 
         /* ---- Back to Dashboard button ---- */
         .btn-dashboard {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #f1f5f9;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #1F2937;
             padding: 8px 18px;
             border-radius: 10px;
             font-weight: 600;
@@ -101,12 +91,14 @@
             gap: 8px;
             transition: all 0.2s;
             white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
         .btn-dashboard:hover {
-            background: rgba(255,255,255,0.25);
-            color: #ffffff;
-            border-color: #D4AF37;
+            background: #f8fafc;
+            border-color: #0E8A3A;
+            color: #0E8A3A;
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(14, 138, 58, 0.15);
         }
 
         /* ============================================
@@ -120,8 +112,8 @@
             background: #ffffff;
             border-radius: 14px;
             padding: 35px 40px 30px 40px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            border: 1px solid #4a5568;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
             margin-top: 10px;
             animation: fadeUp 0.4s ease-out;
         }
@@ -148,7 +140,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 600 !important;
+            font-weight: 500 !important;
         }
         .skydemy-form-card .info-box i {
             font-size: 18px;
@@ -228,7 +220,7 @@
         textarea::placeholder {
             color: #9CA3AF !important;
             font-size: 14px !important;
-            font-weight: 600 !important;
+            font-weight: 500 !important;
         }
 
         /* ----- Help Text ----- */
@@ -236,14 +228,7 @@
             color: #6B7280 !important;
             font-size: 13px !important;
             margin-top: 4px !important;
-            font-weight: 600 !important;
-        }
-
-        /* ----- Required indicator ----- */
-        .required-label::after {
-            content: " *";
-            color: #DC2626;
-            font-weight: 700;
+            font-weight: 500 !important;
         }
 
         /* ----- Errors ----- */

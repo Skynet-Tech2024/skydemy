@@ -8,12 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
     <script src="{% static 'admin/js/custom_admin.js' %}"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
 {% endblock %}
 
 {% block branding %}
     <h1 id="site-name">
         <a href="{% url 'admin:index' %}">
-            <span class="gold">SKY</span>DEMY
+            <img src="{% static 'images/logo.png' %}" alt="SKYDEMY Logo" style="height: 40px; width: auto; vertical-align: middle; max-height: 50px;">
         </a>
     </h1>
 {% endblock %}
@@ -36,10 +37,8 @@
             </div>
         </div>
     </div>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
 {% endblock %}
 
-{# ===== FOOTER ===== #}
 {% block footer %}
     {% include "admin/footer.html" %}
 {% endblock %}

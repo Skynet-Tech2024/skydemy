@@ -679,9 +679,22 @@ input:focus-visible {
 .module hr,
 #content-main hr {
     border: none !important;
-    height: 2px !important;
-    background: linear-gradient(to right, #D4AF37, #0E8A3A) !important;
-    margin: 20px 0 !important;
+    height: auto !important;
+    padding: 16px 24px !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    margin: 24px 0 !important;
+    position: relative !important;
+}
+.module hr::before,
+#content-main hr::before {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(to right, #D4AF37, #0E8A3A);
+    width: 80px;
+    margin: 0 auto;
 }
 
 /* ----- Accordion toggle icon (gold) ----- */

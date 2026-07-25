@@ -958,11 +958,3 @@ select {
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #1e293b !important;
 }
-/* Fix autocomplete search input text and placeholder color */
-.select2-container--default .select2-search--dropdown .select2-search__field {
-    color: #1e293b !important;
-    background-color: #ffffff !important;
-}
-.select2-container--default .select2-search--dropdown .select2-search__field::placeholder {
-    color: #1e293b !important; /* makes "Searching..." dark instead of grey */
-}

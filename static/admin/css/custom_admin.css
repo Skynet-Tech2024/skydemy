@@ -914,3 +914,12 @@ select {
         gap: 10px 0 !important;
     }
 }
+/* Force dark bold labels for Exam document & Marking guide document */
+.skydemy-form-card .field-box label[for="id_exam_document"],
+.skydemy-form-card .field-box label[for="id_marking_guide_document"],
+.skydemy-form-card .form-row .field-exam_document label,
+.skydemy-form-card .form-row .field-marking_guide_document label,
+.skydemy-form-card .file-drop-zone label {
+    color: #1e293b !important;
+    font-weight: 600 !important;
+}

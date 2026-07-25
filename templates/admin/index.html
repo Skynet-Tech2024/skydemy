@@ -142,15 +142,16 @@
 {% block content %}
 <div id="content-main">
     <!-- ===== WELCOME MESSAGE ===== -->
-    <div class="dashboard-welcome">
+    <div class="welcome">
         <h1>
-            Welcome, 
+          <b class="welcome-sub"> Welcome 
             {% if user.first_name %}
                 {{ user.first_name }}
             {% else %}
                 {{ user.username }}
             {% endif %}
-            , to your <span class="gold-text">SKYDEMY</span> Dashboard
+            , to </b>
+ <span class="gold-text">SKYDEMY</span> <b class="welcome-sub"> Dashboard </b>
         </h1>
         <p class="welcome-sub">Here’s an overview of your platform activity.</p>
     </div>

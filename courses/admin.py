@@ -174,7 +174,7 @@ class ExamAdmin(admin.ModelAdmin):
     search_fields = ('title', 'exam_code')
     readonly_fields = ('exam_code', 'created_at', 'reviewed_at')
     autocomplete_fields = ('course', 'subject', 'reviewed_by', 'teacher')
-    # Exclude file upload fields AND manual_review_required
+    # Exclude file upload fields and manual_review_required
     exclude = ('exam_document', 'marking_guide_document', 'manual_review_required')
 
     fieldsets = (
@@ -211,37 +211,40 @@ class ExamAdmin(admin.ModelAdmin):
             'fields': (
                 ('grading_method', 'negative_marking'),
                 ('marks_per_question', 'auto_grade_objective'),
-                # 'manual_review_required' removed from here
+                # 'manual_review_required' removed
             ),
             'classes': ('col2',),
         }),
-        # Exam Source section removed entirely (fields excluded)
-        ('🛡️ Anti-cheating', {
-            'fields': (
-                ('shuffle_questions', 'shuffle_options'),
-                ('fullscreen_mode', 'disable_copy_paste'),
-                ('browser_lock', 'webcam_monitoring'),
-                ('screen_recording', 'tab_switching_detection'),
-                ('ip_restriction',),
-            ),
-            'classes': ('col2', 'collapse'),
-        }),
-        ('📢 Notifications', {
-            'fields': (
-                ('notify_immediately', 'notify_on_publish'),
-                ('notify_before_deadline', 'notify_after_grading'),
-            ),
-            'classes': ('col2', 'collapse'),
-        }),
+        # 🛡️ Anti-cheating section removed
+        # 📢 Notifications section removed
         ('Approval Workflow', {
             'fields': ('status', 'admin_notes', 'reviewed_by', 'reviewed_at'),
             'classes': ('collapse',),
         }),
     )
 
-    # (keep the rest of the methods – save_model, response_add, changelist_view – unchanged)
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.status = 'pending'
+            create_notification(
+                user=request.user,
+                notification_type='system',
+                title='📝 Exam Submitted for Review',
+                message=f'Your exam "{obj.title}" has been submitted for review.',
+                link='/dashboard/exams/'
+            )
+        super().save_model(request, obj, form, change)
 
-# ===== ExamResult Admin =====
+    def response_add(self, request, obj, post_url_continue=None):
+        self.message_user(
+            request,
+            f'✅ Exam "{obj.title}" has been submitted for review.',
+            messages.SUCCESS
+        )
+        return redirect('exam_list')
+
+    def changelist_view(self, request, extra_context=None):
+        return redirect('exam_list')# ===== ExamResult Admin =====
 class ExamResultAdmin(admin.ModelAdmin):
     list_display = ('user', 'exam', 'percentage', 'passed', 'date_taken')
     list_filter = ('passed',)

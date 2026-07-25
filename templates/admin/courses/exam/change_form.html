@@ -3,6 +3,7 @@
 
 {% block extrastyle %}
     {{ block.super }}
+    <link rel="stylesheet" href="{% static 'admin/css/custom_admin.css' %}">
     <style>
         /* ----- Layout ----- */
         #content-main {
@@ -23,20 +24,52 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ----- Section Headers ----- */
-        .fieldset-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 20px 0 12px 0;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #f1f5f9;
+        /* ----- Card-based sections ----- */
+        .skydemy-section-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .skydemy-section-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .skydemy-section-card .card-header {
+            background: #f8fafc;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e5e7eb;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            color: #0E8A3A;
         }
-        .fieldset-title:first-of-type {
-            margin-top: 0;
+        .skydemy-section-card .card-header .icon {
+            font-size: 18px;
+        }
+        .skydemy-section-card .card-body {
+            padding: 16px 20px 20px 20px;
+        }
+
+        /* ----- Hide default fieldset styles ----- */
+        .module {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+        .module h2 {
+            display: none !important;
+        }
+        .module .form-row {
+            border-bottom: 1px solid #f1f5f9 !important;
+            padding: 10px 0 !important;
+        }
+        .module .form-row:last-child {
+            border-bottom: none !important;
         }
 
         /* ----- Two‑column grid ----- */
@@ -54,7 +87,7 @@
         .col2 .form-row .field-box label {
             min-width: auto !important;
             font-weight: 600 !important;
-            font-size: 15px !important;
+            font-size: 14px !important;
             color: #1e293b !important;
             margin-bottom: 2px;
         }
@@ -84,92 +117,6 @@
             border-color: #0E8A3A !important;
             box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15) !important;
             outline: none !important;
-        }
-
-        /* ============================================
-           DRAG & DROP FILE UPLOAD
-           ============================================ */
-        .file-drop-zone {
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 30px 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            background: #fafbfc;
-            cursor: pointer;
-            position: relative;
-        }
-        .file-drop-zone:hover {
-            border-color: #0E8A3A;
-            background: #f0fdf4;
-        }
-        .file-drop-zone.dragover {
-            border-color: #0E8A3A;
-            background: #e8f5e9;
-            box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15);
-        }
-        .file-drop-zone .drop-icon {
-            font-size: 40px;
-            color: #0E8A3A;
-            display: block;
-            margin-bottom: 8px;
-        }
-        .file-drop-zone .drop-text {
-            font-size: 16px;
-            font-weight: 500;
-            color: #1e293b;
-        }
-        .file-drop-zone .drop-subtext {
-            font-size: 14px;
-            color: #6B7280;
-            margin-top: 4px;
-        }
-        .file-drop-zone .drop-formats {
-            font-size: 12px;
-            color: #9CA3AF;
-            margin-top: 8px;
-        }
-        .file-drop-zone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        .file-drop-zone .file-preview-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 12px;
-            padding: 10px 16px;
-            background: #ffffff;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-        .file-drop-zone .file-preview-info .file-icon {
-            font-size: 24px;
-        }
-        .file-drop-zone .file-preview-info .file-name {
-            font-weight: 600;
-            color: #1e293b;
-        }
-        .file-drop-zone .file-preview-info .file-size {
-            color: #6B7280;
-            font-size: 13px;
-        }
-        .file-drop-zone .file-preview-info .file-status {
-            color: #16A34A;
-            font-weight: 600;
-        }
-        .file-drop-zone .file-preview-info .file-status.empty {
-            color: #9CA3AF;
-        }
-        /* Hide the default "No file chosen" text */
-        .file-drop-zone input[type="file"]::file-selector-button {
-            display: none !important;
-        }
-        .file-drop-zone input[type="file"] {
-            color: transparent !important;
         }
 
         /* ----- Help text (darker) ----- */
@@ -240,6 +187,9 @@
             .skydemy-form-card {
                 padding: 16px !important;
             }
+            .skydemy-section-card .card-body {
+                padding: 12px 14px !important;
+            }
         }
     </style>
 {% endblock %}
@@ -254,79 +204,5 @@
 
 {% block extrahead %}
     {{ block.super }}
-<script src="{% static 'admin/js/custom_admin.js' %}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Convert all file inputs to drag‑and‑drop zones
-            document.querySelectorAll('input[type="file"]').forEach(function(fileInput) {
-                // Skip if already wrapped
-                if (fileInput.closest('.file-drop-zone')) return;
-
-                var wrapper = document.createElement('div');
-                wrapper.className = 'file-drop-zone';
-
-                // Build drop zone content
-                wrapper.innerHTML = `
-                    <span class="drop-icon">📄</span>
-                    <div class="drop-text">Drop your file here or click to browse</div>
-                    <div class="drop-subtext">PDF, DOC, DOCX supported</div>
-                    <div class="drop-formats">Max file size: 20 MB</div>
-                    <div class="file-preview-info" style="display:none;">
-                        <span class="file-icon">📄</span>
-                        <span class="file-name"></span>
-                        <span class="file-size"></span>
-                        <span class="file-status">✅ Ready</span>
-                    </div>
-                `;
-
-                // Move the file input inside the drop zone
-                fileInput.parentNode.insertBefore(wrapper, fileInput);
-                wrapper.appendChild(fileInput);
-
-                // Drag events
-                wrapper.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    this.classList.add('dragover');
-                });
-                wrapper.addEventListener('dragleave', function(e) {
-                    e.preventDefault();
-                    this.classList.remove('dragover');
-                });
-                wrapper.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.classList.remove('dragover');
-                    if (e.dataTransfer.files.length > 0) {
-                        fileInput.files = e.dataTransfer.files;
-                        fileInput.dispatchEvent(new Event('change'));
-                    }
-                });
-
-                // File selection preview
-                fileInput.addEventListener('change', function() {
-                    var preview = wrapper.querySelector('.file-preview-info');
-                    var fileName = preview.querySelector('.file-name');
-                    var fileSize = preview.querySelector('.file-size');
-                    var fileStatus = preview.querySelector('.file-status');
-
-                    if (this.files.length > 0) {
-                        var file = this.files[0];
-                        var size = file.size;
-                        var sizeStr = '';
-                        if (size < 1024 * 1024) {
-                            sizeStr = (size / 1024).toFixed(1) + ' KB';
-                        } else {
-                            sizeStr = (size / (1024 * 1024)).toFixed(1) + ' MB';
-                        }
-                        fileName.textContent = file.name;
-                        fileSize.textContent = sizeStr;
-                        fileStatus.textContent = '✅ Ready';
-                        fileStatus.className = 'file-status';
-                        preview.style.display = 'flex';
-                    } else {
-                        preview.style.display = 'none';
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="{% static 'admin/js/custom_admin.js' %}"></script>
 {% endblock %}

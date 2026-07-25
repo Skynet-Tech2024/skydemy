@@ -70,7 +70,7 @@
             border: 1px solid #ced4da !important;
             font-size: 15px !important;
             font-weight: 500 !important;
-            color: #212529 !important;           /* Dark text */
+            color: #212529 !important;
             background: #ffffff !important;
             transition: border 0.2s, box-shadow 0.2s !important;
         }
@@ -78,8 +78,6 @@
             height: auto !important;
             min-height: 100px !important;
         }
-
-        /* ----- Focus state (green) ----- */
         .col2 .form-row input:focus,
         .col2 .form-row select:focus,
         .col2 .form-row textarea:focus {
@@ -88,27 +86,42 @@
             outline: none !important;
         }
 
-        /* ----- Placeholder text (darker) ----- */
-        .col2 .form-row input::placeholder,
-        .col2 .form-row textarea::placeholder {
-            color: #6b7280 !important;           /* Darker placeholder */
-            font-weight: 400 !important;
-            font-size: 14px !important;
+        /* ----- File input styling (green‑white‑gold theme) ----- */
+        .col2 .form-row input[type="file"] {
+            padding: 0 !important;
+            height: auto !important;
+            border: none !important;
+            background: transparent !important;
         }
-
-        /* ----- Dropdown options (high contrast) ----- */
-        .col2 .form-row select option {
-            color: #212529 !important;
-            background: #ffffff !important;
-            padding: 8px 12px !important;
-        }
-        .col2 .form-row select option:checked {
+        .col2 .form-row input[type="file"]::file-selector-button {
             background: #0E8A3A !important;
             color: #ffffff !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 10px 20px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            font-family: 'Inter', sans-serif !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+            margin-right: 12px !important;
         }
-        .col2 .form-row select option:hover {
-            background: #e8f5e9 !important;
-            color: #0E8A3A !important;
+        .col2 .form-row input[type="file"]::file-selector-button:hover {
+            background: #06612A !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
+        }
+        .col2 .form-row input[type="file"]:focus {
+            outline: none !important;
+        }
+        .col2 .form-row input[type="file"]:focus::file-selector-button {
+            outline: 2px solid #D4AF37 !important;
+            outline-offset: 2px;
+        }
+        /* File name text (dark) */
+        .col2 .form-row input[type="file"] {
+            color: #212529 !important;
+            font-size: 14px !important;
         }
 
         /* ----- Help text (darker) ----- */

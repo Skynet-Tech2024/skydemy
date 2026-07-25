@@ -90,13 +90,10 @@ class LessonAdmin(admin.ModelAdmin):
                     'pdf_file', 'original_file', 'is_converted', 'converted_html',
                     'video_url', 'video_file')
 
-   def formfield_for_dbfield(self, db_field, request, **kwargs):
-    from django import forms
-    from django.contrib.admin.widgets import AdminDateWidget
-    if db_field.name in ('start_date', 'end_date'):
-        kwargs['form_class'] = forms.DateField
-        kwargs['widget'] = AdminDateWidget(attrs={'style': 'width: 100%;'})
-    return super().formfield_for_dbfield(db_field, request, **kwargs)
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "subject":
+            kwargs["queryset"] = Subject.objects.filter(status='approved')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -280,6 +277,16 @@ class ExamAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         return redirect('exam_list')
+
+
+# ===== ExamResult Admin =====
+class ExamResultAdmin(admin.ModelAdmin):
+    list_display = ('user', 'exam', 'percentage', 'passed', 'date_taken')
+    list_filter = ('passed',)
+
+    def changelist_view(self, request, extra_context=None):
+        return redirect('examresult_list')
+
 
 # ===== Certificate Admin =====
 class CertificateAdmin(admin.ModelAdmin):

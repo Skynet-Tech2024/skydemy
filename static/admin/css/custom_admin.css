@@ -958,3 +958,29 @@ select {
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #1e293b !important;
 }
+/* ============================================
+   DASHBOARD: REMOVE EMPTY HERO AREA
+   ============================================ */
+/* Hide any hero/jumbotron/banner that creates empty space */
+.dashboard .hero,
+.dashboard .jumbotron,
+.dashboard .banner,
+.dashboard .empty-hero {
+    display: none !important;
+}
+
+/* Reduce top padding on the main content area for dashboard only */
+.dashboard #content {
+    padding-top: 10px !important;
+}
+
+/* Remove extra margin from the dashboard title */
+.dashboard #content h1 {
+    margin-top: 0 !important;
+}
+
+/* If there's an empty div with a dark background, hide it */
+.dashboard .module:empty,
+.dashboard .row:empty {
+    display: none !important;
+}

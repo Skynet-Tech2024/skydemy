@@ -984,3 +984,108 @@ select {
 .dashboard .row:empty {
     display: none !important;
 }
+
+/* ============================================
+   DASHBOARD: GREEN‑WHITE‑GOLD THEME
+   ============================================ */
+
+/* --- Overall dashboard background --- */
+.dashboard {
+    background: #F8FAFC !important;
+}
+.dashboard #container {
+    background: #F8FAFC !important;
+}
+.dashboard #content {
+    background: #ffffff !important;
+    padding: 20px 30px !important;
+    border-radius: 0 !important;
+}
+
+/* --- Dashboard title --- */
+.dashboard #content h1 {
+    color: #0E8A3A !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #D4AF37 !important;
+    padding-bottom: 8px !important;
+    margin-top: 0 !important;
+}
+
+/* --- Statistics cards --- */
+.dashboard .stat-card {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    border-left: 4px solid #0E8A3A !important;
+}
+.dashboard .stat-card .icon {
+    background: #0E8A3A !important;
+    color: #ffffff !important;
+}
+.dashboard .stat-card .info .number {
+    color: #0E8A3A !important;
+}
+.dashboard .stat-card .info .label {
+    color: #1e293b !important;
+}
+.dashboard .stat-card .info .change {
+    color: #D4AF37 !important;
+}
+
+/* --- Quick actions --- */
+.dashboard .quick-actions a {
+    background: #0E8A3A !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    transition: all 0.2s;
+}
+.dashboard .quick-actions a:hover {
+    background: #06612A !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14,138,58,0.3);
+}
+
+/* --- Recent activities --- */
+.dashboard #recent-activities {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    padding: 16px 20px !important;
+}
+.dashboard #recent-activities h2 {
+    color: #0E8A3A !important;
+    border-bottom: 2px solid #D4AF37 !important;
+    padding-bottom: 6px !important;
+}
+.dashboard #recent-activities ul li {
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #1e293b !important;
+}
+
+/* --- Charts --- */
+.dashboard .chart-box {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    padding: 16px 20px !important;
+}
+.dashboard .chart-box h3 {
+    color: #0E8A3A !important;
+}
+
+/* --- Footer --- */
+.dashboard #footer {
+    background: #ffffff !important;
+    color: #6B7280 !important;
+    border-top: 1px solid #e5e7eb !important;
+}
+.dashboard #footer a {
+    color: #0E8A3A !important;
+}
+
+/* --- Remove any leftover dark/empty containers --- */
+.dashboard .module:empty,
+.dashboard .row:empty {
+    display: none !important;
+}

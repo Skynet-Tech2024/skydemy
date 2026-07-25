@@ -184,10 +184,11 @@ class Exam(models.Model):
         ('semester_1', 'Semester I'),
         ('semester_2', 'Semester II'),
     ), blank=True, null=True)
+    # ===== UPDATED: Level choices to school levels =====
     level = models.CharField(max_length=20, choices=(
-        ('beginner', 'Beginner'),
-        ('intermediate', 'Intermediate'),
-        ('advanced', 'Advanced'),
+        ('primary', 'Primary School'),
+        ('secondary', 'Secondary School'),
+        ('higher', 'Higher Institution / University'),
     ), blank=True, null=True)
     exam_code = models.CharField(max_length=50, blank=True, editable=False)
     language = models.CharField(max_length=10, choices=(('en', 'English'), ('fr', 'French')), default='en')
@@ -268,7 +269,7 @@ class Exam(models.Model):
 
     # ===== Legacy fields (keep for compatibility) =====
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
-    passing_score_old = models.IntegerField(default=50)  # kept for migration
+    passing_score_old = models.IntegerField(default=50)
     questions = models.JSONField(default=list, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     exam_type_old = models.CharField(max_length=20, blank=True, null=True)

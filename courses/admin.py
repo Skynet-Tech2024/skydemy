@@ -167,7 +167,7 @@ class ProgressAdmin(admin.ModelAdmin):
     list_filter = ('completed',)
 
 
-# ===== Exam Admin =====
+# ===== Exam Admin (with two‑column layout) =====
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('title', 'exam_type', 'status', 'created_at')
     list_filter = ('status', 'exam_type', 'visibility')
@@ -175,66 +175,75 @@ class ExamAdmin(admin.ModelAdmin):
     readonly_fields = ('exam_code', 'created_at', 'reviewed_at')
 
     fieldsets = (
-        ('Exam Information', {
+        ('📘 Exam Information', {
             'fields': (
-                'title', 'course', 'subject', 'exam_type',
-                'academic_session', 'term', 'level', 'exam_code',
-                'language', 'duration_minutes', 'total_marks',
-                'passing_score', 'number_of_questions', 'instructions'
-            )
-        }),
-        ('Availability', {
-            'fields': (
-                'start_date', 'end_date', 'time_limit_minutes',
-                'attempts_allowed', 'question_order', 'answer_order',
-                'show_result_immediately', 'show_correct_answers',
-                'auto_submit', 'late_submission'
-            )
-        }),
-        ('Access Control', {
-            'fields': (
-                'visibility', 'require_password', 'exam_password',
-                'require_safe_browser', 'require_webcam', 'randomize_questions'
-            )
-        }),
-        ('Grading', {
-            'fields': (
-                'grading_method', 'negative_marking', 'marks_per_question',
-                'auto_grade_objective', 'manual_review_required'
-            )
-        }),
-        ('Exam Source', {
-            'fields': (
-                'exam_source', 'exam_document', 'marking_guide_document'
+                ('title', 'exam_type'),
+                ('course', 'subject'),
+                ('academic_session', 'term'),
+                ('level', 'language'),
+                ('exam_code', 'duration_minutes'),
+                ('total_marks', 'passing_score'),
+                ('number_of_questions', 'instructions'),
             ),
-            'description': 'Choose how the exam will be created.'
+            'classes': ('col2', 'wide'),
         }),
-        ('Additional Resources', {
+        ('🕒 Availability', {
+            'fields': (
+                ('start_date', 'end_date'),
+                ('time_limit_minutes', 'attempts_allowed'),
+                ('question_order', 'answer_order'),
+                ('show_result_immediately', 'show_correct_answers'),
+                ('auto_submit', 'late_submission'),
+            ),
+            'classes': ('col2',),
+        }),
+        ('🔐 Access Control', {
+            'fields': (
+                ('visibility', 'require_password'),
+                ('exam_password', 'require_safe_browser'),
+                ('require_webcam', 'randomize_questions'),
+            ),
+            'classes': ('col2',),
+        }),
+        ('🎯 Grading', {
+            'fields': (
+                ('grading_method', 'negative_marking'),
+                ('marks_per_question', 'auto_grade_objective'),
+                ('manual_review_required',),
+            ),
+            'classes': ('col2',),
+        }),
+        ('📄 Exam Source', {
+            'fields': (
+                'exam_source',
+                ('exam_document', 'marking_guide_document'),
+            ),
+            'classes': ('col2',),
+        }),
+        ('📎 Additional Resources', {
             'fields': ('additional_resources',),
-            'classes': ('collapse',)
+            'classes': ('collapse',),
         }),
-        ('Anti-cheating', {
+        ('🛡️ Anti-cheating', {
             'fields': (
-                'shuffle_questions', 'shuffle_options', 'fullscreen_mode',
-                'disable_copy_paste', 'browser_lock', 'webcam_monitoring',
-                'screen_recording', 'tab_switching_detection', 'ip_restriction'
+                ('shuffle_questions', 'shuffle_options'),
+                ('fullscreen_mode', 'disable_copy_paste'),
+                ('browser_lock', 'webcam_monitoring'),
+                ('screen_recording', 'tab_switching_detection'),
+                ('ip_restriction',),
             ),
-            'classes': ('collapse',)
+            'classes': ('col2', 'collapse'),
         }),
-        ('Notifications', {
+        ('📢 Notifications', {
             'fields': (
-                'notify_immediately', 'notify_on_publish',
-                'notify_before_deadline', 'notify_after_grading'
+                ('notify_immediately', 'notify_on_publish'),
+                ('notify_before_deadline', 'notify_after_grading'),
             ),
-            'classes': ('collapse',)
-        }),
-        ('Legacy Fields (for compatibility)', {
-            'fields': ('lesson', 'passing_score_old', 'questions', 'exam_type_old', 'year', 'teacher', 'marking_guide'),
-            'classes': ('collapse',)
+            'classes': ('col2', 'collapse'),
         }),
         ('Approval Workflow', {
             'fields': ('status', 'admin_notes', 'reviewed_by', 'reviewed_at'),
-            'classes': ('collapse',)
+            'classes': ('collapse',),
         }),
     )
 

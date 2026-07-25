@@ -40,14 +40,18 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', 'status', 'created_at')
     list_filter = ('status',)
     search_fields = ('code', 'name')
-    fields = ('name', 'code', 'description', 'status')
-    readonly_fields = ('status',)
+    readonly_fields = ('status',)  # status is read-only, but we show it only in change form
+
+    def get_fields(self, request, obj=None):
+        # When editing (change form), show status; when adding, hide it
+        if obj:  # obj exists => change form
+            return ('name', 'code', 'description', 'status')
+        else:    # add form
+            return ('name', 'code', 'description')
 
     def save_model(self, request, obj, form, change):
-        # If new course (not a change), set status to pending and notify teacher
         if not change:
             obj.status = 'pending'
-            # Notify the teacher (current user) that the course is submitted
             create_notification(
                 user=request.user,
                 notification_type='system',
@@ -66,9 +70,7 @@ class CourseAdmin(admin.ModelAdmin):
         return redirect('course_list')
 
     def changelist_view(self, request, extra_context=None):
-        # Redirect to custom Course dashboard page
         return redirect('course_list')
-
 
 # ===== Lesson Admin =====
 class LessonAdmin(admin.ModelAdmin):

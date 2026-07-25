@@ -1145,3 +1145,7 @@ select {
     margin: 0 0 8px 0;
     font-weight: 400;
 }
+/* Make the default page title "Dashboard" white on the dashboard */
+.dashboard #content h1 {
+    color: #ffffff !important;
+}

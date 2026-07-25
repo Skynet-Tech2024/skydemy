@@ -142,19 +142,11 @@
 {% block content %}
 <div id="content-main">
     <!-- ===== WELCOME MESSAGE ===== -->
-    <div class="welcome">
-        <h1>
-          <b class="welcome-sub"> Welcome 
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                {{ user.username }}
-            {% endif %}
-            , to </b>
- <span class="gold-text">SKYDEMY</span> <b class="welcome-sub"> Dashboard </b>
-        </h1>
-        <p class="welcome-sub">Here’s an overview of your platform activity.</p>
-    </div>
+    <!-- ===== WELCOME MESSAGE ===== -->
+<div class="dashboard-welcome">
+    <h1>WELCOME TO <span class="gold-text">SKYDEMY</span></h1>
+    <p class="welcome-sub">Your learning management dashboard</p>
+</div>
 
     <!-- ===== STAT CARDS (CLICKABLE) ===== -->
     <div class="dashboard-stats">

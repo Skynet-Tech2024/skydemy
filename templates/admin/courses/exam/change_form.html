@@ -86,84 +86,90 @@
             outline: none !important;
         }
 
-        /* ----- Premium file input with preview ----- */
-        .file-upload-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
+        /* ============================================
+           DRAG & DROP FILE UPLOAD
+           ============================================ */
+        .file-drop-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+            cursor: pointer;
+            position: relative;
         }
-        .file-upload-wrapper input[type="file"] {
-            padding: 0 !important;
-            height: auto !important;
-            border: none !important;
-            background: transparent !important;
+        .file-drop-zone:hover {
+            border-color: #0E8A3A;
+            background: #f0fdf4;
         }
-        .file-upload-wrapper input[type="file"]::file-selector-button {
-            background: #0E8A3A !important;
-            color: #ffffff !important;
-            border: none !important;
-            border-radius: 8px !important;
-            padding: 10px 20px !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            font-family: 'Inter', sans-serif !important;
-            cursor: pointer !important;
-            transition: all 0.2s !important;
-            margin-right: 12px !important;
+        .file-drop-zone.dragover {
+            border-color: #0E8A3A;
+            background: #e8f5e9;
+            box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15);
         }
-        .file-upload-wrapper input[type="file"]::file-selector-button:hover {
-            background: #06612A !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
+        .file-drop-zone .drop-icon {
+            font-size: 40px;
+            color: #0E8A3A;
+            display: block;
+            margin-bottom: 8px;
         }
-        .file-upload-wrapper input[type="file"]:focus {
-            outline: none !important;
+        .file-drop-zone .drop-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1e293b;
         }
-        .file-upload-wrapper input[type="file"]:focus::file-selector-button {
-            outline: 2px solid #D4AF37 !important;
-            outline-offset: 2px;
+        .file-drop-zone .drop-subtext {
+            font-size: 14px;
+            color: #6B7280;
+            margin-top: 4px;
         }
-        .file-upload-wrapper input[type="file"] {
-            color: #212529 !important;
-            font-size: 14px !important;
+        .file-drop-zone .drop-formats {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-top: 8px;
         }
-        /* File preview info */
-        .file-preview {
+        .file-drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-drop-zone .file-preview-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 6px 12px;
-            background: #f8fafc;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: #ffffff;
             border-radius: 8px;
             border: 1px solid #e5e7eb;
-            font-size: 14px;
+        }
+        .file-drop-zone .file-preview-info .file-icon {
+            font-size: 24px;
+        }
+        .file-drop-zone .file-preview-info .file-name {
+            font-weight: 600;
             color: #1e293b;
-            margin-top: 4px;
-            min-height: 40px;
         }
-        .file-preview .file-icon {
-            font-size: 18px;
-            color: #0E8A3A;
-        }
-        .file-preview .file-name {
-            font-weight: 500;
-            flex: 1;
-        }
-        .file-preview .file-size {
+        .file-drop-zone .file-preview-info .file-size {
             color: #6B7280;
             font-size: 13px;
         }
-        .file-preview .file-status {
+        .file-drop-zone .file-preview-info .file-status {
             color: #16A34A;
             font-weight: 600;
-            font-size: 13px;
         }
-        .file-preview .file-status.empty {
+        .file-drop-zone .file-preview-info .file-status.empty {
             color: #9CA3AF;
         }
-        .file-preview .file-status.error {
-            color: #DC2626;
+        /* Hide the default "No file chosen" text */
+        .file-drop-zone input[type="file"]::file-selector-button {
+            display: none !important;
+        }
+        .file-drop-zone input[type="file"] {
+            color: transparent !important;
         }
 
         /* ----- Help text (darker) ----- */
@@ -250,46 +256,74 @@
     {{ block.super }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Add file preview to all file inputs
+            // Convert all file inputs to drag‑and‑drop zones
             document.querySelectorAll('input[type="file"]').forEach(function(fileInput) {
-                // Create preview container
+                // Skip if already wrapped
+                if (fileInput.closest('.file-drop-zone')) return;
+
                 var wrapper = document.createElement('div');
-                wrapper.className = 'file-upload-wrapper';
+                wrapper.className = 'file-drop-zone';
+
+                // Build drop zone content
+                wrapper.innerHTML = `
+                    <span class="drop-icon">📄</span>
+                    <div class="drop-text">Drop your file here or click to browse</div>
+                    <div class="drop-subtext">PDF, DOC, DOCX supported</div>
+                    <div class="drop-formats">Max file size: 20 MB</div>
+                    <div class="file-preview-info" style="display:none;">
+                        <span class="file-icon">📄</span>
+                        <span class="file-name"></span>
+                        <span class="file-size"></span>
+                        <span class="file-status">✅ Ready</span>
+                    </div>
+                `;
+
+                // Move the file input inside the drop zone
                 fileInput.parentNode.insertBefore(wrapper, fileInput);
                 wrapper.appendChild(fileInput);
 
-                var preview = document.createElement('div');
-                preview.className = 'file-preview';
-                preview.innerHTML = `
-                    <span class="file-icon">📄</span>
-                    <span class="file-name">No file chosen</span>
-                    <span class="file-size"></span>
-                    <span class="file-status empty">—</span>
-                `;
-                wrapper.appendChild(preview);
-
-                fileInput.addEventListener('change', function() {
-                    var fileName = this.files.length > 0 ? this.files[0].name : 'No file chosen';
-                    var fileSize = '';
-                    var status = '';
-                    var icon = '📄';
-                    if (this.files.length > 0) {
-                        var size = this.files[0].size;
-                        if (size < 1024 * 1024) {
-                            fileSize = (size / 1024).toFixed(1) + ' KB';
-                        } else {
-                            fileSize = (size / (1024 * 1024)).toFixed(1) + ' MB';
-                        }
-                        status = '✅ Ready';
-                        icon = '📄';
-                    } else {
-                        status = '—';
-                        icon = '📄';
+                // Drag events
+                wrapper.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+                wrapper.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+                wrapper.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    if (e.dataTransfer.files.length > 0) {
+                        fileInput.files = e.dataTransfer.files;
+                        fileInput.dispatchEvent(new Event('change'));
                     }
-                    preview.querySelector('.file-name').textContent = fileName;
-                    preview.querySelector('.file-size').textContent = fileSize;
-                    preview.querySelector('.file-status').textContent = status;
-                    preview.querySelector('.file-status').className = 'file-status' + (this.files.length > 0 ? '' : ' empty');
+                });
+
+                // File selection preview
+                fileInput.addEventListener('change', function() {
+                    var preview = wrapper.querySelector('.file-preview-info');
+                    var fileName = preview.querySelector('.file-name');
+                    var fileSize = preview.querySelector('.file-size');
+                    var fileStatus = preview.querySelector('.file-status');
+
+                    if (this.files.length > 0) {
+                        var file = this.files[0];
+                        var size = file.size;
+                        var sizeStr = '';
+                        if (size < 1024 * 1024) {
+                            sizeStr = (size / 1024).toFixed(1) + ' KB';
+                        } else {
+                            sizeStr = (size / (1024 * 1024)).toFixed(1) + ' MB';
+                        }
+                        fileName.textContent = file.name;
+                        fileSize.textContent = sizeStr;
+                        fileStatus.textContent = '✅ Ready';
+                        fileStatus.className = 'file-status';
+                        preview.style.display = 'flex';
+                    } else {
+                        preview.style.display = 'none';
+                    }
                 });
             });
         });

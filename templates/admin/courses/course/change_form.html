@@ -4,7 +4,7 @@
 {% block extrastyle %}
     {{ block.super }}
     <style>
-        /* Hide all default submit buttons and the entire submit row */
+        /* Hide all default submit buttons */
         .submit-row {
             display: flex !important;
             justify-content: center !important;
@@ -19,7 +19,7 @@
         .submit-row .cancel-link {
             display: none !important;
         }
-        /* Our custom button */
+        /* Custom Submit for Review button */
         .submit-row .btn-submit-review {
             background: #0E8A3A !important;
             color: #ffffff !important;
@@ -47,7 +47,7 @@
     </style>
 {% endblock %}
 
-{% block submit_row %}
+{% block submit_buttons_bottom %}
     <div class="submit-row">
         <button type="submit" name="_save" class="btn-submit-review">
             <i class="fas fa-paper-plane"></i> Submit for Review

@@ -20,11 +20,6 @@
             display: none !important;
         }
 
-        /* Hide the duplicate title inside the form card */
-        .module h2 {
-            display: none !important;
-        }
-
         /* Custom Submit for Review button */
         .submit-row .btn-submit-review {
             background: #0E8A3A !important;
@@ -51,6 +46,15 @@
             font-size: 18px;
         }
     </style>
+{% endblock %}
+
+{# Override the content block to remove the duplicate title #}
+{% block content %}
+<div id="content-main">
+    <div class="skydemy-form-card">
+        {{ block.super }}
+    </div>
+</div>
 {% endblock %}
 
 {% block submit_buttons_bottom %}

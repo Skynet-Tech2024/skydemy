@@ -4,7 +4,94 @@
 {% block extrastyle %}
     {{ block.super }}
     <style>
-        /* Hide all default submit buttons */
+        /* ----- Layout ----- */
+        #content-main {
+            max-width: 1200px !important;
+            margin: 0 auto !important;
+        }
+        .skydemy-form-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 30px 35px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            margin-top: 10px;
+            animation: fadeUp 0.4s ease-out;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ----- Section Headers ----- */
+        .fieldset-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 20px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fieldset-title:first-of-type {
+            margin-top: 0;
+        }
+
+        /* ----- Two‑column grid ----- */
+        .col2 .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 30px;
+            padding: 8px 0 !important;
+        }
+        .col2 .form-row .field-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .col2 .form-row .field-box label {
+            min-width: auto !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            color: #1e293b !important;
+        }
+
+        /* ----- Inputs ----- */
+        .col2 .form-row input,
+        .col2 .form-row select,
+        .col2 .form-row textarea {
+            max-width: 100% !important;
+            height: 42px !important;
+            padding: 8px 14px !important;
+            border-radius: 8px !important;
+            border: 1px solid #d1d5db !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            transition: border 0.2s, box-shadow 0.2s !important;
+        }
+        .col2 .form-row textarea {
+            height: auto !important;
+            min-height: 80px !important;
+        }
+        .col2 .form-row input:focus,
+        .col2 .form-row select:focus,
+        .col2 .form-row textarea:focus {
+            border-color: #0E8A3A !important;
+            box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15) !important;
+            outline: none !important;
+        }
+
+        /* ----- Hide duplicate title ----- */
+        .skydemy-form-card h1,
+        .skydemy-form-card h2,
+        .skydemy-form-card .module h1,
+        .skydemy-form-card .module h2 {
+            display: none !important;
+        }
+
+        /* ----- Submit row ----- */
         .submit-row {
             display: flex !important;
             justify-content: center !important;
@@ -13,22 +100,14 @@
             margin: 0 !important;
             background: transparent !important;
             border: none !important;
+            gap: 16px !important;
+            flex-wrap: wrap !important;
         }
         .submit-row input[type="submit"],
         .submit-row .deletelink,
         .submit-row .cancel-link {
             display: none !important;
         }
-
-        /* Hide the default title inside the card */
-        .skydemy-form-card h1,
-        .skydemy-form-card h2,
-        .skydemy-form-card .module h1,
-        .skydemy-form-card .module h2 {
-            display: none !important;
-        }
-
-        /* Custom Submit for Review button */
         .submit-row .btn-submit-review {
             background: #0E8A3A !important;
             color: #ffffff !important;
@@ -53,10 +132,20 @@
         .submit-row .btn-submit-review i {
             font-size: 18px;
         }
+
+        /* ----- Responsive ----- */
+        @media (max-width: 767px) {
+            .col2 .form-row {
+                grid-template-columns: 1fr !important;
+                gap: 6px !important;
+            }
+            .skydemy-form-card {
+                padding: 16px !important;
+            }
+        }
     </style>
 {% endblock %}
 
-{# Override the submit buttons at the bottom #}
 {% block submit_buttons_bottom %}
     <div class="submit-row">
         <button type="submit" name="_save" class="btn-submit-review">

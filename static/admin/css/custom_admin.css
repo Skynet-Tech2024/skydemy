@@ -1089,3 +1089,21 @@ select {
 .dashboard .row:empty {
     display: none !important;
 }
+/* ----- Subtitle in header (gold, smaller) ----- */
+#header h1 a .subtitle {
+    display: inline-block;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #D4AF37 !important;
+    margin-left: 12px !important;
+    letter-spacing: 0.3px !important;
+    opacity: 0.9;
+}
+/* On smaller screens, stack it below */
+@media (max-width: 767px) {
+    #header h1 a .subtitle {
+        display: block !important;
+        margin-left: 0 !important;
+        font-size: 12px !important;
+    }
+}

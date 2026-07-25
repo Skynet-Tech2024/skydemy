@@ -64,12 +64,13 @@
         .module h2 {
             display: none !important;
         }
+        /* ---- REMOVED HORIZONTAL LINES ---- */
         .module .form-row {
-            border-bottom: 1px solid #f1f5f9 !important;
-            padding: 10px 0 !important;
+            padding: 12px 0 !important;
+            /* border-bottom removed */
         }
         .module .form-row:last-child {
-            border-bottom: none !important;
+            padding-bottom: 0 !important;
         }
 
         /* ----- Two‑column grid (for col2 sections) ----- */
@@ -250,7 +251,7 @@
         }
         .submit-row .btn-cancel,
         .submit-row .btn-draft,
-        .submit-row .btn-publish {
+        .submit-row .btn-submit {
             border-radius: 10px !important;
             padding: 10px 24px !important;
             font-weight: 700 !important;
@@ -282,12 +283,12 @@
             background: #f0fdf4 !important;
             transform: translateY(-2px) !important;
         }
-        .submit-row .btn-publish {
+        .submit-row .btn-submit {
             background: #0E8A3A !important;
             color: #ffffff !important;
             box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
         }
-        .submit-row .btn-publish:hover {
+        .submit-row .btn-submit:hover {
             background: #06612A !important;
             transform: translateY(-2px) !important;
             box-shadow: 0 6px 20px rgba(14, 138, 58, 0.4) !important;
@@ -320,7 +321,7 @@
             }
             .submit-row .btn-cancel,
             .submit-row .btn-draft,
-            .submit-row .btn-publish {
+            .submit-row .btn-submit {
                 justify-content: center !important;
             }
         }
@@ -350,9 +351,9 @@
                 <i class="fas fa-save"></i> Save Draft
             </button>
 
-            <!-- Publish / Submit for Review -->
-            <button type="submit" name="_save" class="btn-publish">
-                <i class="fas fa-paper-plane"></i> Publish Exam
+            <!-- Submit for Review (renamed) -->
+            <button type="submit" name="_save" class="btn-submit">
+                <i class="fas fa-paper-plane"></i> Submit Exam for Review
             </button>
         </div>
     </div>

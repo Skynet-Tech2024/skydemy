@@ -5,6 +5,7 @@
     {{ block.super }}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        /* Dashboard styles (keep everything you had) */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -139,22 +140,6 @@
 {% endblock %}
 
 {% block content %}
-{% extends "admin/base_site.html" %}
-{% load i18n static %}
-
-{% block extrastyle %}
-    {{ block.super }}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        /* Your existing inline styles remain unchanged */
-        .dashboard-stats { ... }
-        .stat-card { ... }
-        /* ... all your existing dashboard styles ... */
-        /* (keep them exactly as you had them) */
-    </style>
-{% endblock %}
-
-{% block content %}
 <div id="content-main">
     <!-- ===== WELCOME MESSAGE ===== -->
     <div class="dashboard-welcome">
@@ -170,30 +155,6 @@
         <p class="welcome-sub">Here’s an overview of your platform activity.</p>
     </div>
 
-    <!-- ===== STAT CARDS (CLICKABLE) ===== -->
-    <div class="dashboard-stats">
-        <!-- your existing stat cards ... -->
-    </div>
-
-    <!-- ===== RECENT ACTIVITIES ===== -->
-    <div style="..."> ... </div>
-
-    <!-- ===== QUICK ACTIONS ===== -->
-    <div class="quick-actions"> ... </div>
-
-    <!-- ===== CHARTS ===== -->
-    <div class="charts-row"> ... </div>
-</div>
-
-<!-- Chart.js script remains unchanged -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // ... your chart code ...
-    });
-</script>
-{% endblock %}
-<div id="content-main">
     <!-- ===== STAT CARDS (CLICKABLE) ===== -->
     <div class="dashboard-stats">
         <a href="{% url 'student_list' %}" style="text-decoration: none; color: inherit; display: block;">

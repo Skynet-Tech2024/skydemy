@@ -5,24 +5,20 @@
     {{ block.super }}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ============================================
-           GLOBAL – LIGHT BACKGROUND
-           ============================================ */
+        /* ----- Global background ----- */
         body {
-            background: #f4f6f9 !important;
+            background: #f8f9fa !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
 
-        /* ============================================
-           BREADCRUMBS
-           ============================================ */
+        /* ----- Breadcrumbs (lighter) ----- */
         div.breadcrumbs {
             background: transparent !important;
             padding: 16px 0 8px 0 !important;
             border-bottom: none !important;
             font-size: 14px !important;
             color: #6B7280 !important;
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -45,11 +41,9 @@
             margin: 0 6px;
         }
 
-        /* ============================================
-           PAGE HEADER
-           ============================================ */
+        /* ----- Page Header (with icon and subtitle) ----- */
         .skydemy-page-header {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto 20px auto;
             display: flex;
             justify-content: space-between;
@@ -76,7 +70,7 @@
             font-size: 28px;
         }
 
-        /* ---- Back to Dashboard button ---- */
+        /* ----- Back to Dashboard button ----- */
         .btn-dashboard {
             background: #ffffff;
             border: 1px solid #d1d5db;
@@ -102,33 +96,27 @@
         }
 
         /* ============================================
-           FORM CARD
+           PREMIUM CARD
            ============================================ */
         #content-main {
-            max-width: 900px;
-            margin: 0 auto;
+            max-width: 1100px !important;
+            margin: 0 auto !important;
         }
         .skydemy-form-card {
             background: #ffffff;
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 35px 40px 30px 40px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
             border: 1px solid #e5e7eb;
             margin-top: 10px;
             animation: fadeUp 0.4s ease-out;
         }
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Info box */
+        /* ----- Info box ----- */
         .skydemy-form-card .info-box {
             background: #F0FDF4;
             border-left: 4px solid #0E8A3A;
@@ -147,7 +135,7 @@
             color: #0E8A3A;
         }
 
-        /* ----- Form Rows ----- */
+        /* ----- Form Rows (with icons) ----- */
         .form-row {
             padding: 14px 0 !important;
             border-bottom: 1px solid #f1f5f9 !important;
@@ -156,7 +144,7 @@
             border-bottom: none !important;
         }
         .form-row label {
-            font-weight: 700 !important;
+            font-weight: 600 !important;
             color: #1e293b !important;
             font-size: 15px !important;
             min-width: 160px !important;
@@ -180,7 +168,7 @@
             padding-top: 6px;
         }
 
-        /* ----- Inputs ----- */
+        /* ----- Inputs (premium) ----- */
         input[type="text"],
         input[type="password"],
         input[type="email"],
@@ -193,12 +181,13 @@
             border: 1px solid #d1d5db !important;
             font-size: 15px !important;
             font-family: 'Inter', sans-serif !important;
-            font-weight: 600 !important;
+            font-weight: 500 !important;
             transition: border 0.2s, box-shadow 0.2s !important;
             width: 100% !important;
             max-width: 500px;
             background: #ffffff;
             height: 48px !important;
+            color: #212529 !important;
         }
         textarea {
             min-height: 220px !important;
@@ -220,7 +209,7 @@
         textarea::placeholder {
             color: #9CA3AF !important;
             font-size: 14px !important;
-            font-weight: 500 !important;
+            font-weight: 400 !important;
         }
 
         /* ----- Help Text ----- */
@@ -228,7 +217,7 @@
             color: #6B7280 !important;
             font-size: 13px !important;
             margin-top: 4px !important;
-            font-weight: 500 !important;
+            font-weight: 400 !important;
         }
 
         /* ----- Errors ----- */
@@ -249,13 +238,11 @@
             margin: 4px 0 0 0 !important;
         }
 
-        /* ============================================
-           SUBMIT ROW (BUTTONS)
-           ============================================ */
+        /* ----- Premium Submit Row ----- */
         .submit-row {
             background: #f8fafc !important;
             border-radius: 12px !important;
-            padding: 16px 20px !important;
+            padding: 16px 24px !important;
             margin-top: 30px !important;
             border: 1px solid #e5e7eb !important;
             display: flex !important;
@@ -286,7 +273,7 @@
             background: #06612A !important;
             box-shadow: 0 4px 16px rgba(14, 138, 58, 0.35) !important;
         }
-        /* Secondary buttons (Save and add another, Save and continue) */
+        /* Secondary buttons */
         .submit-row input[type="submit"]:nth-child(2),
         .submit-row input[type="submit"]:nth-child(3) {
             background: #ffffff !important;
@@ -299,7 +286,6 @@
             border-color: #0E8A3A !important;
             color: #0E8A3A !important;
         }
-        /* Delete button */
         .submit-row .deletelink {
             background: #DC2626 !important;
             color: #ffffff !important;
@@ -308,7 +294,6 @@
         .submit-row .deletelink:hover {
             background: #B91C1C !important;
         }
-        /* Cancel button (go back to list) */
         .submit-row .cancel-link {
             background: transparent !important;
             color: #6B7280 !important;
@@ -324,9 +309,7 @@
             color: #1F2937 !important;
         }
 
-        /* ============================================
-           RESPONSIVE
-           ============================================ */
+        /* ----- Responsive ----- */
         @media (max-width: 767px) {
             .skydemy-form-card {
                 padding: 16px 18px !important;
@@ -377,20 +360,24 @@
     <div class="skydemy-page-header">
         <div class="header-left">
             <h1>
-                <span class="icon">📘</span>
+                <span class="icon">📄</span>
                 {% if title %}
                     {{ title }}
                 {% else %}
-                    Add New
+                    Create New
                 {% endif %}
             </h1>
-            {% if title == "Add course" %}
-                <div class="subtitle">Create a new course that students will enroll in.</div>
-            {% elif title == "Change course" %}
-                <div class="subtitle">Edit the course details below.</div>
-            {% else %}
-                <div class="subtitle">Fill in the details below.</div>
-            {% endif %}
+            <div class="subtitle">
+                {% if title == "Add course" %}
+                    Create a new course that students will enroll in.
+                {% elif title == "Add exam" %}
+                    Prepare an exam by uploading the question paper, marking guide, and configuring assessment settings.
+                {% elif title == "Add lesson" %}
+                    Upload a new lesson with PDF, video, or other resources.
+                {% else %}
+                    Fill in the details below.
+                {% endif %}
+            </div>
         </div>
         <!-- Back to Dashboard button -->
         <a href="{% url 'admin:index' %}" class="btn-dashboard">
@@ -398,7 +385,7 @@
         </a>
     </div>
 
-    <!-- Form Card -->
+    <!-- Premium Form Card -->
     <div class="skydemy-form-card">
         <!-- Info Box -->
         <div class="info-box">
@@ -406,10 +393,12 @@
             <span>
                 {% if title == "Add course" %}
                     Create a new course. Students will be able to enroll once the course is published.
-                {% elif title == "Change course" %}
-                    Update the course information. Changes will be reflected immediately.
+                {% elif title == "Add exam" %}
+                    Upload the question paper, marking guide, and configure the exam settings below.
+                {% elif title == "Add lesson" %}
+                    Upload your lesson content. All fields marked with <strong>*</strong> are required.
                 {% else %}
-                    Fill in the required fields (*) and save.
+                    Fill in the required fields (<strong>*</strong>) and save.
                 {% endif %}
             </span>
         </div>

@@ -167,12 +167,13 @@ class ProgressAdmin(admin.ModelAdmin):
     list_filter = ('completed',)
 
 
-# ===== Exam Admin (without date restrictions) =====
+# ===== Exam Admin (without date restrictions, with autocomplete) =====
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('title', 'exam_type', 'status', 'created_at')
     list_filter = ('status', 'exam_type', 'visibility')
     search_fields = ('title', 'exam_code')
     readonly_fields = ('exam_code', 'created_at', 'reviewed_at')
+    autocomplete_fields = ('course', 'subject', 'reviewed_by', 'teacher')  # <-- ADDED
 
     fieldsets = (
         ('📘 Exam Information', {

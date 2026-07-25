@@ -174,6 +174,8 @@ class ExamAdmin(admin.ModelAdmin):
     search_fields = ('title', 'exam_code')
     readonly_fields = ('exam_code', 'created_at', 'reviewed_at')
     autocomplete_fields = ('course', 'subject', 'reviewed_by', 'teacher')
+    # Exclude the file upload fields completely – they are removed from the admin UI
+    exclude = ('exam_document', 'marking_guide_document')
 
     fieldsets = (
         ('📘 Exam Information', {
@@ -213,13 +215,7 @@ class ExamAdmin(admin.ModelAdmin):
             ),
             'classes': ('col2',),
         }),
-        ('📄 Exam Source', {
-            'fields': (
-                'exam_source',
-                ('exam_document', 'marking_guide_document'),
-            ),
-            'classes': ('col2',),
-        }),
+        # 📄 Exam Source section removed entirely
         ('🛡️ Anti-cheating', {
             'fields': (
                 ('shuffle_questions', 'shuffle_options'),

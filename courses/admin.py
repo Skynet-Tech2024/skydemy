@@ -71,7 +71,6 @@ class CourseAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         return redirect('course_list')
-
 # ===== Lesson Admin =====
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'level', 'status', 'teacher', 'created_at', 'views')
@@ -79,6 +78,43 @@ class LessonAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description')
     readonly_fields = ('created_at', 'updated_at', 'views')
     actions = ['approve_lessons', 'reject_lessons']
+
+    def get_fields(self, request, obj=None):
+        if obj:  # change form
+            return ('title', 'level', 'description', 'subject', 'course', 
+                    'pdf_file', 'original_file', 'is_converted', 'converted_html',
+                    'video_url', 'video_file', 'status', 'admin_notes')
+        else:   # add form
+            return ('title', 'level', 'description', 'subject', 'course',
+                    'pdf_file', 'original_file', 'is_converted', 'converted_html',
+                    'video_url', 'video_file')
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        # Only show approved subjects
+        if db_field.name == "subject":
+            kwargs["queryset"] = Subject.objects.filter(status='approved')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.status = 'pending'
+            obj.teacher = request.user
+            create_notification(
+                user=request.user,
+                notification_type='system',
+                title='📖 Lesson Submitted for Review',
+                message=f'Your lesson "{obj.title}" has been submitted for review. The admin will review it shortly.',
+                link='/dashboard/lessons/'
+            )
+        super().save_model(request, obj, form, change)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        self.message_user(
+            request,
+            f'✅ Lesson "{obj.title}" has been submitted for review. You will be notified once approved.',
+            messages.SUCCESS
+        )
+        return redirect('lesson_list')
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -122,10 +158,7 @@ class LessonAdmin(admin.ModelAdmin):
     reject_lessons.short_description = "Reject selected lessons"
 
     def changelist_view(self, request, extra_context=None):
-        # Redirect to custom Lesson dashboard page
         return redirect('lesson_list')
-
-
 # ===== Progress Admin =====
 class ProgressAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'progress_percentage', 'completed', 'last_accessed')

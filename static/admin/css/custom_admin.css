@@ -936,13 +936,13 @@ select {
     color: #1e293b !important;
     font-weight: 600 !important;
 }
-/* Force white background for Exam Information fields */
-.field-title input,
-.field-exam_type select,
-.field-course select,
-.field-subject select,
-.field-academic_session select,
-.field-term select {
+/* ============================================
+   FORCE WHITE BACKGROUND FOR EXAM INFORMATION FIELDS
+   ============================================ */
+/* Target all inputs and selects in the first fieldset (Exam Information) */
+.col2.wide .form-row input,
+.col2.wide .form-row select,
+.col2.wide .form-row .autocomplete-widget input {
     background-color: #ffffff !important;
     color: #1e293b !important;
     border-color: #d1d5db !important;

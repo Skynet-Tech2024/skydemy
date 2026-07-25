@@ -3,34 +3,116 @@
 
 {% block extrastyle %}
     {{ block.super }}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ----- Form Container ----- */
+        /* ============================================
+           GLOBAL STYLES
+           ============================================ */
+        body {
+            background: #f4f6f9 !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        }
+
+        /* ============================================
+           BREADCRUMBS
+           ============================================ */
+        div.breadcrumbs {
+            background: transparent !important;
+            padding: 16px 0 8px 0 !important;
+            border-bottom: none !important;
+            font-size: 14px !important;
+            color: #6B7280 !important;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        div.breadcrumbs a {
+            color: #0E8A3A !important;
+            font-weight: 500 !important;
+            text-decoration: none !important;
+        }
+        div.breadcrumbs a:hover {
+            text-decoration: underline !important;
+        }
+        div.breadcrumbs .separator {
+            color: #9CA3AF !important;
+            margin: 0 6px;
+        }
+
+        /* ============================================
+           PAGE HEADER
+           ============================================ */
+        .skydemy-page-header {
+            max-width: 900px;
+            margin: 0 auto 20px auto;
+        }
+        .skydemy-page-header .subtitle {
+            font-size: 14px;
+            color: #6B7280;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+        .skydemy-page-header h1 {
+            font-size: 32px !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            margin: 0 !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .skydemy-page-header h1 .icon {
+            font-size: 28px;
+        }
+
+        /* ============================================
+           FORM CARD
+           ============================================ */
         #content-main {
             max-width: 900px;
             margin: 0 auto;
         }
         .skydemy-form-card {
             background: #ffffff;
-            border-radius: 20px;
-            padding: 30px 35px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-radius: 14px;
+            padding: 35px 40px 30px 40px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
             border: 1px solid #e5e7eb;
-            margin-top: 20px;
+            margin-top: 10px;
+            animation: fadeUp 0.4s ease-out;
         }
-        .skydemy-form-card h2 {
-            font-size: 22px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-top: 0;
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Info box */
+        .skydemy-form-card .info-box {
+            background: #F0FDF4;
+            border-left: 4px solid #0E8A3A;
+            padding: 12px 16px;
+            border-radius: 8px;
             margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f1f5f9;
+            color: #065F46;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .skydemy-form-card .info-box i {
+            font-size: 18px;
+            color: #0E8A3A;
         }
 
         /* ----- Form Rows ----- */
         .form-row {
-            padding: 12px 0 !important;
-            border-bottom: 1px solid #f8fafc !important;
+            padding: 14px 0 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
         }
         .form-row:last-child {
             border-bottom: none !important;
@@ -38,17 +120,26 @@
         .form-row label {
             font-weight: 600 !important;
             color: #1e293b !important;
-            font-size: 14px !important;
-            min-width: 150px !important;
+            font-size: 15px !important;
+            min-width: 160px !important;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-row label .required {
+            color: #DC2626;
+            font-weight: 700;
+            margin-left: 2px;
         }
         .form-row .field-box {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 16px;
             flex-wrap: wrap;
         }
         .form-row .field-box label {
-            min-width: 120px;
+            min-width: 140px;
+            padding-top: 6px;
         }
 
         /* ----- Inputs ----- */
@@ -60,13 +151,20 @@
         textarea,
         select {
             border-radius: 10px !important;
-            padding: 10px 14px !important;
+            padding: 12px 16px !important;
             border: 1px solid #d1d5db !important;
-            font-size: 14px !important;
+            font-size: 15px !important;
+            font-family: 'Inter', sans-serif !important;
             transition: border 0.2s, box-shadow 0.2s !important;
             width: 100% !important;
             max-width: 500px;
             background: #ffffff;
+            height: 48px !important;
+        }
+        textarea {
+            min-height: 220px !important;
+            height: auto !important;
+            resize: vertical;
         }
         input[type="text"]:focus,
         input[type="password"]:focus,
@@ -79,75 +177,127 @@
             box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15) !important;
             outline: none !important;
         }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
+        input::placeholder,
+        textarea::placeholder {
+            color: #9CA3AF !important;
+            font-size: 14px !important;
         }
 
-        /* ----- Buttons (Submit Row) ----- */
+        /* ----- Help Text ----- */
+        .help, .help-text {
+            color: #6B7280 !important;
+            font-size: 13px !important;
+            margin-top: 4px !important;
+        }
+
+        /* ----- Required indicator ----- */
+        .required-label::after {
+            content: " *";
+            color: #DC2626;
+            font-weight: 700;
+        }
+
+        /* ----- Errors ----- */
+        .errornote {
+            background: #FEF2F2 !important;
+            border-left: 4px solid #DC2626 !important;
+            padding: 12px 16px !important;
+            border-radius: 8px !important;
+            color: #991B1B !important;
+            margin-bottom: 20px !important;
+        }
+        .errorlist {
+            color: #DC2626 !important;
+            font-weight: 500 !important;
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 4px 0 0 0 !important;
+        }
+
+        /* ============================================
+           SUBMIT ROW (BUTTONS)
+           ============================================ */
         .submit-row {
             background: #f8fafc !important;
             border-radius: 12px !important;
-            padding: 16px 24px !important;
+            padding: 16px 20px !important;
             margin-top: 30px !important;
             border: 1px solid #e5e7eb !important;
             display: flex !important;
             flex-wrap: wrap !important;
-            gap: 10px !important;
+            gap: 12px !important;
             align-items: center !important;
         }
         .submit-row input[type="submit"],
         .submit-row a.deletelink {
-            border-radius: 8px !important;
-            padding: 8px 24px !important;
+            border-radius: 10px !important;
+            padding: 10px 28px !important;
             font-weight: 600 !important;
             font-size: 14px !important;
             transition: all 0.2s !important;
             border: none !important;
+            cursor: pointer !important;
+            font-family: 'Inter', sans-serif !important;
         }
         .submit-row input[type="submit"]:hover {
-            transform: translateY(-1px) !important;
-            box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
+            transform: translateY(-2px) !important;
         }
+        /* Primary Save */
         .submit-row input[type="submit"]:first-child {
             background: #0E8A3A !important;
             color: #ffffff !important;
         }
         .submit-row input[type="submit"]:first-child:hover {
             background: #06612A !important;
+            box-shadow: 0 4px 16px rgba(14, 138, 58, 0.35) !important;
         }
+        /* Secondary buttons (Save and add another, Save and continue) */
+        .submit-row input[type="submit"]:nth-child(2),
+        .submit-row input[type="submit"]:nth-child(3) {
+            background: #ffffff !important;
+            color: #1F2937 !important;
+            border: 1px solid #d1d5db !important;
+        }
+        .submit-row input[type="submit"]:nth-child(2):hover,
+        .submit-row input[type="submit"]:nth-child(3):hover {
+            background: #f8fafc !important;
+            border-color: #0E8A3A !important;
+            color: #0E8A3A !important;
+        }
+        /* Delete button */
         .submit-row .deletelink {
             background: #DC2626 !important;
             color: #ffffff !important;
+            text-decoration: none !important;
         }
         .submit-row .deletelink:hover {
             background: #B91C1C !important;
         }
-
-        /* ----- Help Text ----- */
-        .help, .help-text {
-            color: #64748B !important;
-            font-size: 13px !important;
-            margin-top: 4px !important;
-        }
-
-        /* ----- Errors ----- */
-        .errornote {
-            background: #FEE2E2 !important;
-            border-left: 4px solid #DC2626 !important;
-            padding: 12px 16px !important;
-            border-radius: 8px !important;
-            color: #991B1B !important;
-        }
-        .errorlist {
-            color: #DC2626 !important;
+        /* Cancel button */
+        .submit-row .cancel-link {
+            background: transparent !important;
+            color: #6B7280 !important;
+            padding: 10px 20px !important;
+            border-radius: 10px !important;
+            text-decoration: none !important;
             font-weight: 500 !important;
+            font-size: 14px !important;
+            transition: all 0.2s !important;
+        }
+        .submit-row .cancel-link:hover {
+            background: #f1f5f9 !important;
+            color: #1F2937 !important;
         }
 
-        /* ----- Responsive ----- */
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (max-width: 767px) {
             .skydemy-form-card {
-                padding: 16px !important;
+                padding: 16px 18px !important;
+            }
+            .skydemy-page-header h1 {
+                font-size: 24px !important;
             }
             .form-row .field-box {
                 flex-direction: column !important;
@@ -165,17 +315,62 @@
             select {
                 max-width: 100% !important;
             }
+            .submit-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            .submit-row input[type="submit"],
+            .submit-row a.deletelink,
+            .submit-row .cancel-link {
+                width: 100% !important;
+                text-align: center !important;
+            }
         }
     </style>
 {% endblock %}
 
 {% block content %}
 <div id="content-main">
-    <div class="skydemy-form-card">
-        {% if title %}
-            <h2>{{ title }}</h2>
+    <!-- Page Header -->
+    <div class="skydemy-page-header">
+        <h1>
+            <span class="icon">📘</span>
+            {% if title %}
+                {{ title }}
+            {% else %}
+                Add New
+            {% endif %}
+        </h1>
+        {% if title == "Add course" %}
+            <div class="subtitle">Create a new course that students will enroll in.</div>
+        {% elif title == "Change course" %}
+            <div class="subtitle">Edit the course details below.</div>
+        {% else %}
+            <div class="subtitle">Fill in the details below.</div>
         {% endif %}
+    </div>
+
+    <!-- Form Card -->
+    <div class="skydemy-form-card">
+        <!-- Info Box -->
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <span>
+                {% if title == "Add course" %}
+                    Create a new course. Students will be able to enroll once the course is published.
+                {% elif title == "Change course" %}
+                    Update the course information. Changes will be reflected immediately.
+                {% else %}
+                    Fill in the required fields (*) and save.
+                {% endif %}
+            </span>
+        </div>
+
         {{ block.super }}
     </div>
 </div>
+{% endblock %}
+
+{% block footer %}
+    {% include "admin/footer.html" %}
 {% endblock %}

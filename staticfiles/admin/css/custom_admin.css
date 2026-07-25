@@ -1,0 +1,640 @@
+/* ============================================
+   SKYDEMY ADMIN - CUSTOM HEADER
+   ============================================ */
+
+:root {
+  --skydemy-green: #0E8A3A;
+  --skydemy-dark-green: #06612A;
+  --skydemy-gold: #D4AF37;
+  --skydemy-light-gold: #F4E7B5;
+  --skydemy-bg: #F8FAFC;
+}
+
+/* ----- Top Header Bar ----- */
+#header {
+  background: var(--skydemy-green) !important;
+  padding: 0 20px !important;
+  height: 70px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 3px solid var(--skydemy-gold) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Brand / Logo */
+#header h1 {
+  margin: 0 !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+}
+#header h1 a {
+  color: #fff !important;
+  text-decoration: none !important;
+}
+#header h1 a .gold {
+  color: var(--skydemy-gold) !important;
+}
+
+/* ----- Right Side (Notifications + Profile) ----- */
+.header-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+}
+
+/* Notification Bell */
+.notification-bell {
+  position: relative;
+  color: #fff !important;
+  font-size: 20px !important;
+  cursor: pointer;
+  text-decoration: none;
+}
+.notification-bell .badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: #DC2626;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.profile-dropdown .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--skydemy-gold);
+  color: var(--skydemy-dark-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+.profile-dropdown .dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 48px;
+  background: #fff;
+  min-width: 180px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  padding: 8px 0;
+  z-index: 1000;
+}
+.profile-dropdown .dropdown-menu.show {
+  display: block;
+}
+.profile-dropdown .dropdown-menu a {
+  display: block;
+  padding: 8px 20px;
+  color: #1F2937 !important;
+  text-decoration: none !important;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.profile-dropdown .dropdown-menu a:hover {
+  background: #F1F5F9;
+}
+.profile-dropdown .dropdown-menu .divider {
+  height: 1px;
+  background: #E5E7EB;
+  margin: 4px 0;
+}
+.profile-dropdown .dropdown-menu .username {
+  padding: 8px 20px;
+  font-weight: 600;
+  color: #0B7A3B;
+  font-size: 14px;
+  border-bottom: 1px solid #E5E7EB;
+  margin-bottom: 4px;
+}
+
+/* ----- Responsive tweaks ----- */
+@media (max-width: 767px) {
+  #header { height: auto !important; padding: 10px 16px !important; flex-wrap: wrap; gap: 10px; }
+  .header-right { gap: 12px; }
+}
+/* ===== SIDEBAR ===== */
+#nav-sidebar {
+  background: #1e293b !important; /* dark slate */
+  color: #e2e8f0 !important;
+  padding: 12px 0 !important;
+  width: 260px !important;
+}
+
+#nav-sidebar .module h2 {
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 12px 20px 6px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+#nav-sidebar ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#nav-sidebar ul li {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#nav-sidebar ul li a {
+  display: block !important;
+  padding: 8px 20px 8px 48px !important;
+  color: #cbd5e1 !important;
+  text-decoration: none !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+}
+
+#nav-sidebar ul li a i {
+  position: absolute !important;
+  left: 20px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 20px !important;
+  text-align: center !important;
+  font-size: 16px !important;
+  color: #94a3b8 !important;
+  transition: color 0.2s ease !important;
+}
+
+#nav-sidebar ul li a:hover {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+#nav-sidebar ul li a:hover i {
+  color: #D4AF37 !important; /* gold */
+}
+
+#nav-sidebar ul li.current-model a {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-right: 3px solid #D4AF37 !important;
+}
+#nav-sidebar ul li.current-model a i {
+  color: #D4AF37 !important;
+}
+
+/* Collapse sections? No, keep it simple */
+/* ============================================
+   STEP 6: BETTER SPACING & TYPOGRAPHY
+   ============================================ */
+
+/* ----- Main Content Area ----- */
+#content {
+    padding: 30px 40px !important;
+    margin: 0 !important;
+}
+
+/* ----- Page Title ----- */
+#content h1 {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin-bottom: 24px !important;
+    letter-spacing: -0.5px !important;
+}
+
+/* ----- Module / Section Headers ----- */
+.module h2,
+.module caption {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    padding: 12px 16px !important;
+    background: #f8fafc !important;
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+/* ----- Tables ----- */
+#content-main table {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+}
+
+#content-main table th {
+    padding: 14px 16px !important;
+    background: #f8fafc !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: #1e293b !important;
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+#content-main table td {
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    color: #334155 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+#content-main table tr:hover td {
+    background: #f8fafc !important;
+}
+
+/* ----- Buttons ----- */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    transition: all 0.2s !important;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
+}
+
+/* ----- Forms ----- */
+.form-row {
+    padding: 16px 0 !important;
+}
+
+.form-row label {
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    font-size: 14px !important;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="url"],
+textarea,
+select {
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    border: 1px solid #d1d5db !important;
+    font-size: 14px !important;
+    transition: border 0.2s, box-shadow 0.2s !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #0E8A3A !important;
+    box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15) !important;
+    outline: none !important;
+}
+
+/* ----- Submit Row (bottom of forms) ----- */
+.submit-row {
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    padding: 16px 20px !important;
+    margin-top: 24px !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* ----- Breadcrumbs ----- */
+div.breadcrumbs {
+    background: #f8fafc !important;
+    padding: 12px 40px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    font-size: 14px !important;
+    color: #475569 !important;
+}
+
+div.breadcrumbs a {
+    color: #0B7A3B !important;
+    font-weight: 500 !important;
+}
+
+/* ----- Messages ----- */
+.messagelist li {
+    border-radius: 8px !important;
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    margin-bottom: 8px !important;
+}
+
+/* ----- Pagination ----- */
+.paginator {
+    padding: 16px 0 !important;
+    font-size: 14px !important;
+}
+
+.paginator a,
+.paginator .this-page {
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+    margin: 0 2px !important;
+}
+
+.paginator .this-page {
+    background: #0E8A3A !important;
+    color: #fff !important;
+}
+
+/* ----- Filter Sidebar ----- */
+#changelist-filter {
+    border-radius: 12px !important;
+    border: 1px solid #e5e7eb !important;
+    overflow: hidden !important;
+}
+
+#changelist-filter h2 {
+    background: #f8fafc !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+#changelist-filter a {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+}
+
+#changelist-filter a:hover {
+    background: #f1f5f9 !important;
+}
+
+/* ----- Responsive: Mobile ----- */
+@media (max-width: 767px) {
+    #content {
+        padding: 16px !important;
+    }
+    #content h1 {
+        font-size: 22px !important;
+    }
+    .dashboard-stats {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+    }
+    .stat-card {
+        padding: 14px 16px !important;
+    }
+    .stat-card .info .number {
+        font-size: 22px !important;
+    }
+    .quick-actions a {
+        padding: 4px 12px !important;
+        font-size: 12px !important;
+    }
+    .charts-row {
+        grid-template-columns: 1fr !important;
+    }
+    #content-main table {
+        font-size: 13px !important;
+    }
+    #content-main table th,
+    #content-main table td {
+        padding: 8px 10px !important;
+    }
+}
+/* ============================================
+   STEP 7: FULL POLISH
+   ============================================ */
+
+/* ----- 1. Fade-in Animation ----- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.dashboard-stats .stat-card,
+.quick-actions,
+.chart-box,
+#recent-activities {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+.dashboard-stats .stat-card:nth-child(2) { animation-delay: 0.05s; }
+.dashboard-stats .stat-card:nth-child(3) { animation-delay: 0.10s; }
+.dashboard-stats .stat-card:nth-child(4) { animation-delay: 0.15s; }
+.dashboard-stats .stat-card:nth-child(5) { animation-delay: 0.20s; }
+.dashboard-stats .stat-card:nth-child(6) { animation-delay: 0.25s; }
+
+/* ----- 2. Stat Card Hover Enhancements ----- */
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+.stat-card:hover {
+    transform: translateY(-6px) scale(1.01) !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
+}
+.stat-card .icon {
+    transition: transform 0.3s ease;
+}
+.stat-card:hover .icon {
+    transform: scale(1.08) rotate(-2deg);
+}
+
+/* ----- 3. Sidebar polish ----- */
+#nav-sidebar ul li a {
+    transition: background 0.25s, color 0.25s, padding-left 0.25s !important;
+    position: relative;
+}
+#nav-sidebar ul li a:hover {
+    padding-left: 56px !important;
+    background: #0f172a !important;
+}
+#nav-sidebar ul li a:hover i {
+    color: #D4AF37 !important;
+    transition: color 0.3s;
+}
+#nav-sidebar ul li.current-model a {
+    background: #0f172a !important;
+    border-right: 4px solid #D4AF37 !important;
+}
+
+/* ----- 4. Header Sticky ----- */
+#header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 999 !important;
+    backdrop-filter: blur(4px);
+    background: rgba(14, 138, 58, 0.97) !important;
+}
+
+/* ----- 5. Gold accent on focus/active elements ----- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid #D4AF37 !important;
+    outline-offset: 2px;
+}
+
+/* ----- 6. Better scrollbar (optional, for modern browsers) ----- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #0E8A3A;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #06612A;
+}
+
+/* ----- 7. Responsive tweaks for small screens ----- */
+@media (max-width: 480px) {
+    .stat-card .info .number {
+        font-size: 18px !important;
+    }
+    .stat-card .icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    .quick-actions a {
+        font-size: 11px !important;
+        padding: 4px 10px !important;
+    }
+    #header {
+        height: auto !important;
+        padding: 8px 12px !important;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    #header h1 {
+        font-size: 18px !important;
+    }
+    .profile-dropdown .avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+}
+/* ===== Logo styling: rounded + 3D ===== */
+#header h1 a img {
+    border-radius: 50% !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.1) !important;
+    border: 2px solid rgba(255,255,255,0.2) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    height: 45px !important;
+    width: 45px !important;
+    object-fit: cover !important;
+}
+
+#header h1 a img:hover {
+    transform: scale(1.08) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.15) !important;
+}
+/* ===== Add/Change Form Overrides ===== */
+.skydemy-form-card .module {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+.skydemy-form-card .module h2 {
+    display: none !important;
+}
+/* ===== Add/Change Form Overrides ===== */
+.skydemy-form-card .module {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+.skydemy-form-card .module h2 {
+    display: none !important;
+}
+
+/* Cancel button in submit row */
+.submit-row .cancel-link {
+    background: transparent !important;
+    color: #6B7280 !important;
+    padding: 10px 20px !important;
+    border-radius: 10px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    transition: all 0.2s !important;
+}
+.submit-row .cancel-link:hover {
+    background: #f1f5f9 !important;
+    color: #1F2937 !important;
+}
+/* Footer overrides for dark background */
+#footer {
+    background: transparent !important;
+    color: #94a3b8 !important;
+    border-top: 1px solid #334155 !important;
+}
+#footer a {
+    color: #e2e8f0 !important;
+}
+#footer a:hover {
+    color: #D4AF37 !important;
+}
+/* Footer – lighter dark background */
+#footer {
+    background: transparent !important;
+    color: #cbd5e1 !important;
+    border-top: 1px solid #4a5568 !important;
+    font-weight: 600 !important;
+}
+#footer a {
+    color: #e2e8f0 !important;
+    font-weight: 600 !important;
+}
+#footer a:hover {
+    color: #D4AF37 !important;
+}
+/* Footer – light background */
+#footer {
+    background: #ffffff !important;
+    color: #6B7280 !important;
+    border-top: 1px solid #e5e7eb !important;
+    font-weight: 500 !important;
+}
+#footer a {
+    color: #0E8A3A !important;
+    font-weight: 600 !important;
+}
+#footer a:hover {
+    color: #06612A !important;
+}

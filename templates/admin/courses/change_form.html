@@ -1,0 +1,70 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        /* ============================================
+           SINGLE BUTTON – remove all default buttons
+           ============================================ */
+        .submit-row {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 16px !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 20px 0 !important;
+            margin: 0 !important;
+        }
+        .submit-row input[type="submit"],
+        .submit-row .deletelink,
+        .submit-row .cancel-link {
+            display: none !important;
+        }
+        .submit-row .btn-save {
+            background: #0E8A3A !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 10px !important;
+            padding: 12px 40px !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            font-family: 'Inter', sans-serif !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3) !important;
+        }
+        .submit-row .btn-save:hover {
+            background: #06612A !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(14, 138, 58, 0.4) !important;
+        }
+        .submit-row .btn-save i {
+            font-size: 18px;
+        }
+
+        /* Hide the default submit row */
+        .submit-row input[type="submit"] {
+            display: none !important;
+        }
+        /* Hide the "Save and add another" etc. */
+        .submit-row .submit-row > * {
+            display: none !important;
+        }
+        .submit-row .submit-row .btn-save {
+            display: inline-flex !important;
+        }
+    </style>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+    <div class="submit-row">
+        <button type="submit" name="_save" class="btn-save">
+            <i class="fas fa-paper-plane"></i> Submit for Review
+        </button>
+    </div>
+{% endblock %}

@@ -17,7 +17,7 @@ class Subject(models.Model):
     )
     
     name = models.CharField(max_length=100)
-    code = models.CharField(  # <-- ADDED BACK
+    code = models.CharField(
         max_length=20,
         blank=True,
         null=True,
@@ -48,19 +48,30 @@ class Subject(models.Model):
         if self.name:
             self.name = self.name.upper()
         if self.code:
-            self.code = self.code.upper()  # optional
+            self.code = self.code.upper()
         super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.name} ({self.get_level_display()})"
 
+
 class Course(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+    
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=20)
     description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.code} - {self.name}"
+
 
 class Lesson(models.Model):
     LEVEL_CHOICES = (
@@ -133,6 +144,7 @@ class Lesson(models.Model):
     def __str__(self):
         return self.title
 
+
 class Progress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='progress')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='progress')
@@ -144,10 +156,11 @@ class Progress(models.Model):
     
     class Meta:
         unique_together = ('user', 'lesson')
-        verbose_name_plural = "Progress"   # <-- FIXED TYPO
+        verbose_name_plural = "Progress"
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"
+
 
 class Exam(models.Model):
     STATUS_CHOICES = (
@@ -190,6 +203,7 @@ class Exam(models.Model):
     def __str__(self):
         return f"{self.title} - {self.lesson.title}"
 
+
 class ExamResult(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
@@ -200,6 +214,7 @@ class ExamResult(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.exam.title} - {self.percentage}%"
+
 
 class Certificate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -217,6 +232,7 @@ class Certificate(models.Model):
     def __str__(self):
         return f"Certificate for {self.user.username} - {self.lesson.title if self.lesson else self.exam.title}"
 
+
 # ===== Social Features =====
 
 class LessonLike(models.Model):
@@ -230,6 +246,7 @@ class LessonLike(models.Model):
     def __str__(self):
         return f"{self.user.username} likes {self.lesson.title}"
 
+
 class ExamLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='likes')
@@ -241,6 +258,7 @@ class ExamLike(models.Model):
     def __str__(self):
         return f"{self.user.username} likes {self.exam.title}"
 
+
 class LessonComment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='comments')
@@ -250,6 +268,7 @@ class LessonComment(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title}"
+
 
 class ExamComment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

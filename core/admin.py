@@ -12,7 +12,8 @@ from django.db.models import Count
 
 # Import models for statistics
 from courses.models import Course, Lesson, Exam, ExamResult, Certificate
-from users.models import UserProfile, Activity  # <-- added Activity
+from users.models import UserProfile, Activity
+from django.contrib.auth.models import User  # <-- ADDED
 
 
 class SKYDEMYAdminSite(AdminSite):
@@ -150,8 +151,18 @@ class SKYDEMYAdminSite(AdminSite):
             return dt.strftime("%b %d, %Y")
 
 
+# ===== Register User Admin for autocomplete =====
+class UserAdmin(admin.ModelAdmin):
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_active')
+    list_filter = ('is_active',)
+
+
 # Create an instance of the custom admin site
 admin_site = SKYDEMYAdminSite()
+
+# Register models with the custom admin site
+admin_site.register(User, UserAdmin)  # <-- ADDED
 
 # Also assign to admin.site for backward compatibility
 admin.site = admin_site

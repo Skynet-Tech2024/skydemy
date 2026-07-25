@@ -6,62 +6,101 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ============================================
-           GLOBAL STYLES
+           GLOBAL STYLES – DARK GREY BACKGROUND
            ============================================ */
         body {
-            background: #f4f6f9 !important;
+            background: #1e293b !important; /* Dark slate */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
 
         /* ============================================
-           BREADCRUMBS
+           BREADCRUMBS (light on dark)
            ============================================ */
         div.breadcrumbs {
             background: transparent !important;
             padding: 16px 0 8px 0 !important;
             border-bottom: none !important;
             font-size: 14px !important;
-            color: #6B7280 !important;
+            color: #94a3b8 !important;
             max-width: 900px;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         div.breadcrumbs a {
-            color: #0E8A3A !important;
+            color: #f1f5f9 !important;
             font-weight: 500 !important;
             text-decoration: none !important;
         }
         div.breadcrumbs a:hover {
+            color: #D4AF37 !important;
             text-decoration: underline !important;
         }
         div.breadcrumbs .separator {
-            color: #9CA3AF !important;
+            color: #64748b !important;
             margin: 0 6px;
+        }
+        .breadcrumbs-right {
+            display: flex;
+            gap: 12px;
         }
 
         /* ============================================
-           PAGE HEADER
+           PAGE HEADER (light text)
            ============================================ */
         .skydemy-page-header {
             max-width: 900px;
             margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        .skydemy-page-header .subtitle {
+        .skydemy-page-header .header-left .subtitle {
             font-size: 14px;
-            color: #6B7280;
+            color: #94a3b8;
             font-weight: 400;
             margin-top: 2px;
         }
-        .skydemy-page-header h1 {
+        .skydemy-page-header .header-left h1 {
             font-size: 32px !important;
             font-weight: 700 !important;
-            color: #0f172a !important;
+            color: #ffffff !important;
             margin: 0 !important;
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .skydemy-page-header h1 .icon {
+        .skydemy-page-header .header-left h1 .icon {
             font-size: 28px;
+        }
+
+        /* ---- Back to Dashboard button ---- */
+        .btn-dashboard {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #f1f5f9;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-dashboard:hover {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            border-color: #D4AF37;
+            transform: translateY(-1px);
         }
 
         /* ============================================
@@ -75,8 +114,8 @@
             background: #ffffff;
             border-radius: 14px;
             padding: 35px 40px 30px 40px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            border: 1px solid #e5e7eb;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
             margin-top: 10px;
             animation: fadeUp 0.4s ease-out;
         }
@@ -273,7 +312,7 @@
         .submit-row .deletelink:hover {
             background: #B91C1C !important;
         }
-        /* Cancel button */
+        /* Cancel button (go back to list) */
         .submit-row .cancel-link {
             background: transparent !important;
             color: #6B7280 !important;
@@ -296,8 +335,15 @@
             .skydemy-form-card {
                 padding: 16px 18px !important;
             }
-            .skydemy-page-header h1 {
+            .skydemy-page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .skydemy-page-header .header-left h1 {
                 font-size: 24px !important;
+            }
+            .btn-dashboard {
+                align-self: flex-start;
             }
             .form-row .field-box {
                 flex-direction: column !important;
@@ -333,21 +379,27 @@
 <div id="content-main">
     <!-- Page Header -->
     <div class="skydemy-page-header">
-        <h1>
-            <span class="icon">📘</span>
-            {% if title %}
-                {{ title }}
+        <div class="header-left">
+            <h1>
+                <span class="icon">📘</span>
+                {% if title %}
+                    {{ title }}
+                {% else %}
+                    Add New
+                {% endif %}
+            </h1>
+            {% if title == "Add course" %}
+                <div class="subtitle">Create a new course that students will enroll in.</div>
+            {% elif title == "Change course" %}
+                <div class="subtitle">Edit the course details below.</div>
             {% else %}
-                Add New
+                <div class="subtitle">Fill in the details below.</div>
             {% endif %}
-        </h1>
-        {% if title == "Add course" %}
-            <div class="subtitle">Create a new course that students will enroll in.</div>
-        {% elif title == "Change course" %}
-            <div class="subtitle">Edit the course details below.</div>
-        {% else %}
-            <div class="subtitle">Fill in the details below.</div>
-        {% endif %}
+        </div>
+        <!-- Back to Dashboard button -->
+        <a href="{% url 'admin:index' %}" class="btn-dashboard">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
     </div>
 
     <!-- Form Card -->

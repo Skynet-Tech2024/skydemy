@@ -251,7 +251,8 @@
         }
         .submit-row .btn-cancel,
         .submit-row .btn-draft,
-        .submit-row .btn-submit {
+        .submit-row .btn-submit,
+        .submit-row .btn-addanother {
             border-radius: 10px !important;
             padding: 10px 24px !important;
             font-weight: 700 !important;
@@ -292,6 +293,15 @@
             background: #06612A !important;
             transform: translateY(-2px) !important;
             box-shadow: 0 6px 20px rgba(14, 138, 58, 0.4) !important;
+        }
+        /* NEW: Create Another Exam button – gold */
+        .submit-row .btn-addanother {
+            background: #D4AF37 !important;
+            color: #ffffff !important;
+        }
+        .submit-row .btn-addanother:hover {
+            background: #b8960f !important;
+            transform: translateY(-2px) !important;
         }
         /* Hide default Django buttons */
         .submit-row input[type="submit"],
@@ -334,7 +344,8 @@
             }
             .submit-row .btn-cancel,
             .submit-row .btn-draft,
-            .submit-row .btn-submit {
+            .submit-row .btn-submit,
+            .submit-row .btn-addanother {
                 justify-content: center !important;
             }
         }
@@ -359,14 +370,19 @@
                 <i class="fas fa-times"></i> Cancel
             </a>
 
-            <!-- Save Draft -->
+            <!-- Save Draft (saves and continues editing) -->
             <button type="submit" name="_continue" class="btn-draft">
                 <i class="fas fa-save"></i> Save Draft
             </button>
 
-            <!-- Submit for Review -->
+            <!-- Submit for Review (saves and returns to changelist) -->
             <button type="submit" name="_save" class="btn-submit">
                 <i class="fas fa-paper-plane"></i> Submit Exam for Review
+            </button>
+
+            <!-- NEW: Create Another Exam (saves and opens a new blank form) -->
+            <button type="submit" name="_addanother" class="btn-addanother">
+                <i class="fas fa-plus-circle"></i> Create Another Exam
             </button>
         </div>
     </div>

@@ -1,6 +1,17 @@
 from django import forms
 from .models import Lesson, Subject, Course, Exam, Certificate
 
+# ===== CENTRALIZED LEVEL CHOICES (used across all forms) =====
+LEVEL_CHOICES = [
+    ('primary', 'Primary'),
+    ('secondary', 'Secondary'),
+    ('technical', 'Technical & Vocational'),
+    ('university', 'University'),
+    ('higher', 'Higher Institute'),
+    ('professional', 'Professional Certification'),
+    ('other', 'Other'),
+]
+
 class LessonForm(forms.ModelForm):
     # Add a field for creating a new subject on the fly
     new_subject_name = forms.CharField(
@@ -9,7 +20,7 @@ class LessonForm(forms.ModelForm):
         help_text="If subject doesn't exist, enter a new subject name here and it will be created automatically."
     )
     new_subject_level = forms.ChoiceField(
-        choices=Subject.LEVEL_CHOICES,
+        choices=LEVEL_CHOICES,  # Use the centralized choices
         required=False,
         help_text="Select the level for the new subject"
     )
@@ -112,7 +123,7 @@ class ExamForm(forms.ModelForm):
                 self.fields[field_name].required = False
 
 
-# ===== NEW: Exam Creation Wizard Form =====
+# ===== Exam Creation Wizard Form =====
 class ExamCreationForm(forms.ModelForm):
     # Searchable dropdowns
     subject = forms.ModelChoiceField(
@@ -136,15 +147,8 @@ class ExamCreationForm(forms.ModelForm):
     )
     # Other fields
     title = forms.CharField(max_length=200)
-    level = forms.ChoiceField(choices=[
-        ('primary', 'Primary'),
-        ('secondary', 'Secondary'),
-        ('technical', 'Technical & Vocational'),
-        ('university', 'University'),
-        ('higher', 'Higher Institute'),
-        ('professional', 'Professional Certification'),
-        ('other', 'Other')
-    ])
+    # Use the centralized LEVEL_CHOICES here
+    level = forms.ChoiceField(choices=LEVEL_CHOICES)
     category = forms.ChoiceField(choices=[
         ('midterm', 'Mid-Term Examination'),
         ('endterm', 'End-of-Term Examination'),
@@ -279,6 +283,8 @@ class CertificateIssueForm(forms.ModelForm):
         elif achievement_type == 'exam' and not exam:
             self.add_error('exam', 'Please select an exam.')
         return cleaned_data
+
+
 # ===== COURSE CREATION WIZARD FORM =====
 class CourseCreationForm(forms.ModelForm):
     class Meta:

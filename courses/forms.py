@@ -279,3 +279,18 @@ class CertificateIssueForm(forms.ModelForm):
         elif achievement_type == 'exam' and not exam:
             self.add_error('exam', 'Please select an exam.')
         return cleaned_data
+# ===== COURSE CREATION WIZARD FORM =====
+class CourseCreationForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['code', 'name', 'description', 'status']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['code'].required = True
+        self.fields['name'].required = True
+        self.fields['description'].required = False
+        self.fields['status'].required = False

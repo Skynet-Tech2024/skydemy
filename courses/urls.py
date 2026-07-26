@@ -18,4 +18,6 @@ urlpatterns = [
     path('lesson/<int:lesson_id>/take-exam/', views.take_exam, name='take_exam'),
     # Certificate issuance wizard
     path('certificate/issue/', views.issue_certificate_wizard, name='issue_certificate_wizard'),
+    # Course wizard
+    path('course/create/', views.create_course_wizard, name='create_course_wizard'),
 ]

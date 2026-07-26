@@ -1,7 +1,6 @@
 import os
 import json
 import re
-from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
@@ -14,9 +13,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_exempt
-from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm   # <-- added ExamCreationForm
-from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
+from django.contrib.admin.views.decorators import staff_member_required
+from datetime import datetime
+
+from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
+from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course
 from .utils import convert_uploaded_file_to_pdf
+
 
 # ====== Core Lesson Views ======
 
@@ -38,6 +41,7 @@ def lesson_list(request):
             lesson.is_wishlisted = False
     
     return render(request, 'courses/lesson_list.html', {'lessons': lessons})
+
 
 @upload_access
 def upload_lesson(request):
@@ -143,6 +147,7 @@ def upload_lesson(request):
 
     return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
 
+
 @upload_access
 def add_subject(request):
     """Teachers add a new subject."""
@@ -165,6 +170,7 @@ def add_subject(request):
             return redirect('upload_lesson')
     
     return render(request, 'courses/add_subject.html')
+
 
 @xframe_options_exempt
 @lesson_access
@@ -207,6 +213,7 @@ def view_lesson(request, lesson_id):
         'exam': exam,
         'can_view_video': can_view_video
     })
+
 
 def parse_exam_file(file):
     """Parse exam file (PDF or DOCX) and return list of questions in JSON format."""
@@ -331,6 +338,7 @@ def parse_exam_file(file):
     
     return questions
 
+
 @upload_access
 def add_exam(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
@@ -384,6 +392,7 @@ def add_exam(request, lesson_id):
         return redirect('view_lesson', lesson_id=lesson.id)
     
     return render(request, 'courses/add_exam.html', {'lesson': lesson})
+
 
 @lesson_access
 def take_exam(request, lesson_id):
@@ -462,10 +471,12 @@ def take_exam(request, lesson_id):
     
     return render(request, 'courses/take_exam.html', {'exam': exam, 'lesson': lesson})
 
+
 def exam_result(request, result_id):
     """Display the result of an exam."""
     result = get_object_or_404(ExamResult, id=result_id, user=request.user)
     return render(request, 'courses/exam_result.html', {'result': result})
+
 
 # ====== CONVERT LESSON TO VIDEO ======
 
@@ -508,6 +519,7 @@ def convert_to_video(request, lesson_id):
     
     return redirect('view_lesson', lesson_id=lesson.id)
 
+
 # ========== EXAM MANAGEMENT FOR TEACHERS ==========
 
 @upload_access
@@ -523,6 +535,7 @@ def add_fslc_papers(request):
         lessons = Lesson.objects.filter(teacher=request.user)
         return render(request, 'courses/select_lesson_for_exam.html', {'lessons': lessons, 'exam_type': 'FSLC'})
 
+
 @upload_access
 def add_mock_papers_primary(request):
     if request.user.profile.level != 'primary':
@@ -536,6 +549,7 @@ def add_mock_papers_primary(request):
         lessons = Lesson.objects.filter(teacher=request.user)
         return render(request, 'courses/select_lesson_for_exam.html', {'lessons': lessons, 'exam_type': 'Mock (Primary)'})
 
+
 @upload_access
 def select_mock_exam_level(request):
     if request.user.profile.level != 'secondary':
@@ -543,12 +557,14 @@ def select_mock_exam_level(request):
         return redirect('lesson_list')
     return render(request, 'courses/select_mock_level.html')
 
+
 @upload_access
 def select_gce_level(request):
     if request.user.profile.level != 'secondary':
         messages.error(request, "You are not authorized.")
         return redirect('lesson_list')
     return render(request, 'courses/select_gce_level.html')
+
 
 @upload_access
 def add_mock_exam(request, level):
@@ -586,6 +602,7 @@ def add_mock_exam(request, level):
             messages.error(request, f"Error saving exam: {e}")
     
     return render(request, 'courses/add_mock_exam.html', {'level': level, 'lessons': lessons})
+
 
 @upload_access
 def add_gce_past_questions(request, level):
@@ -626,22 +643,19 @@ def add_gce_past_questions(request, level):
     
     return render(request, 'courses/add_gce_past_questions.html', {'level': level, 'subjects': subjects})
 
-# ====== NEW: EXAM CREATION WIZARD ======
-from django.contrib.admin.views.decorators import staff_member_required
-from datetime import datetime
+
+# ====== EXAM CREATION WIZARD ======
 
 @staff_member_required
 def create_exam_wizard(request):
     if request.method == 'POST':
         form = ExamCreationForm(request.POST, request.FILES)
         if form.is_valid():
-            # Save exam
             exam = form.save(commit=False)
             exam.exam_code = f"EXAM-{datetime.now().strftime('%Y%m%d%H%M%S')}"
             exam.status = 'pending'
             exam.save()
             
-            # Save uploaded files
             if form.cleaned_data.get('exam_paper'):
                 exam.exam_document = form.cleaned_data['exam_paper']
             if form.cleaned_data.get('marking_guide'):
@@ -654,12 +668,9 @@ def create_exam_wizard(request):
         form = ExamCreationForm()
     
     return render(request, 'courses/create_exam_wizard.html', {'form': form})
-# ===== CERTIFICATE ISSUANCE WIZARD =====
-from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import CertificateIssueForm
-from .models import Certificate
+
+
+# ====== CERTIFICATE ISSUANCE WIZARD ======
 
 @staff_member_required
 def issue_certificate_wizard(request):
@@ -681,13 +692,11 @@ def issue_certificate_wizard(request):
                     lesson=lesson,
                     certificate_number=certificate_number,
                     issued_date=issue_date,
-                    # if you have extra fields, add them here
                 )
                 messages.success(request, f"Certificate issued to {user.username} for lesson '{lesson.title}'.")
                 return redirect('admin:courses_certificate_changelist')
 
             elif achievement_type == 'exam' and exam:
-                # If Certificate model has an exam field, use it; otherwise, link to the exam's lesson
                 if hasattr(Certificate, 'exam'):
                     certificate = Certificate.objects.create(
                         user=user,
@@ -717,3 +726,20 @@ def issue_certificate_wizard(request):
         form = CertificateIssueForm()
 
     return render(request, 'courses/issue_certificate_wizard.html', {'form': form})
+
+
+# ====== COURSE CREATION WIZARD ======
+
+@staff_member_required
+def create_course_wizard(request):
+    if request.method == 'POST':
+        form = CourseCreationForm(request.POST)
+        if form.is_valid():
+            course = form.save(commit=False)
+            course.save()
+            messages.success(request, f"Course '{course.name}' created successfully!")
+            return redirect('admin:courses_course_changelist')
+    else:
+        form = CourseCreationForm()
+    
+    return render(request, 'courses/create_course_wizard.html', {'form': form})

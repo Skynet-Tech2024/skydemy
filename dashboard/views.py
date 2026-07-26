@@ -492,7 +492,7 @@ def course_list(request):
     """Admin view to list all courses with stat cards and batch actions."""
     courses = Course.objects.all().order_by('code')
     total_count = courses.count()
-    with_lessons_count = courses.filter(lesson__isnull=False).distinct().count()
+    with_lessons_count = courses.filter(lessons__isnull=False).distinct().count()
     without_lessons_count = total_count - with_lessons_count
     for course in courses:
         course.lesson_count = Lesson.objects.filter(course=course).count()

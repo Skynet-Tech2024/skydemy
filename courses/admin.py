@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
-from .forms import ExamCreationForm, CourseCreationForm   # added CourseCreationForm
+from .forms import ExamCreationForm, CourseCreationForm, CertificateIssueForm   # added CertificateIssueForm
 from users.utils import create_notification
 from core.admin import admin_site
 import os
@@ -50,7 +50,7 @@ class CourseAdmin(admin.ModelAdmin):
         else:
             return ('name', 'code', 'description')
 
-    # ----- NEW: Override add_view to serve the custom course wizard -----
+    # ----- Override add_view to serve the custom course wizard -----
     def add_view(self, request, form_url='', extra_context=None):
         """
         Override the default add view to render the custom course wizard.
@@ -63,7 +63,6 @@ class CourseAdmin(admin.ModelAdmin):
                 self.message_user(request, f"Course '{course.name}' created successfully!", messages.SUCCESS)
                 return HttpResponseRedirect(reverse('admin:courses_course_changelist'))
             else:
-                # If form invalid, re-render with errors
                 context = {
                     'title': 'Add Course',
                     'form': form,
@@ -311,7 +310,6 @@ class ExamAdmin(admin.ModelAdmin):
                 self.message_user(request, f"Exam '{exam.title}' created successfully!", messages.SUCCESS)
                 return HttpResponseRedirect(reverse('admin:courses_exam_changelist'))
             else:
-                # If form invalid, re-render with errors
                 context = {
                     'title': 'Add Exam',
                     'form': form,
@@ -365,6 +363,86 @@ class ExamResultAdmin(admin.ModelAdmin):
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ('user', 'lesson', 'certificate_number', 'issued_date')
     search_fields = ('certificate_number',)
+
+    # ----- Override add_view to serve the custom certificate wizard -----
+    def add_view(self, request, form_url='', extra_context=None):
+        """
+        Override the default add view to render the custom certificate wizard.
+        """
+        if request.method == 'POST':
+            form = CertificateIssueForm(request.POST)
+            if form.is_valid():
+                achievement_type = form.cleaned_data['achievement_type']
+                user = form.cleaned_data['user']
+                lesson = form.cleaned_data.get('lesson')
+                exam = form.cleaned_data.get('exam')
+                issue_date = form.cleaned_data['issue_date']
+                certificate_number = form.cleaned_data.get('certificate_number')
+
+                if achievement_type == 'lesson' and lesson:
+                    certificate = Certificate.objects.create(
+                        user=user,
+                        lesson=lesson,
+                        certificate_number=certificate_number,
+                        issued_date=issue_date,
+                    )
+                    self.message_user(request, f"Certificate issued to {user.username} for lesson '{lesson.title}'.", messages.SUCCESS)
+                    return HttpResponseRedirect(reverse('admin:courses_certificate_changelist'))
+
+                elif achievement_type == 'exam' and exam:
+                    if hasattr(Certificate, 'exam'):
+                        certificate = Certificate.objects.create(
+                            user=user,
+                            exam=exam,
+                            certificate_number=certificate_number,
+                            issued_date=issue_date,
+                        )
+                        self.message_user(request, f"Certificate issued to {user.username} for exam '{exam.title}'.", messages.SUCCESS)
+                    elif exam.lesson:
+                        certificate = Certificate.objects.create(
+                            user=user,
+                            lesson=exam.lesson,
+                            certificate_number=certificate_number,
+                            issued_date=issue_date,
+                        )
+                        self.message_user(request, f"Certificate issued to {user.username} for exam '{exam.title}' (linked to lesson).", messages.SUCCESS)
+                    else:
+                        messages.error(request, "This exam has no associated lesson. Cannot issue certificate.")
+                        context = {
+                            'title': 'Issue Certificate',
+                            'form': form,
+                            'errors': form.errors,
+                        }
+                        return render(request, 'courses/issue_certificate_wizard.html', context)
+                    return HttpResponseRedirect(reverse('admin:courses_certificate_changelist'))
+
+                else:
+                    messages.error(request, "Please select a valid achievement.")
+                    context = {
+                        'title': 'Issue Certificate',
+                        'form': form,
+                        'errors': form.errors,
+                    }
+                    return render(request, 'courses/issue_certificate_wizard.html', context)
+
+                return HttpResponseRedirect(reverse('admin:courses_certificate_changelist'))
+            else:
+                # If form invalid, re-render with errors
+                context = {
+                    'title': 'Issue Certificate',
+                    'form': form,
+                    'errors': form.errors,
+                }
+                return render(request, 'courses/issue_certificate_wizard.html', context)
+
+        # GET request – show the wizard
+        form = CertificateIssueForm()
+        context = {
+            'title': 'Issue New Certificate',
+            'form': form,
+        }
+        return render(request, 'courses/issue_certificate_wizard.html', context)
+    # ----- End override -----
 
     def changelist_view(self, request, extra_context=None):
         return redirect('certificate_list')

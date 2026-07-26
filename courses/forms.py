@@ -10,7 +10,7 @@ import random
 class LessonForm(forms.ModelForm):
     # Add a field for creating a new subject on the fly
     new_subject_name = forms.CharField(
-        max_length=100, 
+        max_length=100,
         required=False,
         help_text="If subject doesn't exist, enter a new subject name here and it will be created automatically."
     )
@@ -19,14 +19,14 @@ class LessonForm(forms.ModelForm):
         required=False,
         help_text="Select the level for the new subject"
     )
-    
+
     class Meta:
         model = Lesson
         fields = ['title', 'description', 'level', 'subject', 'course', 'pdf_file', 'video_file', 'video_url', 'new_subject_name', 'new_subject_level']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['subject'].required = False
@@ -34,20 +34,20 @@ class LessonForm(forms.ModelForm):
         self.fields['pdf_file'].required = False
         self.fields['video_file'].required = False
         self.fields['video_url'].required = False
-        
+
         # Filter subjects to show only those matching the selected level
         if 'level' in self.data:
             level = self.data.get('level')
             if level:
                 self.fields['subject'].queryset = Subject.objects.filter(level=level)
-    
+
     def clean(self):
         cleaned_data = super().clean()
         level = cleaned_data.get('level')
         subject = cleaned_data.get('subject')
         new_subject_name = cleaned_data.get('new_subject_name')
         new_subject_level = cleaned_data.get('new_subject_level')
-        
+
         # If user wants to create a new subject
         if new_subject_name and new_subject_level:
             # Check if subject already exists
@@ -62,15 +62,15 @@ class LessonForm(forms.ModelForm):
                     description=f"Auto-created from lesson upload"
                 )
                 cleaned_data['subject'] = new_subject
-        
+
         # Validation: subject required for primary/secondary
         if level in ['primary', 'secondary'] and not cleaned_data.get('subject'):
             raise forms.ValidationError('Please select an existing subject or create a new one by filling in "New Subject Name" and "New Subject Level".')
-        
+
         # Validation: course required for university
         if level == 'university' and not cleaned_data.get('course'):
             raise forms.ValidationError('Please select a course for university level.')
-        
+
         return cleaned_data
 
 
@@ -199,7 +199,7 @@ class ExamCreationForm(forms.ModelForm):
 # ===== CERTIFICATE ISSUANCE WIZARD FORM =====
 class CertificateIssueForm(forms.ModelForm):
     user = forms.ModelChoiceField(
-        queryset=get_user_model().objects.filter(profile__role='learner'),
+        queryset=User.objects.none(),
         widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
         required=True,
         label="Recipient (Student)"
@@ -249,6 +249,8 @@ class CertificateIssueForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Set queryset at runtime when the app registry is ready
+        self.fields['user'].queryset = get_user_model().objects.filter(profile__role='learner')
         if not self.instance.pk:
             self.fields['certificate_number'].initial = self.generate_certificate_number()
 

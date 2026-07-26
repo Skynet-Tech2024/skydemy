@@ -7,6 +7,7 @@ from django.contrib import messages
 from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
 from users.utils import create_notification
 from core.admin import admin_site
+import os  # 👈 added for file extension validation
 
 # ===== Subject Admin =====
 class SubjectAdmin(admin.ModelAdmin):
@@ -176,6 +177,8 @@ class ExamAdmin(admin.ModelAdmin):
     autocomplete_fields = ('course', 'subject', 'reviewed_by', 'teacher')
     # Exclude file upload fields and manual_review_required
     exclude = ('exam_document', 'marking_guide_document', 'manual_review_required')
+    # 👇 ADD THIS: custom action
+    actions = ['upload_exam_documents']
 
     fieldsets = (
         ('📘 Exam Information', {
@@ -217,6 +220,53 @@ class ExamAdmin(admin.ModelAdmin):
         # Anti-cheating, Notifications, and Approval Workflow sections removed
     )
 
+    # ----- CUSTOM ACTION: Upload exam documents -----
+    def upload_exam_documents(self, request, queryset):
+        """Custom admin action to upload a file (PDF/DOC/DOCX/XLS/XLSX) to selected exams"""
+        if 'apply' in request.POST:
+            file = request.FILES.get('exam_file')
+            if not file:
+                self.message_user(request, "No file selected.", messages.ERROR)
+                return HttpResponseRedirect(request.get_full_path())
+
+            # Validate file extension
+            allowed_extensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx']
+            ext = os.path.splitext(file.name)[1].lower()
+            if ext not in allowed_extensions:
+                self.message_user(
+                    request,
+                    f"Invalid file type. Allowed: {', '.join(allowed_extensions)}",
+                    messages.ERROR
+                )
+                return HttpResponseRedirect(request.get_full_path())
+
+            # Save the file to each selected exam
+            # Note: This assumes the Exam model has an 'exam_document' FileField.
+            # If you removed it, either re-add it or adjust to use a new model.
+            for exam in queryset:
+                exam.exam_document = file
+                exam.save()
+
+            self.message_user(
+                request,
+                f"File '{file.name}' uploaded successfully for {queryset.count()} exam(s).",
+                messages.SUCCESS
+            )
+            return HttpResponseRedirect(request.get_full_path())
+
+        # Render the upload form
+        context = {
+            'title': 'Upload Exam Documents',
+            'queryset': queryset,
+            'action_checkbox_name': admin.ACTION_CHECKBOX_NAME,
+            'opts': self.model._meta,
+        }
+        return render(request, 'admin/upload_exam_documents.html', context)
+
+    upload_exam_documents.short_description = "Upload exam documents (PDF/DOC/DOCX/Excel)"
+
+    # ----- End custom action -----
+
     def save_model(self, request, obj, form, change):
         if not change:
             obj.status = 'pending'
@@ -239,6 +289,7 @@ class ExamAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         return redirect('exam_list')
+
 
 # ===== ExamResult Admin =====
 class ExamResultAdmin(admin.ModelAdmin):

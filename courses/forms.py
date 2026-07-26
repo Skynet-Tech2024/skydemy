@@ -67,16 +67,46 @@ class LessonForm(forms.ModelForm):
         
         return cleaned_data
 
+
 class ExamForm(forms.ModelForm):
     class Meta:
         model = Exam
-        fields = ['title', 'passing_score', 'questions', 'marking_guide']
+        fields = [
+            'title', 'exam_type', 'course', 'subject',
+            'academic_session', 'term', 'level', 'language',
+            'duration_minutes', 'total_marks', 'passing_score',
+            'number_of_questions', 'instructions',
+            'time_limit_minutes', 'attempts_allowed',
+            'question_order', 'answer_order',
+            'show_result_immediately', 'show_correct_answers',
+            'auto_submit', 'late_submission',
+            'visibility', 'require_password', 'exam_password',
+            'require_safe_browser', 'require_webcam', 'randomize_questions',
+            'grading_method', 'negative_marking', 'marks_per_question',
+            'auto_grade_objective', 'manual_review_required',
+            'shuffle_questions', 'shuffle_options', 'fullscreen_mode',
+            'disable_copy_paste', 'browser_lock', 'webcam_monitoring',
+            'screen_recording', 'tab_switching_detection', 'ip_restriction',
+            'notify_immediately', 'notify_on_publish',
+            'notify_before_deadline', 'notify_after_grading',
+            'status', 'admin_notes',
+            # File upload fields (if you want them in the form)
+            'exam_document', 'marking_guide_document',
+        ]
         widgets = {
-            'questions': forms.Textarea(attrs={'rows': 10, 'placeholder': 'Enter questions in JSON format: [{"question": "...", "options": ["A", "B", "C"], "correct": "A"}]'}),
-            'marking_guide': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Provide a teaching guide with suggested answers and explanations...'}),
+            'instructions': forms.Textarea(attrs={'rows': 4}),
+            'admin_notes': forms.Textarea(attrs={'rows': 3}),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['questions'].help_text = 'Format: [{"question": "What is 2+2?", "options": ["2", "3", "4", "5"], "correct": "4"}]'
-        self.fields['marking_guide'].help_text = 'Optional: Provide detailed answers and explanations for teachers/admin review.'
+        # Make optional fields not required
+        optional_fields = [
+            'course', 'subject', 'academic_session', 'term', 'level', 'language',
+            'time_limit_minutes', 'attempts_allowed', 'exam_password',
+            'admin_notes', 'exam_document', 'marking_guide_document',
+            'instructions'
+        ]
+        for field_name in optional_fields:
+            if field_name in self.fields:
+                self.fields[field_name].required = False

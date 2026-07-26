@@ -18,8 +18,7 @@ class Subject(models.Model):
     )
 
     name = models.CharField(max_length=200)
-    # ✅ Keep nullable to avoid IntegrityError with existing NULLs
-    code = models.CharField(max_length=20, unique=True)
+    code = models.CharField(max_length=20, unique=True, null=True, blank=True)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     proposed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -221,7 +220,6 @@ class Exam(models.Model):
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_exams')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    # ✅ Keep nullable to avoid migration issues
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_exams')

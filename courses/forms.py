@@ -1,273 +1,147 @@
 from django import forms
-from .models import Lesson, Subject, Course, Exam, Certificate
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from .models import UserProfile
 from core.constants import LEVEL_CHOICES
-from django.conf import settings
-from django.contrib.auth import get_user_model
-import datetime
-import random
 
-
-class LessonForm(forms.ModelForm):
-    new_subject_name = forms.CharField(
-        max_length=100,
-        required=False,
-        help_text="If subject doesn't exist, enter a new subject name here and it will be created automatically."
+class RegisterStep1Form(UserCreationForm):
+    # ===== Full Name (stored in UserProfile) =====
+    full_name = forms.CharField(
+        max_length=200,
+        label="Full Names",
+        help_text="Enter your full name (e.g., CHE KENNETH).",
     )
-    new_subject_level = forms.ChoiceField(
-        choices=LEVEL_CHOICES,
-        required=False,
-        help_text="Select the level for the new subject"
+    # ===== Username (stored in User) =====
+    username = forms.CharField(
+        max_length=150,
+        label="Choose Username",
+        help_text="This will be your login name. Must be unique.",
+    )
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput,
+        help_text="Enter your password (any length, any characters).",
+        validators=[],
+    )
+    password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput,
+        help_text="Enter the same password as above.",
+        validators=[],
     )
 
     class Meta:
-        model = Lesson
-        fields = ['title', 'description', 'level', 'subject', 'course', 'pdf_file', 'video_file', 'video_url', 'new_subject_name', 'new_subject_level']
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
-        }
+        model = User
+        fields = ['full_name', 'username', 'password1', 'password2']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['subject'].required = False
-        self.fields['course'].required = False
-        self.fields['pdf_file'].required = False
-        self.fields['video_file'].required = False
-        self.fields['video_url'].required = False
-        if 'level' in self.data:
-            level = self.data.get('level')
-            if level:
-                self.fields['subject'].queryset = Subject.objects.filter(level=level)
+        # Force-clear any validators that might be added by parent classes
+        self.fields['username'].validators = []
+        self.fields['password1'].validators = []
+        self.fields['password2'].validators = []
 
-    def clean(self):
-        cleaned_data = super().clean()
-        level = cleaned_data.get('level')
-        subject = cleaned_data.get('subject')
-        new_subject_name = cleaned_data.get('new_subject_name')
-        new_subject_level = cleaned_data.get('new_subject_level')
-        if new_subject_name and new_subject_level:
-            existing_subject = Subject.objects.filter(name__iexact=new_subject_name, level=new_subject_level).first()
-            if existing_subject:
-                cleaned_data['subject'] = existing_subject
-            else:
-                new_subject = Subject.objects.create(
-                    name=new_subject_name,
-                    level=new_subject_level,
-                    description=f"Auto-created from lesson upload"
-                )
-                cleaned_data['subject'] = new_subject
-        if level in ['primary', 'secondary'] and not cleaned_data.get('subject'):
-            raise forms.ValidationError('Please select an existing subject or create a new one by filling in "New Subject Name" and "New Subject Level".')
-        if level == 'university' and not cleaned_data.get('course'):
-            raise forms.ValidationError('Please select a course for university level.')
-        return cleaned_data
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '')
+        # Only strip spaces; no other restrictions
+        return username.strip()
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords do not match.")
+        # Bypass all Django password validators
+        return password2
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            # Get or create profile and save full_name
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.full_name = self.cleaned_data['full_name']
+            # Set default role (will be updated in Step 2)
+            if created:
+                profile.role = 'learner'
+                profile.verification_status = 'pending'
+                # ✅ Set a default level to avoid NOT NULL constraint
+                profile.level = 'primary'   # or any valid choice from LEVEL_CHOICES
+            profile.save()
+        return user
 
 
-class ExamForm(forms.ModelForm):
+# ===== OLD FORM (kept for reference – NOT used in new flow) =====
+class RegisterStep1Form(UserCreationForm):
+    full_name = forms.CharField(
+        max_length=200,
+        label="Full Names",
+        help_text="Enter your full name (e.g., CHE KENNETH).",
+    )
+    username = forms.CharField(
+        max_length=150,
+        label="Choose Username",
+        help_text="This will be your login name. Must be unique.",
+    )
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput,
+        help_text="Enter your password (any length, any characters).",
+        validators=[],
+    )
+    password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput,
+        help_text="Enter the same password as above.",
+        validators=[],
+    )
+
     class Meta:
-        model = Exam
+        model = User
+        fields = ['full_name', 'username', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].validators = []
+        self.fields['password1'].validators = []
+        self.fields['password2'].validators = []
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '')
+        return username.strip()
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords do not match.")
+        return password2
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+        return user
+
+
+# ===== PROFILE UPDATE FORM (used for Complete Profile page) =====
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
         fields = [
-            'title', 'exam_type', 'course', 'subject',
-            'academic_session', 'term', 'level', 'language',
-            'duration_minutes', 'total_marks', 'passing_score',
-            'number_of_questions', 'instructions',
-            'time_limit_minutes', 'attempts_allowed',
-            'question_order', 'answer_order',
-            'show_result_immediately', 'show_correct_answers',
-            'auto_submit', 'late_submission',
-            'visibility', 'require_password', 'exam_password',
-            'require_safe_browser', 'require_webcam', 'randomize_questions',
-            'grading_method', 'negative_marking', 'marks_per_question',
-            'auto_grade_objective', 'manual_review_required',
-            'shuffle_questions', 'shuffle_options', 'fullscreen_mode',
-            'disable_copy_paste', 'browser_lock', 'webcam_monitoring',
-            'screen_recording', 'tab_switching_detection', 'ip_restriction',
-            'notify_immediately', 'notify_on_publish',
-            'notify_before_deadline', 'notify_after_grading',
-            'status', 'admin_notes',
-            'exam_document', 'marking_guide_document',
+            'bio',
+            'avatar',
+            'level',
         ]
         widgets = {
-            'instructions': forms.Textarea(attrs={'rows': 4}),
-            'admin_notes': forms.Textarea(attrs={'rows': 3}),
+            'bio': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'level': forms.Select(attrs={'class': 'form-control'}),
+        }
+        help_texts = {
+            'level': 'Your education level (required)',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        optional_fields = [
-            'course', 'subject', 'academic_session', 'term', 'level', 'language',
-            'time_limit_minutes', 'attempts_allowed', 'exam_password',
-            'admin_notes', 'exam_document', 'marking_guide_document',
-            'instructions'
-        ]
-        for field_name in optional_fields:
-            if field_name in self.fields:
-                self.fields[field_name].required = False
-
-
-# ===== Exam Creation Wizard Form =====
-class ExamCreationForm(forms.ModelForm):
-    subject = forms.ModelChoiceField(
-        queryset=Subject.objects.all(),
-        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
-        required=True
-    )
-    course = forms.ModelChoiceField(
-        queryset=Course.objects.all(),
-        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
-        required=False
-    )
-    exam_paper = forms.FileField(
-        required=False,
-        widget=forms.FileInput(attrs={'class': 'file-upload', 'accept': '.pdf,.docx'})
-    )
-    marking_guide = forms.FileField(
-        required=False,
-        widget=forms.FileInput(attrs={'class': 'file-upload', 'accept': '.pdf,.docx'})
-    )
-    title = forms.CharField(max_length=200)
-    level = forms.ChoiceField(choices=LEVEL_CHOICES)
-    category = forms.ChoiceField(choices=[
-        ('midterm', 'Mid-Term Examination'),
-        ('endterm', 'End-of-Term Examination'),
-        ('mock', 'Mock Examination'),
-        ('assignment', 'Assignment'),
-        ('quiz', 'Quiz'),
-        ('continuous', 'Continuous Assessment'),
-        ('practice', 'Practice Test'),
-        ('final', 'Final Examination'),
-        ('certification', 'Certification Exam')
-    ])
-    description = forms.CharField(widget=forms.Textarea, required=False)
-    time_limit = forms.ChoiceField(choices=[
-        (30, '30 minutes'),
-        (60, '60 minutes'),
-        (90, '90 minutes'),
-        (120, '120 minutes'),
-        ('custom', 'Custom')
-    ])
-    passing_score = forms.IntegerField(min_value=0, max_value=100)
-    total_marks = forms.IntegerField(min_value=1)
-    attempts_allowed = forms.ChoiceField(choices=[
-        (1, '1'),
-        (2, '2'),
-        (3, '3'),
-        (0, 'Unlimited')
-    ])
-    start_date = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-        required=False
-    )
-    end_date = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-        required=False
-    )
-    randomize_questions = forms.BooleanField(required=False)
-    shuffle_options = forms.BooleanField(required=False)
-    auto_grade = forms.BooleanField(required=False)
-    show_results = forms.BooleanField(required=False)
-    allow_review = forms.BooleanField(required=False)
-    certificate_eligible = forms.BooleanField(required=False)
-    anti_cheating = forms.BooleanField(required=False)
-
-    class Meta:
-        model = Exam
-        fields = [
-            'title', 'level', 'category', 'subject', 'course', 'description',
-            'time_limit', 'passing_score', 'total_marks', 'attempts_allowed',
-            'start_date', 'end_date', 'randomize_questions', 'shuffle_options',
-            'auto_grade', 'show_results', 'allow_review', 'certificate_eligible',
-            'anti_cheating'
-        ]
-
-    def clean(self):
-        return self.cleaned_data
-
-
-# ===== CERTIFICATE ISSUANCE WIZARD FORM =====
-class CertificateIssueForm(forms.ModelForm):
-    user = forms.ModelChoiceField(
-        queryset=get_user_model().objects.none(),   # Fixed: use get_user_model()
-        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
-        required=True,
-        label="Recipient (Student)"
-    )
-    achievement_type = forms.ChoiceField(
-        choices=[('lesson', 'Lesson'), ('exam', 'Exam')],
-        widget=forms.RadioSelect,
-        initial='lesson',
-        label="Achievement Type"
-    )
-    lesson = forms.ModelChoiceField(
-        queryset=Lesson.objects.filter(status='approved'),
-        required=False,
-        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
-        label="Lesson"
-    )
-    exam = forms.ModelChoiceField(
-        queryset=Exam.objects.filter(status='approved'),
-        required=False,
-        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
-        label="Exam"
-    )
-    issue_date = forms.DateField(
-        initial=datetime.date.today,
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        label="Issue Date"
-    )
-    expiry_date = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        label="Expiry Date (optional)"
-    )
-    custom_message = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={'rows': 4}),
-        label="Custom Message (optional)"
-    )
-    certificate_number = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'readonly': 'readonly'}),
-        label="Certificate Number (auto‑generated)"
-    )
-
-    class Meta:
-        model = Certificate
-        fields = ['user', 'lesson', 'certificate_number', 'issue_date']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Set queryset at runtime when the app registry is ready
-        self.fields['user'].queryset = get_user_model().objects.filter(profile__role='learner')
-        if not self.instance.pk:
-            self.fields['certificate_number'].initial = self.generate_certificate_number()
-
-    def generate_certificate_number(self):
-        return f"CERT-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000,9999)}"
-
-    def clean(self):
-        cleaned_data = super().clean()
-        achievement_type = cleaned_data.get('achievement_type')
-        lesson = cleaned_data.get('lesson')
-        exam = cleaned_data.get('exam')
-        if achievement_type == 'lesson' and not lesson:
-            self.add_error('lesson', 'Please select a lesson.')
-        elif achievement_type == 'exam' and not exam:
-            self.add_error('exam', 'Please select an exam.')
-        return cleaned_data
-
-
-# ===== COURSE CREATION WIZARD FORM =====
-class CourseCreationForm(forms.ModelForm):
-    class Meta:
-        model = Course
-        fields = ['code', 'name', 'description', 'status']
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['code'].required = True
-        self.fields['name'].required = True
-        self.fields['description'].required = False
-        self.fields['status'].required = False
+        # Use the centralized LEVEL_CHOICES for the level field
+        self.fields['level'].choices = [('', 'Select level...')] + LEVEL_CHOICES

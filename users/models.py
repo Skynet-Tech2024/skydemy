@@ -2,11 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from core.constants import LEVEL_CHOICES
 from cloudinary.models import CloudinaryField
 from django.core.validators import MinValueValidator, MaxValueValidator
+from core.constants import LEVEL_CHOICES
 
-# Import centralized level choices from courses app
-from courses.forms import LEVEL_CHOICES
 
 
 class UserProfile(models.Model):

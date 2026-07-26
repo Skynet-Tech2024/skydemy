@@ -8,7 +8,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <style>
-    /* Green · White · Gold Theme */
+    /* Green · White · Gold Theme (same as before) */
     body {
         background: #F8F9FA !important;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -243,6 +243,35 @@
         font-weight: 500;
         color: #6B7280;
     }
+    .btn-gold {
+        background: #D4AF37;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-gold:hover {
+        background: #b8960f;
+        transform: translateY(-2px);
+    }
+    .new-subject-panel {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 8px;
+        border: 1px solid #e5e7eb;
+        display: none;
+    }
+    .new-subject-panel.show {
+        display: block;
+    }
     /* Select2 overrides */
     .select2-container--classic .select2-selection--single {
         height: 46px !important;
@@ -255,7 +284,6 @@
         color: #212529 !important;
         font-weight: 500 !important;
     }
-    /* Responsive */
     @media (max-width: 768px) {
         .upload-container { padding: 20px; }
         .two-col { grid-template-columns: 1fr; }
@@ -306,20 +334,37 @@
                         {{ form.course }}
                         <div class="help-text">Optional for university level.</div>
                     </div>
-                    <div class="field-group">
-                        <label for="new_subject_name">New Subject Name</label>
-                        <input type="text" name="new_subject_name" id="new_subject_name" placeholder="e.g., Advanced Physics">
-                        <div class="help-text">If subject doesn't exist, enter a new name here and it will be created automatically.</div>
-                    </div>
-                    <div class="field-group">
-                        <label for="new_subject_level">New Subject Level</label>
-                        <select name="new_subject_level" id="new_subject_level">
-                            <option value="">Select level...</option>
-                            <option value="beginner">Beginner</option>
-                            <option value="intermediate">Intermediate</option>
-                            <option value="advanced">Advanced</option>
-                        </select>
-                        <div class="help-text">Select the level for the new subject.</div>
+                    <div class="field-group" style="grid-column: 1 / -1;">
+                        <label>Add New Subject</label>
+                        <button type="button" class="btn-gold" onclick="toggleNewSubject()">
+                            <i class="fas fa-plus-circle"></i> Add New Subject
+                        </button>
+                        <div class="new-subject-panel" id="newSubjectPanel">
+                            <div class="two-col" style="margin-top: 8px;">
+                                <div class="field-group">
+                                    <label for="new_subject_name">Subject Name</label>
+                                    <input type="text" name="new_subject_name" id="new_subject_name" placeholder="e.g., Advanced Physics">
+                                </div>
+                                <div class="field-group">
+                                    <label for="new_subject_code">Subject Code</label>
+                                    <input type="text" name="new_subject_code" id="new_subject_code" placeholder="e.g., PHYS-401">
+                                </div>
+                            </div>
+                            <div class="field-group" style="margin-top: 4px;">
+                                <label for="new_subject_level">Subject Level</label>
+                                <select name="new_subject_level" id="new_subject_level">
+                                    <option value="">Select level...</option>
+                                    <option value="primary">Primary</option>
+                                    <option value="secondary">Secondary</option>
+                                    <option value="technical">Technical &amp; Vocational</option>
+                                    <option value="university">University</option>
+                                    <option value="higher">Higher Institute</option>
+                                    <option value="professional">Professional Certification</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <div class="help-text">Select the level for the new subject.</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="field-group" style="grid-column: 1 / -1;">
                         <label for="{{ form.description.id_for_label }}">Description</label>
@@ -402,6 +447,12 @@
 </div>
 
 <script>
+    // Toggle new subject panel
+    function toggleNewSubject() {
+        var panel = document.getElementById('newSubjectPanel');
+        panel.classList.toggle('show');
+    }
+
     // Drag-and-drop file handling
     function setupDropZone(zoneId, previewId, inputName) {
         const zone = document.getElementById(zoneId);

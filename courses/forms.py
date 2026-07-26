@@ -8,7 +8,6 @@ import random
 
 
 class LessonForm(forms.ModelForm):
-    # Add a field for creating a new subject on the fly
     new_subject_name = forms.CharField(
         max_length=100,
         required=False,
@@ -34,8 +33,6 @@ class LessonForm(forms.ModelForm):
         self.fields['pdf_file'].required = False
         self.fields['video_file'].required = False
         self.fields['video_url'].required = False
-
-        # Filter subjects to show only those matching the selected level
         if 'level' in self.data:
             level = self.data.get('level')
             if level:
@@ -47,30 +44,21 @@ class LessonForm(forms.ModelForm):
         subject = cleaned_data.get('subject')
         new_subject_name = cleaned_data.get('new_subject_name')
         new_subject_level = cleaned_data.get('new_subject_level')
-
-        # If user wants to create a new subject
         if new_subject_name and new_subject_level:
-            # Check if subject already exists
             existing_subject = Subject.objects.filter(name__iexact=new_subject_name, level=new_subject_level).first()
             if existing_subject:
                 cleaned_data['subject'] = existing_subject
             else:
-                # Create new subject
                 new_subject = Subject.objects.create(
                     name=new_subject_name,
                     level=new_subject_level,
                     description=f"Auto-created from lesson upload"
                 )
                 cleaned_data['subject'] = new_subject
-
-        # Validation: subject required for primary/secondary
         if level in ['primary', 'secondary'] and not cleaned_data.get('subject'):
             raise forms.ValidationError('Please select an existing subject or create a new one by filling in "New Subject Name" and "New Subject Level".')
-
-        # Validation: course required for university
         if level == 'university' and not cleaned_data.get('course'):
             raise forms.ValidationError('Please select a course for university level.')
-
         return cleaned_data
 
 
@@ -105,7 +93,6 @@ class ExamForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make optional fields not required
         optional_fields = [
             'course', 'subject', 'academic_session', 'term', 'level', 'language',
             'time_limit_minutes', 'attempts_allowed', 'exam_password',
@@ -199,7 +186,7 @@ class ExamCreationForm(forms.ModelForm):
 # ===== CERTIFICATE ISSUANCE WIZARD FORM =====
 class CertificateIssueForm(forms.ModelForm):
     user = forms.ModelChoiceField(
-        queryset=User.objects.none(),
+        queryset=get_user_model().objects.none(),   # Fixed: use get_user_model()
         widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
         required=True,
         label="Recipient (Student)"

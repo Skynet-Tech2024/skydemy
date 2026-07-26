@@ -394,74 +394,71 @@
             background: transparent !important;
         }
 
-        /* ===== Footer (simplified) ===== */
-        .site-footer {
-            background: #0B5E3A;
-            color: #e9ecef;
-            padding: 30px 20px 15px;
+        /* ===== SHARED FOOTER STYLES (to match admin) ===== */
+        #footer {
             margin-top: 40px;
-            border-top: 4px solid #D4AF37;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .site-footer .footer-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-        }
-        .site-footer .footer-grid h4 {
-            color: #D4AF37;
-            font-size: 16px;
-            font-weight: 700;
-            margin: 0 0 12px;
-        }
-        .site-footer .footer-grid ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            font-size: 13px;
-            line-height: 2;
-        }
-        .site-footer .footer-grid ul a {
-            color: #d4dce8;
-            text-decoration: none;
-        }
-        .site-footer .footer-grid ul a:hover {
-            color: #D4AF37;
-        }
-        .site-footer .footer-bottom {
-            max-width: 1200px;
-            margin: 20px auto 0;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 16px;
-            font-size: 13px;
-            color: #b0c4d8;
+            padding: 20px 24px;
+            border-top: 2px solid #D4AF37;
+            background: #F8FAFC;
+            border-radius: 0 0 12px 12px;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            font-size: 14px;
+            color: #475569;
+            font-family: 'Segoe UI', Arial, sans-serif;
         }
-        .site-footer .footer-bottom a {
-            color: #b0c4d8;
-            text-decoration: none;
+        #footer .footer-left,
+        #footer .footer-links,
+        #footer .footer-version {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-        .site-footer .footer-bottom a:hover {
+        #footer .brand {
+            font-weight: 700;
+            font-size: 18px;
+            color: #0B7A3B;
+        }
+        #footer .brand .gold {
             color: #D4AF37;
         }
-
-        @media (max-width: 600px) {
-            .site-footer .footer-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .site-footer .footer-bottom {
+        #footer .separator {
+            color: #94A3B8;
+            margin: 0 4px;
+        }
+        #footer a {
+            color: #475569;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        #footer a:hover {
+            color: #0B7A3B;
+        }
+        #footer .footer-version {
+            color: #94A3B8;
+            gap: 8px;
+        }
+        #footer .footer-version i {
+            font-size: 12px;
+        }
+        @media (max-width: 767px) {
+            #footer {
                 flex-direction: column;
-                gap: 8px;
+                gap: 12px;
                 text-align: center;
+                padding: 16px;
+            }
+            #footer .footer-left,
+            #footer .footer-links,
+            #footer .footer-version {
+                justify-content: center;
             }
         }
+
     </style>
-    <!-- (optional) Font Awesome or icon library if needed -->
 </head>
 <body class="skynet-theme">
     <!-- ===== PRELOADER ===== -->
@@ -562,57 +559,7 @@
     </div>
 
     <!-- ===== FOOTER ===== -->
-    <footer class="site-footer">
-        <div class="footer-grid">
-            <div>
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                    <span style="font-size:24px; font-weight:800; color:#fff;">SKY<span style="color:#D4AF37;">DEMY</span></span>
-                </div>
-                <p style="font-size:13px; color:#d4dce8; line-height:1.6;">Modern e-learning platform for practical skills and recognized certifications.</p>
-            </div>
-            <div>
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/courses/">Courses</a></li>
-                    <li><a href="/about/">About</a></li>
-                    <li><a href="/contact/">Contact</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="#">Help Centre</a></li>
-                    <li><a href="#">FAQs</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Contact</h4>
-                <p style="font-size:13px; margin:4px 0; color:#d4dce8;">📞 +237 652 924 816</p>
-                <p style="font-size:13px; margin:4px 0; color:#d4dce8;">✉️ nckenny59@gmail.com</p>
-                <p style="font-size:13px; margin:4px 0; color:#d4dce8;">📍 New Hope College, Souza, Cameroon</p>
-                <div style="margin-top:10px;">
-                    <a href="https://whatsapp.com/channel/0029VbD3W1RIHphEmykn2h3H" target="_blank" style="display:inline-block; background:#25D366; color:#fff; padding:6px 16px; border-radius:30px; font-weight:600; font-size:13px; text-decoration:none;">💬 WhatsApp</a>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div>
-                © 2026 <strong style="color:#fff;">SKYDEMY</strong>. All Rights Reserved.<br>
-                <span style="color:#8a9fb0;">Designed & Developed by SKYNET Tech</span>
-            </div>
-            <div>
-                <a href="#">Privacy Policy</a>
-                <span style="margin:0 8px; color:#4a6a5a;">|</span>
-                <a href="#">Terms of Service</a>
-                <span style="margin:0 8px; color:#4a6a5a;">|</span>
-                <a href="#">Cookies</a>
-                <span style="margin-left:8px; color:#6c7d8e;">Version 2.0</span>
-            </div>
-        </div>
-    </footer>
+    {% include "shared/footer.html" %}
 
     <!-- ===== SCRIPTS ===== -->
     <script>

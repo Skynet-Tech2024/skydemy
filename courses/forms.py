@@ -1,9 +1,10 @@
 from django import forms
 from .models import Lesson, Subject, Course, Exam, Certificate
-from core.constants import LEVEL_CHOICES   # ← Import from central location
+from core.constants import LEVEL_CHOICES
 from django.conf import settings
+import datetime
+import random
 
-# ===== CENTRALIZED LEVEL CHOICES (used across all forms) =====
 
 class LessonForm(forms.ModelForm):
     # Add a field for creating a new subject on the fly
@@ -13,7 +14,7 @@ class LessonForm(forms.ModelForm):
         help_text="If subject doesn't exist, enter a new subject name here and it will be created automatically."
     )
     new_subject_level = forms.ChoiceField(
-        choices=LEVEL_CHOICES,  # Use the centralized choices
+        choices=LEVEL_CHOICES,
         required=False,
         help_text="Select the level for the new subject"
     )
@@ -94,7 +95,6 @@ class ExamForm(forms.ModelForm):
             'notify_immediately', 'notify_on_publish',
             'notify_before_deadline', 'notify_after_grading',
             'status', 'admin_notes',
-            # File upload fields (if you want them in the form)
             'exam_document', 'marking_guide_document',
         ]
         widgets = {
@@ -118,7 +118,6 @@ class ExamForm(forms.ModelForm):
 
 # ===== Exam Creation Wizard Form =====
 class ExamCreationForm(forms.ModelForm):
-    # Searchable dropdowns
     subject = forms.ModelChoiceField(
         queryset=Subject.objects.all(),
         widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
@@ -129,7 +128,6 @@ class ExamCreationForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
         required=False
     )
-    # File upload fields
     exam_paper = forms.FileField(
         required=False,
         widget=forms.FileInput(attrs={'class': 'file-upload', 'accept': '.pdf,.docx'})
@@ -138,9 +136,7 @@ class ExamCreationForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={'class': 'file-upload', 'accept': '.pdf,.docx'})
     )
-    # Other fields
     title = forms.CharField(max_length=200)
-    # Use the centralized LEVEL_CHOICES here
     level = forms.ChoiceField(choices=LEVEL_CHOICES)
     category = forms.ChoiceField(choices=[
         ('midterm', 'Mid-Term Examination'),
@@ -177,7 +173,6 @@ class ExamCreationForm(forms.ModelForm):
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         required=False
     )
-    # Toggles (booleans)
     randomize_questions = forms.BooleanField(required=False)
     shuffle_options = forms.BooleanField(required=False)
     auto_grade = forms.BooleanField(required=False)
@@ -197,20 +192,13 @@ class ExamCreationForm(forms.ModelForm):
         ]
 
     def clean(self):
-        # Add validation logic later if needed
         return self.cleaned_data
 
 
 # ===== CERTIFICATE ISSUANCE WIZARD FORM =====
-from django.contrib.auth import get_user_model
-import datetime
-import random
-
-User = get_user_model()
-
 class CertificateIssueForm(forms.ModelForm):
-   user = forms.ModelChoiceField(
-    queryset=settings.AUTH_USER_MODEL.objects.filter(profile__role='learner'),
+    user = forms.ModelChoiceField(
+        queryset=settings.AUTH_USER_MODEL.objects.filter(profile__role='learner'),
         widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
         required=True,
         label="Recipient (Student)"

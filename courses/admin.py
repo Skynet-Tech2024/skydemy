@@ -5,9 +5,10 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
+from .forms import ExamCreationForm          # <-- added for the wizard
 from users.utils import create_notification
 from core.admin import admin_site
-import os  # 👈 added for file extension validation
+import os
 
 # ===== Subject Admin =====
 class SubjectAdmin(admin.ModelAdmin):
@@ -175,9 +176,7 @@ class ExamAdmin(admin.ModelAdmin):
     search_fields = ('title', 'exam_code')
     readonly_fields = ('exam_code', 'created_at', 'reviewed_at')
     autocomplete_fields = ('course', 'subject', 'reviewed_by', 'teacher')
-    # Exclude file upload fields and manual_review_required
     exclude = ('exam_document', 'marking_guide_document', 'manual_review_required')
-    # 👇 ADD THIS: custom action
     actions = ['upload_exam_documents']
 
     fieldsets = (
@@ -222,14 +221,12 @@ class ExamAdmin(admin.ModelAdmin):
 
     # ----- CUSTOM ACTION: Upload exam documents -----
     def upload_exam_documents(self, request, queryset):
-        """Custom admin action to upload a file (PDF/DOC/DOCX/XLS/XLSX) to selected exams"""
         if 'apply' in request.POST:
             file = request.FILES.get('exam_file')
             if not file:
                 self.message_user(request, "No file selected.", messages.ERROR)
                 return HttpResponseRedirect(request.get_full_path())
 
-            # Validate file extension
             allowed_extensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx']
             ext = os.path.splitext(file.name)[1].lower()
             if ext not in allowed_extensions:
@@ -240,9 +237,6 @@ class ExamAdmin(admin.ModelAdmin):
                 )
                 return HttpResponseRedirect(request.get_full_path())
 
-            # Save the file to each selected exam
-            # Note: This assumes the Exam model has an 'exam_document' FileField.
-            # If you removed it, either re-add it or adjust to use a new model.
             for exam in queryset:
                 exam.exam_document = file
                 exam.save()
@@ -254,7 +248,6 @@ class ExamAdmin(admin.ModelAdmin):
             )
             return HttpResponseRedirect(request.get_full_path())
 
-        # Render the upload form
         context = {
             'title': 'Upload Exam Documents',
             'queryset': queryset,
@@ -264,8 +257,47 @@ class ExamAdmin(admin.ModelAdmin):
         return render(request, 'admin/upload_exam_documents.html', context)
 
     upload_exam_documents.short_description = "Upload exam documents (PDF/DOC/DOCX/Excel)"
-
     # ----- End custom action -----
+
+    # ----- NEW: Override add_view to serve the custom wizard -----
+    def add_view(self, request, form_url='', extra_context=None):
+        """
+        Override the default add view to render the custom exam wizard.
+        """
+        if request.method == 'POST':
+            form = ExamCreationForm(request.POST, request.FILES)
+            if form.is_valid():
+                exam = form.save(commit=False)
+                exam.exam_code = f"EXAM-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                exam.status = 'pending'
+                exam.save()
+
+                if form.cleaned_data.get('exam_paper'):
+                    exam.exam_document = form.cleaned_data['exam_paper']
+                if form.cleaned_data.get('marking_guide'):
+                    exam.marking_guide_document = form.cleaned_data['marking_guide']
+                exam.save()
+
+                self.message_user(request, f"Exam '{exam.title}' created successfully!", messages.SUCCESS)
+                return HttpResponseRedirect(reverse('admin:courses_exam_changelist'))
+            else:
+                # If form invalid, re-render with errors
+                context = {
+                    'title': 'Add Exam',
+                    'form': form,
+                    'errors': form.errors,
+                }
+                return render(request, 'courses/create_exam_wizard.html', context)
+
+        # GET request – show the wizard
+        form = ExamCreationForm()
+        context = {
+            'title': 'Create New Exam',
+            'form': form,
+        }
+        return render(request, 'courses/create_exam_wizard.html', context)
+
+    # ----- End override -----
 
     def save_model(self, request, obj, form, change):
         if not change:

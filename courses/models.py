@@ -2,15 +2,21 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
+# ===== CENTRALIZED LEVEL CHOICES =====
+LEVEL_CHOICES = [
+    ('primary', 'Primary'),
+    ('secondary', 'Secondary'),
+    ('technical', 'Technical & Vocational'),
+    ('university', 'University'),
+    ('higher', 'Higher Institute'),
+    ('professional', 'Professional Certification'),
+    ('other', 'Other'),
+]
+
 User = get_user_model()
 
 # ===== SUBJECT =====
 class Subject(models.Model):
-    LEVEL_CHOICES = (
-        ('beginner', 'Beginner'),
-        ('intermediate', 'Intermediate'),
-        ('advanced', 'Advanced'),
-    )
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('approved', 'Approved'),
@@ -19,7 +25,8 @@ class Subject(models.Model):
 
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=20, unique=True, null=True, blank=True)
-    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
+    # Use the centralized LEVEL_CHOICES
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='primary')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     proposed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -57,11 +64,6 @@ class Course(models.Model):
 
 # ===== LESSON =====
 class Lesson(models.Model):
-    LEVEL_CHOICES = (
-        ('beginner', 'Beginner'),
-        ('intermediate', 'Intermediate'),
-        ('advanced', 'Advanced'),
-    )
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('approved', 'Approved'),
@@ -69,7 +71,8 @@ class Lesson(models.Model):
     )
 
     title = models.CharField(max_length=200)
-    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
+    # Use the centralized LEVEL_CHOICES, with default 'primary'
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='primary')
     description = models.TextField(blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lessons', null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons', null=True, blank=True)
@@ -163,7 +166,7 @@ class Exam(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
     academic_session = models.CharField(max_length=50, blank=True, null=True)
     term = models.CharField(max_length=50, blank=True, null=True)
-    level = models.CharField(max_length=50, blank=True, null=True)
+    level = models.CharField(max_length=50, blank=True, null=True)  # This can be any string, but we could also use LEVEL_CHOICES if needed; we keep it flexible
     language = models.CharField(max_length=50, default='English')
     exam_code = models.CharField(max_length=20, unique=True)
     duration_minutes = models.PositiveIntegerField(default=60)
@@ -224,7 +227,7 @@ class Exam(models.Model):
 
     teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_exams')
 
-    # 📄 File upload fields
+    # File upload fields
     exam_document = models.FileField(upload_to='exams/documents/', blank=True, null=True)
     marking_guide_document = models.FileField(upload_to='exams/marking_guides/', blank=True, null=True)
 

@@ -5,6 +5,10 @@ from django.dispatch import receiver
 from cloudinary.models import CloudinaryField
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+# Import centralized level choices from courses app
+from courses.forms import LEVEL_CHOICES
+
+
 class UserProfile(models.Model):
     ROLE_CHOICES = (
         ('learner', 'Learner'),
@@ -17,21 +21,20 @@ class UserProfile(models.Model):
         ('approved', 'Approved'),
         ('suspended', 'Suspended'),
     )
-    LEVEL_CHOICES = (
-        ('primary', 'Primary School'),
-        ('secondary', 'Secondary School'),
-        ('university', 'University / Higher Institution'),
-        ('', 'Not set'),
-    )
+    # REMOVED LOCAL LEVEL_CHOICES – now using imported LEVEL_CHOICES from courses.forms
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='learner')
 
     bio = models.TextField(blank=True, default='')
     avatar = CloudinaryField('avatar', blank=True, null=True)
-    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='')
-    date_of_birth = models.DateField(null=True, blank=True)
-    address = models.TextField(blank=True, default='')
+    # Use the imported LEVEL_CHOICES with a blank option
+    level = models.CharField(
+        max_length=50,
+        choices=[('', 'Not set')] + LEVEL_CHOICES,
+        blank=True,
+        null=True
+    )
 
     # NEW FIELDS
     full_name = models.CharField(
@@ -189,6 +192,8 @@ def notify_user_on_verification(sender, instance, created, **kwargs):
                 )
         except UserProfile.DoesNotExist:
             pass
+
+
 class Activity(models.Model):
     ACTION_TYPES = (
         ('user_registered', 'User Registered'),

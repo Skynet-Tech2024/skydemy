@@ -18,7 +18,7 @@ class Subject(models.Model):
     )
 
     name = models.CharField(max_length=200)
-    # 🔽 Made code nullable to avoid migration default prompt
+    # ✅ Keep nullable to avoid IntegrityError with existing NULLs
     code = models.CharField(max_length=20, unique=True, null=True, blank=True)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -72,7 +72,6 @@ class Lesson(models.Model):
     title = models.CharField(max_length=200)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     description = models.TextField(blank=True)
-    # 🔽 Made subject nullable to avoid default prompt during migrations
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lessons', null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons', null=True, blank=True)
     pdf_file = models.FileField(upload_to='lessons/pdfs/', blank=True, null=True)
@@ -114,7 +113,7 @@ class LessonLike(models.Model):
 class LessonComment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_comments')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='comments')
-    content = models.TextField()  # renamed from 'comment' to 'content'
+    content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -199,7 +198,7 @@ class Exam(models.Model):
     auto_grade_objective = models.BooleanField(default=True)
     manual_review_required = models.BooleanField(default=False)
 
-    # Anti-cheating (fields remain in model)
+    # Anti-cheating
     shuffle_questions = models.BooleanField(default=False)
     shuffle_options = models.BooleanField(default=False)
     fullscreen_mode = models.BooleanField(default=False)
@@ -222,7 +221,7 @@ class Exam(models.Model):
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_exams')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    # 🔽 Made updated_at nullable to avoid migration default prompt
+    # ✅ Keep nullable to avoid migration issues
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_exams')
@@ -257,7 +256,6 @@ class ExamResult(models.Model):
 # ===== CERTIFICATE =====
 class Certificate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates')
-    # Made lesson nullable to avoid needing a default for existing rows
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='certificates', null=True, blank=True)
     certificate_number = models.CharField(max_length=50, unique=True)
     issued_date = models.DateTimeField(auto_now_add=True)

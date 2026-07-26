@@ -110,3 +110,95 @@ class ExamForm(forms.ModelForm):
         for field_name in optional_fields:
             if field_name in self.fields:
                 self.fields[field_name].required = False
+
+
+# ===== NEW: Exam Creation Wizard Form =====
+class ExamCreationForm(forms.ModelForm):
+    # Searchable dropdowns
+    subject = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
+        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
+        required=True
+    )
+    course = forms.ModelChoiceField(
+        queryset=Course.objects.all(),
+        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
+        required=False
+    )
+    # File upload fields
+    exam_paper = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'file-upload', 'accept': '.pdf,.docx'})
+    )
+    marking_guide = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'file-upload', 'accept': '.pdf,.docx'})
+    )
+    # Other fields
+    title = forms.CharField(max_length=200)
+    level = forms.ChoiceField(choices=[
+        ('primary', 'Primary'),
+        ('secondary', 'Secondary'),
+        ('technical', 'Technical & Vocational'),
+        ('university', 'University'),
+        ('higher', 'Higher Institute'),
+        ('professional', 'Professional Certification'),
+        ('other', 'Other')
+    ])
+    category = forms.ChoiceField(choices=[
+        ('midterm', 'Mid-Term Examination'),
+        ('endterm', 'End-of-Term Examination'),
+        ('mock', 'Mock Examination'),
+        ('assignment', 'Assignment'),
+        ('quiz', 'Quiz'),
+        ('continuous', 'Continuous Assessment'),
+        ('practice', 'Practice Test'),
+        ('final', 'Final Examination'),
+        ('certification', 'Certification Exam')
+    ])
+    description = forms.CharField(widget=forms.Textarea, required=False)
+    time_limit = forms.ChoiceField(choices=[
+        (30, '30 minutes'),
+        (60, '60 minutes'),
+        (90, '90 minutes'),
+        (120, '120 minutes'),
+        ('custom', 'Custom')
+    ])
+    passing_score = forms.IntegerField(min_value=0, max_value=100)
+    total_marks = forms.IntegerField(min_value=1)
+    attempts_allowed = forms.ChoiceField(choices=[
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (0, 'Unlimited')
+    ])
+    start_date = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        required=False
+    )
+    end_date = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        required=False
+    )
+    # Toggles (booleans)
+    randomize_questions = forms.BooleanField(required=False)
+    shuffle_options = forms.BooleanField(required=False)
+    auto_grade = forms.BooleanField(required=False)
+    show_results = forms.BooleanField(required=False)
+    allow_review = forms.BooleanField(required=False)
+    certificate_eligible = forms.BooleanField(required=False)
+    anti_cheating = forms.BooleanField(required=False)
+
+    class Meta:
+        model = Exam
+        fields = [
+            'title', 'level', 'category', 'subject', 'course', 'description',
+            'time_limit', 'passing_score', 'total_marks', 'attempts_allowed',
+            'start_date', 'end_date', 'randomize_questions', 'shuffle_options',
+            'auto_grade', 'show_results', 'allow_review', 'certificate_eligible',
+            'anti_cheating'
+        ]
+
+    def clean(self):
+        # Add validation logic later if needed
+        return self.cleaned_data

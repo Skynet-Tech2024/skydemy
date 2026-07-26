@@ -1,0 +1,643 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<style>
+    /* Green · White · Gold Theme */
+    body {
+        background: #F8F9FA !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+    .wizard-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 40px 50px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+    .wizard-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #0E8A3A;
+        margin: 0 0 4px 0;
+    }
+    .wizard-header .subtitle {
+        color: #6B7280;
+        font-size: 16px;
+        margin: 0 0 24px 0;
+    }
+    /* Progress Wizard */
+    .wizard-progress {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        position: relative;
+        padding: 0 10px;
+    }
+    .wizard-progress::before {
+        content: '';
+        position: absolute;
+        top: 18px;
+        left: 30px;
+        right: 30px;
+        height: 3px;
+        background: #E5E7EB;
+        z-index: 0;
+    }
+    .wizard-progress .step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #94A3B8;
+        background: #fff;
+        padding: 8px 16px;
+        border-radius: 30px;
+        border: 2px solid #E5E7EB;
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .wizard-progress .step.active {
+        color: #ffffff;
+        background: #0E8A3A;
+        border-color: #0E8A3A;
+    }
+    .wizard-progress .step.done {
+        color: #0E8A3A;
+        border-color: #D4AF37;
+        background: #FEF9E7;
+    }
+    .wizard-progress .step .check {
+        display: none;
+    }
+    .wizard-progress .step.done .check {
+        display: inline;
+        color: #D4AF37;
+    }
+    /* Step Content */
+    .step-content {
+        display: none;
+        animation: fadeIn 0.4s ease;
+    }
+    .step-content.active {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .step-content h2 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #0E8A3A;
+        margin: 0 0 20px 0;
+        border-bottom: 2px solid #D4AF37;
+        padding-bottom: 10px;
+    }
+    .step-content .field-group {
+        margin-bottom: 18px;
+    }
+    .step-content .field-group label {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 14px;
+        display: block;
+        margin-bottom: 4px;
+    }
+    .step-content .field-group input,
+    .step-content .field-group select,
+    .step-content .field-group textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        font-size: 15px;
+        font-weight: 500;
+        color: #212529;
+        background: #ffffff;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+    .step-content .field-group input:focus,
+    .step-content .field-group select:focus,
+    .step-content .field-group textarea:focus {
+        border-color: #0E8A3A;
+        box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15);
+        outline: none;
+    }
+    .step-content .field-group textarea {
+        min-height: 100px;
+    }
+    /* Two-column layout */
+    .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px 30px;
+    }
+    /* Toggle Switches */
+    .toggle-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 20px;
+        margin-top: 10px;
+    }
+    .toggle-group .toggle-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        color: #1e293b;
+        font-size: 14px;
+    }
+    .toggle-group .toggle-item input[type="checkbox"] {
+        width: 44px;
+        height: 24px;
+        appearance: none;
+        background: #cbd5e1;
+        border-radius: 24px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s;
+        flex-shrink: 0;
+    }
+    .toggle-group .toggle-item input[type="checkbox"]::before {
+        content: '';
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        background: #ffffff;
+        border-radius: 50%;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.3s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .toggle-group .toggle-item input[type="checkbox"]:checked {
+        background: #0E8A3A;
+    }
+    .toggle-group .toggle-item input[type="checkbox"]:checked::before {
+        transform: translateX(20px);
+    }
+    /* Drag & Drop Upload */
+    .drop-zone {
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 40px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+        cursor: pointer;
+        position: relative;
+    }
+    .drop-zone:hover {
+        border-color: #0E8A3A;
+        background: #f0fdf4;
+    }
+    .drop-zone.dragover {
+        border-color: #0E8A3A;
+        background: #e8f5e9;
+        box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.15);
+    }
+    .drop-zone .drop-icon {
+        font-size: 48px;
+        color: #0E8A3A;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .drop-zone .drop-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #1e293b;
+    }
+    .drop-zone .drop-subtext {
+        font-size: 14px;
+        color: #6B7280;
+        margin-top: 4px;
+    }
+    .drop-zone .drop-formats {
+        font-size: 12px;
+        color: #9CA3AF;
+        margin-top: 8px;
+    }
+    .drop-zone input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .file-preview {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+        padding: 10px 16px;
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+    .file-preview .file-name {
+        font-weight: 600;
+        color: #1e293b;
+        flex: 1;
+    }
+    .file-preview .file-size {
+        color: #6B7280;
+        font-size: 13px;
+    }
+    .file-preview .file-status {
+        color: #16A34A;
+        font-weight: 600;
+    }
+    .file-preview .file-remove {
+        color: #DC2626;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        background: none;
+        border: none;
+    }
+    /* Navigation Buttons */
+    .wizard-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #E5E7EB;
+    }
+    .wizard-nav button {
+        padding: 10px 30px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+    .wizard-nav .btn-prev {
+        background: #ffffff;
+        color: #6B7280;
+        border: 1px solid #d1d5db;
+    }
+    .wizard-nav .btn-prev:hover {
+        background: #f1f5f9;
+        color: #1F2937;
+    }
+    .wizard-nav .btn-next {
+        background: #0E8A3A;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(14, 138, 58, 0.3);
+    }
+    .wizard-nav .btn-next:hover {
+        background: #06612A;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(14, 138, 58, 0.4);
+    }
+    .wizard-nav .btn-submit-final {
+        background: #D4AF37;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+    .wizard-nav .btn-submit-final:hover {
+        background: #b8960f;
+        transform: translateY(-2px);
+    }
+    /* Select2 overrides */
+    .select2-container--classic .select2-selection--single {
+        height: 46px !important;
+        padding: 6px 12px !important;
+        border-radius: 8px !important;
+        border-color: #ced4da !important;
+    }
+    .select2-container--classic .select2-selection--single .select2-selection__rendered {
+        line-height: 32px !important;
+        color: #212529 !important;
+        font-weight: 500 !important;
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+        .wizard-container { padding: 20px; }
+        .two-col { grid-template-columns: 1fr; }
+        .toggle-group { grid-template-columns: 1fr; }
+        .wizard-progress { flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .wizard-progress::before { display: none; }
+        .wizard-nav { flex-direction: column; gap: 10px; align-items: stretch; }
+        .wizard-nav button { justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wizard-container">
+    <!-- Header -->
+    <div class="wizard-header">
+        <h1>📝 Create New Exam</h1>
+        <p class="subtitle">Create, configure, and submit exams for approval before publishing.</p>
+    </div>
+
+    <!-- Progress Wizard -->
+    <div class="wizard-progress" id="wizardProgress">
+        <div class="step active" data-step="1">
+            <span class="check">✓</span> ① Basic Information
+        </div>
+        <div class="step" data-step="2">
+            <span class="check">✓</span> ② Exam Settings
+        </div>
+        <div class="step" data-step="3">
+            <span class="check">✓</span> ③ Exam Content
+        </div>
+        <div class="step" data-step="4">
+            <span class="check">✓</span> ④ Marking Guide
+        </div>
+        <div class="step" data-step="5">
+            <span class="check">✓</span> ⑤ Review & Submit
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" enctype="multipart/form-data" id="examForm">
+        {% csrf_token %}
+
+        <!-- ===== STEP 1: Basic Information ===== -->
+        <div class="step-content active" data-step="1">
+            <h2>📘 Basic Information</h2>
+            <div class="two-col">
+                <div class="field-group">
+                    <label for="{{ form.title.id_for_label }}">Exam Title *</label>
+                    {{ form.title }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.level.id_for_label }}">Level *</label>
+                    {{ form.level }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.category.id_for_label }}">Category *</label>
+                    {{ form.category }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.subject.id_for_label }}">Subject *</label>
+                    {{ form.subject }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.course.id_for_label }}">Course</label>
+                    {{ form.course }}
+                </div>
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="{{ form.description.id_for_label }}">Description</label>
+                    {{ form.description }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 2: Exam Settings ===== -->
+        <div class="step-content" data-step="2">
+            <h2>⚙️ Exam Settings</h2>
+            <div class="two-col">
+                <div class="field-group">
+                    <label for="{{ form.time_limit.id_for_label }}">Time Limit</label>
+                    {{ form.time_limit }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.passing_score.id_for_label }}">Passing Score (%)</label>
+                    {{ form.passing_score }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.total_marks.id_for_label }}">Total Marks</label>
+                    {{ form.total_marks }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.attempts_allowed.id_for_label }}">Attempts Allowed</label>
+                    {{ form.attempts_allowed }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.start_date.id_for_label }}">Start Date & Time</label>
+                    {{ form.start_date }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.end_date.id_for_label }}">End Date & Time</label>
+                    {{ form.end_date }}
+                </div>
+            </div>
+            <div style="margin-top:20px;">
+                <label style="font-weight:600;color:#1e293b;display:block;margin-bottom:8px;">Settings</label>
+                <div class="toggle-group">
+                    <div class="toggle-item">{{ form.randomize_questions }} Randomize Questions</div>
+                    <div class="toggle-item">{{ form.shuffle_options }} Shuffle Answer Choices</div>
+                    <div class="toggle-item">{{ form.auto_grade }} Auto Grade Objective Questions</div>
+                    <div class="toggle-item">{{ form.show_results }} Show Results Immediately</div>
+                    <div class="toggle-item">{{ form.allow_review }} Allow Review After Submission</div>
+                    <div class="toggle-item">{{ form.certificate_eligible }} Certificate Eligible</div>
+                    <div class="toggle-item">{{ form.anti_cheating }} Enable Anti-Cheating Measures</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 3: Exam Content ===== -->
+        <div class="step-content" data-step="3">
+            <h2>📄 Exam Content</h2>
+            <div class="field-group">
+                <label>Upload Exam Paper</label>
+                <div class="drop-zone" id="examPaperDrop">
+                    <span class="drop-icon">📄</span>
+                    <div class="drop-text">Drag &amp; Drop your file here</div>
+                    <div class="drop-subtext">or click to browse</div>
+                    <div class="drop-formats">Supported: PDF • DOCX • Maximum Size: 20 MB</div>
+                    {{ form.exam_paper }}
+                </div>
+                <div class="file-preview" id="examPaperPreview">
+                    <span class="file-icon">📄</span>
+                    <span class="file-name"></span>
+                    <span class="file-size"></span>
+                    <span class="file-status">✅ Upload Successful</span>
+                    <button type="button" class="file-remove" onclick="removeFile('examPaper')">✕ Remove</button>
+                </div>
+            </div>
+            <div class="field-group" style="margin-top:20px;">
+                <label>OR Create Questions Manually</label>
+                <p style="color:#6B7280;font-size:14px;">You can also create questions manually using the exam management section after creation.</p>
+            </div>
+        </div>
+
+        <!-- ===== STEP 4: Marking Guide ===== -->
+        <div class="step-content" data-step="4">
+            <h2>✅ Marking Guide</h2>
+            <div class="field-group">
+                <label>Upload Marking Guide</label>
+                <div class="drop-zone" id="markingGuideDrop">
+                    <span class="drop-icon">📋</span>
+                    <div class="drop-text">Drag &amp; Drop your marking guide</div>
+                    <div class="drop-subtext">or click to browse</div>
+                    <div class="drop-formats">Supported: PDF • DOCX • Maximum Size: 20 MB</div>
+                    {{ form.marking_guide }}
+                </div>
+                <div class="file-preview" id="markingGuidePreview">
+                    <span class="file-icon">📋</span>
+                    <span class="file-name"></span>
+                    <span class="file-size"></span>
+                    <span class="file-status">✅ Upload Successful</span>
+                    <button type="button" class="file-remove" onclick="removeFile('markingGuide')">✕ Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 5: Review & Submit ===== -->
+        <div class="step-content" data-step="5">
+            <h2>👁️ Review & Submit</h2>
+            <div style="background:#F8FAFC;border-radius:12px;padding:20px;border:1px solid #E5E7EB;">
+                <p style="font-size:16px;font-weight:600;color:#0E8A3A;">Review your exam details below before submitting.</p>
+                <div id="reviewSummary" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+                    <div><strong>Title:</strong> <span id="reviewTitle">—</span></div>
+                    <div><strong>Level:</strong> <span id="reviewLevel">—</span></div>
+                    <div><strong>Category:</strong> <span id="reviewCategory">—</span></div>
+                    <div><strong>Subject:</strong> <span id="reviewSubject">—</span></div>
+                    <div><strong>Course:</strong> <span id="reviewCourse">—</span></div>
+                    <div><strong>Time Limit:</strong> <span id="reviewTimeLimit">—</span></div>
+                    <div><strong>Passing Score:</strong> <span id="reviewPassingScore">—</span></div>
+                    <div><strong>Total Marks:</strong> <span id="reviewTotalMarks">—</span></div>
+                    <div><strong>Attempts:</strong> <span id="reviewAttempts">—</span></div>
+                    <div><strong>Exam Paper:</strong> <span id="reviewExamPaper">—</span></div>
+                    <div><strong>Marking Guide:</strong> <span id="reviewMarkingGuide">—</span></div>
+                </div>
+                <div style="margin-top:16px;padding:12px;background:#D1FAE5;border-radius:8px;color:#065F46;font-weight:600;">
+                    ✅ All required fields are filled. Ready for review.
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="wizard-nav">
+            <button type="button" class="btn-prev" onclick="prevStep()">← Previous</button>
+            <div>
+                <button type="button" class="btn-next" id="btnNext" onclick="nextStep()">Next →</button>
+                <button type="submit" class="btn-submit-final" id="btnSubmit" style="display:none;">🚀 Submit for Review</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function showStep(step) {
+        // Hide all step content
+        document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+        // Show selected step
+        const target = document.querySelector(`.step-content[data-step="${step}"]`);
+        if (target) target.classList.add('active');
+
+        // Update progress steps
+        document.querySelectorAll('.step').forEach(el => {
+            const num = parseInt(el.dataset.step);
+            el.classList.remove('active', 'done');
+            if (num === step) el.classList.add('active');
+            else if (num < step) el.classList.add('done');
+        });
+
+        // Show/hide navigation buttons
+        document.getElementById('btnNext').style.display = (step === totalSteps) ? 'none' : 'inline-block';
+        document.getElementById('btnSubmit').style.display = (step === totalSteps) ? 'inline-block' : 'none';
+
+        currentStep = step;
+
+        // Update review summary when reaching step 5
+        if (step === 5) updateReview();
+    }
+
+    function nextStep() {
+        if (currentStep < totalSteps) showStep(currentStep + 1);
+    }
+
+    function prevStep() {
+        if (currentStep > 1) showStep(currentStep - 1);
+    }
+
+    // Drag-and-drop file handling
+    function setupDropZone(zoneId, previewId, inputName) {
+        const zone = document.getElementById(zoneId);
+        const input = zone.querySelector('input[type="file"]');
+        const preview = document.getElementById(previewId);
+
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        zone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                input.files = e.dataTransfer.files;
+                input.dispatchEvent(new Event('change'));
+            }
+        });
+
+        input.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const file = this.files[0];
+                const size = (file.size / 1024 / 1024).toFixed(1) + ' MB';
+                preview.querySelector('.file-name').textContent = file.name;
+                preview.querySelector('.file-size').textContent = size;
+                preview.style.display = 'flex';
+                zone.style.display = 'none';
+            }
+        });
+    }
+
+    function removeFile(type) {
+        const zone = document.getElementById(type + 'Drop');
+        const preview = document.getElementById(type + 'Preview');
+        const input = zone.querySelector('input[type="file"]');
+        input.value = '';
+        preview.style.display = 'none';
+        zone.style.display = 'block';
+    }
+
+    // Update review summary
+    function updateReview() {
+        const fields = {
+            title: '{{ form.title.id_for_label }}',
+            level: '{{ form.level.id_for_label }}',
+            category: '{{ form.category.id_for_label }}',
+            subject: '{{ form.subject.id_for_label }}',
+            course: '{{ form.course.id_for_label }}',
+            time_limit: '{{ form.time_limit.id_for_label }}',
+            passing_score: '{{ form.passing_score.id_for_label }}',
+            total_marks: '{{ form.total_marks.id_for_label }}',
+            attempts_allowed: '{{ form.attempts_allowed.id_for_label }}'
+        };
+        for (const [key, id] of Object.entries(fields)) {
+            const el = document.getElementById(id);
+            const val = el ? el.value || '—' : '—';
+            document.getElementById('review' + key.charAt(0).toUpperCase() + key.slice(1)).textContent = val;
+        }
+        // Check file uploads
+        const examPaperInput = document.querySelector('#examPaperDrop input[type="file"]');
+        const markingGuideInput = document.querySelector('#markingGuideDrop input[type="file"]');
+        document.getElementById('reviewExamPaper').textContent = examPaperInput && examPaperInput.files.length > 0 ? examPaperInput.files[0].name : '—';
+        document.getElementById('reviewMarkingGuide').textContent = markingGuideInput && markingGuideInput.files.length > 0 ? markingGuideInput.files[0].name : '—';
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', function() {
+        showStep(1);
+        setupDropZone('examPaperDrop', 'examPaperPreview', 'exam_paper');
+        setupDropZone('markingGuideDrop', 'markingGuidePreview', 'marking_guide');
+
+        // Auto-update review on field changes (for step 5)
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('change', updateReview);
+        });
+    });
+</script>
+{% endblock %}

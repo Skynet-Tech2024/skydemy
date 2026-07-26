@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_exempt
-from .forms import LessonForm, ExamForm
+from .forms import LessonForm, ExamForm, ExamCreationForm   # <-- added ExamCreationForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
 from .utils import convert_uploaded_file_to_pdf
 
@@ -624,3 +624,32 @@ def add_gce_past_questions(request, level):
             messages.error(request, f"Error saving exam: {e}")
     
     return render(request, 'courses/add_gce_past_questions.html', {'level': level, 'subjects': subjects})
+
+# ====== NEW: EXAM CREATION WIZARD ======
+from django.contrib.admin.views.decorators import staff_member_required
+from datetime import datetime
+
+@staff_member_required
+def create_exam_wizard(request):
+    if request.method == 'POST':
+        form = ExamCreationForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Save exam
+            exam = form.save(commit=False)
+            exam.exam_code = f"EXAM-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            exam.status = 'pending'
+            exam.save()
+            
+            # Save uploaded files
+            if form.cleaned_data.get('exam_paper'):
+                exam.exam_document = form.cleaned_data['exam_paper']
+            if form.cleaned_data.get('marking_guide'):
+                exam.marking_guide_document = form.cleaned_data['marking_guide']
+            exam.save()
+            
+            messages.success(request, f"Exam '{exam.title}' created successfully!")
+            return redirect('admin:courses_exam_changelist')
+    else:
+        form = ExamCreationForm()
+    
+    return render(request, 'courses/create_exam_wizard.html', {'form': form})

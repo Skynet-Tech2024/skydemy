@@ -143,9 +143,13 @@
 <div id="content-main">
     
     <!-- ===== WELCOME MESSAGE ===== -->
-<div class="sky>
-<span class="wel-sky>WELCOME to <b class=wel-sky>SKY</b><b class=wel-skygold>DEMY</b>
-</div>
+    <div class="dashboard-welcome">
+        <h1>
+            WELCOME TO <span class="gold-text">SKYDEMY</span>
+        </h1>
+        <p class="welcome-sub">Your learning management dashboard</p>
+    </div>
+
     <!-- ===== STAT CARDS (CLICKABLE) ===== -->
     <div class="dashboard-stats">
         <a href="{% url 'student_list' %}" style="text-decoration: none; color: inherit; display: block;">
@@ -259,7 +263,7 @@
         <span class="title"><i class="fas fa-bolt"></i> Quick Actions:</span>
         <a href="{% url 'admin:courses_course_add' %}"><i class="fas fa-plus-circle"></i> Create Course</a>
         <a href="{% url 'admin:courses_lesson_add' %}"><i class="fas fa-upload"></i> Upload Lesson</a>
-        <a href="{% url 'admin:courses_exam_add' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
+        <a href="{% url 'create_exam_wizard' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
         <a href="{% url 'admin:courses_certificate_add' %}"><i class="fas fa-award"></i> Issue Certificate</a>
     </div>
 

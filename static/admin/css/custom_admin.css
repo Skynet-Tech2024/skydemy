@@ -1163,3 +1163,68 @@ margin: 0 0 4px 0;
     align-items: center !important;
     gap: 8px !important;
 }
+/* ============================================
+   SHARED FOOTER – Admin & Dashboard
+   ============================================ */
+#footer {
+    margin-top: 40px;
+    padding: 20px 24px;
+    border-top: 2px solid #D4AF37;
+    background: #F8FAFC;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #475569;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+#footer .footer-left,
+#footer .footer-links,
+#footer .footer-version {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+#footer .brand {
+    font-weight: 700;
+    font-size: 18px;
+    color: #0B7A3B;
+}
+#footer .brand .gold {
+    color: #D4AF37;
+}
+#footer .separator {
+    color: #94A3B8;
+    margin: 0 4px;
+}
+#footer a {
+    color: #475569;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+#footer a:hover {
+    color: #0B7A3B;
+}
+#footer .footer-version {
+    color: #94A3B8;
+    gap: 8px;
+}
+#footer .footer-version i {
+    font-size: 12px;
+}
+@media (max-width: 767px) {
+    #footer {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        padding: 16px;
+    }
+    #footer .footer-left,
+    #footer .footer-links,
+    #footer .footer-version {
+        justify-content: center;
+    }
+}

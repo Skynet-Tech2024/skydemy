@@ -2,6 +2,7 @@ from django import forms
 from .models import Lesson, Subject, Course, Exam, Certificate
 from core.constants import LEVEL_CHOICES
 from django.conf import settings
+from django.contrib.auth import get_user_model
 import datetime
 import random
 
@@ -198,7 +199,7 @@ class ExamCreationForm(forms.ModelForm):
 # ===== CERTIFICATE ISSUANCE WIZARD FORM =====
 class CertificateIssueForm(forms.ModelForm):
     user = forms.ModelChoiceField(
-        queryset=settings.AUTH_USER_MODEL.objects.filter(profile__role='learner'),
+        queryset=get_user_model().objects.filter(profile__role='learner'),
         widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
         required=True,
         label="Recipient (Student)"

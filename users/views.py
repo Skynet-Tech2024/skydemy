@@ -129,7 +129,8 @@ def complete_profile(request):
         messages.success(request, "✅ Registration complete! Welcome to SKYDEMY.")
         return redirect('dashboard')
 
-    level_choices = UserProfile.LEVEL_CHOICES
+    from core.constants import LEVEL_CHOICES
+level_choices = LEVEL_CHOICES
     return render(request, 'users/complete_profile.html', {
         'user': user,
         'profile': profile,

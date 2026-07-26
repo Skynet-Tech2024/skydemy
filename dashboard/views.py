@@ -13,8 +13,8 @@ from django.conf import settings
 from pathlib import Path
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
-from datetime import datetime  # <-- added for batch_lesson_action
-from users.utils import create_notification  # <-- added for notifications
+from datetime import datetime
+from users.utils import create_notification
 
 def home(request):
     return render(request, 'dashboard/landing.html')
@@ -203,7 +203,6 @@ def send_message(request):
             subject=subject,
             content=content
         )
-        from users.utils import create_notification
         create_notification(
             user=receiver,
             notification_type='system',
@@ -407,11 +406,12 @@ def batch_subject_action(request):
         messages.error(request, "Invalid action.")
     return redirect('subject_list')
 
-# ===== EXAM LIST VIEW =====
+# ===== EXAM LIST VIEW (FIXED) =====
 @staff_member_required
 def exam_list(request):
     """Admin view to list all exams with stat cards and batch actions."""
-    exams = Exam.objects.select_related('lesson').all().order_by('-created_at')
+    # FIX: removed 'lesson' from select_related (Exam has no lesson field)
+    exams = Exam.objects.select_related('course', 'subject', 'reviewed_by', 'teacher').all().order_by('-created_at')
     total_count = exams.count()
     pending_count = exams.filter(status='pending').count()
     approved_count = exams.filter(status='approved').count()
@@ -450,20 +450,22 @@ def batch_exam_action(request):
         messages.error(request, "Invalid action.")
     return redirect('exam_list')
 
-# ===== CERTIFICATE LIST VIEW =====
+# ===== CERTIFICATE LIST VIEW (FIXED) =====
 @staff_member_required
 def certificate_list(request):
     """Admin view to list all certificates with stat cards and batch actions."""
-    certificates = Certificate.objects.select_related('user', 'lesson', 'exam').all().order_by('-issued_date')
+    # FIX: removed 'exam' from select_related (Certificate has no exam field)
+    certificates = Certificate.objects.select_related('user', 'lesson').all().order_by('-issued_date')
     total_count = certificates.count()
     by_lesson_count = certificates.exclude(lesson=None).count()
-    by_exam_count = certificates.exclude(exam=None).count()
+    # Remove the by_exam_count because Certificate has no exam field
+    # by_exam_count = certificates.exclude(exam=None).count()  # removed
     unique_users_count = certificates.values('user').distinct().count()
     context = {
         'certificates': certificates,
         'total_count': total_count,
         'by_lesson_count': by_lesson_count,
-        'by_exam_count': by_exam_count,
+        # 'by_exam_count': by_exam_count,  # removed
         'unique_users_count': unique_users_count,
     }
     return render(request, 'dashboard/certificate_list.html', context)

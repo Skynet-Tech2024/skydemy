@@ -638,3 +638,615 @@ input:focus-visible {
 #footer a:hover {
     color: #06612A !important;
 }
+/* ============================================
+   SKYDEMY THEME: FIELDSET HEADERS & DIVIDERS
+   ============================================ */
+
+/* ----- Fieldset headers (collapsible sections) ----- */
+.module h2,
+.module caption {
+    background: #0E8A3A !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 10px 18px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+.module h2 .collapse-toggle,
+.module caption .collapse-toggle {
+    color: #D4AF37 !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+}
+.module h2:hover {
+    background: #06612A !important;
+}
+
+/* ----- Fieldset content (expanded area) ----- */
+.module .form-row {
+    border-bottom: 1px solid #e5e7eb !important;
+}
+.module .form-row:last-child {
+    border-bottom: none !important;
+}
+
+/* ----- Horizontal rule between sections ----- */
+.module hr,
+#content-main hr {
+    border: none !important;
+    height: auto !important;
+    padding: 16px 24px !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    margin: 24px 0 !important;
+    position: relative !important;
+}
+.module hr::before,
+#content-main hr::before {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(to right, #D4AF37, #0E8A3A);
+    width: 80px;
+    margin: 0 auto;
+}
+
+/* ----- Accordion toggle icon (gold) ----- */
+.collapse-toggle {
+    color: #D4AF37 !important;
+    font-size: 14px !important;
+    margin-left: auto !important;
+}
+.collapse-toggle:hover {
+    color: #f4e7b5 !important;
+}
+
+/* ----- Section title inside fieldsets (Exam Information, etc.) ----- */
+.fieldset-title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #0E8A3A !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #D4AF37 !important;
+    margin: 20px 0 12px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+.fieldset-title:first-of-type {
+    margin-top: 0 !important;
+}
+
+/* ----- Inline help text (align with theme) ----- */
+.help,
+.help-text {
+    color: #6b7280 !important;
+}
+
+/* ----- Collapsible section hover (gold accent) ----- */
+.module h2 .collapse-toggle:hover {
+    color: #f4e7b5 !important;
+}
+/* ============================================
+   TOGGLE SWITCHES – replace checkboxes
+   ============================================ */
+
+/* Hide the default checkbox */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+/* The slider */
+.toggle-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #cbd5e1;
+    border-radius: 24px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+}
+.toggle-switch .slider::before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.toggle-switch input:checked + .slider {
+    background: #0E8A3A;
+}
+.toggle-switch input:checked + .slider::before {
+    transform: translateX(20px);
+}
+.toggle-switch input:focus + .slider {
+    box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.25);
+}
+.toggle-switch input:checked:focus + .slider {
+    box-shadow: 0 0 0 3px rgba(14, 138, 58, 0.35);
+}
+.toggle-switch input:disabled + .slider {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Wrap checkbox fields in toggle container */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+}
+.toggle-container .help,
+.toggle-container .help-text {
+    margin: 0 !important;
+    font-size: 13px !important;
+    color: #6b7280 !important;
+}
+.toggle-container label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+}
+/* ============================================
+   STEP 5: BETTER SPACING & TYPOGRAPHY
+   ============================================ */
+
+/* ----- Section spacing ----- */
+.skydemy-section-card {
+    margin-bottom: 28px !important;
+}
+.skydemy-section-card .card-body {
+    padding: 20px 24px 24px 24px !important;
+}
+.skydemy-section-card .card-header {
+    padding: 14px 24px !important;
+    font-size: 17px !important;
+}
+
+/* ----- Field spacing ----- */
+.form-row {
+    padding: 16px 0 !important;
+}
+.form-row label {
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    color: #1e293b !important;
+}
+.form-row .field-box {
+    gap: 12px !important;
+}
+
+/* ----- Help text (darker, more readable) ----- */
+.help, .help-text {
+    color: #6B7280 !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    margin-top: 4px !important;
+    line-height: 1.5 !important;
+}
+
+/* ----- Inputs (consistent height, better padding) ----- */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="url"],
+textarea,
+select {
+    height: 48px !important;
+    padding: 10px 16px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important;
+    border: 1px solid #ced4da !important;
+    color: #212529 !important;
+    transition: border 0.2s, box-shadow 0.2s !important;
+}
+
+/* ----- Two‑column spacing ----- */
+.col2 .form-row {
+    gap: 20px 40px !important;
+    padding: 10px 0 !important;
+}
+.col2 .form-row .field-box label {
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    color: #1e293b !important;
+    margin-bottom: 4px !important;
+}
+
+/* ----- Toggle switches alignment ----- */
+.toggle-container {
+    padding: 4px 0 !important;
+}
+.toggle-container label {
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    color: #1e293b !important;
+}
+
+/* ----- Section header icons ----- */
+.skydemy-section-card .card-header .icon {
+    font-size: 20px !important;
+}
+
+/* ----- Info box (more padding, better readability) ----- */
+.skydemy-form-card .info-box {
+    padding: 14px 20px !important;
+    font-size: 14px !important;
+    margin-bottom: 28px !important;
+    border-radius: 10px !important;
+}
+
+/* ----- Submit row (better spacing) ----- */
+.submit-row {
+    padding: 20px 24px !important;
+    margin-top: 32px !important;
+    gap: 16px !important;
+}
+.submit-row input[type="submit"] {
+    padding: 12px 32px !important;
+    font-size: 15px !important;
+}
+
+/* ----- Responsive fine‑tuning ----- */
+@media (max-width: 767px) {
+    .skydemy-section-card .card-body {
+        padding: 12px 16px 16px 16px !important;
+    }
+    .form-row {
+        padding: 10px 0 !important;
+    }
+    .col2 .form-row {
+        gap: 10px 0 !important;
+    }
+}
+/* Force dark bold labels for Exam document & Marking guide document */
+.skydemy-form-card .field-box label[for="id_exam_document"],
+.skydemy-form-card .field-box label[for="id_marking_guide_document"],
+.skydemy-form-card .form-row .field-exam_document label,
+.skydemy-form-card .form-row .field-marking_guide_document label,
+.skydemy-form-card .file-drop-zone label {
+    color: #1e293b !important;
+    font-weight: 600 !important;
+}
+/* ============================================
+   FORCE WHITE BACKGROUND FOR EXAM INFORMATION FIELDS
+   ============================================ */
+/* Target all inputs and selects in the first fieldset (Exam Information) */
+.col2.wide .form-row input,
+.col2.wide .form-row select,
+.col2.wide .form-row .autocomplete-widget input {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #d1d5db !important;
+}
+/* Force white background for autocomplete (select2) widgets */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple,
+.select2-search__field {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #d1d5db !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #1e293b !important;
+}
+/* ============================================
+   DASHBOARD: REMOVE EMPTY HERO AREA
+   ============================================ */
+/* Hide any hero/jumbotron/banner that creates empty space */
+.dashboard .hero,
+.dashboard .jumbotron,
+.dashboard .banner,
+.dashboard .empty-hero {
+    display: none !important;
+}
+
+/* Reduce top padding on the main content area for dashboard only */
+.dashboard #content {
+    padding-top: 10px !important;
+}
+
+/* Remove extra margin from the dashboard title */
+.dashboard #content h1 {
+    margin-top: 0 !important;
+}
+
+/* If there's an empty div with a dark background, hide it */
+.dashboard .module:empty,
+.dashboard .row:empty {
+    display: none !important;
+}
+
+/* ============================================
+   DASHBOARD: GREEN‑WHITE‑GOLD THEME
+   ============================================ */
+
+/* --- Overall dashboard background --- */
+.dashboard {
+    background: #F8FAFC !important;
+}
+.dashboard #container {
+    background: #F8FAFC !important;
+}
+.dashboard #content {
+    background: #ffffff !important;
+    padding: 20px 30px !important;
+    border-radius: 0 !important;
+}
+
+/* --- Dashboard title --- */
+.dashboard #content h1 {
+    color: #0E8A3A !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #D4AF37 !important;
+    padding-bottom: 8px !important;
+    margin-top: 0 !important;
+}
+
+/* --- Statistics cards --- */
+.dashboard .stat-card {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    border-left: 4px solid #0E8A3A !important;
+}
+.dashboard .stat-card .icon {
+    background: #0E8A3A !important;
+    color: #ffffff !important;
+}
+.dashboard .stat-card .info .number {
+    color: #0E8A3A !important;
+}
+.dashboard .stat-card .info .label {
+    color: #1e293b !important;
+}
+.dashboard .stat-card .info .change {
+    color: #D4AF37 !important;
+}
+
+/* --- Quick actions --- */
+.dashboard .quick-actions a {
+    background: #0E8A3A !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    transition: all 0.2s;
+}
+.dashboard .quick-actions a:hover {
+    background: #06612A !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14,138,58,0.3);
+}
+
+/* --- Recent activities --- */
+.dashboard #recent-activities {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    padding: 16px 20px !important;
+}
+.dashboard #recent-activities h2 {
+    color: #0E8A3A !important;
+    border-bottom: 2px solid #D4AF37 !important;
+    padding-bottom: 6px !important;
+}
+.dashboard #recent-activities ul li {
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #1e293b !important;
+}
+
+/* --- Charts --- */
+.dashboard .chart-box {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    padding: 16px 20px !important;
+}
+.dashboard .chart-box h3 {
+    color: #0E8A3A !important;
+}
+
+/* --- Footer --- */
+.dashboard #footer {
+    background: #ffffff !important;
+    color: #6B7280 !important;
+    border-top: 1px solid #e5e7eb !important;
+}
+.dashboard #footer a {
+    color: #0E8A3A !important;
+}
+
+/* --- Remove any leftover dark/empty containers --- */
+.dashboard .module:empty,
+.dashboard .row:empty {
+    display: none !important;
+}
+/* ----- Subtitle in header (gold, smaller) ----- */
+#header h1 a .subtitle {
+    display: inline-block;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #D4AF37 !important;
+    margin-left: 12px !important;
+    letter-spacing: 0.3px !important;
+    opacity: 0.9;
+}
+/* On smaller screens, stack it below */
+@media (max-width: 767px) {
+    #header h1 a .subtitle {
+        display: block !important;
+        margin-left: 0 !important;
+        font-size: 12px !important;
+    }
+}
+/* ===== DASHBOARD WELCOME ===== */
+.dashboard-welcome h1 {
+    color: #ffffff !important;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+.wel-sky {
+color: #ffffff;
+font-size: 32px;
+font-weight: 800;
+margin: 0 0 4px 0;
+}
+
+.wel-skygold {
+color: #C9A227;
+font-size: 32px;
+font-weight: 800;
+margin: 0 0 4px 0;
+}
+/* ===== FOOTER STYLES ===== */
+#footer {
+    margin-top: 40px !important;
+    padding: 20px 24px !important;
+    border-top: 2px solid #D4AF37 !important;
+    background: #F8FAFC !important;
+    border-radius: 0 0 12px 12px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 14px !important;
+    color: #475569 !important;
+}
+#footer .brand {
+    font-weight: 700 !important;
+    font-size: 18px !important;
+    color: #0B7A3B !important;
+}
+#footer .brand .gold {
+    color: #D4AF37 !important;
+}
+#footer a {
+    color: #475569 !important;
+    text-decoration: none !important;
+    transition: color 0.2s !important;
+}
+#footer a:hover {
+    color: #0B7A3B !important;
+}
+#footer .version {
+    color: #94A3B8 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+/* ============================================
+   SHARED FOOTER – Admin & Dashboard
+   ============================================ */
+#footer {
+    margin-top: 40px;
+    padding: 20px 24px;
+    border-top: 2px solid #D4AF37;
+    background: #F8FAFC;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #475569;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+#footer .footer-left,
+#footer .footer-links,
+#footer .footer-version {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+#footer .brand {
+    font-weight: 700;
+    font-size: 18px;
+    color: #0B7A3B;
+}
+#footer .brand .gold {
+    color: #D4AF37;
+}
+#footer .separator {
+    color: #94A3B8;
+    margin: 0 4px;
+}
+#footer a {
+    color: #475569;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+#footer a:hover {
+    color: #0B7A3B;
+}
+#footer .footer-version {
+    color: #94A3B8;
+    gap: 8px;
+}
+#footer .footer-version i {
+    font-size: 12px;
+}
+@media (max-width: 767px) {
+    #footer {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        padding: 16px;
+    }
+    #footer .footer-left,
+    #footer .footer-links,
+    #footer .footer-version {
+        justify-content: center;
+    }
+}
+/* ============================================
+   STICKY FOOTER – Fixed at bottom on scroll
+   ============================================ */
+#footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 1000 !important;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05) !important;
+    background: #F8FAFC !important;
+    border-top: 2px solid #D4AF37 !important;
+    padding: 12px 24px !important;
+}
+
+/* Add padding to the bottom of the page content so footer doesn't overlap */
+body {
+    padding-bottom: 80px !important;
+}

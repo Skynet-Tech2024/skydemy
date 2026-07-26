@@ -1,16 +1,9 @@
 from django import forms
 from .models import Lesson, Subject, Course, Exam, Certificate
+from core.constants import LEVEL_CHOICES   # ← Import from central location
+from django.conf import settings
 
 # ===== CENTRALIZED LEVEL CHOICES (used across all forms) =====
-LEVEL_CHOICES = [
-    ('primary', 'Primary'),
-    ('secondary', 'Secondary'),
-    ('technical', 'Technical & Vocational'),
-    ('university', 'University'),
-    ('higher', 'Higher Institute'),
-    ('professional', 'Professional Certification'),
-    ('other', 'Other'),
-]
 
 class LessonForm(forms.ModelForm):
     # Add a field for creating a new subject on the fly
@@ -216,8 +209,8 @@ import random
 User = get_user_model()
 
 class CertificateIssueForm(forms.ModelForm):
-    user = forms.ModelChoiceField(
-        queryset=User.objects.filter(profile__role='learner'),
+   user = forms.ModelChoiceField(
+    queryset=settings.AUTH_USER_MODEL.objects.filter(profile__role='learner'),
         widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
         required=True,
         label="Recipient (Student)"

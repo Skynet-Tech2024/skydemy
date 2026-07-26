@@ -18,7 +18,8 @@ class Subject(models.Model):
     )
 
     name = models.CharField(max_length=200)
-    code = models.CharField(max_length=20, unique=True)
+    # 🔽 Made code nullable to avoid migration default prompt
+    code = models.CharField(max_length=20, unique=True, null=True, blank=True)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     proposed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -71,7 +72,8 @@ class Lesson(models.Model):
     title = models.CharField(max_length=200)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     description = models.TextField(blank=True)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lessons')
+    # 🔽 Made subject nullable to avoid default prompt during migrations
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lessons', null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons', null=True, blank=True)
     pdf_file = models.FileField(upload_to='lessons/pdfs/', blank=True, null=True)
     original_file = models.FileField(upload_to='lessons/originals/', blank=True, null=True)
@@ -112,7 +114,7 @@ class LessonLike(models.Model):
 class LessonComment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_comments')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='comments')
-    content = models.TextField()
+    content = models.TextField()  # renamed from 'comment' to 'content'
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -161,9 +163,9 @@ class Exam(models.Model):
     exam_type = models.CharField(max_length=20, choices=EXAM_TYPES, default='exam')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
-    academic_session = models.CharField(max_length=50, blank=True)
-    term = models.CharField(max_length=50, blank=True)
-    level = models.CharField(max_length=50, blank=True)
+    academic_session = models.CharField(max_length=50, blank=True, null=True)
+    term = models.CharField(max_length=50, blank=True, null=True)
+    level = models.CharField(max_length=50, blank=True, null=True)
     language = models.CharField(max_length=50, default='English')
     exam_code = models.CharField(max_length=20, unique=True)
     duration_minutes = models.PositiveIntegerField(default=60)
@@ -220,7 +222,8 @@ class Exam(models.Model):
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_exams')
     reviewed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # 🔽 Made updated_at nullable to avoid migration default prompt
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_exams')
 
@@ -254,7 +257,8 @@ class ExamResult(models.Model):
 # ===== CERTIFICATE =====
 class Certificate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates')
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='certificates')
+    # Made lesson nullable to avoid needing a default for existing rows
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='certificates', null=True, blank=True)
     certificate_number = models.CharField(max_length=50, unique=True)
     issued_date = models.DateTimeField(auto_now_add=True)
 

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile
+from courses.forms import LEVEL_CHOICES
 
 class RegisterStep1Form(UserCreationForm):
     # ===== Full Name (stored in UserProfile) =====
@@ -120,6 +121,8 @@ class RegisterStep1Form(UserCreationForm):
             user.save()
         return user
 
+
+# ===== PROFILE UPDATE FORM (used for Complete Profile page) =====
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = UserProfile
@@ -141,3 +144,8 @@ class ProfileUpdateForm(forms.ModelForm):
             'date_of_birth': 'Your date of birth',
             'address': 'Your physical address',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Use the centralized LEVEL_CHOICES for the level field
+        self.fields['level'].choices = [('', 'Select level...')] + LEVEL_CHOICES

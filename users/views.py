@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import RegisterStep1Form
 from .models import UserProfile
+from core.constants import LEVEL_CHOICES   # ✅ Moved import to the top
 
 # ===== STEP 1: Account Creation =====
 def register(request):
@@ -82,7 +83,7 @@ def complete_profile(request):
             return render(request, 'users/complete_profile.html', {
                 'user': user,
                 'profile': profile,
-                'level_choices': UserProfile.LEVEL_CHOICES,
+                'level_choices': LEVEL_CHOICES,   # ✅ Use imported constant
                 'role_choices': allowed_roles,
             })
         if not role:
@@ -90,7 +91,7 @@ def complete_profile(request):
             return render(request, 'users/complete_profile.html', {
                 'user': user,
                 'profile': profile,
-                'level_choices': UserProfile.LEVEL_CHOICES,
+                'level_choices': LEVEL_CHOICES,
                 'role_choices': allowed_roles,
             })
 
@@ -100,7 +101,7 @@ def complete_profile(request):
             return render(request, 'users/complete_profile.html', {
                 'user': user,
                 'profile': profile,
-                'level_choices': UserProfile.LEVEL_CHOICES,
+                'level_choices': LEVEL_CHOICES,
                 'role_choices': allowed_roles,
             })
 
@@ -109,7 +110,7 @@ def complete_profile(request):
             return render(request, 'users/complete_profile.html', {
                 'user': user,
                 'profile': profile,
-                'level_choices': UserProfile.LEVEL_CHOICES,
+                'level_choices': LEVEL_CHOICES,
                 'role_choices': allowed_roles,
             })
 
@@ -129,12 +130,11 @@ def complete_profile(request):
         messages.success(request, "✅ Registration complete! Welcome to SKYDEMY.")
         return redirect('dashboard')
 
-    from core.constants import LEVEL_CHOICES
-level_choices = LEVEL_CHOICES
+    # GET request – show the form with current values
     return render(request, 'users/complete_profile.html', {
         'user': user,
         'profile': profile,
-        'level_choices': level_choices,
+        'level_choices': LEVEL_CHOICES,   # ✅ Use imported constant
         'role_choices': allowed_roles,
     })
 

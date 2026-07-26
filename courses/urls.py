@@ -16,4 +16,6 @@ urlpatterns = [
     path('exams/gce/add/<str:level>/', views.add_gce_past_questions, name='add_gce_past_questions'),
     path('lesson/<int:lesson_id>/add-exam/', views.add_exam, name='add_exam'),
     path('lesson/<int:lesson_id>/take-exam/', views.take_exam, name='take_exam'),
+    # Certificate issuance wizard
+    path('certificate/issue/', views.issue_certificate_wizard, name='issue_certificate_wizard'),
 ]

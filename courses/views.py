@@ -1,6 +1,7 @@
 import os
 import json
 import re
+from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
@@ -13,7 +14,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_exempt
-from .forms import LessonForm, ExamForm, ExamCreationForm   # <-- added ExamCreationForm
+from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm   # <-- added ExamCreationForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate
 from .utils import convert_uploaded_file_to_pdf
 
@@ -653,3 +654,66 @@ def create_exam_wizard(request):
         form = ExamCreationForm()
     
     return render(request, 'courses/create_exam_wizard.html', {'form': form})
+# ===== CERTIFICATE ISSUANCE WIZARD =====
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import CertificateIssueForm
+from .models import Certificate
+
+@staff_member_required
+def issue_certificate_wizard(request):
+    if request.method == 'POST':
+        form = CertificateIssueForm(request.POST)
+        if form.is_valid():
+            achievement_type = form.cleaned_data['achievement_type']
+            user = form.cleaned_data['user']
+            lesson = form.cleaned_data.get('lesson')
+            exam = form.cleaned_data.get('exam')
+            issue_date = form.cleaned_data['issue_date']
+            expiry_date = form.cleaned_data.get('expiry_date')
+            custom_message = form.cleaned_data.get('custom_message')
+            certificate_number = form.cleaned_data.get('certificate_number')
+
+            if achievement_type == 'lesson' and lesson:
+                certificate = Certificate.objects.create(
+                    user=user,
+                    lesson=lesson,
+                    certificate_number=certificate_number,
+                    issued_date=issue_date,
+                    # if you have extra fields, add them here
+                )
+                messages.success(request, f"Certificate issued to {user.username} for lesson '{lesson.title}'.")
+                return redirect('admin:courses_certificate_changelist')
+
+            elif achievement_type == 'exam' and exam:
+                # If Certificate model has an exam field, use it; otherwise, link to the exam's lesson
+                if hasattr(Certificate, 'exam'):
+                    certificate = Certificate.objects.create(
+                        user=user,
+                        exam=exam,
+                        certificate_number=certificate_number,
+                        issued_date=issue_date,
+                    )
+                    messages.success(request, f"Certificate issued to {user.username} for exam '{exam.title}'.")
+                elif exam.lesson:
+                    certificate = Certificate.objects.create(
+                        user=user,
+                        lesson=exam.lesson,
+                        certificate_number=certificate_number,
+                        issued_date=issue_date,
+                    )
+                    messages.success(request, f"Certificate issued to {user.username} for exam '{exam.title}' (linked to lesson).")
+                else:
+                    messages.error(request, "This exam has no associated lesson. Cannot issue certificate.")
+                    return render(request, 'courses/issue_certificate_wizard.html', {'form': form})
+
+            else:
+                messages.error(request, "Please select a valid achievement.")
+                return render(request, 'courses/issue_certificate_wizard.html', {'form': form})
+
+            return redirect('admin:courses_certificate_changelist')
+    else:
+        form = CertificateIssueForm()
+
+    return render(request, 'courses/issue_certificate_wizard.html', {'form': form})

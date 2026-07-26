@@ -1,5 +1,5 @@
 from django import forms
-from .models import Lesson, Subject, Course, Exam
+from .models import Lesson, Subject, Course, Exam, Certificate
 
 class LessonForm(forms.ModelForm):
     # Add a field for creating a new subject on the fly
@@ -202,3 +202,80 @@ class ExamCreationForm(forms.ModelForm):
     def clean(self):
         # Add validation logic later if needed
         return self.cleaned_data
+
+
+# ===== CERTIFICATE ISSUANCE WIZARD FORM =====
+from django.contrib.auth import get_user_model
+import datetime
+import random
+
+User = get_user_model()
+
+class CertificateIssueForm(forms.ModelForm):
+    user = forms.ModelChoiceField(
+        queryset=User.objects.filter(profile__role='learner'),
+        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
+        required=True,
+        label="Recipient (Student)"
+    )
+    achievement_type = forms.ChoiceField(
+        choices=[('lesson', 'Lesson'), ('exam', 'Exam')],
+        widget=forms.RadioSelect,
+        initial='lesson',
+        label="Achievement Type"
+    )
+    lesson = forms.ModelChoiceField(
+        queryset=Lesson.objects.filter(status='approved'),
+        required=False,
+        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
+        label="Lesson"
+    )
+    exam = forms.ModelChoiceField(
+        queryset=Exam.objects.filter(status='approved'),
+        required=False,
+        widget=forms.Select(attrs={'class': 'searchable-dropdown'}),
+        label="Exam"
+    )
+    issue_date = forms.DateField(
+        initial=datetime.date.today,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Issue Date"
+    )
+    expiry_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Expiry Date (optional)"
+    )
+    custom_message = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 4}),
+        label="Custom Message (optional)"
+    )
+    certificate_number = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'readonly': 'readonly'}),
+        label="Certificate Number (auto‑generated)"
+    )
+
+    class Meta:
+        model = Certificate
+        fields = ['user', 'lesson', 'certificate_number', 'issue_date']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['certificate_number'].initial = self.generate_certificate_number()
+
+    def generate_certificate_number(self):
+        return f"CERT-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000,9999)}"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        achievement_type = cleaned_data.get('achievement_type')
+        lesson = cleaned_data.get('lesson')
+        exam = cleaned_data.get('exam')
+        if achievement_type == 'lesson' and not lesson:
+            self.add_error('lesson', 'Please select a lesson.')
+        elif achievement_type == 'exam' and not exam:
+            self.add_error('exam', 'Please select an exam.')
+        return cleaned_data

@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
-from .forms import ExamCreationForm          # <-- added for the wizard
+from .forms import ExamCreationForm, CourseCreationForm   # added CourseCreationForm
 from users.utils import create_notification
 from core.admin import admin_site
 import os
@@ -49,6 +49,36 @@ class CourseAdmin(admin.ModelAdmin):
             return ('name', 'code', 'description', 'status')
         else:
             return ('name', 'code', 'description')
+
+    # ----- NEW: Override add_view to serve the custom course wizard -----
+    def add_view(self, request, form_url='', extra_context=None):
+        """
+        Override the default add view to render the custom course wizard.
+        """
+        if request.method == 'POST':
+            form = CourseCreationForm(request.POST)
+            if form.is_valid():
+                course = form.save(commit=False)
+                course.save()
+                self.message_user(request, f"Course '{course.name}' created successfully!", messages.SUCCESS)
+                return HttpResponseRedirect(reverse('admin:courses_course_changelist'))
+            else:
+                # If form invalid, re-render with errors
+                context = {
+                    'title': 'Add Course',
+                    'form': form,
+                    'errors': form.errors,
+                }
+                return render(request, 'courses/create_course_wizard.html', context)
+
+        # GET request – show the wizard
+        form = CourseCreationForm()
+        context = {
+            'title': 'Create New Course',
+            'form': form,
+        }
+        return render(request, 'courses/create_course_wizard.html', context)
+    # ----- End override -----
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -169,7 +199,7 @@ class ProgressAdmin(admin.ModelAdmin):
     list_filter = ('completed',)
 
 
-# ===== Exam Admin (without date restrictions, with autocomplete) =====
+# ===== Exam Admin =====
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('title', 'exam_type', 'status', 'created_at')
     list_filter = ('status', 'exam_type', 'visibility')
@@ -259,7 +289,7 @@ class ExamAdmin(admin.ModelAdmin):
     upload_exam_documents.short_description = "Upload exam documents (PDF/DOC/DOCX/Excel)"
     # ----- End custom action -----
 
-    # ----- NEW: Override add_view to serve the custom wizard -----
+    # ----- Override add_view to serve the custom exam wizard -----
     def add_view(self, request, form_url='', extra_context=None):
         """
         Override the default add view to render the custom exam wizard.
@@ -296,7 +326,6 @@ class ExamAdmin(admin.ModelAdmin):
             'form': form,
         }
         return render(request, 'courses/create_exam_wizard.html', context)
-
     # ----- End override -----
 
     def save_model(self, request, obj, form, change):

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile
-from courses.forms import LEVEL_CHOICES
+from core.constants import LEVEL_CHOICES
 
 class RegisterStep1Form(UserCreationForm):
     # ===== Full Name (stored in UserProfile) =====
@@ -130,19 +130,13 @@ class ProfileUpdateForm(forms.ModelForm):
             'bio',
             'avatar',
             'level',
-            'date_of_birth',
-            'address',
         ]
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
-            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'address': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'level': forms.Select(attrs={'class': 'form-control'}),
         }
         help_texts = {
             'level': 'Your education level (required)',
-            'date_of_birth': 'Your date of birth',
-            'address': 'Your physical address',
         }
 
     def __init__(self, *args, **kwargs):

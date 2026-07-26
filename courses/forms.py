@@ -1,7 +1,7 @@
 from django import forms
+from users.models import UserProfile
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import UserProfile
 from core.constants import LEVEL_CHOICES
 
 class RegisterStep1Form(UserCreationForm):

@@ -9,6 +9,8 @@ from django.template.loader import get_template
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Count
+from django.shortcuts import render
+from courses.models import Lesson
 
 # Import models for statistics
 from courses.models import Course, Lesson, Exam, ExamResult, Certificate
@@ -65,7 +67,21 @@ class SKYDEMYAdminSite(AdminSite):
         """
         return HttpResponse(response)
 
-    def index(self, request, extra_context=None):
+def index(self, request, extra_context=None):
+    # Fetch lessons for the current user (only if teacher/superuser)
+    lessons = []
+    if request.user.is_authenticated:
+        if request.user.profile.role == 'teacher' or request.user.is_superuser:
+            lessons = Lesson.objects.filter(teacher=request.user).order_by('-created_at')
+    
+    context = {
+        **self.each_context(request),
+        'lessons': lessons,
+    }
+    if extra_context:
+        context.update(extra_context)
+    return render(request, 'admin/index.html', context)   
+ def index(self, request, extra_context=None):
         """
         Override the default admin index to add statistics, charts data,
         and recent activities context for the dashboard.

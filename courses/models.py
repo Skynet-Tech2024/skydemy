@@ -89,7 +89,7 @@ class Lesson(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     views = models.PositiveIntegerField(default=0)
 
-    # Single whiteboard_video field – correctly indented inside the class
+    # Whiteboard video generated from PDF
     whiteboard_video = models.FileField(
         upload_to='lessons/whiteboard_videos/',
         blank=True,

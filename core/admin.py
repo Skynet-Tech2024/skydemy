@@ -1,7 +1,5 @@
 from django.contrib.admin import AdminSite
 from django.shortcuts import render
-from django.contrib.auth import get_user_model
-from users.models import UserProfile
 from courses.models import Lesson
 
 # ====== Custom Admin Site ======

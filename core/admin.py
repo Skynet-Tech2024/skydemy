@@ -1,8 +1,7 @@
 from django.contrib.admin import AdminSite
 from django.shortcuts import render
-from django.contrib.admin.apps import AdminConfig
 from django.contrib.auth import get_user_model
-from users.models import UserProfile          # <-- Correct, single import
+from users.models import UserProfile
 from courses.models import Lesson
 
 # ====== Custom Admin Site ======
@@ -31,25 +30,3 @@ class SkydemyAdminSite(AdminSite):
 
 # ====== Instantiate the custom admin site ======
 admin_site = SkydemyAdminSite()
-
-
-# ====== Import your models and admin classes ======
-from courses.models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
-from courses.admin import (
-    SubjectAdmin,
-    CourseAdmin,
-    LessonAdmin,
-    ProgressAdmin,
-    ExamAdmin,
-    ExamResultAdmin,
-    CertificateAdmin,
-)
-
-# ====== Register all models with the custom admin site ======
-admin_site.register(Subject, SubjectAdmin)
-admin_site.register(Course, CourseAdmin)
-admin_site.register(Lesson, LessonAdmin)
-admin_site.register(Progress, ProgressAdmin)
-admin_site.register(Exam, ExamAdmin)
-admin_site.register(ExamResult, ExamResultAdmin)
-admin_site.register(Certificate, CertificateAdmin)

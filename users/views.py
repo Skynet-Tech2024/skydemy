@@ -115,7 +115,7 @@ def complete_profile(request):
         request.session['reg_user_id'] = user.id
 
         messages.success(request, "✅ Registration complete! Redirecting to success page.")
-        return redirect('registration_success')
+        return redirect('/users/registration-success/')
 
     # GET request
     return render(request, 'users/complete_profile.html', {

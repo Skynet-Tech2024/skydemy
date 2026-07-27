@@ -1,9 +1,7 @@
 from django.contrib.admin import AdminSite
 from django.shortcuts import render
-from django.contrib.admin.apps import AdminConfig
 from django.contrib.auth import get_user_model
-from .models import UserProfile
-from courses.models import Lesson   # <-- Required for My Lessons card
+from courses.models import Lesson
 
 # ====== Custom Admin Site ======
 class SkydemyAdminSite(AdminSite):
@@ -34,7 +32,6 @@ admin_site = SkydemyAdminSite()
 
 
 # ====== Import your models and admin classes ======
-# (These imports are from your existing admin.py – adjust paths if needed)
 from courses.models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
 from courses.admin import (
     SubjectAdmin,
@@ -54,7 +51,3 @@ admin_site.register(Progress, ProgressAdmin)
 admin_site.register(Exam, ExamAdmin)
 admin_site.register(ExamResult, ExamResultAdmin)
 admin_site.register(Certificate, CertificateAdmin)
-
-
-# ====== (Optional) If you have any other models to register, add them here ======
-# e.g., admin_site.register(MyOtherModel, MyOtherModelAdmin)

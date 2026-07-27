@@ -65,11 +65,18 @@ def complete_profile(request):
     allowed_roles = [choice for choice in UserProfile.ROLE_CHOICES if choice[0] != 'admin']
 
     if request.method == 'POST':
+               # Collect profile fields
         level = request.POST.get('level')
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
         role = request.POST.get('role')
         school_name = request.POST.get('school_name', '')
+
+        # Convert empty strings to None to avoid unique constraint violations
+        if phone_number == '':
+            phone_number = None
+        if address == '':
+            address = None
 
         if not level:
             messages.error(request, "Education level is required.")

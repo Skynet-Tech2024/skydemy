@@ -25,7 +25,6 @@ class Subject(models.Model):
 
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=20, unique=True, null=True, blank=True)
-    # Use the centralized LEVEL_CHOICES
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='primary')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     proposed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -71,7 +70,6 @@ class Lesson(models.Model):
     )
 
     title = models.CharField(max_length=200)
-    # Use the centralized LEVEL_CHOICES, with default 'primary'
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='primary')
     description = models.TextField(blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lessons', null=True, blank=True)
@@ -91,18 +89,21 @@ class Lesson(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     views = models.PositiveIntegerField(default=0)
 
+    # ✅ WHITEBOARD VIDEO FIELD – correctly placed inside the class
+    whiteboard_video = models.FileField(
+        upload_to='lessons/whiteboard_videos/',
+        blank=True,
+        null=True,
+        help_text="Generated whiteboard video from the PDF."
+    )
+
     def __str__(self):
         return self.title
 
     class Meta:
         ordering = ['-created_at']
 
-whiteboard_video = models.FileField(
-    upload_to='lessons/whiteboard_videos/',
-    blank=True,
-    null=True,
-    help_text="Generated whiteboard video from the PDF."
-)
+
 # ===== LESSON LIKE =====
 class LessonLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_likes')
@@ -171,7 +172,7 @@ class Exam(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
     academic_session = models.CharField(max_length=50, blank=True, null=True)
     term = models.CharField(max_length=50, blank=True, null=True)
-    level = models.CharField(max_length=50, blank=True, null=True)  # This can be any string, but we could also use LEVEL_CHOICES if needed; we keep it flexible
+    level = models.CharField(max_length=50, blank=True, null=True)
     language = models.CharField(max_length=50, default='English')
     exam_code = models.CharField(max_length=20, unique=True)
     duration_minutes = models.PositiveIntegerField(default=60)

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from users.views import registration_success, pending_approval
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.http import JsonResponse
@@ -49,6 +50,8 @@ urlpatterns = [
  path('migrate/', run_migrations, name='run_migrations'),   
     # Captcha
     path('captcha/', include('captcha.urls')),
+path('users/registration-success/', registration_success, name='registration_success'),
+path('users/pending-approval/', pending_approval, name='pending_approval'),
     
     # Admin
     path('admin/logout/', admin.site.logout, name='admin_logout'),

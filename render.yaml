@@ -23,7 +23,3 @@ services:
     databases:
       - name: skydemy-db
         plan: free
-apt-get update && apt-get install -y poppler-utils ffmpeg
-buildCommand: |
-        pip install -r requirements.txt
-    python manage.py collectstatic --noinput

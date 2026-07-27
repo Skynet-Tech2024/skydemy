@@ -5,7 +5,9 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import RegisterStep1Form
 from .models import UserProfile
-from core.constants import LEVEL_CHOICES   # ✅ Moved import to the top
+from core.constants import LEVEL_CHOICES
+from datetime import datetime
+
 
 # ===== STEP 1: Account Creation =====
 def register(request):
@@ -15,10 +17,7 @@ def register(request):
         form = RegisterStep1Form(request.POST)
         if form.is_valid():
             try:
-                # Create the user (form saves only User, not profile)
                 user = form.save()
-
-                # Create or get the profile explicitly
                 profile, created = UserProfile.objects.get_or_create(
                     user=user,
                     defaults={
@@ -33,10 +32,8 @@ def register(request):
                     profile.verification_status = 'pending'
                     profile.save()
 
-                # Store user ID in session for Step 2
                 request.session['temp_user_id'] = user.id
                 print(f"🟢 User and profile created: {user.username}, ID: {user.id}")
-
                 messages.success(request, "✅ Account created! Please complete your profile.")
                 return redirect('/users/complete-profile/')
 
@@ -65,78 +62,85 @@ def complete_profile(request):
 
     user = get_object_or_404(User, id=user_id)
     profile = user.profile
-
-    # Define allowed roles (exclude admin)
     allowed_roles = [choice for choice in UserProfile.ROLE_CHOICES if choice[0] != 'admin']
 
     if request.method == 'POST':
-        # Collect profile fields
         level = request.POST.get('level')
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
         role = request.POST.get('role')
         school_name = request.POST.get('school_name', '')
 
-        # Validate required fields (only level and role are required)
         if not level:
             messages.error(request, "Education level is required.")
             return render(request, 'users/complete_profile.html', {
-                'user': user,
-                'profile': profile,
-                'level_choices': LEVEL_CHOICES,   # ✅ Use imported constant
-                'role_choices': allowed_roles,
+                'user': user, 'profile': profile,
+                'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
             })
         if not role:
             messages.error(request, "Role is required.")
             return render(request, 'users/complete_profile.html', {
-                'user': user,
-                'profile': profile,
-                'level_choices': LEVEL_CHOICES,
-                'role_choices': allowed_roles,
+                'user': user, 'profile': profile,
+                'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
             })
-
-        # Prevent role being set to 'admin'
         if role == 'admin':
             messages.error(request, "Invalid role selection.")
             return render(request, 'users/complete_profile.html', {
-                'user': user,
-                'profile': profile,
-                'level_choices': LEVEL_CHOICES,
-                'role_choices': allowed_roles,
+                'user': user, 'profile': profile,
+                'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
             })
-
         if role == 'learner' and not school_name:
             messages.error(request, "School name is required for learners.")
             return render(request, 'users/complete_profile.html', {
-                'user': user,
-                'profile': profile,
-                'level_choices': LEVEL_CHOICES,
-                'role_choices': allowed_roles,
+                'user': user, 'profile': profile,
+                'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
             })
 
         # Update profile
         profile.level = level
-        profile.phone_number = phone_number  # optional
-        profile.address = address            # optional
+        profile.phone_number = phone_number
+        profile.address = address
         profile.role = role
-        # Uncomment if you have school_name field:
-        # profile.school_name = school_name
         profile.save()
 
-        # Clear session and log in the user
+        # Clear temp session and store user ID for success page
         del request.session['temp_user_id']
-        login(request, user)
+        request.session['reg_user_id'] = user.id
 
-        messages.success(request, "✅ Registration complete! Welcome to SKYDEMY.")
-        return redirect('dashboard')
+        messages.success(request, "✅ Registration complete! Redirecting to success page.")
+        return redirect('registration_success')
 
-    # GET request – show the form with current values
+    # GET request
     return render(request, 'users/complete_profile.html', {
-        'user': user,
-        'profile': profile,
-        'level_choices': LEVEL_CHOICES,   # ✅ Use imported constant
-        'role_choices': allowed_roles,
+        'user': user, 'profile': profile,
+        'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
     })
+
+
+# ===== REGISTRATION SUCCESS =====
+def registration_success(request):
+    user_id = request.session.get('reg_user_id')
+    if not user_id:
+        return redirect('register')
+    user = get_object_or_404(User, id=user_id)
+    # Clear the session variable after retrieving
+    del request.session['reg_user_id']
+    context = {
+        'user': user,
+        'submitted_at': user.date_joined,
+        'profile': user.profile,
+    }
+    return render(request, 'users/registration_success.html', context)
+
+
+# ===== PENDING APPROVAL =====
+def pending_approval(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    # If user is already approved, redirect to dashboard
+    if request.user.profile.verification_status in ['approved', 'verified']:
+        return redirect('dashboard')
+    return render(request, 'users/pending_approval.html')
 
 
 # ===== Login =====
@@ -152,7 +156,11 @@ def custom_login(request):
         if user is not None:
             login(request, user)
             print("✅ Login successful, session key:", request.session.session_key)
-            return redirect('dashboard')
+            # Check if user is approved
+            if user.profile.verification_status not in ['approved', 'verified']:
+                return redirect('pending_approval')
+            else:
+                return redirect('dashboard')
         else:
             print("❌ Login failed")
             messages.error(request, 'Invalid username or password.')

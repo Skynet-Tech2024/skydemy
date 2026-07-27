@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import tempfile
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
@@ -20,15 +21,13 @@ from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm,
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course
 from .utils import convert_uploaded_file_to_pdf
 
-import os
-import tempfile
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.core.files import File
-from pdf2image import convert_from_path
+# ====== WHITEBOARD VIDEO CONVERSION (uses pypdfium2 + moviepy) ======
+import pypdfium2 as pdfium
+import imageio
+imageio.plugins.ffmpeg.download()  # ensures ffmpeg is available
 from moviepy.editor import ImageSequenceClip
-from .models import Lesson
+from moviepy.config import change_settings
+change_settings({"FFMPEG_BINARY": "ffmpeg-imageio"})
 
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
@@ -40,17 +39,20 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         try:
-            # Convert PDF to images
-            images = convert_from_path(lesson.pdf_file.path, dpi=150, output_folder=tmpdir, fmt='jpeg')
-            if not images:
+            # Convert PDF to images using pypdfium2 (no poppler needed)
+            pdf = pdfium.PdfDocument(lesson.pdf_file.path)
+            image_paths = []
+            for i in range(len(pdf)):
+                page = pdf.get_page(i)
+                bitmap = page.render(scale=2.0)  # 2x scale = 150 DPI
+                pil_image = bitmap.to_pil()
+                img_path = os.path.join(tmpdir, f"page_{i+1}.jpeg")
+                pil_image.save(img_path, 'JPEG')
+                image_paths.append(img_path)
+
+            if not image_paths:
                 messages.error(request, "Could not extract pages from the PDF.")
                 return redirect('view_lesson', lesson_id=lesson.id)
-
-            image_paths = []
-            for i, img in enumerate(images):
-                img_path = os.path.join(tmpdir, f"page_{i+1}.jpeg")
-                img.save(img_path, 'JPEG')
-                image_paths.append(img_path)
 
             # Create video (2 seconds per slide)
             clip = ImageSequenceClip(image_paths, fps=0.5)
@@ -66,6 +68,8 @@ def convert_lesson_to_whiteboard(request, lesson_id):
             messages.error(request, f"Conversion failed: {str(e)}")
 
     return redirect('view_lesson', lesson_id=lesson.id)
+
+
 # ====== Core Lesson Views ======
 
 @basic_access

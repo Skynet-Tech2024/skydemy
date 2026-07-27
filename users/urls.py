@@ -1,3 +1,4 @@
+# FORCE UPDATE: 2026-07-27
 from django.urls import path
 from . import views
 

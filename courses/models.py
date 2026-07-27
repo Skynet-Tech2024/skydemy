@@ -97,7 +97,12 @@ class Lesson(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-
+whiteboard_video = models.FileField(
+    upload_to='lessons/whiteboard_videos/',
+    blank=True,
+    null=True,
+    help_text="Generated whiteboard video from the PDF."
+)
 # ===== LESSON LIKE =====
 class LessonLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_likes')

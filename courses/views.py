@@ -20,7 +20,52 @@ from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm,
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course
 from .utils import convert_uploaded_file_to_pdf
 
+import os
+import tempfile
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.files import File
+from pdf2image import convert_from_path
+from moviepy.editor import ImageSequenceClip
+from .models import Lesson
 
+@login_required
+def convert_lesson_to_whiteboard(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
+
+    if not lesson.pdf_file:
+        messages.error(request, "This lesson has no PDF to convert.")
+        return redirect('view_lesson', lesson_id=lesson.id)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        try:
+            # Convert PDF to images
+            images = convert_from_path(lesson.pdf_file.path, dpi=150, output_folder=tmpdir, fmt='jpeg')
+            if not images:
+                messages.error(request, "Could not extract pages from the PDF.")
+                return redirect('view_lesson', lesson_id=lesson.id)
+
+            image_paths = []
+            for i, img in enumerate(images):
+                img_path = os.path.join(tmpdir, f"page_{i+1}.jpeg")
+                img.save(img_path, 'JPEG')
+                image_paths.append(img_path)
+
+            # Create video (2 seconds per slide)
+            clip = ImageSequenceClip(image_paths, fps=0.5)
+            video_path = os.path.join(tmpdir, 'whiteboard_video.mp4')
+            clip.write_videofile(video_path, fps=24, codec='libx264', audio=False)
+
+            # Save to lesson
+            with open(video_path, 'rb') as f:
+                lesson.whiteboard_video.save(f"whiteboard_{lesson.id}.mp4", File(f), save=True)
+
+            messages.success(request, "✅ Whiteboard video created successfully!")
+        except Exception as e:
+            messages.error(request, f"Conversion failed: {str(e)}")
+
+    return redirect('view_lesson', lesson_id=lesson.id)
 # ====== Core Lesson Views ======
 
 @basic_access

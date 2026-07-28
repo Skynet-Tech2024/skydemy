@@ -154,6 +154,7 @@
 
     <!-- ===== STAT CARDS (CLICKABLE) ===== -->
     <div class="dashboard-stats">
+        <!-- Students -->
         <a href="{% url 'student_list' %}" style="text-decoration: none; color: inherit; display: block;">
             <div class="stat-card">
                 <div class="icon green"><i class="fas fa-user-graduate"></i></div>
@@ -165,6 +166,7 @@
             </div>
         </a>
 
+        <!-- Teachers -->
         <a href="{% url 'teacher_list' %}" style="text-decoration: none; color: inherit; display: block;">
             <div class="stat-card">
                 <div class="icon gold"><i class="fas fa-chalkboard-teacher"></i></div>
@@ -176,6 +178,7 @@
             </div>
         </a>
 
+        <!-- Courses -->
         <a href="{% url 'course_list' %}" style="text-decoration: none; color: inherit; display: block;">
             <div class="stat-card">
                 <div class="icon blue"><i class="fas fa-book"></i></div>
@@ -186,7 +189,9 @@
                 </div>
             </div>
         </a>
-   <a href="{% url 'lesson_list' %}" style="text-decoration: none; color: inherit; display: block;">
+
+        <!-- Lessons (NEW) -->
+        <a href="{% url 'lesson_list' %}" style="text-decoration: none; color: inherit; display: block;">
             <div class="stat-card">
                 <div class="icon gold"><i class="fas fa-book-open"></i></div>
                 <div class="info">
@@ -196,7 +201,9 @@
                 </div>
             </div>
         </a>
-            <a href="{% url 'exam_list' %}" style="text-decoration: none; color: inherit; display: block;">
+
+        <!-- Exams -->
+        <a href="{% url 'exam_list' %}" style="text-decoration: none; color: inherit; display: block;">
             <div class="stat-card">
                 <div class="icon purple"><i class="fas fa-pencil-alt"></i></div>
                 <div class="info">
@@ -207,6 +214,7 @@
             </div>
         </a>
 
+        <!-- Certificates Issued -->
         <a href="{% url 'certificate_list' %}" style="text-decoration: none; color: inherit; display: block;">
             <div class="stat-card">
                 <div class="icon orange"><i class="fas fa-certificate"></i></div>
@@ -228,6 +236,7 @@
             </div>
         </div>
     </div>
+
     <!-- ===== RECENT ACTIVITIES ===== -->
     <div style="background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; margin-bottom: 30px;">
         <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
@@ -276,61 +285,63 @@
         <a href="{% url 'create_exam_wizard' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
         <a href="{% url 'issue_certificate_wizard' %}"><i class="fas fa-award"></i> Issue Certificate</a>
     </div>
-<!-- ===== MY LESSONS ===== -->
-<div style="background: #ffffff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; margin-bottom: 30px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-book-open" style="color: #0B7A3B;"></i> My Lessons
-        </h3>
-        <a href="{% url 'upload_lesson' %}" style="background: #D4AF37; color: #fff; padding: 6px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
-            + Upload New
-        </a>
+
+    <!-- ===== MY LESSONS ===== -->
+    <div style="background: #ffffff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-book-open" style="color: #0B7A3B;"></i> My Lessons
+            </h3>
+            <a href="{% url 'upload_lesson' %}" style="background: #D4AF37; color: #fff; padding: 6px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
+                + Upload New
+            </a>
+        </div>
+
+        {% if lessons %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <thead>
+                        <tr style="background: #F8FAFC; border-bottom: 2px solid #E5E7EB;">
+                            <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #1F2937;">Title</th>
+                            <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #1F2937;">Level</th>
+                            <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #1F2937;">Status</th>
+                            <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #1F2937;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lesson in lessons %}
+                        <tr style="border-bottom: 1px solid #F1F5F9;">
+                            <td style="padding: 10px 12px; font-weight: 500; color: #1F2937;">{{ lesson.title }}</td>
+                            <td style="padding: 10px 12px; color: #475569;">{{ lesson.get_level_display }}</td>
+                            <td style="padding: 10px 12px;">
+                                {% if lesson.status == 'approved' %}
+                                    <span style="background: #D1FAE5; color: #065F46; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">✅ Approved</span>
+                                {% elif lesson.status == 'pending' %}
+                                    <span style="background: #FEF3C7; color: #92400E; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">⏳ Pending</span>
+                                {% elif lesson.status == 'rejected' %}
+                                    <span style="background: #FEE2E2; color: #991B1B; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">❌ Rejected</span>
+                                {% else %}
+                                    {{ lesson.get_status_display }}
+                                {% endif %}
+                            </td>
+                            <td style="padding: 10px 12px;">
+                                <a href="{% url 'view_lesson' lesson.id %}" style="color: #2563EB; text-decoration: none; font-weight: 600; font-size: 13px; margin-right: 10px;">View</a>
+                                <a href="{% url 'admin:courses_lesson_change' lesson.id %}" style="color: #0E8A3A; text-decoration: none; font-weight: 600; font-size: 13px; margin-right: 10px;">Edit</a>
+                                <a href="{% url 'admin:courses_lesson_delete' lesson.id %}" style="color: #DC2626; text-decoration: none; font-weight: 600; font-size: 13px;" onclick="return confirm('Delete this lesson?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: #6B7280; font-size: 14px; margin: 0; text-align: center; padding: 20px 0;">
+                <i class="fas fa-inbox" style="font-size: 24px; display: block; margin-bottom: 8px; color: #CBD5E1;"></i>
+                You haven't uploaded any lessons yet.
+            </p>
+        {% endif %}
     </div>
 
-    {% if lessons %}
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                <thead>
-                    <tr style="background: #F8FAFC; border-bottom: 2px solid #E5E7EB;">
-                        <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #1F2937;">Title</th>
-                        <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #1F2937;">Level</th>
-                        <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #1F2937;">Status</th>
-                        <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #1F2937;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for lesson in lessons %}
-                    <tr style="border-bottom: 1px solid #F1F5F9;">
-                        <td style="padding: 10px 12px; font-weight: 500; color: #1F2937;">{{ lesson.title }}</td>
-                        <td style="padding: 10px 12px; color: #475569;">{{ lesson.get_level_display }}</td>
-                        <td style="padding: 10px 12px;">
-                            {% if lesson.status == 'approved' %}
-                                <span style="background: #D1FAE5; color: #065F46; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">✅ Approved</span>
-                            {% elif lesson.status == 'pending' %}
-                                <span style="background: #FEF3C7; color: #92400E; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">⏳ Pending</span>
-                            {% elif lesson.status == 'rejected' %}
-                                <span style="background: #FEE2E2; color: #991B1B; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">❌ Rejected</span>
-                            {% else %}
-                                {{ lesson.get_status_display }}
-                            {% endif %}
-                        </td>
-                        <td style="padding: 10px 12px;">
-                            <a href="{% url 'view_lesson' lesson.id %}" style="color: #2563EB; text-decoration: none; font-weight: 600; font-size: 13px; margin-right: 10px;">View</a>
-                            <a href="{% url 'admin:courses_lesson_change' lesson.id %}" style="color: #0E8A3A; text-decoration: none; font-weight: 600; font-size: 13px; margin-right: 10px;">Edit</a>
-                            <a href="{% url 'admin:courses_lesson_delete' lesson.id %}" style="color: #DC2626; text-decoration: none; font-weight: 600; font-size: 13px;" onclick="return confirm('Delete this lesson?')">Delete</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <p style="color: #6B7280; font-size: 14px; margin: 0; text-align: center; padding: 20px 0;">
-            <i class="fas fa-inbox" style="font-size: 24px; display: block; margin-bottom: 8px; color: #CBD5E1;"></i>
-            You haven't uploaded any lessons yet.
-        </p>
-    {% endif %}
-</div>
     <!-- ===== CHARTS ===== -->
     <div class="charts-row">
         <div class="chart-box">

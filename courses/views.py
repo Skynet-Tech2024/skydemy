@@ -2,6 +2,7 @@ import os
 import json
 import re
 import tempfile
+import urllib.parse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
@@ -38,14 +39,37 @@ def convert_lesson_to_whiteboard(request, lesson_id):
         messages.error(request, "This lesson has no PDF to convert.")
         return redirect('view_lesson', lesson_id=lesson.id)
 
-    # Extract Cloudinary public ID from the file field
-    # The file name is stored as: media/lessons/pdfs/filename.pdf
-    # We need to strip the extension to get the public ID
-    public_id = lesson.pdf_file.name.split('.')[0]  # Remove extension
-    # Example: media/lessons/pdfs/introtocomplexnumbers
-
+    # Extract the public ID from the Cloudinary URL
     try:
-        # Get the secure download URL using Cloudinary API
+        # Get the full URL from Cloudinary using Django's storage
+        file_url = default_storage.url(lesson.pdf_file.name)
+        parsed = urllib.parse.urlparse(file_url)
+        path = parsed.path  # e.g., /raw/upload/v1234567890/lessons/pdfs/filename.pdf
+
+        # Split the path to find the public ID
+        parts = path.split('/')
+        # parts: ['', 'raw', 'upload', 'v1234567890', 'lessons', 'pdfs', 'filename.pdf']
+        upload_index = parts.index('upload')
+
+        # The part after 'upload/' is the version (e.g., 'v1234567890')
+        version_part = parts[upload_index + 1] if len(parts) > upload_index + 1 else ''
+        # The public ID is the remaining path without the version and without the file extension
+        public_id_parts = parts[upload_index + 2:]
+        if not public_id_parts:
+            messages.error(request, "Could not determine public ID for PDF.")
+            return redirect('view_lesson', lesson_id=lesson.id)
+
+        # Remove the file extension from the last part
+        last_part = public_id_parts[-1]
+        if '.' in last_part:
+            public_id_parts[-1] = last_part.rsplit('.', 1)[0]
+        public_id = '/'.join(public_id_parts)
+
+        if not public_id:
+            messages.error(request, "Could not determine public ID for PDF.")
+            return redirect('view_lesson', lesson_id=lesson.id)
+
+        # Use Cloudinary API to get the signed download URL
         resource = cloudinary.api.resource(public_id, resource_type='raw')
         download_url = resource.get('secure_url')
         if not download_url:

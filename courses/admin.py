@@ -102,11 +102,18 @@ class CourseAdmin(admin.ModelAdmin):
 # ===== Lesson Admin =====
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'level', 'status', 'teacher', 'created_at', 'views')
-    change_list_template = "admin/courses/lesson/change_list.html"
     list_filter = ('level', 'status', 'teacher')
     search_fields = ('title', 'description')
     readonly_fields = ('created_at', 'updated_at', 'views')
     actions = ['approve_lessons', 'reject_lessons']
+
+    # Force the custom template – this ensures it's used regardless of the default loader
+    def changelist_view(self, request, extra_context=None):
+        return super().changelist_view(
+            request,
+            extra_context=extra_context,
+            template_name="admin/courses/lesson/change_list.html"
+        )
 
     def get_fields(self, request, obj=None):
         if obj:
@@ -184,10 +191,6 @@ class LessonAdmin(admin.ModelAdmin):
             )
         self.message_user(request, f'{updated} lesson(s) rejected.')
     reject_lessons.short_description = "Reject selected lessons"
-
-    # REMOVED redirect so admin changelist shows all lessons
-    # def changelist_view(self, request, extra_context=None):
-    #     return redirect('lesson_list')
 
 
 # ===== Progress Admin =====

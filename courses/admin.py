@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from .models import Subject, Course, Lesson, Progress, Exam, ExamResult, Certificate
-from .forms import ExamCreationForm, CourseCreationForm, CertificateIssueForm   # added CertificateIssueForm
+from .forms import ExamCreationForm, CourseCreationForm, CertificateIssueForm
 from users.utils import create_notification
 from core.admin import admin_site
 import os
@@ -17,7 +17,7 @@ class SubjectAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     actions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects']
 
-    
+    def changelist_view(self, request, extra_context=None):
         return redirect('subject_list')
 
     def approve_subjects(self, request, queryset):
@@ -52,9 +52,6 @@ class CourseAdmin(admin.ModelAdmin):
 
     # ----- Override add_view to serve the custom course wizard -----
     def add_view(self, request, form_url='', extra_context=None):
-        """
-        Override the default add view to render the custom course wizard.
-        """
         if request.method == 'POST':
             form = CourseCreationForm(request.POST)
             if form.is_valid():
@@ -70,7 +67,6 @@ class CourseAdmin(admin.ModelAdmin):
                 }
                 return render(request, 'courses/create_course_wizard.html', context)
 
-        # GET request – show the wizard
         form = CourseCreationForm()
         context = {
             'title': 'Create New Course',
@@ -188,8 +184,9 @@ class LessonAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} lesson(s) rejected.')
     reject_lessons.short_description = "Reject selected lessons"
 
-    def changelist_view(self, request, extra_context=None):
-        return redirect('lesson_list')
+    # REMOVED redirect so admin changelist shows all lessons
+    # def changelist_view(self, request, extra_context=None):
+    #     return redirect('lesson_list')
 
 
 # ===== Progress Admin =====
@@ -245,7 +242,6 @@ class ExamAdmin(admin.ModelAdmin):
             ),
             'classes': ('col2',),
         }),
-        # Anti-cheating, Notifications, and Approval Workflow sections removed
     )
 
     # ----- CUSTOM ACTION: Upload exam documents -----
@@ -290,9 +286,6 @@ class ExamAdmin(admin.ModelAdmin):
 
     # ----- Override add_view to serve the custom exam wizard -----
     def add_view(self, request, form_url='', extra_context=None):
-        """
-        Override the default add view to render the custom exam wizard.
-        """
         if request.method == 'POST':
             form = ExamCreationForm(request.POST, request.FILES)
             if form.is_valid():
@@ -317,7 +310,6 @@ class ExamAdmin(admin.ModelAdmin):
                 }
                 return render(request, 'courses/create_exam_wizard.html', context)
 
-        # GET request – show the wizard
         form = ExamCreationForm()
         context = {
             'title': 'Create New Exam',
@@ -366,9 +358,6 @@ class CertificateAdmin(admin.ModelAdmin):
 
     # ----- Override add_view to serve the custom certificate wizard -----
     def add_view(self, request, form_url='', extra_context=None):
-        """
-        Override the default add view to render the custom certificate wizard.
-        """
         if request.method == 'POST':
             form = CertificateIssueForm(request.POST)
             if form.is_valid():
@@ -427,7 +416,6 @@ class CertificateAdmin(admin.ModelAdmin):
 
                 return HttpResponseRedirect(reverse('admin:courses_certificate_changelist'))
             else:
-                # If form invalid, re-render with errors
                 context = {
                     'title': 'Issue Certificate',
                     'form': form,
@@ -435,7 +423,6 @@ class CertificateAdmin(admin.ModelAdmin):
                 }
                 return render(request, 'courses/issue_certificate_wizard.html', context)
 
-        # GET request – show the wizard
         form = CertificateIssueForm()
         context = {
             'title': 'Issue New Certificate',

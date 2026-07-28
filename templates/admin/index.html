@@ -189,7 +189,17 @@
                 </div>
             </div>
         </a>
-
+<!-- Subjects -->
+<a href="{% url 'subject_list' %}" style="text-decoration: none; color: inherit; display: block;">
+    <div class="stat-card">
+        <div class="icon green"><i class="fas fa-tag"></i></div>
+        <div class="info">
+            <div class="number">{{ total_subjects|default:0 }}</div>
+            <div class="label">Subjects</div>
+            <div class="growth neutral"><i class="fas fa-minus"></i> Total</div>
+        </div>
+    </div>
+</a>
         <!-- Lessons (NEW) -->
         <a href="{% url 'admin:courses_lesson_changelist' %}" style="text-decoration: none; color: inherit; display: block;">
             <div class="stat-card">

@@ -1267,8 +1267,9 @@ body {
 .dashboard-welcome .welcome-sub {
     display: none; /* Hides the subtitle completely */
 }
-/* ===== SQUARE CHECKBOXES for lesson management table ===== */
-.row-checkbox {
+
+/* ===== FORCE SQUARE CHECKBOXES IN LESSON LIST ===== */
+#result_list input[type="checkbox"] {
     appearance: none !important;
     -webkit-appearance: none !important;
     width: 18px !important;
@@ -1279,15 +1280,16 @@ body {
     cursor: pointer !important;
     position: relative !important;
     flex-shrink: 0 !important;
-    margin: 0 !important;
+    margin: 0 8px 0 0 !important;
     padding: 0 !important;
+    display: inline-block !important;
     transition: 0.15s !important;
 }
-.row-checkbox:checked {
+#result_list input[type="checkbox"]:checked {
     background: #0B5D3B !important;
     border-color: #0B5D3B !important;
 }
-.row-checkbox:checked::after {
+#result_list input[type="checkbox"]:checked::after {
     content: "✓" !important;
     color: #fff !important;
     font-size: 13px !important;
@@ -1298,7 +1300,7 @@ body {
     transform: translate(-50%, -50%) !important;
     line-height: 1 !important;
 }
-.row-checkbox:focus {
+#result_list input[type="checkbox"]:focus {
     outline: 2px solid #D4AF37 !important;
     outline-offset: 1px !important;
 }

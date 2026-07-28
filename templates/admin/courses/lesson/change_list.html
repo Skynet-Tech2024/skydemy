@@ -5,7 +5,7 @@
 {{ block.super }}
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
 <style>
-    /* ===== GLOBAL BRAND RESET ===== */
+    /* ===== GLOBAL RESET ===== */
     * {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
@@ -14,7 +14,7 @@
         color: #1F2933 !important;
     }
 
-    /* ===== FIXED HEADER (deep green) ===== */
+    /* ===== FIXED HEADER ===== */
     #header {
         background: #0B5D3B !important;
         border-bottom: 3px solid #C9A227 !important;
@@ -31,12 +31,8 @@
     }
     #header h1 a { color: #fff !important; }
     #header h1 a span { color: #C9A227 !important; }
-    .user-tools a {
-        color: #d4dce8 !important;
-    }
-    .user-tools a:hover {
-        color: #C9A227 !important;
-    }
+    .user-tools a { color: #d4dce8 !important; }
+    .user-tools a:hover { color: #C9A227 !important; }
 
     /* ===== BREADCRUMBS ===== */
     .breadcrumbs {
@@ -59,7 +55,7 @@
         font-weight: 700 !important;
     }
 
-    /* ===== CONTENT AREA ===== */
+    /* ===== CONTENT ===== */
     #content {
         padding: 20px 30px !important;
         max-width: 1400px !important;
@@ -67,7 +63,7 @@
         background: transparent !important;
     }
 
-    /* ===== TOOLBAR HEADER ===== */
+    /* ===== TITLE BAR ===== */
     .content-title-bar {
         display: flex !important;
         flex-wrap: wrap !important;
@@ -88,6 +84,12 @@
     }
     .content-title-bar h1 .icon {
         font-size: 30px !important;
+    }
+    .content-title-bar h1 .count {
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        color: #64748B !important;
+        margin-left: 12px !important;
     }
     .content-title-bar .toolbar-actions {
         display: flex !important;
@@ -117,32 +119,6 @@
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 20px rgba(201, 162, 39, 0.4) !important;
         color: #fff !important;
-    }
-
-    /* ===== STAT CARDS ===== */
-    .stats-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
-        gap: 16px !important;
-        margin-bottom: 24px !important;
-    }
-    .stat-card {
-        background: #fff !important;
-        border-radius: 12px !important;
-        padding: 16px 20px !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
-        border: 1px solid #E5E7EB !important;
-        text-align: center !important;
-    }
-    .stat-card .number {
-        font-size: 28px !important;
-        font-weight: 700 !important;
-        color: #0B5D3B !important;
-    }
-    .stat-card .label {
-        color: #4B5563 !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
     }
 
     /* ===== ACTION BUTTONS ===== */
@@ -177,18 +153,17 @@
         margin-left: auto !important;
     }
 
-    /* ===== SEARCH + FILTERS (toolbar) ===== */
+    /* ===== SEARCH ===== */
     #toolbar {
         background: #fff !important;
         border-radius: 12px !important;
-        padding: 16px 20px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        padding: 12px 20px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
         border: 1px solid #e9ecef !important;
-        margin-bottom: 24px !important;
+        margin-bottom: 20px !important;
         display: flex !important;
-        flex-wrap: wrap !important;
         align-items: center !important;
-        gap: 16px !important;
+        gap: 10px !important;
     }
     #toolbar form {
         display: flex !important;
@@ -228,48 +203,6 @@
         background: #16834C !important;
     }
 
-    /* ===== FILTER SIDEBAR ===== */
-    #changelist-filter {
-        background: #fff !important;
-        border-radius: 12px !important;
-        padding: 20px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
-        border: 1px solid #e9ecef !important;
-        margin-bottom: 20px !important;
-        width: 100% !important;
-    }
-    #changelist-filter h2 {
-        background: #F7FAF8 !important;
-        color: #0B5D3B !important;
-        font-size: 16px !important;
-        padding: 10px 16px !important;
-        border-radius: 8px !important;
-        margin-bottom: 16px !important;
-        font-weight: 700 !important;
-    }
-    #changelist-filter h3 {
-        color: #1F2933 !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        margin: 16px 0 6px !important;
-    }
-    #changelist-filter a {
-        color: #4B5563 !important;
-        padding: 4px 0 !important;
-        display: block !important;
-        font-size: 14px !important;
-        transition: 0.2s !important;
-    }
-    #changelist-filter a:hover {
-        color: #0B5D3B !important;
-    }
-    #changelist-filter a.selected {
-        color: #C9A227 !important;
-        font-weight: 700 !important;
-    }
-
     /* ===== TABLE CARD ===== */
     .table-wrapper {
         background: #fff !important;
@@ -277,7 +210,7 @@
         overflow: auto !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
         border: 1px solid #e9ecef !important;
-        margin-bottom: 30px; /* Space after the table */
+        margin-bottom: 20px !important;
     }
     #result_list {
         width: 100% !important;
@@ -310,6 +243,43 @@
         vertical-align: middle !important;
         font-size: 14px !important;
         color: #1F2933 !important;
+    }
+
+    /* ----- SQUARE CHECKBOXES ----- */
+    #result_list input[type="checkbox"] {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        width: 18px !important;
+        height: 18px !important;
+        border: 2px solid #0B5D3B !important;
+        border-radius: 3px !important;
+        background: #fff !important;
+        cursor: pointer !important;
+        position: relative !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: inline-block !important;
+        transition: 0.15s !important;
+    }
+    #result_list input[type="checkbox"]:checked {
+        background: #0B5D3B !important;
+        border-color: #0B5D3B !important;
+    }
+    #result_list input[type="checkbox"]:checked::after {
+        content: "✓" !important;
+        color: #fff !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        line-height: 1 !important;
+    }
+    #result_list input[type="checkbox"]:focus {
+        outline: 2px solid #D4AF37 !important;
+        outline-offset: 1px !important;
     }
 
     /* Status badge */
@@ -374,7 +344,6 @@
         #content { padding: 15px !important; }
         .content-title-bar { flex-direction: column; align-items: stretch; }
         .content-title-bar .toolbar-actions { justify-content: flex-start; }
-        .stats-grid { grid-template-columns: 1fr 1fr !important; }
         .action-bar { flex-direction: column; align-items: stretch; }
         .action-bar .selected-count { margin-left: 0 !important; text-align: center; }
         .table-wrapper { overflow-x: auto !important; }
@@ -389,31 +358,12 @@
     <!-- ===== TITLE BAR ===== -->
     <div class="content-title-bar">
         <h1>
-            <span class="icon">📖</span> Lesson Management
+            <span class="icon">📖</span> Lessons
+            <span class="count">({{ cl.result_count }} total)</span>
         </h1>
         <div class="toolbar-actions">
             <a href="{% url 'admin:courses_lesson_add' %}" class="btn-gold">➕ Add Lesson</a>
             <a href="{% url 'admin:index' %}" style="background:#64748B; color:#fff; padding:10px 20px; border-radius:30px; text-decoration:none; font-weight:600; font-size:14px;">← Dashboard</a>
-        </div>
-    </div>
-
-    <!-- ===== STAT CARDS ===== -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="number">{{ total_count|default:cl.result_count|default:0 }}</div>
-            <div class="label">Total Lessons</div>
-        </div>
-        <div class="stat-card" style="border-left: 4px solid #F59E0B;">
-            <div class="number">{{ pending_count|default:"0" }}</div>
-            <div class="label">Pending</div>
-        </div>
-        <div class="stat-card" style="border-left: 4px solid #16A34A;">
-            <div class="number">{{ approved_count|default:"0" }}</div>
-            <div class="label">Approved</div>
-        </div>
-        <div class="stat-card" style="border-left: 4px solid #DC2626;">
-            <div class="number">{{ rejected_count|default:"0" }}</div>
-            <div class="label">Rejected</div>
         </div>
     </div>
 
@@ -426,49 +376,12 @@
         <span class="selected-count" id="selected-count">0 selected</span>
     </div>
 
-    <!-- ===== SEARCH + FILTERS ===== -->
+    <!-- ===== SEARCH ===== -->
     <div id="toolbar">
         <form id="changelist-search" method="get">
-            <input type="text" name="{{ search_var }}" value="{{ cl.query }}" placeholder="🔍 Search lessons..." id="searchbar">
+            <input type="text" name="{{ search_var }}" value="{{ cl.query }}" placeholder="Search lessons..." id="searchbar">
             <input type="submit" value="Search">
         </form>
-    </div>
-
-    <!-- ===== FILTERS ===== -->
-    <div id="changelist-filter">
-        <h2>🔍 Filters</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
-            <!-- Level filter -->
-            <div>
-                <h3>Level</h3>
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    <li><a href="?level__exact=" {% if not cl.get_filters.0 %}class="selected"{% endif %}>All</a></li>
-                    <li><a href="?level__exact=primary">Primary School</a></li>
-                    <li><a href="?level__exact=secondary">Secondary School</a></li>
-                    <li><a href="?level__exact=university">University / Higher</a></li>
-                </ul>
-            </div>
-            <!-- Status filter -->
-            <div>
-                <h3>Status</h3>
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    <li><a href="?status__exact=" {% if not cl.get_filters.0 %}class="selected"{% endif %}>All</a></li>
-                    <li><a href="?status__exact=pending">Pending Review</a></li>
-                    <li><a href="?status__exact=approved">Approved</a></li>
-                    <li><a href="?status__exact=rejected">Rejected</a></li>
-                </ul>
-            </div>
-            <!-- Teacher filter -->
-            <div>
-                <h3>Teacher</h3>
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    <li><a href="?teacher__exact=" {% if not cl.get_filters.0 %}class="selected"{% endif %}>All</a></li>
-                    {% for teacher in cl.get_filters.1.teacher.field.choices %}
-                        <li><a href="?teacher__exact={{ teacher.0 }}">{{ teacher.1 }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
     </div>
 
     <!-- ===== TABLE ===== -->
@@ -479,10 +392,7 @@
                 <thead>
                     <tr>
                         <th style="padding:12px 16px; text-align:left; width:40px;">
-                            <input type="checkbox"
-                                   id="select-all"
-                                   class="row-checkbox"
-                                   onchange="toggleAll(this)">
+                            <input type="checkbox" id="select-all" class="row-checkbox" onchange="toggleAll(this)">
                         </th>
                         <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">#</th>
                         <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">Title</th>
@@ -496,11 +406,7 @@
                     {% for lesson in cl.result_list %}
                     <tr style="border-bottom:1px solid #F1F5F9; transition:0.2s;" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='transparent'">
                         <td style="padding:12px 16px;">
-                            <input type="checkbox"
-                                   name="selected_ids"
-                                   value="{{ lesson.id }}"
-                                   class="row-checkbox"
-                                   onchange="updateSelectedCount()">
+                            <input type="checkbox" name="selected_ids" value="{{ lesson.id }}" class="row-checkbox" onchange="updateSelectedCount()">
                         </td>
                         <td style="padding:12px 16px; color:#64748B; font-size:14px;">{{ forloop.counter }}</td>
                         <td style="padding:12px 16px; font-weight:500; color:#1F2937; font-size:14px;">

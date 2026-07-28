@@ -312,6 +312,42 @@
         color: #1F2933 !important;
     }
 
+    /* ----- SQUARE CHECKBOXES (green theme) ----- */
+    input[type="checkbox"] {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #0B5D3B;
+        border-radius: 3px;
+        background: #fff;
+        cursor: pointer;
+        position: relative;
+        flex-shrink: 0;
+        margin: 0;
+        padding: 0;
+        transition: 0.15s;
+    }
+    input[type="checkbox"]:checked {
+        background: #0B5D3B;
+        border-color: #0B5D3B;
+    }
+    input[type="checkbox"]:checked::after {
+        content: "✓";
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        line-height: 1;
+    }
+    input[type="checkbox"]:focus {
+        outline: 2px solid #D4AF37;
+        outline-offset: 1px;
+    }
+
     /* Status badge */
     .badge-status {
         padding: 4px 14px !important;
@@ -479,7 +515,7 @@
                 <thead>
                     <tr>
                         <th style="padding:12px 16px; text-align:left; width:40px;">
-                            <input type="checkbox" id="select-all" onchange="toggleAll(this)" style="width:16px; height:16px; cursor:pointer;">
+                            <input type="checkbox" id="select-all" onchange="toggleAll(this)" style="width:18px; height:18px; cursor:pointer; border-radius:3px;">
                         </th>
                         <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">#</th>
                         <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">Title</th>
@@ -492,9 +528,9 @@
                 <tbody>
                     {% for lesson in cl.result_list %}
                     <tr style="border-bottom:1px solid #F1F5F9; transition:0.2s;" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='transparent'">
-                       <td style="padding:12px 16px;">
-    <input type="checkbox" name="selected_ids" value="{{ lesson.id }}" class="row-checkbox" onchange="updateSelectedCount()" style="width:16px; height:16px; cursor:pointer;">
-</td>
+                        <td style="padding:12px 16px;">
+                            <input type="checkbox" name="selected_ids" value="{{ lesson.id }}" class="row-checkbox" onchange="updateSelectedCount()" style="width:18px; height:18px; cursor:pointer; border-radius:3px;">
+                        </td>
                         <td style="padding:12px 16px; color:#64748B; font-size:14px;">{{ forloop.counter }}</td>
                         <td style="padding:12px 16px; font-weight:500; color:#1F2937; font-size:14px;">
                             <a href="{% url 'admin:courses_lesson_change' lesson.id %}" style="color:#0B5D3B; text-decoration:none; font-weight:600;">{{ lesson.title }}</a>

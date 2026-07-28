@@ -17,7 +17,7 @@ class SubjectAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     actions = ['approve_subjects', 'reject_subjects', 'delete_selected_subjects']
 
-    def changelist_view(self, request, extra_context=None):
+    
         return redirect('subject_list')
 
     def approve_subjects(self, request, queryset):

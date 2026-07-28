@@ -9,21 +9,23 @@ class SkydemyAdminSite(AdminSite):
     index_title = "Dashboard"
 
     def index(self, request, extra_context=None):
-        # Fetch lessons for the current user (if teacher or superuser)
-        lessons = []
-        if request.user.is_authenticated:
-            if hasattr(request.user, 'profile') and request.user.profile.role == 'teacher':
-                lessons = Lesson.objects.filter(teacher=request.user).order_by('-created_at')
-            elif request.user.is_superuser:
-                lessons = Lesson.objects.all().order_by('-created_at')
+    lessons = []
+    if request.user.is_authenticated:
+        if hasattr(request.user, 'profile') and request.user.profile.role == 'teacher':
+            lessons = Lesson.objects.filter(teacher=request.user).order_by('-created_at')
+        elif request.user.is_superuser:
+            lessons = Lesson.objects.all().order_by('-created_at')
 
-        context = {
-            **self.each_context(request),
-            'lessons': lessons,
-        }
-        if extra_context:
-            context.update(extra_context)
-        return render(request, 'admin/index.html', context)
+    total_lessons = Lesson.objects.count()  # <-- ADDED
+
+    context = {
+        **self.each_context(request),
+        'lessons': lessons,
+        'total_lessons': total_lessons,    # <-- ADDED
+    }
+    if extra_context:
+        context.update(extra_context)
+    return render(request, 'admin/index.html', context)
 
 
 # ====== Instantiate the custom admin site ======

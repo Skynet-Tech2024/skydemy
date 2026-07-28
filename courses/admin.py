@@ -102,7 +102,7 @@ class CourseAdmin(admin.ModelAdmin):
 # ===== Lesson Admin =====
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'level', 'status', 'teacher', 'created_at', 'views')
-change_list_template = "admin/courses/lesson/change_list.html"
+    change_list_template = "admin/courses/lesson/change_list.html"
     list_filter = ('level', 'status', 'teacher')
     search_fields = ('title', 'description')
     readonly_fields = ('created_at', 'updated_at', 'views')

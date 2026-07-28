@@ -3,7 +3,6 @@
 
 {% block extrahead %}
 {{ block.super }}
-<!-- Google Font (Inter) -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
 <style>
     /* ===== GLOBAL BRAND RESET ===== */
@@ -120,66 +119,62 @@
         color: #fff !important;
     }
 
-    /* Secondary button (green) */
-    .btn-green {
-        background: #0B5D3B !important;
-        color: #fff !important;
-        padding: 6px 14px !important;
-        border-radius: 30px !important;
-        font-weight: 600 !important;
-        font-size: 12px !important;
-        border: none !important;
-        transition: 0.2s !important;
-        text-decoration: none !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 4px !important;
+    /* ===== STAT CARDS ===== */
+    .stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+        gap: 16px !important;
+        margin-bottom: 24px !important;
     }
-    .btn-green:hover {
-        background: #16834C !important;
-        color: #fff !important;
+    .stat-card {
+        background: #fff !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+        border: 1px solid #E5E7EB !important;
+        text-align: center !important;
     }
-
-    /* Danger button */
-    .btn-danger {
-        background: #B42318 !important;
-        color: #fff !important;
-        padding: 6px 14px !important;
-        border-radius: 30px !important;
-        font-weight: 600 !important;
-        font-size: 12px !important;
-        border: none !important;
-        transition: 0.2s !important;
-        text-decoration: none !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 4px !important;
+    .stat-card .number {
+        font-size: 28px !important;
+        font-weight: 700 !important;
+        color: #0B5D3B !important;
     }
-    .btn-danger:hover {
-        background: #8F1D14 !important;
-        color: #fff !important;
+    .stat-card .label {
+        color: #4B5563 !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
     }
 
-    /* ===== SUCCESS BANNER ===== */
-    .success-banner {
-        background: #E8F5E9 !important;
-        border-left: 4px solid #16834C !important;
+    /* ===== ACTION BUTTONS ===== */
+    .action-bar {
+        background: #F8FAFC !important;
+        border-radius: 12px !important;
         padding: 12px 20px !important;
-        border-radius: 8px !important;
         margin-bottom: 20px !important;
         display: flex !important;
+        flex-wrap: wrap !important;
         align-items: center !important;
         gap: 10px !important;
-        font-size: 15px !important;
-        color: #1F2933 !important;
+        border: 1px solid #E5E7EB !important;
     }
-    .success-banner .badge-count {
-        background: #16834C !important;
+    .action-bar .btn-action {
+        border: none !important;
+        padding: 6px 16px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        cursor: pointer !important;
+        transition: 0.2s !important;
         color: #fff !important;
-        padding: 2px 12px !important;
-        border-radius: 30px !important;
-        font-weight: 700 !important;
-        font-size: 14px !important;
+    }
+    .action-bar .btn-action.approve { background: #16A34A !important; }
+    .action-bar .btn-action.reject { background: #DC2626 !important; }
+    .action-bar .btn-action.delete { background: #EF4444 !important; }
+    .action-bar .btn-action:hover { opacity: 0.85 !important; transform: translateY(-1px) !important; }
+    .action-bar .selected-count {
+        color: #64748B !important;
+        font-size: 13px !important;
+        margin-left: auto !important;
     }
 
     /* ===== SEARCH + FILTERS (toolbar) ===== */
@@ -279,13 +274,14 @@
     .table-wrapper {
         background: #fff !important;
         border-radius: 16px !important;
-        overflow: hidden !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        overflow: auto !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
         border: 1px solid #e9ecef !important;
     }
     #result_list {
         width: 100% !important;
         border-collapse: collapse !important;
+        min-width: 700px !important;
     }
     #result_list thead th {
         background: #F7FAF8 !important;
@@ -337,47 +333,6 @@
         color: #C62828 !important;
     }
 
-    /* ===== BULK ACTIONS ===== */
-    .bulk-actions-panel {
-        margin-top: 15px;
-        padding: 12px 16px;
-        background: #F8FAFC;
-        border-radius: 8px;
-        border: 1px solid #E2E8F0;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-    .bulk-actions-panel label {
-        font-weight: 600;
-        color: #1F2937;
-    }
-    .bulk-actions-panel select {
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid #D1D5DB;
-        background: #fff;
-        color: #1F2937;
-    }
-    .bulk-actions-panel .button {
-        background: #0B5D3B;
-        color: #fff;
-        padding: 8px 20px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 600;
-    }
-    .bulk-actions-panel .button:hover {
-        background: #16834C;
-    }
-    .bulk-actions-panel .instruction {
-        font-size: 13px;
-        color: #4B5563;
-        margin-left: auto;
-    }
-
     /* ===== PAGINATION ===== */
     .paginator {
         background: #F7FAF8 !important;
@@ -414,19 +369,15 @@
         margin: 0 3px !important;
     }
 
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
         #content { padding: 15px !important; }
         .content-title-bar { flex-direction: column; align-items: stretch; }
         .content-title-bar .toolbar-actions { justify-content: flex-start; }
-        #toolbar { flex-direction: column; align-items: stretch; }
-        #toolbar form { flex-direction: column; align-items: stretch; }
-        #toolbar form #searchbar { width: 100% !important; }
+        .stats-grid { grid-template-columns: 1fr 1fr !important; }
+        .action-bar { flex-direction: column; align-items: stretch; }
+        .action-bar .selected-count { margin-left: 0 !important; text-align: center; }
         .table-wrapper { overflow-x: auto !important; }
-        #changelist-filter { width: 100% !important; }
         .paginator { flex-direction: column; text-align: center; }
-        .bulk-actions-panel { flex-direction: column; align-items: stretch; }
-        .bulk-actions-panel .instruction { margin-left: 0; text-align: center; }
     }
 </style>
 {% endblock %}
@@ -437,23 +388,42 @@
     <!-- ===== TITLE BAR ===== -->
     <div class="content-title-bar">
         <h1>
-            <span class="icon">📘</span> Lesson Management
+            <span class="icon">📖</span> Lesson Management
         </h1>
         <div class="toolbar-actions">
             <a href="{% url 'admin:courses_lesson_add' %}" class="btn-gold">➕ Add Lesson</a>
+            <a href="{% url 'admin:index' %}" style="background:#64748B; color:#fff; padding:10px 20px; border-radius:30px; text-decoration:none; font-weight:600; font-size:14px;">← Dashboard</a>
         </div>
     </div>
 
-    <!-- ===== SUCCESS BANNER ===== -->
-    {% if cl.result_count %}
-        <div class="success-banner">
-            <span class="badge-count">{{ cl.result_count }}</span>
-            <span>lesson(s) displayed</span>
-            <span style="margin-left: auto; font-size: 13px; color: #4B5563;">
-                {% if cl.result_count == 1 %}1 lesson found{% else %}{{ cl.result_count }} lessons found{% endif %}
-            </span>
+    <!-- ===== STAT CARDS ===== -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ total_count|default:cl.result_count|default:0 }}</div>
+            <div class="label">Total Lessons</div>
         </div>
-    {% endif %}
+        <div class="stat-card" style="border-left: 4px solid #F59E0B;">
+            <div class="number">{{ pending_count|default:"0" }}</div>
+            <div class="label">Pending</div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid #16A34A;">
+            <div class="number">{{ approved_count|default:"0" }}</div>
+            <div class="label">Approved</div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid #DC2626;">
+            <div class="number">{{ rejected_count|default:"0" }}</div>
+            <div class="label">Rejected</div>
+        </div>
+    </div>
+
+    <!-- ===== ACTION BUTTONS ===== -->
+    <div class="action-bar">
+        <span style="font-weight:600; color:#1F2937; font-size:14px; margin-right:8px;">Actions:</span>
+        <button onclick="batchAction('approve_lessons')" class="btn-action approve">✅ Approve</button>
+        <button onclick="batchAction('reject_lessons')" class="btn-action reject">❌ Reject</button>
+        <button onclick="batchAction('delete_selected_lessons')" class="btn-action delete">🗑️ Delete</button>
+        <span class="selected-count" id="selected-count">0 selected</span>
+    </div>
 
     <!-- ===== SEARCH + FILTERS ===== -->
     <div id="toolbar">
@@ -501,70 +471,59 @@
     </div>
 
     <!-- ===== TABLE ===== -->
-    <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>
+    <form id="batch-form" method="post" action="{% url 'batch_lesson_action' %}">
         {% csrf_token %}
         <div class="table-wrapper">
             <table id="result_list">
                 <thead>
                     <tr>
-                        <th scope="col" style="width:30px;">
-                            <input type="checkbox" id="action-toggle" style="margin:0;">
+                        <th style="padding:12px 16px; text-align:left; width:40px;">
+                            <input type="checkbox" id="select-all" onchange="toggleAll(this)" style="width:16px; height:16px; cursor:pointer;">
                         </th>
-                        <th scope="col">Title</th>
-                        <th scope="col">Level</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Teacher</th>
-                        <th scope="col">Created</th>
+                        <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">#</th>
+                        <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">Title</th>
+                        <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">Level</th>
+                        <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">Status</th>
+                        <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">Teacher</th>
+                        <th style="padding:12px 16px; text-align:left; font-weight:600; color:#1F2937; font-size:13px;">Created At</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for lesson in cl.result_list %}
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="action-select" name="_selected_action" value="{{ lesson.pk }}" style="margin:0;">
+                    <tr style="border-bottom:1px solid #F1F5F9; transition:0.2s;" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='transparent'">
+                        <td style="padding:12px 16px;">
+                            <input type="checkbox" name="selected_ids" value="{{ lesson.id }}" class="row-checkbox" onchange="updateSelectedCount()" style="width:16px; height:16px; cursor:pointer;">
                         </td>
-                        <td>
-                            <a href="{% url 'admin:courses_lesson_change' lesson.id %}" style="font-weight:600; color:#0B5D3B; text-decoration:none;">
-                                {{ lesson.title }}
-                            </a>
+                        <td style="padding:12px 16px; color:#64748B; font-size:14px;">{{ forloop.counter }}</td>
+                        <td style="padding:12px 16px; font-weight:500; color:#1F2937; font-size:14px;">
+                            <a href="{% url 'admin:courses_lesson_change' lesson.id %}" style="color:#0B5D3B; text-decoration:none; font-weight:600;">{{ lesson.title }}</a>
                         </td>
-                        <td>{{ lesson.get_level_display }}</td>
-                        <td>
-                            <span class="badge-status 
-                                {% if lesson.status == 'approved' %}approved
-                                {% elif lesson.status == 'pending' %}pending
-                                {% elif lesson.status == 'rejected' %}rejected{% endif %}">
+                        <td style="padding:12px 16px; color:#475569; font-size:14px;">{{ lesson.get_level_display }}</td>
+                        <td style="padding:12px 16px;">
+                            {% if lesson.status == 'approved' %}
+                                <span class="badge-status approved">✅ Approved</span>
+                            {% elif lesson.status == 'pending' %}
+                                <span class="badge-status pending">⏳ Pending</span>
+                            {% elif lesson.status == 'rejected' %}
+                                <span class="badge-status rejected">❌ Rejected</span>
+                            {% else %}
                                 {{ lesson.get_status_display }}
-                            </span>
+                            {% endif %}
                         </td>
-                        <td>{{ lesson.teacher.username }}</td>
-                        <td>{{ lesson.created_at|date:"M d, Y" }}</td>
+                        <td style="padding:12px 16px; color:#475569; font-size:14px;">{{ lesson.teacher.username|default:"—" }}</td>
+                        <td style="padding:12px 16px; color:#64748B; font-size:13px;">{{ lesson.created_at|date:"M d, Y" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" style="text-align:center; padding:40px; color:#6B7280;">
-                            <div style="font-size:48px; margin-bottom:12px;">📭</div>
-                            <div style="font-size:18px; font-weight:600; color:#1F2933;">No lessons found</div>
-                            <div style="font-size:14px; color:#4B5563;">Click "Add Lesson" to create the first one.</div>
+                        <td colspan="7" style="padding:60px 20px; text-align:center; color:#94A3B8; font-size:16px;">
+                            📭 No lessons created yet.
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-
-        <!-- ===== BULK ACTIONS ===== -->
-        <div class="bulk-actions-panel">
-            <label for="action">Action:</label>
-            <select name="action" id="action">
-                <option value="">---------</option>
-                <option value="approve_lessons">✅ Approve selected lessons</option>
-                <option value="reject_lessons">❌ Reject selected lessons</option>
-                <option value="delete_selected">🗑️ Delete selected lessons</option>
-            </select>
-            <button type="submit" name="index" value="0" class="button">Go</button>
-            <span class="instruction">Select one or more lessons, then choose an action.</span>
-        </div>
+        <input type="hidden" name="action" id="action-input" value="">
     </form>
 
     <!-- ===== PAGINATION ===== -->
@@ -584,4 +543,71 @@
     {% endif %}
 
 </div>
+
+<!-- ===== SweetAlert2 ===== -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // ===== SELECT ALL / DESELECT ALL =====
+    function toggleAll(master) {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
+        updateSelectedCount();
+    }
+
+    // ===== UPDATE SELECTED COUNT =====
+    function updateSelectedCount() {
+        const checked = document.querySelectorAll('.row-checkbox:checked').length;
+        document.getElementById('selected-count').textContent = checked + ' selected';
+    }
+
+    // ===== BATCH ACTION =====
+    function batchAction(action) {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        if (checked.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Lessons Selected',
+                text: 'Please select at least one lesson.',
+                confirmButtonColor: '#0B5D3B',
+            });
+            return;
+        }
+
+        const actionLabels = {
+            'approve_lessons': 'Approve',
+            'reject_lessons': 'Reject',
+            'delete_selected_lessons': 'Delete'
+        };
+        const actionIcons = {
+            'approve_lessons': '✅',
+            'reject_lessons': '❌',
+            'delete_selected_lessons': '🗑️'
+        };
+        const actionColors = {
+            'approve_lessons': '#16A34A',
+            'reject_lessons': '#DC2626',
+            'delete_selected_lessons': '#EF4444'
+        };
+        const isDestructive = (action === 'delete_selected_lessons');
+
+        Swal.fire({
+            title: `${actionIcons[action]} ${actionLabels[action]} Lessons?`,
+            text: `You are about to ${actionLabels[action].toLowerCase()} ${checked.length} selected lesson(s). ${isDestructive ? 'This action cannot be undone!' : ''}`,
+            icon: isDestructive ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonColor: actionColors[action],
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: `Yes, ${actionLabels[action].toLowerCase()} them`,
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('action-input').value = action;
+                document.getElementById('batch-form').submit();
+            }
+        });
+    }
+
+    // ===== AUTO UPDATE COUNT ON PAGE LOAD =====
+    document.addEventListener('DOMContentLoaded', updateSelectedCount);
+</script>
 {% endblock %}

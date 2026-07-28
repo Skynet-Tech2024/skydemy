@@ -24,7 +24,7 @@ from .utils import convert_uploaded_file_to_pdf
 # ====== WHITEBOARD VIDEO CONVERSION (uses pypdfium2 + moviepy) ======
 import pypdfium2 as pdfium
   # ensures ffmpeg is available
-from moviepy.editor import ImageSequenceClip
+from moviepy import ImageSequenceClip
 from moviepy.config import change_settings
 change_settings({"FFMPEG_BINARY": "ffmpeg-imageio"})
 

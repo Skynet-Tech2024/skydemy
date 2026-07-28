@@ -1,6 +1,8 @@
 import os
 import json
 import re
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 import tempfile
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -26,9 +28,6 @@ import pypdfium2 as pdfium
   # ensures ffmpeg is available
 from moviepy import ImageSequenceClip
 @login_required
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-import tempfile
 
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):

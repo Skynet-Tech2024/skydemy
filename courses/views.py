@@ -222,7 +222,7 @@ def add_subject(request):
 def view_lesson(request, lesson_id):
     """View a single lesson and its exam."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    exam = Exam.objects.filter(lesson=lesson, status='approved').first()
+    exam = None
     
     lesson.views += 1
     lesson.save()

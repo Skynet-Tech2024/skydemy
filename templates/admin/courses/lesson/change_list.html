@@ -492,9 +492,9 @@
                 <tbody>
                     {% for lesson in cl.result_list %}
                     <tr style="border-bottom:1px solid #F1F5F9; transition:0.2s;" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='transparent'">
-                        <td style="padding:12px 16px;">
-                            <input type="checkbox" name="selected_ids" value="{{ lesson.id }}" class="row-checkbox" onchange="updateSelectedCount()" style="width:16px; height:16px; cursor:pointer;">
-                        </td>
+                       <td style="padding:12px 16px;">
+    <input type="checkbox" name="selected_ids" value="{{ lesson.id }}" class="row-checkbox" onchange="updateSelectedCount()" style="width:16px; height:16px; cursor:pointer;">
+</td>
                         <td style="padding:12px 16px; color:#64748B; font-size:14px;">{{ forloop.counter }}</td>
                         <td style="padding:12px 16px; font-weight:500; color:#1F2937; font-size:14px;">
                             <a href="{% url 'admin:courses_lesson_change' lesson.id %}" style="color:#0B5D3B; text-decoration:none; font-weight:600;">{{ lesson.title }}</a>

@@ -26,6 +26,11 @@ import pypdfium2 as pdfium
   # ensures ffmpeg is available
 from moviepy import ImageSequenceClip
 @login_required
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import tempfile
+
+@login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
 
@@ -33,14 +38,24 @@ def convert_lesson_to_whiteboard(request, lesson_id):
         messages.error(request, "This lesson has no PDF to convert.")
         return redirect('view_lesson', lesson_id=lesson.id)
 
+    # Download the PDF from Cloudinary to a temporary local file
+    try:
+        pdf_content = default_storage.open(lesson.pdf_file.name).read()
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_pdf:
+            tmp_pdf.write(pdf_content)
+            tmp_pdf_path = tmp_pdf.name
+    except Exception as e:
+        messages.error(request, f"Could not download PDF: {str(e)}")
+        return redirect('view_lesson', lesson_id=lesson.id)
+
     with tempfile.TemporaryDirectory() as tmpdir:
         try:
-            # Convert PDF to images using pypdfium2 (no poppler needed)
-            pdf = pdfium.PdfDocument(lesson.pdf_file.path)
+            # Convert PDF to images using pypdfium2
+            pdf = pdfium.PdfDocument(tmp_pdf_path)
             image_paths = []
             for i in range(len(pdf)):
                 page = pdf.get_page(i)
-                bitmap = page.render(scale=2.0)  # 2x scale = 150 DPI
+                bitmap = page.render(scale=2.0)
                 pil_image = bitmap.to_pil()
                 img_path = os.path.join(tmpdir, f"page_{i+1}.jpeg")
                 pil_image.save(img_path, 'JPEG')
@@ -55,16 +70,19 @@ def convert_lesson_to_whiteboard(request, lesson_id):
             video_path = os.path.join(tmpdir, 'whiteboard_video.mp4')
             clip.write_videofile(video_path, fps=24, codec='libx264', audio=False)
 
-            # Save to lesson
+            # Save to lesson using Cloudinary storage
             with open(video_path, 'rb') as f:
-                lesson.whiteboard_video.save(f"whiteboard_{lesson.id}.mp4", File(f), save=True)
+                lesson.whiteboard_video.save(f"whiteboard_{lesson.id}.mp4", ContentFile(f.read()), save=True)
 
             messages.success(request, "✅ Whiteboard video created successfully!")
         except Exception as e:
             messages.error(request, f"Conversion failed: {str(e)}")
+        finally:
+            # Clean up temporary PDF file
+            if os.path.exists(tmp_pdf_path):
+                os.unlink(tmp_pdf_path)
 
     return redirect('view_lesson', lesson_id=lesson.id)
-
 
 # ====== Core Lesson Views ======
 

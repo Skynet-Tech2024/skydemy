@@ -1267,3 +1267,73 @@ body {
 .dashboard-welcome .welcome-sub {
     display: none; /* Hides the subtitle completely */
 }
+/* ===== SQUARE CHECKBOXES for lesson management table ===== */
+.row-checkbox {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    border: 2px solid #0B5D3B !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    cursor: pointer !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: 0.15s !important;
+}
+.row-checkbox:checked {
+    background: #0B5D3B !important;
+    border-color: #0B5D3B !important;
+}
+.row-checkbox:checked::after {
+    content: "✓" !important;
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    line-height: 1 !important;
+}
+.row-checkbox:focus {
+    outline: 2px solid #D4AF37 !important;
+    outline-offset: 1px !important;
+}
+/* ===== FORCE SQUARE CHECKBOXES IN LESSON LIST ===== */
+#result_list input[type="checkbox"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    border: 2px solid #0B5D3B !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    cursor: pointer !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: 0.15s !important;
+}
+#result_list input[type="checkbox"]:checked {
+    background: #0B5D3B !important;
+    border-color: #0B5D3B !important;
+}
+#result_list input[type="checkbox"]:checked::after {
+    content: "✓" !important;
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    line-height: 1 !important;
+}
+#result_list input[type="checkbox"]:focus {
+    outline: 2px solid #D4AF37 !important;
+    outline-offset: 1px !important;
+}

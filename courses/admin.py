@@ -100,9 +100,10 @@ class CourseAdmin(admin.ModelAdmin):
 
 
 # ===== Lesson Admin =====
+# (This class is kept but NOT registered – the page will not appear in admin)
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'level', 'status', 'teacher', 'created_at', 'views')
-    change_list_template = "admin/courses/lesson/change_list.html"   # Force custom template
+    change_list_template = "admin/courses/lesson/change_list.html"
     list_filter = ('level', 'status', 'teacher')
     search_fields = ('title', 'description')
     readonly_fields = ('created_at', 'updated_at', 'views')
@@ -184,8 +185,6 @@ class LessonAdmin(admin.ModelAdmin):
             )
         self.message_user(request, f'{updated} lesson(s) rejected.')
     reject_lessons.short_description = "Reject selected lessons"
-
-    # No custom changelist_view – we rely on change_list_template
 
 
 # ===== Progress Admin =====
@@ -437,7 +436,8 @@ class CertificateAdmin(admin.ModelAdmin):
 # ===== Register all models with the custom admin site =====
 admin_site.register(Subject, SubjectAdmin)
 admin_site.register(Course, CourseAdmin)
-admin_site.register(Lesson, LessonAdmin)
+# Lesson is intentionally NOT registered – the admin page will be removed
+# admin_site.register(Lesson, LessonAdmin)
 admin_site.register(Progress, ProgressAdmin)
 admin_site.register(Exam, ExamAdmin)
 admin_site.register(ExamResult, ExamResultAdmin)

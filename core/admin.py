@@ -2,7 +2,9 @@ from django.contrib.admin import AdminSite
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from courses.models import Lesson, Subject   # ADDED Subject
+from courses.models import Lesson, Subject, Course, Exam, Certificate
+from users.models import UserProfile
+from datetime import datetime, timedelta
 
 User = get_user_model()
 
@@ -12,6 +14,7 @@ class SkydemyAdminSite(AdminSite):
     index_title = "Dashboard"
 
     def index(self, request, extra_context=None):
+        # ----- MY LESSONS (for teacher dashboard) -----
         lessons = []
         if request.user.is_authenticated:
             if hasattr(request.user, 'profile') and request.user.profile.role == 'teacher':
@@ -19,14 +22,31 @@ class SkydemyAdminSite(AdminSite):
             elif request.user.is_superuser:
                 lessons = Lesson.objects.all().order_by('-created_at')
 
+        # ----- STAT COUNTS -----
+        total_students = UserProfile.objects.filter(role='learner').count()
+        total_teachers = UserProfile.objects.filter(role='teacher').count()
+        total_courses = Course.objects.count()
+        total_exams = Exam.objects.count()
+        total_certificates = Certificate.objects.count()
         total_lessons = Lesson.objects.count()
-        total_subjects = Subject.objects.count()   # <-- ADDED
+        total_subjects = Subject.objects.count()
+
+        # Active Today: users who logged in within the last 24 hours
+        today = datetime.now()
+        yesterday = today - timedelta(days=1)
+        active_today = User.objects.filter(last_login__gte=yesterday).count()
 
         context = {
             **self.each_context(request),
             'lessons': lessons,
+            'total_students': total_students,
+            'total_teachers': total_teachers,
+            'total_courses': total_courses,
+            'total_exams': total_exams,
+            'total_certificates': total_certificates,
             'total_lessons': total_lessons,
-            'total_subjects': total_subjects,      # <-- ADDED
+            'total_subjects': total_subjects,
+            'active_today': active_today,
         }
         if extra_context:
             context.update(extra_context)

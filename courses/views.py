@@ -850,3 +850,43 @@ def create_course_wizard(request):
         form = CourseCreationForm()
     
     return render(request, 'courses/create_course_wizard.html', {'form': form})
+
+
+# ====== CUSTOM ADMIN LESSON LIST VIEW (matches Students page style) ======
+
+@staff_member_required
+def admin_lesson_list(request):
+    """
+    Custom admin view for listing lessons, matching the style and functionality
+    of the Students page (approve/reject/delete actions with checkboxes).
+    """
+    lessons = Lesson.objects.all().order_by('-created_at')
+    total = lessons.count()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')          # 'approve', 'reject', 'delete'
+        selected_ids = request.POST.getlist('selected_lessons')
+        if selected_ids:
+            lessons_selected = Lesson.objects.filter(id__in=selected_ids)
+            if action == 'approve':
+                lessons_selected.update(status='approved')
+                messages.success(request, f"{lessons_selected.count()} lesson(s) approved.")
+            elif action == 'reject':
+                lessons_selected.update(status='rejected')
+                messages.success(request, f"{lessons_selected.count()} lesson(s) rejected.")
+            elif action == 'delete':
+                lessons_selected.delete()
+                messages.success(request, f"{len(selected_ids)} lesson(s) deleted.")
+            else:
+                messages.error(request, "Invalid action.")
+        else:
+            messages.error(request, "No lessons selected.")
+        # Redirect back to this same view
+        return redirect('admin:lesson_list')   # This name will be registered in core/admin.py
+
+    context = {
+        'lessons': lessons,
+        'total': total,
+        'opts': Lesson._meta,   # for breadcrumbs
+    }
+    return render(request, 'admin/courses/lesson_list.html', context)

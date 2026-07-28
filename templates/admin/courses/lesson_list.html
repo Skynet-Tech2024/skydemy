@@ -1,0 +1,187 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    /* Ensure consistent card styling */
+    .module {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .module h2 {
+      background: #2e7d32; /* green */
+      color: #fff;
+      padding: 10px 15px;
+      margin: -20px -20px 20px -20px;
+      border-radius: 8px 8px 0 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    .actions {
+      margin: 15px 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .actions label {
+      font-weight: 600;
+      margin-right: 5px;
+    }
+    .actions input[type="checkbox"] {
+      margin-right: 5px;
+    }
+    .actions input[type="submit"] {
+      background: #2e7d32;
+      color: #fff;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .actions input[type="submit"]:hover {
+      background: #1b5e20;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    table th {
+      background: #f5f5f5;
+      text-align: left;
+      padding: 10px 8px;
+      font-weight: 600;
+      border-bottom: 2px solid #ccc;
+    }
+    table td {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      vertical-align: middle;
+    }
+    table tr:hover td {
+      background: #f9f9f9;
+    }
+    table td input[type="checkbox"] {
+      margin: 0;
+    }
+    .status-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .status-toggle input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #2e7d32;
+    }
+    .submit-row {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .submit-row a.button {
+      background: #2e7d32;
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .submit-row a.button:hover {
+      background: #1b5e20;
+    }
+    .submit-row a.button.dashboard {
+      background: #6c757d;
+    }
+    .submit-row a.button.dashboard:hover {
+      background: #5a6268;
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='courses' %}">Courses</a>
+    &rsaquo; Lessons
+  </div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div class="module">
+    <h2>Lessons ({{ total }} total)</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="actions">
+        <label>Actions:</label>
+        <input type="checkbox" name="action" value="approve" id="action_approve">
+        <label for="action_approve">Approve</label>
+        <input type="checkbox" name="action" value="reject" id="action_reject">
+        <label for="action_reject">Reject</label>
+        <input type="checkbox" name="action" value="delete" id="action_delete">
+        <label for="action_delete">Delete</label>
+        <input type="submit" value="Go" class="button">
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select-all"></th>
+            <th>#</th>
+            <th>TITLE</th>
+            <th>LEVEL</th>
+            <th>STATUS</th>
+            <th>TEACHER</th>
+            <th>CREATED AT</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lesson in lessons %}
+          <tr>
+            <td><input type="checkbox" name="selected_lessons" value="{{ lesson.id }}"></td>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ lesson.title }}</td>
+            <td>{{ lesson.level|title }}</td>
+            <td>
+              <div class="status-toggle">
+                <input type="checkbox" {% if lesson.status == 'approved' %}checked{% endif %} disabled>
+                <span>{{ lesson.get_status_display|default:lesson.status|title }}</span>
+              </div>
+            </td>
+            <td>{{ lesson.teacher.username }}</td>
+            <td>{{ lesson.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" style="text-align:center; padding:20px;">No lessons found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="submit-row">
+        <a href="{% url 'admin:courses_lesson_add' %}" class="button">Add Lesson</a>
+        <a href="{% url 'admin:index' %}" class="button dashboard">Dashboard</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // Select all / deselect all
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('input[name="selected_lessons"]');
+    if (selectAll) {
+      selectAll.addEventListener('change', function() {
+        checkboxes.forEach(cb => cb.checked = this.checked);
+      });
+    }
+  })();
+</script>
+{% endblock %}

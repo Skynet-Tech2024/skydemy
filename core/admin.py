@@ -2,9 +2,14 @@ from django.contrib.admin import AdminSite
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
+from django.urls import path
 from courses.models import Lesson, Subject, Course, Exam, Certificate
 from users.models import UserProfile
 from datetime import datetime, timedelta
+from courses.views import admin_lesson_list
+
+# Optionally import custom admin classes if you want to register them here
+# from courses.admin import CourseAdmin, ExamAdmin, CertificateAdmin, SubjectAdmin
 
 User = get_user_model()
 
@@ -12,6 +17,14 @@ class SkydemyAdminSite(AdminSite):
     site_header = "SKYDEMY Admin"
     site_title = "SKYDEMY Admin"
     index_title = "Dashboard"
+
+    def get_urls(self):
+        """Add custom admin URLs before the default ones."""
+        urls = super().get_urls()
+        custom_urls = [
+            path('courses/lesson/', self.admin_view(admin_lesson_list), name='lesson_list'),
+        ]
+        return custom_urls + urls
 
     def index(self, request, extra_context=None):
         # ----- MY LESSONS (for teacher dashboard) -----
@@ -54,4 +67,13 @@ class SkydemyAdminSite(AdminSite):
 
 
 admin_site = SkydemyAdminSite()
+
+# Register models with the custom admin site
 admin_site.register(User, UserAdmin)
+
+# If you want to register other models with their custom admin classes, uncomment and adjust:
+# admin_site.register(Course, CourseAdmin)
+# admin_site.register(Exam, ExamAdmin)
+# admin_site.register(Certificate, CertificateAdmin)
+# admin_site.register(Subject, SubjectAdmin)
+# Note: Lesson is intentionally NOT registered here because we use the custom view.

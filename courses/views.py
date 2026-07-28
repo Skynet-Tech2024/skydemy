@@ -1,8 +1,6 @@
 import os
 import json
 import re
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 import tempfile
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -19,15 +17,18 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from datetime import datetime
 
+# Cloudinary and requests for PDF download
+import cloudinary
+import cloudinary.api
+import requests
+
 from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course
 from .utils import convert_uploaded_file_to_pdf
 
 # ====== WHITEBOARD VIDEO CONVERSION (uses pypdfium2 + moviepy) ======
 import pypdfium2 as pdfium
-  # ensures ffmpeg is available
 from moviepy import ImageSequenceClip
-@login_required
 
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
@@ -37,14 +38,33 @@ def convert_lesson_to_whiteboard(request, lesson_id):
         messages.error(request, "This lesson has no PDF to convert.")
         return redirect('view_lesson', lesson_id=lesson.id)
 
-    # Download the PDF from Cloudinary to a temporary local file
+    # Extract Cloudinary public ID from the file field
+    # The file name is stored as: media/lessons/pdfs/filename.pdf
+    # We need to strip the extension to get the public ID
+    public_id = lesson.pdf_file.name.split('.')[0]  # Remove extension
+    # Example: media/lessons/pdfs/introtocomplexnumbers
+
     try:
-        pdf_content = default_storage.open(lesson.pdf_file.name).read()
+        # Get the secure download URL using Cloudinary API
+        resource = cloudinary.api.resource(public_id, resource_type='raw')
+        download_url = resource.get('secure_url')
+        if not download_url:
+            messages.error(request, "Could not retrieve PDF from Cloudinary.")
+            return redirect('view_lesson', lesson_id=lesson.id)
+
+        # Download the PDF using requests
+        response = requests.get(download_url)
+        if response.status_code != 200:
+            messages.error(request, f"Could not download PDF: {response.status_code} error.")
+            return redirect('view_lesson', lesson_id=lesson.id)
+
+        # Save to temporary file
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_pdf:
-            tmp_pdf.write(pdf_content)
+            tmp_pdf.write(response.content)
             tmp_pdf_path = tmp_pdf.name
+
     except Exception as e:
-        messages.error(request, f"Could not download PDF: {str(e)}")
+        messages.error(request, f"Could not access PDF: {str(e)}")
         return redirect('view_lesson', lesson_id=lesson.id)
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -82,6 +102,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
                 os.unlink(tmp_pdf_path)
 
     return redirect('view_lesson', lesson_id=lesson.id)
+
 
 # ====== Core Lesson Views ======
 
@@ -239,7 +260,7 @@ def add_subject(request):
 def view_lesson(request, lesson_id):
     """View a single lesson and its exam."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    exam = None
+    exam = None   # Fixed: removed invalid query
     
     lesson.views += 1
     lesson.save()

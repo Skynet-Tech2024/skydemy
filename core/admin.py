@@ -28,3 +28,7 @@ class SkydemyAdminSite(AdminSite):
 
 # ====== Instantiate the custom admin site ======
 admin_site = SkydemyAdminSite()
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+User = get_user_model()
+admin_site.register(User, UserAdmin)

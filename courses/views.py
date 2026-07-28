@@ -25,9 +25,6 @@ from .utils import convert_uploaded_file_to_pdf
 import pypdfium2 as pdfium
   # ensures ffmpeg is available
 from moviepy import ImageSequenceClip
-from moviepy.config import change_settings
-change_settings({"FFMPEG_BINARY": "ffmpeg-imageio"})
-
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)

@@ -4,6 +4,8 @@ import re
 import tempfile
 import urllib.parse
 from django.core.files.storage import default_storage
+from .models import LessonProgress
+from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course, LessonProgress
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from users.utils import create_notification
@@ -27,6 +29,159 @@ from cloudinary.utils import cloudinary_url
 from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course
 from .utils import convert_uploaded_file_to_pdf
+@xframe_options_exempt
+@lesson_access
+def view_lesson(request, lesson_id):
+    """New PDF reader view with progress tracking."""
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    exam = None  # you can add exam logic later
+
+    # Get or create progress for the logged-in user
+    if request.user.is_authenticated:
+        progress, created = LessonProgress.objects.get_or_create(
+            user=request.user,
+            lesson=lesson,
+            defaults={
+                'current_page': 1,
+                'total_pages': 1,
+                'progress_percentage': 0,
+                'completed': False
+            }
+        )
+    else:
+        progress = None
+
+    # Generate signed PDF URL (you can reuse the code you already have)
+    pdf_url = None
+    if lesson.pdf_file:
+        try:
+            public_id = lesson.pdf_file.name
+            if '.' in public_id:
+                public_id = public_id.rsplit('.', 1)[0]
+
+            # Use the expiring signed URL (with timedelta)
+            from datetime import timedelta
+            pdf_url = cloudinary_url(
+                public_id,
+                resource_type='image',
+                sign_url=True,
+                expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
+            )[0]
+        except Exception as e:
+            pdf_url = None
+            messages.warning(request, f"Could not generate PDF URL: {str(e)}")
+
+    context = {
+        'lesson': lesson,
+        'exam': exam,
+        'pdf_url': pdf_url,
+        'progress': progress,  # includes current_page, total_pages, progress_percentage, completed
+    }
+    return render(request, 'courses/lesson_reader.html', context)
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+import json
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@login_required
+@csrf_exempt
+def save_lesson_progress(request):
+    """AJAX endpoint to save reading progress."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        lesson_id = data.get('lesson_id')
+        current_page = data.get('current_page')
+        total_pages = data.get('total_pages')
+        progress_percentage = data.get('progress_percentage')
+        completed = data.get('completed', False)
+
+        if not lesson_id or current_page is None or total_pages is None:
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+        from .models import LessonProgress
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        progress, created = LessonProgress.objects.get_or_create(
+            user=request.user,
+            lesson=lesson,
+            defaults={
+                'current_page': 1,
+                'total_pages': total_pages,
+                'progress_percentage': 0,
+                'completed': False
+            }
+        )
+
+        progress.current_page = current_page
+        progress.total_pages = total_pages
+        progress.progress_percentage = progress_percentage
+        if completed:
+            progress.completed = True
+        progress.save()
+
+        return JsonResponse({
+            'success': True,
+            'current_page': progress.current_page,
+            'progress_percentage': progress.progress_percentage,
+            'completed': progress.completed
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+@login_required
+@csrf_exempt   # or use proper CSRF token handling; for simplicity we use exempt but you should use CSRF token in AJAX
+def save_lesson_progress(request):
+    """AJAX endpoint to save reading progress."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        lesson_id = data.get('lesson_id')
+        current_page = data.get('current_page')
+        total_pages = data.get('total_pages')
+        progress_percentage = data.get('progress_percentage')
+        completed = data.get('completed', False)
+
+        if not lesson_id or current_page is None or total_pages is None:
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        progress, created = LessonProgress.objects.get_or_create(
+            user=request.user,
+            lesson=lesson,
+            defaults={
+                'current_page': 1,
+                'total_pages': total_pages,
+                'progress_percentage': 0,
+                'completed': False
+            }
+        )
+
+        # Update fields
+        progress.current_page = current_page
+        progress.total_pages = total_pages
+        progress.progress_percentage = progress_percentage
+        if completed:
+            progress.completed = True
+
+        progress.save()
+
+        return JsonResponse({
+            'success': True,
+            'current_page': progress.current_page,
+            'progress_percentage': progress.progress_percentage,
+            'completed': progress.completed
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 # ====== WHITEBOARD VIDEO CONVERSION (uses pypdfium2 + moviepy) ======
 import pypdfium2 as pdfium
@@ -799,7 +954,56 @@ def create_course_wizard(request):
     
     return render(request, 'courses/create_course_wizard.html', {'form': form})
 
+@xframe_options_exempt
+@lesson_access
+def view_lesson(request, lesson_id):
+    """New PDF reader view with progress tracking."""
+    from .models import LessonProgress
+    from datetime import timedelta
 
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    exam = None
+
+    # Get or create progress for the logged-in user
+    if request.user.is_authenticated:
+        progress, created = LessonProgress.objects.get_or_create(
+            user=request.user,
+            lesson=lesson,
+            defaults={
+                'current_page': 1,
+                'total_pages': 1,
+                'progress_percentage': 0,
+                'completed': False
+            }
+        )
+    else:
+        progress = None
+
+    # Generate signed PDF URL
+    pdf_url = None
+    if lesson.pdf_file:
+        try:
+            public_id = lesson.pdf_file.name
+            if '.' in public_id:
+                public_id = public_id.rsplit('.', 1)[0]
+
+            pdf_url = cloudinary_url(
+                public_id,
+                resource_type='image',
+                sign_url=True,
+                expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
+            )[0]
+        except Exception as e:
+            pdf_url = None
+            messages.warning(request, f"Could not generate PDF URL: {str(e)}")
+
+    context = {
+        'lesson': lesson,
+        'exam': exam,
+        'pdf_url': pdf_url,
+        'progress': progress,
+    }
+    return render(request, 'courses/lesson_reader.html', context)
 # ====== CUSTOM ADMIN LESSON LIST VIEW (matches Students page style) ======
 
 @staff_member_required

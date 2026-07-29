@@ -337,6 +337,8 @@ def view_lesson(request, lesson_id):
                 sign_url=True,
                 expires_at=int((datetime.now().timestamp() + 3600))  # 1 hour
             )
+            # Debug: print the signed URL to Render logs
+            print(f"Generated signed URL: {signed_url}")
             lesson.pdf_url = signed_url
         except Exception as e:
             lesson.pdf_url = None

@@ -17,7 +17,7 @@
     <div class="lesson-material">
         <h3>Lesson Material</h3>
 
-        <!-- 1️⃣ PDF file (preview + button) – only if URL exists -->
+        <!-- 1️⃣ PDF file with iframe preview -->
         {% if lesson.pdf_file and lesson.pdf_url %}
             <div style="margin-bottom: 15px;">
                 <iframe src="{{ lesson.pdf_url }}" width="100%" height="600px" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>
@@ -26,12 +26,6 @@
                 📄 View PDF
             </a>
 
-        <!-- 1b️⃣ PDF exists but URL is missing (should not happen) -->
-        {% elif lesson.pdf_file and not lesson.pdf_url %}
-            <p class="text-warning" style="color: #856404; background: #fff3cd; padding: 12px; border-radius: 6px;">
-                ⚠️ PDF file exists but the URL could not be generated. Please contact support.
-            </p>
-
         <!-- 2️⃣ Whiteboard video -->
         {% elif lesson.whiteboard_video %}
             <video controls width="100%" style="border-radius: 8px;">
@@ -39,7 +33,7 @@
                 Your browser does not support the video tag.
             </video>
 
-        <!-- 3️⃣ Text description (fallback) -->
+        <!-- 3️⃣ Text description -->
         {% elif lesson.description %}
             <p>{{ lesson.description }}</p>
 
@@ -51,7 +45,7 @@
 
     <hr>
 
-    <!-- ===== BACK BUTTON – points to dashboard (safe, authenticated) ===== -->
+    <!-- ===== BACK BUTTON ===== -->
     <a href="/dashboard/" class="btn btn-secondary" style="background: #6c757d; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">
         ⬅ Back to Dashboard
     </a>

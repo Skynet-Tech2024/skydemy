@@ -30,7 +30,7 @@ from .utils import convert_uploaded_file_to_pdf
 
 # ====== WHITEBOARD VIDEO CONVERSION (uses pypdfium2 + moviepy) ======
 import pypdfium2 as pdfium
-from moviepy import ImageSequenceClip
+from moviepy.editor import ImageSequenceClip
 
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):

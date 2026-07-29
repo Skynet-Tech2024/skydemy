@@ -17,15 +17,27 @@
     <div class="lesson-material">
         <h3>Lesson Material</h3>
 
-        {% if lesson.description %}
-            <p>{{ lesson.description }}</p>
-        {% elif lesson.pdf_file %}
-            <iframe src="{{ lesson.pdf_url }}" width="100%" height="600px" style="border: none;"></iframe>
+        <!-- 1️⃣ PDF file (preview + button) -->
+        {% if lesson.pdf_file %}
+            <div style="margin-bottom: 15px;">
+                <iframe src="{{ lesson.pdf_url }}" width="100%" height="600px" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>
+            </div>
+            <a href="{{ lesson.pdf_url }}" target="_blank" class="btn btn-primary" style="background: #0B7A3B; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">
+                📄 View PDF
+            </a>
+
+        <!-- 2️⃣ Whiteboard video -->
         {% elif lesson.whiteboard_video %}
-            <video controls width="100%">
+            <video controls width="100%" style="border-radius: 8px;">
                 <source src="{{ lesson.whiteboard_video.url }}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
+
+        <!-- 3️⃣ Text description (fallback) -->
+        {% elif lesson.description %}
+            <p>{{ lesson.description }}</p>
+
+        <!-- 4️⃣ Nothing available -->
         {% else %}
             <p class="text-muted">No lesson material available.</p>
         {% endif %}
@@ -33,7 +45,9 @@
 
     <hr>
 
-    <!-- ===== BACK BUTTON – points to dashboard (no login redirect) ===== -->
-    <a href="/dashboard/" class="btn btn-secondary">⬅ Back to Dashboard</a>
+    <!-- ===== BACK BUTTON – points to dashboard (safe, authenticated) ===== -->
+    <a href="/dashboard/" class="btn btn-secondary" style="background: #6c757d; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">
+        ⬅ Back to Dashboard
+    </a>
 </div>
 {% endblock %}

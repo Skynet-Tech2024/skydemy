@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -14,7 +15,22 @@ LEVEL_CHOICES = [
 ]
 
 User = get_user_model()
+class LessonProgress(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_progress')
+    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, related_name='user_progress')
 
+    current_page = models.IntegerField(default=1)
+    total_pages = models.IntegerField(default=1)
+    progress_percentage = models.FloatField(default=0.0)
+    completed = models.BooleanField(default=False)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"
 # ===== SUBJECT =====
 class Subject(models.Model):
     STATUS_CHOICES = (
@@ -269,3 +285,19 @@ class Certificate(models.Model):
 
     def __str__(self):
         return f"Certificate #{self.certificate_number} - {self.user.username}"
+class LessonProgress(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_progress')
+    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, related_name='user_progress')
+
+    current_page = models.IntegerField(default=1)
+    total_pages = models.IntegerField(default=1)
+    progress_percentage = models.FloatField(default=0.0)
+    completed = models.BooleanField(default=False)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')   # one record per user per lesson
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"

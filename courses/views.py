@@ -33,53 +33,49 @@ from moviepy import ImageSequenceClip
 
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
+    """
+    Convert a lesson's PDF to a whiteboard video using Cloudinary API authentication.
+    """
     lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
 
     if not lesson.pdf_file:
         messages.error(request, "This lesson has no PDF to convert.")
         return redirect('view_lesson', lesson_id=lesson.id)
 
-    # Extract the public ID from the Cloudinary URL
+    # Get the public ID from the Cloudinary field (without extension)
+    public_id = lesson.pdf_file.name
+    if '.' in public_id:
+        public_id = public_id.rsplit('.', 1)[0]
+
+    if not public_id:
+        messages.error(request, "Could not determine public ID for PDF.")
+        return redirect('view_lesson', lesson_id=lesson.id)
+
     try:
-        # Get the full URL from Cloudinary using Django's storage
-        file_url = default_storage.url(lesson.pdf_file.name)
-        parsed = urllib.parse.urlparse(file_url)
-        path = parsed.path  # e.g., /raw/upload/v1234567890/lessons/pdfs/filename.pdf
-
-        # Split the path to find the public ID
-        parts = path.split('/')
-        # parts: ['', 'raw', 'upload', 'v1234567890', 'lessons', 'pdfs', 'filename.pdf']
-        upload_index = parts.index('upload')
-
-        # The part after 'upload/' is the version (e.g., 'v1234567890')
-        version_part = parts[upload_index + 1] if len(parts) > upload_index + 1 else ''
-        # The public ID is the remaining path without the version and without the file extension
-        public_id_parts = parts[upload_index + 2:]
-        if not public_id_parts:
-            messages.error(request, "Could not determine public ID for PDF.")
+        # Try to get the resource from Cloudinary as 'raw' (PDFs are often raw)
+        try:
+            resource = cloudinary.api.resource(public_id, resource_type='raw')
+            download_url = resource.get('secure_url')
+        except cloudinary.exceptions.NotFound:
+            # Fallback: try as 'image' resource type
+            try:
+                resource = cloudinary.api.resource(public_id, resource_type='image')
+                download_url = resource.get('secure_url')
+            except cloudinary.exceptions.NotFound:
+                messages.error(request, "PDF file not found in Cloudinary.")
+                return redirect('view_lesson', lesson_id=lesson.id)
+        except cloudinary.exceptions.Error as e:
+            messages.error(request, f"Cloudinary API error: {str(e)}")
             return redirect('view_lesson', lesson_id=lesson.id)
 
-        # Remove the file extension from the last part
-        last_part = public_id_parts[-1]
-        if '.' in last_part:
-            public_id_parts[-1] = last_part.rsplit('.', 1)[0]
-        public_id = '/'.join(public_id_parts)
-
-        if not public_id:
-            messages.error(request, "Could not determine public ID for PDF.")
-            return redirect('view_lesson', lesson_id=lesson.id)
-
-        # Use Cloudinary API to get the signed download URL
-        resource = cloudinary.api.resource(public_id, resource_type='raw')
-        download_url = resource.get('secure_url')
         if not download_url:
             messages.error(request, "Could not retrieve PDF from Cloudinary.")
             return redirect('view_lesson', lesson_id=lesson.id)
 
-        # Download the PDF using requests
+        # Download the PDF using requests (the URL is authenticated via Cloudinary API)
         response = requests.get(download_url)
         if response.status_code != 200:
-            messages.error(request, f"Could not download PDF: {response.status_code} error.")
+            messages.error(request, f"Could not download PDF (HTTP {response.status_code}).")
             return redirect('view_lesson', lesson_id=lesson.id)
 
         # Save to temporary file
@@ -88,7 +84,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
             tmp_pdf_path = tmp_pdf.name
 
     except Exception as e:
-        messages.error(request, f"Could not access PDF: {str(e)}")
+        messages.error(request, f"Error accessing PDF: {str(e)}")
         return redirect('view_lesson', lesson_id=lesson.id)
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -584,75 +580,6 @@ def exam_result(request, result_id):
     result = get_object_or_404(ExamResult, id=result_id, user=request.user)
     return render(request, 'courses/exam_result.html', {'result': result})
 
-
-# ====== CONVERT LESSON TO VIDEO ======
-
-@upload_access
-@login_required
-def convert_lesson_to_whiteboard(request, lesson_id):
-    lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
-
-    if not lesson.pdf_file:
-        messages.error(request, "This lesson has no PDF to convert.")
-        return redirect('view_lesson', lesson_id=lesson.id)
-
-    # Get the full URL from Cloudinary (this is the public URL)
-    file_url = default_storage.url(lesson.pdf_file.name)
-    if not file_url:
-        messages.error(request, "Could not get URL for PDF.")
-        return redirect('view_lesson', lesson_id=lesson.id)
-
-    # Download the PDF using requests
-    try:
-        response = requests.get(file_url)
-        if response.status_code != 200:
-            messages.error(request, f"Could not download PDF (HTTP {response.status_code}).")
-            return redirect('view_lesson', lesson_id=lesson.id)
-
-        # Save to temporary file
-        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_pdf:
-            tmp_pdf.write(response.content)
-            tmp_pdf_path = tmp_pdf.name
-
-    except Exception as e:
-        messages.error(request, f"Error downloading PDF: {str(e)}")
-        return redirect('view_lesson', lesson_id=lesson.id)
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        try:
-            # Convert PDF to images using pypdfium2
-            pdf = pdfium.PdfDocument(tmp_pdf_path)
-            image_paths = []
-            for i in range(len(pdf)):
-                page = pdf.get_page(i)
-                bitmap = page.render(scale=2.0)
-                pil_image = bitmap.to_pil()
-                img_path = os.path.join(tmpdir, f"page_{i+1}.jpeg")
-                pil_image.save(img_path, 'JPEG')
-                image_paths.append(img_path)
-
-            if not image_paths:
-                messages.error(request, "Could not extract pages from the PDF.")
-                return redirect('view_lesson', lesson_id=lesson.id)
-
-            # Create video (2 seconds per slide)
-            clip = ImageSequenceClip(image_paths, fps=0.5)
-            video_path = os.path.join(tmpdir, 'whiteboard_video.mp4')
-            clip.write_videofile(video_path, fps=24, codec='libx264', audio=False)
-
-            # Save to lesson using Cloudinary storage
-            with open(video_path, 'rb') as f:
-                lesson.whiteboard_video.save(f"whiteboard_{lesson.id}.mp4", ContentFile(f.read()), save=True)
-
-            messages.success(request, "✅ Whiteboard video created successfully!")
-        except Exception as e:
-            messages.error(request, f"Conversion failed: {str(e)}")
-        finally:
-            # Clean up temporary PDF file
-            if os.path.exists(tmp_pdf_path):
-                os.unlink(tmp_pdf_path)
-
-    return redirect('view_lesson', lesson_id=lesson.id)
 
 # ========== EXAM MANAGEMENT FOR TEACHERS ==========
 

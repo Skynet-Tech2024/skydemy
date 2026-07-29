@@ -7,7 +7,7 @@ path('lesson/<int:lesson_id>/convert-whiteboard/', views.convert_lesson_to_white
     path('', views.lesson_list, name='lesson_list'),
     path('upload/', views.upload_lesson, name='upload_lesson'),
     path('add-subject/', views.add_subject, name='add_subject'),
-    path('lesson/<int:lesson_id>/', views.view_lesson, name='view_lesson'),
+    
     # Exam management URLs for teachers
     path('exams/fslc/add/', views.add_fslc_papers, name='add_fslc_papers'),
     path('exams/mock-primary/add/', views.add_mock_papers_primary, name='add_mock_papers_primary'),

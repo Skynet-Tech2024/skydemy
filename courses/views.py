@@ -312,69 +312,6 @@ def add_subject(request):
     return render(request, 'courses/add_subject.html')
 
 
-@xframe_options_exempt
-@lesson_access
-def view_lesson(request, lesson_id):
-    """View a single lesson and its exam."""
-    lesson = get_object_or_404(Lesson, id=lesson_id)
-    exam = None
-
-    lesson.views += 1
-    lesson.save()
-
-    # ✅ Generate signed Cloudinary URL for PDF
-    if lesson.pdf_file:
-        try:
-            public_id = lesson.pdf_file.name
-            # Remove file extension
-            if '.' in public_id:
-                public_id = public_id.rsplit('.', 1)[0]
-
-            # Generate signed URL with 1 hour expiry
-            signed_url, _ = cloudinary_url(
-                public_id,
-                resource_type='image',          # as seen in your URL
-                sign_url=True,
-                expires_at=int((datetime.now().timestamp() + 3600))  # 1 hour
-            )
-            # Debug: print the signed URL to Render logs
-            print(f"Generated signed URL: {signed_url}")
-            lesson.pdf_url = signed_url
-        except Exception as e:
-            lesson.pdf_url = None
-            messages.warning(request, f"Could not generate PDF URL: {str(e)}")
-    else:
-        lesson.pdf_url = None
-
-    # Progress tracking for learners
-    if request.user.is_authenticated and request.user.profile.role == 'learner':
-        progress, created = Progress.objects.get_or_create(
-            user=request.user,
-            lesson=lesson,
-            defaults={'progress_percentage': 10, 'total_pages': 1}
-        )
-        if not created and progress.progress_percentage < 100:
-            progress.progress_percentage = min(100, progress.progress_percentage + 10)
-            if progress.progress_percentage == 100:
-                progress.completed = True
-                profile = request.user.profile
-                profile.total_lessons_completed += 1
-                profile.update_rating()
-            progress.save()
-
-    can_view_video = False
-    if request.user.is_authenticated and request.user.profile.verification_status == 'verified':
-        can_view_video = True
-    elif request.user.is_authenticated and request.user.is_superuser:
-        can_view_video = True
-
-    return render(request, 'courses/view_lesson.html', {
-        'lesson': lesson,
-        'exam': exam,
-        'can_view_video': can_view_video
-    })
-
-
 def parse_exam_file(file):
     """Parse exam file (PDF or DOCX) and return list of questions in JSON format."""
     content = ""

@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 60px auto; background: #fff; border-radius: 16px; padding: 40px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center;">
+    <div style="font-size: 60px; margin-bottom: 16px;">🔒</div>
+    <h1 style="color: #0E8A3A; font-size: 28px; font-weight: 700; margin: 0 0 8px;">Account Deactivated</h1>
+    <p style="color: #4B5563; font-size: 16px; margin-bottom: 24px;">
+        Your account has been deactivated. If you believe this was a mistake, please contact our support team.
+    </p>
+    <a href="https://wa.me/237652924816?text=Hello%20SKYDEMY%20Support%2C%20my%20account%20has%20been%20deactivated.%20I%20need%20assistance." 
+       target="_blank" 
+       style="display: inline-block; background: #25D366; color: #fff; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 16px; transition: 0.2s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);">
+        💬 Chat with Support on WhatsApp
+    </a>
+    <p style="color: #6B7280; font-size: 14px; margin-top: 24px;">
+        Our team is here to help you resolve this.
+    </p>
+</div>
+{% endblock %}

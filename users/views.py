@@ -7,6 +7,7 @@ from .forms import RegisterStep1Form
 from .models import UserProfile
 from core.constants import LEVEL_CHOICES
 from datetime import datetime
+from django.urls import reverse  # added for potential future use
 
 
 # ===== STEP 1: Account Creation =====
@@ -65,14 +66,12 @@ def complete_profile(request):
     allowed_roles = [choice for choice in UserProfile.ROLE_CHOICES if choice[0] != 'admin']
 
     if request.method == 'POST':
-               # Collect profile fields
         level = request.POST.get('level')
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
         role = request.POST.get('role')
         school_name = request.POST.get('school_name', '')
 
-        # Convert empty strings to None to avoid unique constraint violations
         if phone_number == '':
             phone_number = None
         if address == '':
@@ -103,21 +102,18 @@ def complete_profile(request):
                 'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
             })
 
-        # Update profile
         profile.level = level
         profile.phone_number = phone_number
         profile.address = address
         profile.role = role
         profile.save()
 
-        # Clear temp session and store user ID for success page
         del request.session['temp_user_id']
         request.session['reg_user_id'] = user.id
 
         messages.success(request, "✅ Registration complete! Redirecting to success page.")
         return redirect('/users/registration-success/')
 
-    # GET request
     return render(request, 'users/complete_profile.html', {
         'user': user, 'profile': profile,
         'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
@@ -130,7 +126,6 @@ def registration_success(request):
     if not user_id:
         return redirect('register')
     user = get_object_or_404(User, id=user_id)
-    # Clear the session variable after retrieving
     del request.session['reg_user_id']
     context = {
         'user': user,
@@ -144,7 +139,6 @@ def registration_success(request):
 def pending_approval(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    # If user is already approved, redirect to dashboard
     if request.user.profile.verification_status in ['approved', 'verified']:
         return redirect('dashboard')
     return render(request, 'users/pending_approval.html')
@@ -161,12 +155,16 @@ def custom_login(request):
         user = authenticate(request, username=username, password=password)
         print(f"🟢 Authenticated user: {user}")
         if user is not None:
-            login(request, user)
-            print("✅ Login successful, session key:", request.session.session_key)
-            # Check if user is approved
+            # 👇 NEW: Check for soft‑deleted account
+            if hasattr(user, 'profile') and user.profile.is_deleted:
+                messages.error(request, "Your account has been deactivated. Please contact support.")
+                return redirect('account_deactivated')
+            # Existing approval check
             if user.profile.verification_status not in ['approved', 'verified']:
                 return redirect('pending_approval')
             else:
+                login(request, user)
+                print("✅ Login successful, session key:", request.session.session_key)
                 return redirect('dashboard')
         else:
             print("❌ Login failed")
@@ -185,3 +183,5 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         return 'dashboard'
+def account_deactivated(request):
+    return render(request, 'users/account_deactivated.html')

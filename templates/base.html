@@ -1,13 +1,619 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <title>SKYDEMY - {% block title %}E-Learning Platform{% endblock %}</title>
+    <link rel="manifest" href="/static/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SKYDEMY{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    {% block extrahead %}{% endblock %}
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SKYDEMY">
+    <style>
+        /* ===== Reset ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; }
+
+        /* ===== Preloader ===== */
+        #preloader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 26, 46, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.8s ease;
+        }
+        #preloader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(243, 156, 18, 0.3);
+            border-top: 6px solid #f39c12;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== Fade-in animation for content ===== */
+        .main-content {
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards;
+            animation-delay: 0.1s;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== New Header (Navbar) ===== */
+        .site-header {
+            background: #075f3a; /* deep brand green */
+            border-bottom: 3px solid #dcae16; /* gold accent */
+            color: #ffffff;
+            min-height: 64px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .site-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .site-header .brand .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .site-header .brand .logo-text span {
+            color: #dcae16;
+        }
+        .site-header .brand .tagline {
+            display: none; /* hidden by default, shown on wider screens if desired */
+        }
+
+        /* Navigation */
+        .primary-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .primary-nav a,
+        .primary-nav .nav-dropdown-toggle {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: color 0.2s, background 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .primary-nav a:hover,
+        .primary-nav .nav-dropdown-toggle:hover {
+            color: #f6c945;
+            background: rgba(255,255,255,0.08);
+        }
+        .primary-nav a.active {
+            color: #f6c945;
+            border-bottom: 2px solid #f6c945;
+        }
+
+        /* Create lesson button */
+        .create-lesson-btn {
+            background: #f6c945;
+            color: #123526 !important;
+            padding: 8px 18px !important;
+            border-radius: 30px !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            border: none;
+            transition: background 0.2s, transform 0.1s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .create-lesson-btn:hover {
+            background: #e5b83a !important;
+            color: #0a2b1c !important;
+            transform: translateY(-1px);
+        }
+
+        /* Profile dropdown */
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .profile-dropdown-toggle {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 30px;
+            padding: 6px 14px 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #fff;
+            font-weight: 500;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .profile-dropdown-toggle:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .profile-dropdown-toggle .avatar-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #dcae16;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #075f3a;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .profile-dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 110%;
+            background: #fff;
+            min-width: 200px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+            z-index: 1001;
+        }
+        .profile-dropdown-menu.show {
+            display: block;
+        }
+        .profile-dropdown-menu a,
+        .profile-dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: #1F2937;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f3f4f6;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+        .profile-dropdown-menu a:hover,
+        .profile-dropdown-menu .dropdown-item:hover {
+            background: #f3f4f6;
+        }
+        .profile-dropdown-menu .dropdown-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 4px 0;
+        }
+        .profile-dropdown-menu .user-info {
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .profile-dropdown-menu .user-info .name {
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .profile-dropdown-menu .user-info .role {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        /* Hamburger menu toggle (mobile) */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        /* Notification bell - can be added later */
+        .notification-link {
+            position: relative;
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+            padding: 6px 8px;
+        }
+        .notification-link .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #dc3545;
+            color: #fff;
+            border-radius: 50%;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .primary-nav {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                background: #075f3a;
+                padding: 10px 0;
+                border-top: 1px solid rgba(255,255,255,0.1);
+            }
+            .primary-nav.open {
+                display: flex;
+            }
+            .primary-nav a,
+            .primary-nav .nav-dropdown-toggle {
+                padding: 12px 16px;
+                width: 100%;
+                border-radius: 0;
+            }
+            .primary-nav .create-lesson-btn {
+                margin: 8px 16px;
+                justify-content: center;
+            }
+            .profile-dropdown {
+                margin-left: auto;
+            }
+            .menu-toggle {
+                display: inline-flex;
+            }
+            .profile-dropdown-menu {
+                right: -10px;
+            }
+        }
+
+        /* ===== Breadcrumbs ===== */
+        .breadcrumb-wrapper {
+            max-width: 1200px;
+            margin: 15px auto 0;
+            padding: 0 15px;
+        }
+        .breadcrumb-wrapper nav {
+            font-size: clamp(13px, 1.2vw, 15px);
+            color: #888;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .breadcrumb-wrapper nav a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb-wrapper nav a:hover {
+            color: #f39c12;
+            text-decoration: underline;
+        }
+        .breadcrumb-wrapper nav .separator {
+            color: #ccc;
+            font-weight: 300;
+        }
+        .breadcrumb-wrapper nav .current {
+            color: #f39c12;
+            font-weight: 600;
+        }
+
+        /* ===== WhatsApp Button ===== */
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 28px;
+            text-decoration: none;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
+        .whatsapp-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* ===== SKYNET THEME ===== */
+        .skynet-theme {
+            background:
+                linear-gradient(
+                    rgba(248, 250, 252, 0.92),
+                    rgba(248, 250, 252, 0.92)
+                ),
+                url("/static/images/skynet-bg.svg") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+            min-height: 100vh !important;
+        }
+
+        /* Glass effect for cards */
+        .skynet-theme .module,
+        .skynet-theme .login-card,
+        .skynet-theme .dashboard .module,
+        .skynet-theme .stat-card {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+        }
+        .skynet-theme #content {
+            background: transparent !important;
+        }
+
+        /* ===== SHARED FOOTER STYLES (to match admin) ===== */
+        #footer {
+            margin-top: 40px;
+            padding: 20px 24px;
+            border-top: 2px solid #D4AF37;
+            background: #F8FAFC;
+            border-radius: 0 0 12px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #475569;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        #footer .footer-left,
+        #footer .footer-links,
+        #footer .footer-version {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        #footer .brand {
+            font-weight: 700;
+            font-size: 18px;
+            color: #0B7A3B;
+        }
+        #footer .brand .gold {
+            color: #D4AF37;
+        }
+        #footer .separator {
+            color: #94A3B8;
+            margin: 0 4px;
+        }
+        #footer a {
+            color: #475569;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        #footer a:hover {
+            color: #0B7A3B;
+        }
+        #footer .footer-version {
+            color: #94A3B8;
+            gap: 8px;
+        }
+        #footer .footer-version i {
+            font-size: 12px;
+        }
+        @media (max-width: 767px) {
+            #footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+                padding: 16px;
+            }
+            #footer .footer-left,
+            #footer .footer-links,
+            #footer .footer-version {
+                justify-content: center;
+            }
+        }
+
+    </style>
 </head>
-<body>
-    {% block content %}{% endblock %}
+<body class="skynet-theme">
+    <!-- ===== PRELOADER ===== -->
+    <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="site-header">
+        <!-- ✅ UPDATED: Brand link now points to dashboard instead of home -->
+        <a href="{% url 'dashboard' %}" class="brand">
+            <div class="logo-text">SKY<span>DEMY</span></div>
+        </a>
+
+        <!-- Hamburger toggle -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
+
+        <!-- Primary navigation -->
+        <nav class="primary-nav" id="primaryNav">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" {% if request.path == '/dashboard/' %}class="active"{% endif %}>📊 Dashboard</a>
+                <a href="{% url 'lesson_list' %}" {% if '/courses/' in request.path %}class="active"{% endif %}>📚 Lessons</a>
+                <a href="{% url 'leaderboard' %}" {% if '/leaderboard/' in request.path %}class="active"{% endif %}>🏆 Leaderboard</a>
+
+                <!-- More dropdown -->
+                <div class="profile-dropdown" style="position:relative; display:inline-block;">
+                    <button class="nav-dropdown-toggle" onclick="toggleMoreDropdown(event)">More ▾</button>
+                    <div class="profile-dropdown-menu" id="moreDropdown" style="min-width:180px; right:auto; left:0;">
+                        <a href="{% url 'inbox' %}">📩 Inbox</a>
+                        <a href="{% url 'notifications' %}">🔔 Notifications</a>
+                        <a href="{% url 'profile' %}">👤 Profile Settings</a>
+                        {% if user.profile.role == 'teacher' %}
+                            <a href="{% url 'upload_lesson' %}">➕ Create Lesson</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Create Lesson button (visible on larger screens) -->
+                {% if user.profile.role == 'teacher' %}
+                    <a href="{% url 'upload_lesson' %}" class="create-lesson-btn">➕ Create Lesson</a>
+                {% endif %}
+
+                <!-- Profile dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-dropdown-toggle" onclick="toggleProfileDropdown(event)">
+                        <span class="avatar-small">
+                            {% if user.profile.avatar and user.profile.avatar.url %}
+                                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                            {% else %}
+                                {{ user.username|slice:":1"|upper }}
+                            {% endif %}
+                        </span>
+                        <span style="max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ user.username }}</span>
+                        <span style="font-size:12px;">▼</span>
+                    </button>
+                    <div class="profile-dropdown-menu" id="profileDropdown">
+                        <div class="user-info">
+                            <div class="name">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="role">{{ user.profile.get_display_role }}</div>
+                        </div>
+                        <a href="{% url 'profile' %}">👤 My Profile</a>
+                        <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+                        <div class="dropdown-divider"></div>
+                        <form action="{% url 'logout' %}" method="post" style="margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item" style="color:#dc3545;">🚪 Logout</button>
+                        </form>
+                    </div>
+                </div>
+
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-login">🔑 Login</a>
+                <a href="{% url 'register' %}" class="btn-register">📝 Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <!-- ===== BREADCRUMBS ===== -->
+    {% if breadcrumbs %}
+    <div class="breadcrumb-wrapper">
+        <nav>
+            {% for crumb in breadcrumbs %}
+                {% if forloop.last %}
+                    <span class="current">{{ crumb.name }}</span>
+                {% else %}
+                    <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+                    <span class="separator">›</span>
+                {% endif %}
+            {% endfor %}
+        </nav>
+    </div>
+    {% endif %}
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    {% include "shared/footer.html" %}
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // Toggle profile dropdown
+        function toggleProfileDropdown(event) {
+            event.stopPropagation();
+            var dropdown = document.getElementById('profileDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+                // Close other dropdowns
+                var more = document.getElementById('moreDropdown');
+                if (more) more.classList.remove('show');
+            }
+        }
+
+        // Toggle more dropdown
+        function toggleMoreDropdown(event) {
+            event.stopPropagation();
+            var dropdown = document.getElementById('moreDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+                // Close profile dropdown
+                var profile = document.getElementById('profileDropdown');
+                if (profile) profile.classList.remove('show');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            var profileDropdown = document.getElementById('profileDropdown');
+            var moreDropdown = document.getElementById('moreDropdown');
+            if (profileDropdown && !profileDropdown.parentElement.contains(e.target)) {
+                profileDropdown.classList.remove('show');
+            }
+            if (moreDropdown && !moreDropdown.parentElement.contains(e.target)) {
+                moreDropdown.classList.remove('show');
+            }
+        });
+
+        // Hamburger menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            var nav = document.getElementById('primaryNav');
+            if (nav) {
+                nav.classList.toggle('open');
+            }
+        });
+
+        // Hide preloader when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            var preloader = document.getElementById('preloader');
+            if (preloader) {
+                preloader.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1250,3 +1250,20 @@ margin: 0 0 4px 0;
 body {
     padding-bottom: 80px !important;
 }
+/* ===== Dashboard Welcome – Centered, White & Gold ===== */
+.dashboard-welcome {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.dashboard-welcome h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    color: #ffffff;
+}
+.dashboard-welcome h1 .gold-text {
+    color: #D4AF37;
+}
+.dashboard-welcome .welcome-sub {
+    display: none; /* Hides the subtitle completely */
+}

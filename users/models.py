@@ -57,6 +57,7 @@ class UserProfile(models.Model):
     is_premium = models.BooleanField(default=False)
     subscription_expiry = models.DateTimeField(null=True, blank=True)
     is_suspended = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)   # ✅ added field for soft delete
 
     total_lessons_completed = models.IntegerField(default=0)
     rating = models.FloatField(default=0.0, validators=[MinValueValidator(0), MaxValueValidator(5)])

@@ -17,14 +17,20 @@
     <div class="lesson-material">
         <h3>Lesson Material</h3>
 
-        <!-- 1️⃣ PDF file (preview + button) -->
-        {% if lesson.pdf_file %}
+        <!-- 1️⃣ PDF file (preview + button) – only if URL exists -->
+        {% if lesson.pdf_file and lesson.pdf_url %}
             <div style="margin-bottom: 15px;">
                 <iframe src="{{ lesson.pdf_url }}" width="100%" height="600px" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>
             </div>
             <a href="{{ lesson.pdf_url }}" target="_blank" class="btn btn-primary" style="background: #0B7A3B; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">
                 📄 View PDF
             </a>
+
+        <!-- 1b️⃣ PDF exists but URL is missing (should not happen) -->
+        {% elif lesson.pdf_file and not lesson.pdf_url %}
+            <p class="text-warning" style="color: #856404; background: #fff3cd; padding: 12px; border-radius: 6px;">
+                ⚠️ PDF file exists but the URL could not be generated. Please contact support.
+            </p>
 
         <!-- 2️⃣ Whiteboard video -->
         {% elif lesson.whiteboard_video %}

@@ -22,7 +22,7 @@ from datetime import datetime
 import cloudinary
 import cloudinary.api
 import requests
-from cloudinary.utils import cloudinary_url   # 👈 ADDED for signed URLs
+from cloudinary.utils import cloudinary_url
 
 from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course
@@ -317,16 +317,21 @@ def add_subject(request):
 def view_lesson(request, lesson_id):
     """View a single lesson and its exam."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    exam = None   # Fixed: removed invalid query
-    
+    exam = None
+
     lesson.views += 1
     lesson.save()
-    
+
+    # ✅ Generate PDF URL using default_storage (handles Cloudinary correctly)
     if lesson.pdf_file:
-        lesson.pdf_url = lesson.pdf_file.url.replace('image/upload', 'raw/upload')
+        try:
+            lesson.pdf_url = default_storage.url(lesson.pdf_file.name)
+        except Exception as e:
+            lesson.pdf_url = None
+            messages.warning(request, f"Could not generate PDF URL: {str(e)}")
     else:
         lesson.pdf_url = None
-    
+
     if request.user.is_authenticated and request.user.profile.role == 'learner':
         progress, created = Progress.objects.get_or_create(
             user=request.user,
@@ -341,13 +346,13 @@ def view_lesson(request, lesson_id):
                 profile.total_lessons_completed += 1
                 profile.update_rating()
             progress.save()
-    
+
     can_view_video = False
     if request.user.is_authenticated and request.user.profile.verification_status == 'verified':
         can_view_video = True
     elif request.user.is_authenticated and request.user.is_superuser:
         can_view_video = True
-    
+
     return render(request, 'courses/view_lesson.html', {
         'lesson': lesson,
         'exam': exam,

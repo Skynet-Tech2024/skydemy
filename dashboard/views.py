@@ -580,16 +580,16 @@ def lesson_list(request):
     }
     return render(request, 'dashboard/lesson_list.html', context)
 
-# ===== BATCH LESSON ACTION =====
+# ===== BATCH LESSON ACTION (UPDATED WITH HARDCODED REDIRECT) =====
 @staff_member_required
 def batch_lesson_action(request):
     if request.method != 'POST':
-        return redirect('lesson_list')
+        return redirect('/lessons/')
     action = request.POST.get('action')
     selected_ids = request.POST.getlist('selected_ids')
     if not selected_ids:
         messages.warning(request, "No lessons selected.")
-        return redirect('lesson_list')
+        return redirect('/lessons/')
     queryset = Lesson.objects.filter(id__in=selected_ids)
     if action == 'approve_lessons':
         count = 0
@@ -628,4 +628,4 @@ def batch_lesson_action(request):
         messages.success(request, f"{count} lesson(s) deleted.")
     else:
         messages.error(request, "Invalid action.")
-    return redirect('lesson_list')
+    return redirect('/lessons/')

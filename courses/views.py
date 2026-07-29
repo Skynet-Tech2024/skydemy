@@ -322,23 +322,21 @@ def view_lesson(request, lesson_id):
     lesson.views += 1
     lesson.save()
 
-    # ✅ Generate signed Cloudinary URL for PDF
+    # ✅ Generate signed Cloudinary URL with expiry
     if lesson.pdf_file:
         try:
             public_id = lesson.pdf_file.name
-            # Remove file extension
             if '.' in public_id:
                 public_id = public_id.rsplit('.', 1)[0]
 
-            # Generate signed URL with 1 hour expiry
+            # Generate expiring signed URL (1 hour)
             signed_url = cloudinary_url(
                 public_id,
-                resource_type='image',          # as seen in your URL
+                resource_type='image',
                 sign_url=True,
                 expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
             )[0]
 
-            # Debug: print the signed URL to Render logs
             print(f"Generated signed URL: {signed_url}")
             lesson.pdf_url = signed_url
         except Exception as e:

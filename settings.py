@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 👇 Add these two for Cloudinary storage
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -120,16 +123,16 @@ STATIC_URL = 'static/'
 
 
 # ===== FILE STORAGE (Django 6.0+) =====
-# Replaces deprecated DEFAULT_FILE_STORAGE
+# Use Cloudinary as the default storage backend
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
-# ===== MEDIA FILES (local storage) =====
+# ===== MEDIA FILES (local storage – not used with Cloudinary, but kept) =====
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

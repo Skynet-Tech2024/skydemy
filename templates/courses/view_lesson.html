@@ -17,7 +17,19 @@
     <div class="lesson-material">
         <h3>Lesson Material</h3>
 
-        <!-- 1️⃣ PDF file with iframe preview -->
+        <!-- 🐞 DEBUG INFO – REMOVE AFTER FIX -->
+        <div style="background: #f8f9fa; padding: 10px 15px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px;">
+            <strong style="color: #dc3545;">🔍 Debug Info:</strong><br>
+            PDF file exists? <strong>{{ lesson.pdf_file|yesno:"✅ Yes,❌ No" }}</strong><br>
+            {% if lesson.pdf_file %}
+                File name: <code>{{ lesson.pdf_file.name }}</code><br>
+                PDF URL: <code>{{ lesson.pdf_url|default:"<span style='color:red;'>⚠️ Not set</span>" }}</code>
+            {% else %}
+                <span style="color: #6c757d;">No PDF file attached to this lesson.</span>
+            {% endif %}
+        </div>
+
+        <!-- 1️⃣ PDF file with iframe preview (only if both file and URL exist) -->
         {% if lesson.pdf_file and lesson.pdf_url %}
             <div style="margin-bottom: 15px;">
                 <iframe src="{{ lesson.pdf_url }}" width="100%" height="600px" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>

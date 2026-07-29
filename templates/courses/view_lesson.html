@@ -1,233 +1,39 @@
-{% extends "admin/base_site.html" %}
+{% extends "dashboard/base.html" %}
 {% load static %}
 
 {% block title %}{{ lesson.title }} | SKYDEMY{% endblock %}
 
-{% block extrastyle %}
-{{ block.super }}
-<style>
-    .lesson-container {
-        max-width: 1000px;
-        margin: 30px auto;
-        padding: 20px;
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    }
-    .lesson-title {
-        font-size: 32px;
-        font-weight: 700;
-        color: #0E8A3A;
-        margin: 0 0 8px 0;
-    }
-    .lesson-meta {
-        color: #6B7280;
-        font-size: 14px;
-        margin-bottom: 20px;
-    }
-    .video-container {
-        margin: 20px 0;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .video-container video {
-        width: 100%;
-        max-height: 500px;
-        display: block;
-    }
-    .pdf-container {
-        margin: 20px 0;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 20px;
-        background: #f8fafc;
-    }
-    .pdf-container iframe {
-        width: 100%;
-        height: 600px;
-        border: none;
-        border-radius: 8px;
-    }
-    .action-bar {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin: 20px 0;
-        padding: 16px;
-        background: #f8fafc;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-    }
-    .alert {
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin: 10px 0;
-    }
-    .alert-success {
-        background: #D1FAE5;
-        color: #065F46;
-        border-left: 4px solid #0E8A3A;
-    }
-    .alert-error {
-        background: #FEE2E2;
-        color: #991B1B;
-        border-left: 4px solid #DC2626;
-    }
-    .alert-info {
-        background: #DBEAFE;
-        color: #1E40AF;
-        border-left: 4px solid #2563EB;
-    }
-    .status-badge {
-        background: #FEF3C7;
-        color: #92400E;
-        padding: 4px 14px;
-        border-radius: 30px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-block;
-    }
-    /* New button styles – inline to keep it simple */
-    .btn-convert {
-        background: #0E8A3A;
-        color: #ffffff;
-        padding: 10px 20px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 600;
-        display: inline-block;
-        margin: 5px 5px 5px 0;
-        border: none;
-        cursor: pointer;
-        transition: 0.2s;
-        box-shadow: 0 4px 12px rgba(14,138,58,0.3);
-    }
-    .btn-convert:hover {
-        background: #06612A;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(14,138,58,0.4);
-    }
-    .btn-download {
-        background: #D4AF37;
-        color: #ffffff;
-        padding: 10px 20px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 600;
-        display: inline-block;
-        margin: 5px 5px 5px 0;
-        border: none;
-        cursor: pointer;
-        transition: 0.2s;
-        box-shadow: 0 4px 12px rgba(212,175,55,0.3);
-    }
-    .btn-download:hover {
-        background: #b8960f;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(212,175,55,0.4);
-    }
-    .btn-pdf {
-        background: #2563EB;
-        color: #ffffff;
-        padding: 10px 20px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 600;
-        display: inline-block;
-        margin: 5px 5px 5px 0;
-        border: none;
-        cursor: pointer;
-        transition: 0.2s;
-        box-shadow: 0 4px 12px rgba(37,99,235,0.3);
-    }
-    .btn-pdf:hover {
-        background: #1d4ed8;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(37,99,235,0.4);
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="lesson-container">
-    <!-- Title and Status -->
-    <h1 class="lesson-title">{{ lesson.title }}</h1>
-    <div class="lesson-meta">
-        <span>📚 {{ lesson.subject.name|default:"No subject" }}</span>
-        <span style="margin-left: 16px;">👨‍🏫 {{ lesson.teacher.username|default:"Unknown" }}</span>
-        <span style="margin-left: 16px;">
-            <span class="status-badge">
-                {% if lesson.status == 'approved' %}✅ Approved{% elif lesson.status == 'pending' %}⏳ Pending{% elif lesson.status == 'rejected' %}❌ Rejected{% else %}{{ lesson.status }}{% endif %}
-            </span>
-        </span>
-    </div>
+<div class="container mt-4">
+    <h1>{{ lesson.title }}</h1>
+    <p><strong>Subject:</strong> {{ lesson.subject.name }}</p>
+    <p><strong>Teacher:</strong> {{ lesson.teacher.username }}</p>
+    <p><strong>Level:</strong> {{ lesson.get_level_display }}</p>
+    <p><strong>Status:</strong> {{ lesson.get_status_display }}</p>
 
-    <!-- Description -->
-    {% if lesson.description %}
-        <div style="margin: 16px 0; color: #4B5563; line-height: 1.6;">
-            {{ lesson.description|linebreaks }}
-        </div>
-    {% endif %}
+    <hr>
 
-    <!-- Action Bar -->
-    <div class="action-bar">
-        {% if lesson.pdf_file %}
-            <a href="{% url 'convert_lesson_to_whiteboard' lesson.id %}" class="btn-convert">
-                🎬 Convert to Whiteboard Video
-            </a>
-        {% endif %}
-        {% if lesson.whiteboard_video %}
-            <a href="{{ lesson.whiteboard_video.url }}" target="_blank" class="btn-download">
-                📥 Download Whiteboard Video
-            </a>
-        {% endif %}
-        {% if lesson.pdf_file %}
-            <a href="{{ lesson.pdf_file.url }}" target="_blank" class="btn-pdf">
-                📄 View PDF
-            </a>
-        {% endif %}
-    </div>
+    <!-- ===== LESSON MATERIAL ===== -->
+    <div class="lesson-material">
+        <h3>Lesson Material</h3>
 
-    <!-- Messages -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <!-- Whiteboard Video -->
-    {% if lesson.whiteboard_video %}
-        <div class="video-container">
-            <video controls>
+        {% if lesson.description %}
+            <p>{{ lesson.description }}</p>
+        {% elif lesson.pdf_file %}
+            <iframe src="{{ lesson.pdf_url }}" width="100%" height="600px" style="border: none;"></iframe>
+        {% elif lesson.whiteboard_video %}
+            <video controls width="100%">
                 <source src="{{ lesson.whiteboard_video.url }}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
-        </div>
-    {% endif %}
-
-    <!-- PDF Viewer -->
-    {% if lesson.pdf_file %}
-        <div class="pdf-container">
-            <h3 style="margin-top: 0; color: #0E8A3A;">📄 Lesson Material</h3>
-            <iframe src="{{ lesson.pdf_file.url }}"></iframe>
-        </div>
-    {% endif %}
-
-    <!-- Video URL -->
-    {% if lesson.video_url %}
-        <div style="margin: 20px 0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <iframe src="{{ lesson.video_url }}" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
-        </div>
-    {% endif %}
-
-    <!-- Back Button -->
-    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-        <a href="{% url 'lesson_list' %}" style="color: #0E8A3A; text-decoration: none; font-weight: 600;">
-            ← Back to Lessons
-        </a>
+        {% else %}
+            <p class="text-muted">No lesson material available.</p>
+        {% endif %}
     </div>
+
+    <hr>
+
+    <!-- ===== BACK BUTTON ===== -->
+    <a href="{% url 'lesson_list' %}" class="btn btn-secondary">⬅ Back to Lessons</a>
 </div>
 {% endblock %}

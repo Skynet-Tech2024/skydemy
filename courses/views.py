@@ -3,7 +3,6 @@ import json
 import re
 import tempfile
 import urllib.parse
-from datetime import datetime, timedelta
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
@@ -17,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.contrib.admin.views.decorators import staff_member_required
+from datetime import datetime
 
 # Cloudinary and requests for PDF download
 import cloudinary
@@ -322,26 +322,27 @@ def view_lesson(request, lesson_id):
     lesson.views += 1
     lesson.save()
 
-    # ✅ Generate signed Cloudinary URL with expiry
+    # ✅ Generate signed Cloudinary URL for PDF
     if lesson.pdf_file:
         try:
             public_id = lesson.pdf_file.name
+            # Remove file extension
             if '.' in public_id:
                 public_id = public_id.rsplit('.', 1)[0]
 
-            # Generate expiring signed URL (1 hour)
-            signed_url = cloudinary_url(
+            # Generate signed URL with 1 hour expiry
+            signed_url, _ = cloudinary_url(
                 public_id,
-                resource_type='image',
+                resource_type='image',          # as seen in your URL
                 sign_url=True,
-                expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
-            )[0]
-
+                expires_at=int((datetime.now().timestamp() + 3600))  # 1 hour
+            )
+            # Debug: print the signed URL to Render logs
             print(f"Generated signed URL: {signed_url}")
             lesson.pdf_url = signed_url
         except Exception as e:
             lesson.pdf_url = None
-            messages.warning(request, f"Could not generate signed PDF URL: {str(e)}")
+            messages.warning(request, f"Could not generate PDF URL: {str(e)}")
     else:
         lesson.pdf_url = None
 

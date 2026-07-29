@@ -322,16 +322,29 @@ def view_lesson(request, lesson_id):
     lesson.views += 1
     lesson.save()
 
-    # ✅ Generate PDF URL using default_storage (handles Cloudinary correctly)
+    # ✅ Generate signed Cloudinary URL for PDF
     if lesson.pdf_file:
         try:
-            lesson.pdf_url = default_storage.url(lesson.pdf_file.name)
+            public_id = lesson.pdf_file.name
+            # Remove file extension
+            if '.' in public_id:
+                public_id = public_id.rsplit('.', 1)[0]
+
+            # Generate signed URL with 1 hour expiry
+            signed_url, _ = cloudinary_url(
+                public_id,
+                resource_type='image',          # as seen in your URL
+                sign_url=True,
+                expires_at=int((datetime.now().timestamp() + 3600))  # 1 hour
+            )
+            lesson.pdf_url = signed_url
         except Exception as e:
             lesson.pdf_url = None
             messages.warning(request, f"Could not generate PDF URL: {str(e)}")
     else:
         lesson.pdf_url = None
 
+    # Progress tracking for learners
     if request.user.is_authenticated and request.user.profile.role == 'learner':
         progress, created = Progress.objects.get_or_create(
             user=request.user,

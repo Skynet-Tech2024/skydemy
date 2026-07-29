@@ -3,6 +3,7 @@ import json
 import re
 import tempfile
 import urllib.parse
+from datetime import datetime, timedelta   # <-- make sure this import is at the top
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
@@ -22,7 +23,15 @@ from datetime import datetime
 import cloudinary
 import cloudinary.api
 import requests
-from cloudinary.utils import cloudinary_url
+
+# ... inside view_lesson ...
+
+signed_url = cloudinary.utils.cloudinary_url(
+    public_id,
+    resource_type='image',
+    sign_url=True,
+    expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
+)[0]
 
 from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course
@@ -313,39 +322,39 @@ def add_subject(request):
 
 
 @xframe_options_exempt
+@xframe_options_exempt
 @lesson_access
 def view_lesson(request, lesson_id):
-    """View a single lesson and its exam."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
     exam = None
 
     lesson.views += 1
     lesson.save()
 
-    # ✅ Generate signed Cloudinary URL for PDF
     if lesson.pdf_file:
         try:
             public_id = lesson.pdf_file.name
-            # Remove file extension
             if '.' in public_id:
                 public_id = public_id.rsplit('.', 1)[0]
 
-            # Generate signed URL with 1 hour expiry
-            signed_url, _ = cloudinary_url(
+            # Generate expiring signed URL
+            from datetime import timedelta  # if not already imported
+            signed_url = cloudinary.utils.cloudinary_url(
                 public_id,
-                resource_type='image',          # as seen in your URL
+                resource_type='image',
                 sign_url=True,
-                expires_at=int((datetime.now().timestamp() + 3600))  # 1 hour
-            )
-            # Debug: print the signed URL to Render logs
+                expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
+            )[0]
+
             print(f"Generated signed URL: {signed_url}")
             lesson.pdf_url = signed_url
         except Exception as e:
             lesson.pdf_url = None
-            messages.warning(request, f"Could not generate PDF URL: {str(e)}")
+            messages.warning(request, f"Could not generate signed PDF URL: {str(e)}")
     else:
         lesson.pdf_url = None
 
+    # ... rest of the function ...
     # Progress tracking for learners
     if request.user.is_authenticated and request.user.profile.role == 'learner':
         progress, created = Progress.objects.get_or_create(

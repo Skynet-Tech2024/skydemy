@@ -156,7 +156,7 @@ def custom_login(request):
         print(f"🟢 Authenticated user: {user}")
         if user is not None:
             # 👇 NEW: Check for soft‑deleted account
-            if hasattr(user, 'profile') and user.profile.is_deleted:
+            if hasattr(user, 'profile') and hasattr(user.profile, 'is_deleted') and user.profile.is_deleted:
                 messages.error(request, "Your account has been deactivated. Please contact support.")
                 return redirect('account_deactivated')
             # Existing approval check

@@ -588,44 +588,71 @@ def exam_result(request, result_id):
 # ====== CONVERT LESSON TO VIDEO ======
 
 @upload_access
-def convert_to_video(request, lesson_id):
-    """
-    Convert a lesson to an illustrative video.
-    Verified users (teachers) can convert their lessons to videos.
-    """
-    lesson = get_object_or_404(Lesson, id=lesson_id)
-    
-    if request.user != lesson.teacher and not request.user.is_superuser:
-        messages.error(request, "You can only convert your own lessons.")
-        return redirect('view_lesson', lesson_id=lesson.id)
-    
-    if request.user.profile.verification_status != 'verified' and not request.user.is_superuser:
-        messages.error(request, "Only verified teachers can convert lessons to video. Please contact admin.")
-        return redirect('view_lesson', lesson_id=lesson.id)
-    
-    if lesson.video_url or lesson.video_file:
-        messages.warning(request, "This lesson already has a video.")
-        return redirect('view_lesson', lesson_id=lesson.id)
-    
-    # Placeholder for actual video generation
-    video_url = None  # Keep as None until actual implementation
-    
-    if video_url:
-        lesson.video_url = video_url
-        lesson.save()
-        messages.success(request, f'🎬 Video successfully generated for "{lesson.title}"!')
-        create_notification(
-            user=request.user,
-            notification_type='system',
-            title='🎬 Video Generated!',
-            message=f'Your lesson "{lesson.title}" has been converted to an illustrative video.',
-            link=f'/courses/lesson/{lesson.id}/'
-        )
-    else:
-        messages.info(request, "Video conversion is being processed. You will be notified when it's ready.")
-    
-    return redirect('view_lesson', lesson_id=lesson.id)
+@login_required
+def convert_lesson_to_whiteboard(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
 
+    if not lesson.pdf_file:
+        messages.error(request, "This lesson has no PDF to convert.")
+        return redirect('view_lesson', lesson_id=lesson.id)
+
+    # Get the full URL from Cloudinary (this is the public URL)
+    file_url = default_storage.url(lesson.pdf_file.name)
+    if not file_url:
+        messages.error(request, "Could not get URL for PDF.")
+        return redirect('view_lesson', lesson_id=lesson.id)
+
+    # Download the PDF using requests
+    try:
+        response = requests.get(file_url)
+        if response.status_code != 200:
+            messages.error(request, f"Could not download PDF (HTTP {response.status_code}).")
+            return redirect('view_lesson', lesson_id=lesson.id)
+
+        # Save to temporary file
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_pdf:
+            tmp_pdf.write(response.content)
+            tmp_pdf_path = tmp_pdf.name
+
+    except Exception as e:
+        messages.error(request, f"Error downloading PDF: {str(e)}")
+        return redirect('view_lesson', lesson_id=lesson.id)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        try:
+            # Convert PDF to images using pypdfium2
+            pdf = pdfium.PdfDocument(tmp_pdf_path)
+            image_paths = []
+            for i in range(len(pdf)):
+                page = pdf.get_page(i)
+                bitmap = page.render(scale=2.0)
+                pil_image = bitmap.to_pil()
+                img_path = os.path.join(tmpdir, f"page_{i+1}.jpeg")
+                pil_image.save(img_path, 'JPEG')
+                image_paths.append(img_path)
+
+            if not image_paths:
+                messages.error(request, "Could not extract pages from the PDF.")
+                return redirect('view_lesson', lesson_id=lesson.id)
+
+            # Create video (2 seconds per slide)
+            clip = ImageSequenceClip(image_paths, fps=0.5)
+            video_path = os.path.join(tmpdir, 'whiteboard_video.mp4')
+            clip.write_videofile(video_path, fps=24, codec='libx264', audio=False)
+
+            # Save to lesson using Cloudinary storage
+            with open(video_path, 'rb') as f:
+                lesson.whiteboard_video.save(f"whiteboard_{lesson.id}.mp4", ContentFile(f.read()), save=True)
+
+            messages.success(request, "✅ Whiteboard video created successfully!")
+        except Exception as e:
+            messages.error(request, f"Conversion failed: {str(e)}")
+        finally:
+            # Clean up temporary PDF file
+            if os.path.exists(tmp_pdf_path):
+                os.unlink(tmp_pdf_path)
+
+    return redirect('view_lesson', lesson_id=lesson.id)
 
 # ========== EXAM MANAGEMENT FOR TEACHERS ==========
 

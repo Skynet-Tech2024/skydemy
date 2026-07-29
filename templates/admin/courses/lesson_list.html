@@ -4,7 +4,7 @@
 {% block extrastyle %}
   {{ block.super }}
   <style>
-    /* Ensure consistent card styling */
+    /* ===== Card & Header ===== */
     .module {
       background: #fff;
       border-radius: 8px;
@@ -13,7 +13,7 @@
       margin-bottom: 20px;
     }
     .module h2 {
-      background: #2e7d32; /* green */
+      background: #2e7d32;
       color: #fff;
       padding: 10px 15px;
       margin: -20px -20px 20px -20px;
@@ -21,31 +21,35 @@
       font-size: 1.2rem;
       font-weight: 600;
     }
+    /* ===== Actions ===== */
     .actions {
       margin: 15px 0;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
     .actions label {
       font-weight: 600;
-      margin-right: 5px;
+      margin-right: 2px;
     }
     .actions input[type="checkbox"] {
-      margin-right: 5px;
+      margin-right: 2px;
+      /* No custom accent – use default browser style */
     }
     .actions input[type="submit"] {
-      background: #2e7d32;
-      color: #fff;
-      border: none;
-      padding: 6px 16px;
+      /* Use the default admin button style – we won't override it */
+      background: transparent;
+      border: 1px solid #ccc;
+      padding: 4px 12px;
       border-radius: 4px;
       cursor: pointer;
+      font-size: 0.9rem;
     }
     .actions input[type="submit"]:hover {
-      background: #1b5e20;
+      background: #f5f5f5;
     }
+    /* ===== Table ===== */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -54,12 +58,12 @@
     table th {
       background: #f5f5f5;
       text-align: left;
-      padding: 10px 8px;
+      padding: 8px 8px;
       font-weight: 600;
       border-bottom: 2px solid #ccc;
     }
     table td {
-      padding: 8px;
+      padding: 6px 8px; /* slightly tighter to match Students page */
       border-bottom: 1px solid #eee;
       vertical-align: middle;
     }
@@ -68,39 +72,42 @@
     }
     table td input[type="checkbox"] {
       margin: 0;
+      /* No custom accent */
     }
+    /* ===== Status Toggle (disabled checkbox) ===== */
     .status-toggle {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
     .status-toggle input[type="checkbox"] {
       width: 16px;
       height: 16px;
-      accent-color: #2e7d32;
+      margin: 0;
+      /* No accent – default */
+      pointer-events: none; /* disabled, but keep visual */
     }
-    .submit-row {
-      margin-top: 20px;
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
+    .status-toggle input[type="checkbox"]:disabled {
+      opacity: 1; /* keep it visible */
     }
-    .submit-row a.button {
-      background: #2e7d32;
-      color: #fff;
-      padding: 8px 20px;
-      border-radius: 4px;
-      text-decoration: none;
-      font-weight: 500;
+    /* ===== Action checkboxes ===== */
+    .action-checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-weight: normal;
     }
-    .submit-row a.button:hover {
-      background: #1b5e20;
+    .action-checkbox-label input[type="checkbox"] {
+      margin: 0 2px 0 0;
     }
-    .submit-row a.button.dashboard {
-      background: #6c757d;
-    }
-    .submit-row a.button.dashboard:hover {
-      background: #5a6268;
+    /* ===== Footer ===== */
+    .footer-version {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #6c757d;
+      text-align: center;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
     }
   </style>
 {% endblock %}
@@ -121,12 +128,18 @@
       {% csrf_token %}
       <div class="actions">
         <label>Actions:</label>
-        <input type="checkbox" name="action" value="approve" id="action_approve">
-        <label for="action_approve">Approve</label>
-        <input type="checkbox" name="action" value="reject" id="action_reject">
-        <label for="action_reject">Reject</label>
-        <input type="checkbox" name="action" value="delete" id="action_delete">
-        <label for="action_delete">Delete</label>
+        <span class="action-checkbox-label">
+          <input type="checkbox" name="action" value="approve" id="action_approve">
+          <label for="action_approve">Approve</label>
+        </span>
+        <span class="action-checkbox-label">
+          <input type="checkbox" name="action" value="reject" id="action_reject">
+          <label for="action_reject">Reject</label>
+        </span>
+        <span class="action-checkbox-label">
+          <input type="checkbox" name="action" value="delete" id="action_delete">
+          <label for="action_delete">Delete</label>
+        </span>
         <input type="submit" value="Go" class="button">
       </div>
 
@@ -164,17 +177,16 @@
         </tbody>
       </table>
 
-      <div class="submit-row">
-        <a href="{% url 'admin:courses_lesson_add' %}" class="button">Add Lesson</a>
-        <a href="{% url 'admin:index' %}" class="button dashboard">Dashboard</a>
-      </div>
+      <!-- No extra buttons – exactly like Students page -->
     </form>
+
+    <!-- Footer version -->
+    <div class="footer-version">Version 2.0</div>
   </div>
 </div>
 
 <script>
   (function() {
-    // Select all / deselect all
     const selectAll = document.getElementById('select-all');
     const checkboxes = document.querySelectorAll('input[name="selected_lessons"]');
     if (selectAll) {

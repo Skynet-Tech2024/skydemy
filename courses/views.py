@@ -3,7 +3,7 @@ import json
 import re
 import tempfile
 import urllib.parse
-from datetime import datetime, timedelta   # <-- make sure this import is at the top
+from datetime import datetime, timedelta
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
@@ -17,21 +17,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.contrib.admin.views.decorators import staff_member_required
-from datetime import datetime
 
 # Cloudinary and requests for PDF download
 import cloudinary
 import cloudinary.api
 import requests
-
-# ... inside view_lesson ...
-
-signed_url = cloudinary.utils.cloudinary_url(
-    public_id,
-    resource_type='image',
-    sign_url=True,
-    expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
-)[0]
+from cloudinary.utils import cloudinary_url
 
 from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
 from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course
@@ -322,24 +313,24 @@ def add_subject(request):
 
 
 @xframe_options_exempt
-@xframe_options_exempt
 @lesson_access
 def view_lesson(request, lesson_id):
+    """View a single lesson and its exam."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
     exam = None
 
     lesson.views += 1
     lesson.save()
 
+    # ✅ Generate signed Cloudinary URL with expiry
     if lesson.pdf_file:
         try:
             public_id = lesson.pdf_file.name
             if '.' in public_id:
                 public_id = public_id.rsplit('.', 1)[0]
 
-            # Generate expiring signed URL
-            from datetime import timedelta  # if not already imported
-            signed_url = cloudinary.utils.cloudinary_url(
+            # Generate expiring signed URL (1 hour)
+            signed_url = cloudinary_url(
                 public_id,
                 resource_type='image',
                 sign_url=True,
@@ -354,7 +345,6 @@ def view_lesson(request, lesson_id):
     else:
         lesson.pdf_url = None
 
-    # ... rest of the function ...
     # Progress tracking for learners
     if request.user.is_authenticated and request.user.profile.role == 'learner':
         progress, created = Progress.objects.get_or_create(

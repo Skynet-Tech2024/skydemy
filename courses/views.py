@@ -330,15 +330,7 @@ def view_lesson(request, lesson_id):
     public_id_with_ext = lesson.pdf_file.name          # e.g., "media/lessons/pdfs/introtocomplexnumbers_lmyjva.pdf"
     public_id = os.path.splitext(public_id_with_ext)[0]  # strip .pdf
 
-    signed_url, options = cloudinary.utils.cloudinary_url(
-        public_id,
-        resource_type="image",
-        format="pdf",               # <-- ensures .pdf extension
-        sign_url=True,
-        expires_at=datetime.utcnow() + timedelta(hours=1),
-        type="private",
-        secure=True                 # <-- forces HTTPS
-    )
+    type="authenticated",
 
     context = {
         'pdf_url': signed_url,

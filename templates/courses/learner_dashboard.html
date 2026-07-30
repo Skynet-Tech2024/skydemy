@@ -21,7 +21,7 @@
         color: white;
         padding: 3rem 2.5rem;
         border-radius: 20px;
-        margin-bottom: 2rem;
+        margin-bottom: 0;
         box-shadow: 0 8px 40px rgba(11, 122, 59, 0.25);
         position: relative;
         overflow: hidden;
@@ -50,7 +50,6 @@
         font-size: 1rem;
         opacity: 0.85;
         font-style: italic;
-        margin-bottom: 1.5rem;
         padding: 0.75rem 1.5rem;
         background: rgba(255,255,255,0.12);
         border-radius: 50px;
@@ -58,17 +57,15 @@
         backdrop-filter: blur(4px);
     }
     
-    /* Hero stat cards – Admin style */
+    /* Hero stat cards – admin style, centered */
     .hero-stat-card {
         background: #ffffff;
         border-radius: 16px;
-        padding: 16px 20px;
+        padding: 20px 16px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         border: 1px solid #e5e7eb;
         transition: transform 0.2s, box-shadow 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 16px;
+        text-align: center;
         cursor: default;
     }
     .hero-stat-card:hover {
@@ -76,25 +73,22 @@
         box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     }
     .hero-stat-card .icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
+        font-size: 26px;
         color: #fff;
-        flex-shrink: 0;
+        margin-bottom: 8px;
     }
     .hero-stat-card .icon.green { background: #0E8A3A; }
     .hero-stat-card .icon.gold { background: #D4AF37; }
     .hero-stat-card .icon.orange { background: #F59E0B; }
     .hero-stat-card .icon.purple { background: #7C3AED; }
-    .hero-stat-card .info {
-        flex: 1;
-    }
     .hero-stat-card .info .number {
-        font-size: 28px;
+        font-size: 32px;
         font-weight: 700;
         color: #0f172a;
         line-height: 1.2;
@@ -102,12 +96,14 @@
     .hero-stat-card .info .label {
         font-size: 14px;
         color: #64748B;
-        font-weight: 500;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     .hero-stat-card .info .growth {
         font-size: 12px;
         font-weight: 600;
-        margin-top: 2px;
+        margin-top: 4px;
         color: #94A3B8;
     }
     
@@ -496,7 +492,7 @@
 {% block content %}
 <div class="container py-4">
 
-    <!-- ===== HERO SECTION WITH ADMIN-STYLE STAT CARDS ===== -->
+    <!-- ===== HERO SECTION (green banner) ===== -->
     <div class="dashboard-hero">
         <div style="position: relative; z-index: 1;">
             <h1>Welcome back, {{ user.username }}! 👋</h1>
@@ -504,41 +500,41 @@
             <div class="motivation">
                 ✨ "Every lesson completed brings you closer to mastery."
             </div>
+        </div>
+    </div>
 
-            <!-- ===== HERO STAT CARDS (Admin style) ===== -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.5rem;">
-                <div class="hero-stat-card">
-                    <div class="icon green"><i class="fas fa-book"></i></div>
-                    <div class="info">
-                        <div class="number">{{ lessons_completed|default:0 }}</div>
-                        <div class="label">Completed</div>
-                        <div class="growth"><i class="fas fa-minus"></i> Total</div>
-                    </div>
-                </div>
-                <div class="hero-stat-card">
-                    <div class="icon gold"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="info">
-                        <div class="number">{{ certificates_count|default:0 }}</div>
-                        <div class="label">Certificates</div>
-                        <div class="growth"><i class="fas fa-minus"></i> Total</div>
-                    </div>
-                </div>
-                <div class="hero-stat-card">
-                    <div class="icon orange"><i class="fas fa-fire"></i></div>
-                    <div class="info">
-                        <div class="number">{{ streak_days|default:0 }}</div>
-                        <div class="label">Day Streak</div>
-                        <div class="growth"><i class="fas fa-minus"></i> Total</div>
-                    </div>
-                </div>
-                <div class="hero-stat-card">
-                    <div class="icon purple"><i class="fas fa-star"></i></div>
-                    <div class="info">
-                        <div class="number">{{ user.profile.rating|default:"0.0" }}</div>
-                        <div class="label">Rating</div>
-                        <div class="growth"><i class="fas fa-minus"></i> Total</div>
-                    </div>
-                </div>
+    <!-- ===== HERO STAT CARDS (separate row, admin style, centered) ===== -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-top: -1.5rem; margin-bottom: 2rem; position: relative; z-index: 2;">
+        <div class="hero-stat-card">
+            <div class="icon green"><i class="fas fa-book"></i></div>
+            <div class="info">
+                <div class="number">{{ lessons_completed|default:0 }}</div>
+                <div class="label">Completed</div>
+                <div class="growth"><i class="fas fa-minus"></i> Total</div>
+            </div>
+        </div>
+        <div class="hero-stat-card">
+            <div class="icon gold"><i class="fas fa-graduation-cap"></i></div>
+            <div class="info">
+                <div class="number">{{ certificates_count|default:0 }}</div>
+                <div class="label">Certificates</div>
+                <div class="growth"><i class="fas fa-minus"></i> Total</div>
+            </div>
+        </div>
+        <div class="hero-stat-card">
+            <div class="icon orange"><i class="fas fa-fire"></i></div>
+            <div class="info">
+                <div class="number">{{ streak_days|default:0 }}</div>
+                <div class="label">Day Streak</div>
+                <div class="growth"><i class="fas fa-minus"></i> Total</div>
+            </div>
+        </div>
+        <div class="hero-stat-card">
+            <div class="icon purple"><i class="fas fa-star"></i></div>
+            <div class="info">
+                <div class="number">{{ user.profile.rating|default:"0.0" }}</div>
+                <div class="label">Rating</div>
+                <div class="growth"><i class="fas fa-minus"></i> Total</div>
             </div>
         </div>
     </div>

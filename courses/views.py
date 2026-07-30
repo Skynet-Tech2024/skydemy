@@ -175,6 +175,7 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def lesson_list(request):
+print("✅ lesson_list view called!") 
     """Display lessons with search and pagination."""
     # Base queryset: only approved lessons
     lessons_qs = Lesson.objects.filter(status='approved').order_by('-created_at')

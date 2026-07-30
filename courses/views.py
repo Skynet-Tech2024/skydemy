@@ -26,7 +26,7 @@ from users.decorators import basic_access, lesson_access, upload_access
 import cloudinary
 import cloudinary.api
 import requests
-from cloudinary.utils import cloudinary_url
+from cloudinary.utils import cloudinary_url, private_download_url
 
 # Forms and models
 from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
@@ -321,14 +321,13 @@ def add_subject(request):
 # ====== NEW PDF READER WITH PROGRESS ======
 
 @xframe_options_exempt
-
-@xframe_options_exempt
 @lesson_access
 def view_lesson(request, lesson_id):
-    """PDF reader with signed download URL."""
+    """PDF reader with signed download URL (fallback to public URL)."""
     from .models import LessonProgress
     from datetime import timedelta
     from cloudinary.utils import private_download_url
+    import cloudinary.api
 
     lesson = get_object_or_404(Lesson, id=lesson_id)
     exam = None
@@ -354,22 +353,40 @@ def view_lesson(request, lesson_id):
             if '.' in public_id:
                 public_id = public_id.rsplit('.', 1)[0]
 
-            # Try 'raw' first (most PDFs are stored as raw)
+            print(f"DEBUG: public_id = {public_id}")
+
+            # Try private_download_url with raw
             try:
                 pdf_url = private_download_url(
                     public_id,
                     resource_type='raw',
                     expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
                 )
-                print(f"DEBUG: raw signed URL generated")
+                print(f"DEBUG: raw private_download_url succeeded")
             except Exception as e_raw:
-                print(f"DEBUG: raw failed, falling back to image")
-                pdf_url = private_download_url(
-                    public_id,
-                    resource_type='image',
-                    expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
-                )
-                print(f"DEBUG: image signed URL generated")
+                print(f"DEBUG: raw private_download_url failed: {e_raw}")
+                # Fallback to image
+                try:
+                    pdf_url = private_download_url(
+                        public_id,
+                        resource_type='image',
+                        expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
+                    )
+                    print(f"DEBUG: image private_download_url succeeded")
+                except Exception as e_image:
+                    print(f"DEBUG: image private_download_url failed: {e_image}")
+                    # Final fallback: get public URL via API
+                    try:
+                        resource = cloudinary.api.resource(public_id, resource_type='raw')
+                        pdf_url = resource.get('secure_url')
+                        print(f"DEBUG: API fallback (raw) succeeded")
+                    except Exception as e_api_raw:
+                        try:
+                            resource = cloudinary.api.resource(public_id, resource_type='image')
+                            pdf_url = resource.get('secure_url')
+                            print(f"DEBUG: API fallback (image) succeeded")
+                        except Exception as e_api_image:
+                            print(f"DEBUG: All fallbacks failed. Last error: {e_api_image}")
 
             print(f"DEBUG: Final PDF URL: {pdf_url}")
 
@@ -385,6 +402,7 @@ def view_lesson(request, lesson_id):
         'progress': progress,
     }
     return render(request, 'courses/lesson_reader.html', context)
+
 
 @login_required
 @csrf_exempt
@@ -959,4 +977,4 @@ def admin_lesson_list(request):
         'total': total,
         'opts': Lesson._meta,   # for breadcrumbs
     }
-    return render(request, 'admin/courses/lesson_list.html', context)  # Force redeploy 
+    return render(request, 'admin/courses/lesson_list.html', context)

@@ -319,13 +319,10 @@ def add_subject(request):
 
 
 # ====== NEW PDF READER WITH PROGRESS ======
-
 def view_lesson(request, lesson_id):
     from django.core.files.storage import default_storage
 
     lesson = get_object_or_404(Lesson, id=lesson_id)
-
-    # Get the public URL directly (no signing needed)
     pdf_url = default_storage.url(lesson.pdf_file.name)
 
     context = {
@@ -333,7 +330,6 @@ def view_lesson(request, lesson_id):
         'lesson': lesson,
     }
     return render(request, 'courses/lesson_reader.html', context)
-
 @login_required
 @csrf_exempt
 def save_lesson_progress(request):

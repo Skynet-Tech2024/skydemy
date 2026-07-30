@@ -321,12 +321,14 @@ def add_subject(request):
 # ====== NEW PDF READER WITH PROGRESS ======
 
 @xframe_options_exempt
+
+@xframe_options_exempt
 @lesson_access
 def view_lesson(request, lesson_id):
     """New PDF reader view with progress tracking."""
     from .models import LessonProgress
     from datetime import timedelta
-    import cloudinary.utils
+    import cloudinary.api
 
     lesson = get_object_or_404(Lesson, id=lesson_id)
     exam = None
@@ -347,40 +349,27 @@ def view_lesson(request, lesson_id):
         progress = None
 
     pdf_url = None
-
     if lesson.pdf_file:
         try:
             public_id = lesson.pdf_file.name
             if '.' in public_id:
                 public_id = public_id.rsplit('.', 1)[0]
 
-            # Calculate expiry timestamp (1 hour from now)
-            expires_at = int((datetime.now() + timedelta(hours=1)).timestamp())
-            print(f"DEBUG: public_id = {public_id}, expires_at = {expires_at}")
+            print(f"DEBUG: Fetching URL for public_id = {public_id}")
 
-            # Try as image first
-            signed_url = cloudinary.utils.cloudinary_url(
-                public_id,
-                resource_type='image',
-                type='upload',          # explicitly set
-                sign_url=True,
-                expires_at=expires_at
-            )[0]
-
-            # If the URL still contains 's--', it's a transformation signature,
-            # not a delivery signature – try 'raw' as fallback.
-            if 's--' in signed_url:
-                print("DEBUG: image URL has transformation signature, trying raw...")
-                signed_url = cloudinary.utils.cloudinary_url(
-                    public_id,
-                    resource_type='raw',
-                    type='upload',
-                    sign_url=True,
-                    expires_at=expires_at
-                )[0]
-
-            pdf_url = signed_url
-            print(f"DEBUG: Final PDF URL: {pdf_url}")
+            # Try 'raw' resource type first (most PDFs are raw)
+            try:
+                resource = cloudinary.api.resource(public_id, resource_type='raw')
+                pdf_url = resource.get('secure_url')
+                print(f"DEBUG: Got raw URL: {pdf_url}")
+            except cloudinary.exceptions.NotFound:
+                # Fallback to 'image' if raw fails
+                try:
+                    resource = cloudinary.api.resource(public_id, resource_type='image')
+                    pdf_url = resource.get('secure_url')
+                    print(f"DEBUG: Got image URL: {pdf_url}")
+                except Exception as e:
+                    print(f"DEBUG: Image fallback failed: {e}")
 
         except Exception as e:
             pdf_url = None
@@ -394,7 +383,6 @@ def view_lesson(request, lesson_id):
         'progress': progress,
     }
     return render(request, 'courses/lesson_reader.html', context)
-
 @login_required
 @csrf_exempt
 def save_lesson_progress(request):

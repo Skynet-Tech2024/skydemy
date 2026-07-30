@@ -38,6 +38,57 @@ import pypdfium2 as pdfium
 from moviepy.editor import ImageSequenceClip
 
 
+
+@login_required
+@basic_access
+def learner_dashboard(request):
+    """Dashboard for learners with stats, progress, and certificates."""
+    user = request.user
+    
+    # Get all approved lessons for learner's level
+    lessons = Lesson.objects.filter(status='approved', level=user.profile.level)
+    
+    # Build progress data
+    lessons_with_progress = []
+    lessons_completed = 0
+    
+    for lesson in lessons:
+        try:
+            progress = LessonProgress.objects.get(user=user, lesson=lesson)
+            progress_data = {
+                'title': lesson.title,
+                'progress_percentage': progress.progress_percentage,
+                'completed': progress.completed,
+                'lesson_id': lesson.id
+            }
+            if progress.completed:
+                lessons_completed += 1
+            lessons_with_progress.append(progress_data)
+        except LessonProgress.DoesNotExist:
+            lessons_with_progress.append({
+                'title': lesson.title,
+                'progress_percentage': 0,
+                'completed': False,
+                'lesson_id': lesson.id
+            })
+    
+    # Get certificates
+    certificates = Certificate.objects.filter(user=user).order_by('-issued_date')
+    certificates_count = certificates.count()
+    
+    # Get exams taken
+    exams_taken = ExamResult.objects.filter(user=user).count()
+    
+    context = {
+        'lessons_with_progress': lessons_with_progress,
+        'lessons_completed': lessons_completed,
+        'certificates': certificates,
+        'certificates_count': certificates_count,
+        'exams_taken': exams_taken,
+    }
+    return render(request, 'courses/learner_dashboard.html', context)
+
+
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
     """

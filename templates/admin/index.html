@@ -289,22 +289,22 @@
         </div>
     </div>
 
-    <!-- ===== QUICK ACTIONS ===== -->
+    <!-- ===== QUICK ACTIONS (FIXED: added courses: namespace) ===== -->
     <div class="quick-actions">
         <span class="title"><i class="fas fa-bolt"></i> Quick Actions:</span>
-        <a href="{% url 'create_course_wizard' %}"><i class="fas fa-plus-circle"></i> Create Course</a>
-        <a href="{% url 'upload_lesson' %}"><i class="fas fa-upload"></i> Upload Lesson</a>
-        <a href="{% url 'create_exam_wizard' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
-        <a href="{% url 'issue_certificate_wizard' %}"><i class="fas fa-award"></i> Issue Certificate</a>
+        <a href="{% url 'courses:create_course_wizard' %}"><i class="fas fa-plus-circle"></i> Create Course</a>
+        <a href="{% url 'courses:upload_lesson' %}"><i class="fas fa-upload"></i> Upload Lesson</a>
+        <a href="{% url 'courses:create_exam_wizard' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
+        <a href="{% url 'courses:issue_certificate_wizard' %}"><i class="fas fa-award"></i> Issue Certificate</a>
     </div>
 
-    <!-- ===== MY LESSONS ===== -->
+    <!-- ===== MY LESSONS (FIXED: added courses: namespace for view_lesson) ===== -->
     <div style="background: #ffffff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; margin-bottom: 30px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 10px;">
                 <i class="fas fa-book-open" style="color: #0B7A3B;"></i> My Lessons
             </h3>
-            <a href="{% url 'upload_lesson' %}" style="background: #D4AF37; color: #fff; padding: 6px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
+            <a href="{% url 'courses:upload_lesson' %}" style="background: #D4AF37; color: #fff; padding: 6px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
                 + Upload New
             </a>
         </div>
@@ -337,7 +337,7 @@
                                 {% endif %}
                             </td>
                             <td style="padding: 10px 12px;">
-                                <a href="{% url 'view_lesson' lesson.id %}" style="color: #2563EB; text-decoration: none; font-weight: 600; font-size: 13px; margin-right: 10px;">View</a>
+                                <a href="{% url 'courses:view_lesson' lesson.id %}" style="color: #2563EB; text-decoration: none; font-weight: 600; font-size: 13px; margin-right: 10px;">View</a>
                                 <a href="{% url 'admin:courses_lesson_change' lesson.id %}" style="color: #0E8A3A; text-decoration: none; font-weight: 600; font-size: 13px; margin-right: 10px;">Edit</a>
                                 <a href="{% url 'admin:courses_lesson_delete' lesson.id %}" style="color: #DC2626; text-decoration: none; font-weight: 600; font-size: 13px;" onclick="return confirm('Delete this lesson?')">Delete</a>
                             </td>

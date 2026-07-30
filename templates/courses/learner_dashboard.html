@@ -57,28 +57,45 @@
         display: inline-block;
         backdrop-filter: blur(4px);
     }
-    .hero-stats {
-        display: flex;
-        gap: 2.5rem;
-        flex-wrap: wrap;
-        margin-top: 0.5rem;
+    /* Hero Stat Cards */
+    .hero-stat-card {
+        background: white;
+        border-radius: 14px;
+        padding: 0.8rem 0.5rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        border-bottom: 3px solid #0B7A3B;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: default;
     }
-    .hero-stat {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.95rem;
-        background: rgba(255,255,255,0.1);
-        padding: 0.4rem 1.2rem;
-        border-radius: 50px;
-        backdrop-filter: blur(4px);
+    .hero-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.10);
     }
-    .hero-stat strong {
-        font-size: 1.2rem;
+    .hero-stat-card .stat-icon {
+        font-size: 1.8rem;
+        display: block;
     }
-    .hero-stat .gold {
-        color: #D4AF37;
+    .hero-stat-card .stat-number {
+        font-size: 1.6rem;
+        font-weight: 700;
+        line-height: 1.2;
     }
+    .hero-stat-card .stat-number.green { color: #0B7A3B; }
+    .hero-stat-card .stat-number.gold { color: #D4AF37; }
+    .hero-stat-card .stat-number.orange { color: #FF6B35; }
+    .hero-stat-card .stat-number.purple { color: #7C3AED; }
+    .hero-stat-card .stat-label {
+        font-size: 0.7rem;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+    .hero-stat-card.border-green { border-bottom-color: #0B7A3B; }
+    .hero-stat-card.border-gold { border-bottom-color: #D4AF37; }
+    .hero-stat-card.border-orange { border-bottom-color: #FF6B35; }
+    .hero-stat-card.border-purple { border-bottom-color: #7C3AED; }
     
     /* ===== STATS CARDS ===== */
     .stats-grid {
@@ -128,18 +145,10 @@
         line-height: 1.2;
         color: #1E293B;
     }
-    .stat-card .stat-number.gold {
-        color: #D4AF37;
-    }
-    .stat-card .stat-number.green {
-        color: #0B7A3B;
-    }
-    .stat-card .stat-number.blue {
-        color: #2563EB;
-    }
-    .stat-card .stat-number.purple {
-        color: #7C3AED;
-    }
+    .stat-card .stat-number.gold { color: #D4AF37; }
+    .stat-card .stat-number.green { color: #0B7A3B; }
+    .stat-card .stat-number.blue { color: #2563EB; }
+    .stat-card .stat-number.purple { color: #7C3AED; }
     .stat-card .stat-label {
         color: #64748B;
         font-size: 0.85rem;
@@ -147,9 +156,6 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-top: 0.25rem;
-    }
-    .stat-card .gold-border {
-        border: 2px solid #D4AF37;
     }
     
     /* ===== QUICK ACTIONS ===== */
@@ -462,6 +468,8 @@
         .rec-grid { grid-template-columns: repeat(2, 1fr); }
         .dashboard-grid { grid-template-columns: 1fr; }
         .dashboard-hero h1 { font-size: 2rem; }
+        .hero-stat-card .stat-number { font-size: 1.3rem; }
+        .hero-stat-card .stat-icon { font-size: 1.5rem; }
     }
     @media (max-width: 576px) {
         .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -469,7 +477,8 @@
         .rec-grid { grid-template-columns: 1fr; }
         .dashboard-hero { padding: 1.5rem; }
         .dashboard-hero h1 { font-size: 1.6rem; }
-        .hero-stats { gap: 1rem; }
+        .hero-stat-card .stat-number { font-size: 1.2rem; }
+        .hero-stat-card .stat-icon { font-size: 1.3rem; }
     }
 </style>
 {% endblock %}
@@ -477,7 +486,7 @@
 {% block content %}
 <div class="container py-4">
 
-    <!-- ===== HERO SECTION ===== -->
+    <!-- ===== HERO SECTION WITH STAT CARDS ===== -->
     <div class="dashboard-hero">
         <div style="position: relative; z-index: 1;">
             <h1>Welcome back, {{ user.username }}! 👋</h1>
@@ -485,24 +494,34 @@
             <div class="motivation">
                 ✨ "Every lesson completed brings you closer to mastery."
             </div>
-            <div class="hero-stats">
-                <div class="hero-stat">
-                    📚 <strong>{{ lessons_completed|default:0 }}</strong> Completed
+
+            <!-- ===== HERO STAT CARDS ===== -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.5rem; max-width: 700px;">
+                <div class="hero-stat-card border-green">
+                    <span class="stat-icon">📚</span>
+                    <div class="stat-number green">{{ lessons_completed|default:0 }}</div>
+                    <div class="stat-label">Completed</div>
                 </div>
-                <div class="hero-stat">
-                    🎓 <strong>{{ certificates_count|default:0 }}</strong> Certificates
+                <div class="hero-stat-card border-gold">
+                    <span class="stat-icon">🎓</span>
+                    <div class="stat-number gold">{{ certificates_count|default:0 }}</div>
+                    <div class="stat-label">Certificates</div>
                 </div>
-                <div class="hero-stat">
-                    🔥 <strong>0</strong> Day Streak
+                <div class="hero-stat-card border-orange">
+                    <span class="stat-icon">🔥</span>
+                    <div class="stat-number orange">{{ streak_days|default:0 }}</div>
+                    <div class="stat-label">Day Streak</div>
                 </div>
-                <div class="hero-stat">
-                    ⭐ <strong class="gold">{{ user.profile.rating|default:"0.0" }}</strong> Rating
+                <div class="hero-stat-card border-purple">
+                    <span class="stat-icon">⭐</span>
+                    <div class="stat-number purple">{{ user.profile.rating|default:"0.0" }}</div>
+                    <div class="stat-label">Rating</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ===== STATISTICS CARDS ===== -->
+    <!-- ===== STATISTICS CARDS (Main) ===== -->
     <div class="stats-grid">
         <div class="stat-card">
             <span class="stat-icon">📚</span>

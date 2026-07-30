@@ -171,7 +171,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
 # ====== Core Lesson Views ======
 
-@basic_access
+@login_required
 def lesson_list(request):
     """Display lessons with search and pagination."""
     # Base queryset: only approved lessons

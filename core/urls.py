@@ -89,8 +89,7 @@ path('courses/', include('courses.urls')),
     path('users/complete-profile/', complete_profile, name='complete_profile'),
 
     path('', include('dashboard.urls')), 
-  ] 
-+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+  ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

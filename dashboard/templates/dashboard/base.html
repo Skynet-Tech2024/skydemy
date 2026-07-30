@@ -88,9 +88,6 @@
         .site-header .brand .logo-text span {
             color: #dcae16;
         }
-        .site-header .brand .tagline {
-            display: none; /* hidden by default, shown on wider screens if desired */
-        }
 
         /* Navigation */
         .primary-nav {
@@ -248,7 +245,7 @@
             padding: 4px 8px;
         }
 
-        /* Notification bell - can be added later */
+        /* Notification bell */
         .notification-link {
             position: relative;
             color: #fff;
@@ -457,7 +454,6 @@
                 justify-content: center;
             }
         }
-
     </style>
 
     <!-- ===== PDF.js (for reading PDFs) ===== -->
@@ -476,7 +472,6 @@
     <header class="site-header">
         <a href="{% url 'dashboard' %}" class="brand">
             <div class="logo-text">SKY<span>DEMY</span></div>
-            <!-- Tagline removed; keep clean -->
         </a>
 
         <!-- Hamburger toggle -->
@@ -486,7 +481,7 @@
         <nav class="primary-nav" id="primaryNav">
             {% if user.is_authenticated %}
                 <a href="{% url 'dashboard' %}" {% if request.path == '/dashboard/' %}class="active"{% endif %}>📊 Dashboard</a>
-                <a href="{% url 'lesson_list' %}" {% if '/courses/' in request.path %}class="active"{% endif %}>📚 Lessons</a>
+                <a href="{% url 'courses:lesson_list' %}" {% if '/courses/' in request.path %}class="active"{% endif %}>📚 Lessons</a>
                 <a href="{% url 'leaderboard' %}" {% if '/leaderboard/' in request.path %}class="active"{% endif %}>🏆 Leaderboard</a>
 
                 <!-- More dropdown -->
@@ -497,14 +492,14 @@
                         <a href="{% url 'notifications' %}">🔔 Notifications</a>
                         <a href="{% url 'profile' %}">👤 Profile Settings</a>
                         {% if user.profile.role == 'teacher' %}
-                            <a href="{% url 'upload_lesson' %}">➕ Create Lesson</a>
+                            <a href="{% url 'courses:upload_lesson' %}">➕ Create Lesson</a>
                         {% endif %}
                     </div>
                 </div>
 
                 <!-- Create Lesson button (visible on larger screens) -->
                 {% if user.profile.role == 'teacher' %}
-                    <a href="{% url 'upload_lesson' %}" class="create-lesson-btn">➕ Create Lesson</a>
+                    <a href="{% url 'courses:upload_lesson' %}" class="create-lesson-btn">➕ Create Lesson</a>
                 {% endif %}
 
                 <!-- Profile dropdown -->

@@ -325,25 +325,27 @@ import cloudinary.utils
 from datetime import datetime, timedelta
 
 def view_lesson(request, lesson_id):
+    import os
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    public_id = lesson.pdf_file.name   # e.g., "media/lessons/pdfs/introtocomplexnumbers_lmyjva.pdf"
+    public_id_with_ext = lesson.pdf_file.name          # e.g., "media/lessons/pdfs/introtocomplexnumbers_lmyjva.pdf"
+    public_id = os.path.splitext(public_id_with_ext)[0]  # strip .pdf
 
-    # Generate signed URL using cloudinary_url (more robust)
     signed_url, options = cloudinary.utils.cloudinary_url(
         public_id,
-        resource_type="image",          # adjust to "raw" if needed – check your Cloudinary URL
+        resource_type="image",
+        format="pdf",               # <-- ensures .pdf extension
         sign_url=True,
         expires_at=datetime.utcnow() + timedelta(hours=1),
-        type="private"                  # matches "Blocked for delivery"
+        type="private",
+        secure=True                 # <-- forces HTTPS
     )
 
     context = {
         'pdf_url': signed_url,
         'lesson': lesson,
-        # ... other context
+        # any other context you need
     }
     return render(request, 'courses/lesson_reader.html', context)
-
 
 @login_required
 @csrf_exempt

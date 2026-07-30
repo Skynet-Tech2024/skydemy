@@ -76,17 +76,43 @@
     .progress-item {
         padding: 0.75rem 0;
         border-bottom: 1px solid #f1f3f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
     }
     .progress-item:last-child {
         border-bottom: none;
     }
-    .progress-item .lesson-link {
-        color: #0B7A3B;
+    .progress-item .lesson-info {
+        flex: 1;
+        min-width: 150px;
+    }
+    .progress-item .lesson-title {
         font-weight: 500;
+        color: #1F2937;
+    }
+    .progress-item .lesson-title a {
+        color: #0B7A3B;
         text-decoration: none;
     }
-    .progress-item .lesson-link:hover {
+    .progress-item .lesson-title a:hover {
         text-decoration: underline;
+    }
+    .progress-item .progress-wrapper {
+        flex: 2;
+        min-width: 100px;
+        margin: 0 1rem;
+    }
+    .progress-item .progress-wrapper .progress {
+        height: 6px;
+    }
+    .progress-item .action-btn-sm {
+        border-radius: 20px;
+        padding: 4px 16px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
     }
     .certificate-badge {
         background: #f8f9fa;
@@ -199,25 +225,37 @@
             {% if lessons_with_progress %}
                 {% for item in lessons_with_progress %}
                     <div class="progress-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <a href="{% url 'courses:view_lesson' item.lesson_id %}" class="lesson-link">
-                                    {{ item.title }}
-                                </a>
+                        <div class="lesson-info">
+                            <div class="lesson-title">
+                                {{ item.title }}
                                 {% if item.completed %}
-                                    <span class="badge bg-success ms-2">✓ Completed</span>
+                                    <span class="badge bg-success ms-1">✓ Completed</span>
                                 {% endif %}
                             </div>
-                            <span class="fw-bold">{{ item.progress_percentage|floatformat:0 }}%</span>
+                            <small class="text-muted">{{ item.progress_percentage|floatformat:0 }}% complete</small>
                         </div>
-                        <div class="progress mt-1" style="height: 6px;">
-                            <div class="progress-bar {% if item.completed %}bg-success{% else %}bg-info{% endif %}"
-                                 role="progressbar"
-                                 style="width: {{ item.progress_percentage }}%;"
-                                 aria-valuenow="{{ item.progress_percentage }}"
-                                 aria-valuemin="0"
-                                 aria-valuemax="100">
+                        <div class="progress-wrapper">
+                            <div class="progress">
+                                <div class="progress-bar {% if item.completed %}bg-success{% else %}bg-info{% endif %}"
+                                     role="progressbar"
+                                     style="width: {{ item.progress_percentage }}%;"
+                                     aria-valuenow="{{ item.progress_percentage }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                </div>
                             </div>
+                        </div>
+                        <div>
+                            <a href="{% url 'courses:view_lesson' item.lesson_id %}"
+                               class="btn {% if item.completed %}btn-outline-success{% elif item.progress_percentage > 0 %}btn-warning{% else %}btn-success{% endif %} action-btn-sm">
+                                {% if item.completed %}
+                                    <i class="fas fa-redo me-1"></i> Review
+                                {% elif item.progress_percentage > 0 %}
+                                    <i class="fas fa-play me-1"></i> Resume
+                                {% else %}
+                                    <i class="fas fa-play me-1"></i> Start
+                                {% endif %}
+                            </a>
                         </div>
                     </div>
                 {% endfor %}
@@ -225,7 +263,9 @@
                 <div class="empty-state">
                     <i class="fas fa-book-open"></i>
                     <p class="mb-0">No lessons started yet.</p>
-                    <a href="{% url 'courses:lesson_list' %}" class="btn btn-sm btn-success mt-2">Start learning now!</a>
+                    <a href="{% url 'courses:lesson_list' %}" class="btn btn-success btn-sm mt-2">
+                        <i class="fas fa-play me-1"></i> Start learning now!
+                    </a>
                 </div>
             {% endif %}
         </div>
@@ -249,6 +289,9 @@
                         <span class="cert-number">#{{ cert.certificate_number }}</span>
                     </div>
                 {% endfor %}
+                <div class="text-center mt-3">
+                    <a href="#" class="btn btn-outline-secondary btn-sm">View All Certificates</a>
+                </div>
             {% else %}
                 <div class="empty-state">
                     <i class="fas fa-certificate"></i>

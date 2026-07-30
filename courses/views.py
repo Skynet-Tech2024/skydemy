@@ -320,15 +320,7 @@ def add_subject(request):
 
 # ====== NEW PDF READER WITH PROGRESS ======
 
-
-import cloudinary.utils
-from datetime import datetime, timedelta
-
-   def view_lesson(request, lesson_id):
-    import os
-    from datetime import datetime, timedelta
-    from cloudinary.utils import cloudinary_url
-
+def view_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
     # Get the full path (e.g., "media/lessons/pdfs/...pdf")
@@ -352,6 +344,8 @@ from datetime import datetime, timedelta
         'lesson': lesson,
     }
     return render(request, 'courses/lesson_reader.html', context)
+
+
 @login_required
 @csrf_exempt
 def save_lesson_progress(request):

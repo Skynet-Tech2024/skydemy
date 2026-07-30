@@ -321,30 +321,18 @@ def add_subject(request):
 # ====== NEW PDF READER WITH PROGRESS ======
 
 def view_lesson(request, lesson_id):
+    from django.core.files.storage import default_storage
+
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
-    # Get the full path (e.g., "media/lessons/pdfs/...pdf")
-    full_path = lesson.pdf_file.name
-    # Remove the extension to get the public ID
-    public_id = os.path.splitext(full_path)[0]
-
-    # Generate signed URL – try 'private' type
-    signed_url, options = cloudinary_url(
-        public_id,
-        resource_type="image",
-        format="pdf",
-        sign_url=True,
-        expires_at=datetime.utcnow() + timedelta(hours=1),
-        type="private",          # works for blocked assets
-        secure=True
-    )
+    # Get the public URL directly (no signing needed)
+    pdf_url = default_storage.url(lesson.pdf_file.name)
 
     context = {
-        'pdf_url': signed_url,
+        'pdf_url': pdf_url,
         'lesson': lesson,
     }
     return render(request, 'courses/lesson_reader.html', context)
-
 
 @login_required
 @csrf_exempt

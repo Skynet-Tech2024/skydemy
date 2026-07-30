@@ -9,6 +9,10 @@
     <!-- ===== TOP BAR: Title & Progress ===== -->
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h2 style="font-size: 1.4rem; color: #0B7A3B; margin: 0;">{{ lesson.title }}</h2>
+<!-- Debug: PDF URL -->
+<div style="background: #f8f9fa; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 0.85rem; word-break: break-all;">
+    <strong>PDF URL:</strong> <code>{{ pdf_url|default:"⚠️ Not set" }}</code>
+</div>
         <span style="font-size: 0.9rem; color: #64748B;">
             <span id="page-display">Page 1 of 1</span>
         </span>

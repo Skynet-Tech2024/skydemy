@@ -326,16 +326,34 @@ from datetime import datetime, timedelta
 
 def view_lesson(request, lesson_id):
     import os
+    from datetime import datetime, timedelta
+    from cloudinary.utils import cloudinary_url
+
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    public_id_with_ext = lesson.pdf_file.name          # e.g., "media/lessons/pdfs/introtocomplexnumbers_lmyjva.pdf"
+
+    # 1. Get the public ID without extension
+    public_id_with_ext = lesson.pdf_file.name          # e.g., "media/lessons/pdfs/introtocomplexnumbers_1myjva.pdf"
     public_id = os.path.splitext(public_id_with_ext)[0]  # strip .pdf
 
-    type="authenticated",
+    # 2. Generate signed URL – note the 'authenticated' type
+    signed_url, options = cloudinary_url(
+        public_id,
+        resource_type="image",          # matches your asset
+        format="pdf",                   # ensures .pdf extension
+        sign_url=True,
+        expires_at=datetime.utcnow() + timedelta(hours=1),
+        type="authenticated",           # ✅ this matches "Blocked for delivery"
+        secure=True                     # force HTTPS
+    )
+
+    # 3. For debugging (remove after it works)
+    print(f"🔍 Public ID: {public_id}")
+    print(f"🔗 Signed URL: {signed_url}")
 
     context = {
         'pdf_url': signed_url,
         'lesson': lesson,
-        # any other context you need
+        # include any other context you need (e.g., exam, progress)
     }
     return render(request, 'courses/lesson_reader.html', context)
 

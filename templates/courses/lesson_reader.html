@@ -1,261 +1,137 @@
-{% extends "dashboard/base.html" %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}{{ lesson.title }} | SKYDEMY Reader{% endblock %}
+{% block title %}My Dashboard | SKYDEMY{% endblock %}
 
 {% block content %}
-<div id="reader-container" style="max-width: 1000px; margin: 0 auto; padding: 10px 15px;">
-
-    <!-- ===== TOP BAR: Title & Progress ===== -->
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h2 style="font-size: 1.4rem; color: #0B7A3B; margin: 0;">{{ lesson.title }}</h2>
-<!-- Debug: PDF URL -->
-<div style="background: #f8f9fa; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 0.85rem; word-break: break-all;">
-    <strong>PDF URL:</strong> <code>{{ pdf_url|default:"⚠️ Not set" }}</code>
-</div>
-        <span style="font-size: 0.9rem; color: #64748B;">
-            <span id="page-display">Page 1 of 1</span>
-        </span>
-    </div>
-
-    <!-- ===== PROGRESS BAR ===== -->
-    <div style="width: 100%; height: 8px; background: #e9ecef; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
-        <div id="progress-bar" style="width: 0%; height: 100%; background: #0B7A3B; transition: width 0.3s ease;"></div>
-    </div>
-    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #6c757d; margin-bottom: 12px;">
-        <span id="progress-label">0%</span>
-        <span id="completed-badge" style="display: none; background: #0B7A3B; color: #fff; padding: 2px 10px; border-radius: 12px; font-weight: 600;">✓ Completed</span>
-    </div>
-
-    <!-- ===== RESUME PROMPT (if progress > 1) ===== -->
-    {% if progress and progress.current_page > 1 %}
-    <div id="resume-banner" style="background: #f1f9f1; border-left: 4px solid #0B7A3B; padding: 12px 16px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <span>📖 You left off at <strong>page {{ progress.current_page }}</strong> ({{ progress.progress_percentage|floatformat:0 }}% completed).</span>
-        <div style="display: flex; gap: 10px;">
-            <button id="resume-btn" class="btn btn-sm" style="background: #0B7A3B; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer;">Resume</button>
-            <button id="restart-btn" class="btn btn-sm" style="background: #6c757d; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer;">Start Over</button>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- ===== PDF CANVAS ===== -->
-    <div style="background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 10px; text-align: center; position: relative;">
-        <canvas id="pdf-canvas" style="width: 100%; height: auto; border: 1px solid #e9ecef; border-radius: 8px;"></canvas>
-        <!-- Loading spinner -->
-        <div id="loading-spinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #0B7A3B; font-size: 1.2rem;">
-            <i class="fas fa-spinner fa-spin"></i> Loading PDF...
+<div class="container py-4">
+    <!-- ===== WELCOME SECTION ===== -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Welcome back, {{ user.username }}!</h2>
+            <p class="text-muted">
+                Level: <strong>{{ user.profile.get_level_display|default:"Not set" }}</strong> |
+                Rating: <strong>{{ user.profile.rating|default:"0.0" }} ★</strong>
+            </p>
         </div>
     </div>
 
-    <!-- ===== NAVIGATION ===== -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; gap: 10px; flex-wrap: wrap;">
-        <button id="prev-page" class="btn" style="background: #f1f3f5; border: 1px solid #dee2e6; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; color: #1F2937;">
-            ◀ Previous
-        </button>
-        <span id="page-indicator" style="font-size: 0.95rem; color: #1F2937;">Page <span id="current-page-num">1</span> of <span id="total-page-num">1</span></span>
-        <button id="next-page" class="btn" style="background: #0B7A3B; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
-            Next ▶
-        </button>
+    <!-- ===== STATS CARDS ===== -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h3 class="display-4 text-success">{{ lessons_completed|default:0 }}</h3>
+                    <p class="text-muted">Lessons Completed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h3 class="display-4 text-primary">{{ certificates_count|default:0 }}</h3>
+                    <p class="text-muted">Certificates Earned</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h3 class="display-4 text-warning">{{ exams_taken|default:0 }}</h3>
+                    <p class="text-muted">Exams Taken</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- ===== BACK BUTTON ===== -->
-    <div style="margin-top: 20px;">
-        <a href="{% url 'dashboard' %}" class="btn" style="background: #6c757d; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500;">⬅ Back to Dashboard</a>
+    <!-- ===== ACTION BUTTONS ===== -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <a href="{% url 'courses:lesson_list' %}" class="btn btn-success btn-lg w-100">
+                <i class="fas fa-book-open"></i> Browse All Lessons
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="#" class="btn btn-outline-secondary btn-lg w-100">
+                <i class="fas fa-chart-line"></i> View Progress Chart
+            </a>
+        </div>
+    </div>
+
+    <!-- ===== MY PROGRESS SECTION ===== -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar text-success"></i> My Progress</h5>
+                </div>
+                <div class="card-body">
+                    {% if lessons_with_progress %}
+                        {% for item in lessons_with_progress %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>
+                                        <a href="{% url 'courses:view_lesson' item.lesson_id %}" class="text-decoration-none">
+                                            {{ item.title }}
+                                        </a>
+                                    </span>
+                                    <span>{{ item.progress_percentage|floatformat:0 }}%</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar {% if item.completed %}bg-success{% else %}bg-info{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ item.progress_percentage }}%;" 
+                                         aria-valuenow="{{ item.progress_percentage }}" 
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                {% if item.completed %}
+                                    <small class="text-success"><i class="fas fa-check-circle"></i> Completed</small>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-3">
+                            No lessons started yet. 
+                            <a href="{% url 'courses:lesson_list' %}" class="text-success">Start learning now!</a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MY CERTIFICATES SECTION ===== -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-award text-warning"></i> My Certificates</h5>
+                </div>
+                <div class="card-body">
+                    {% if certificates %}
+                        <div class="list-group">
+                            {% for cert in certificates %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-certificate text-warning me-2"></i>
+                                        <strong>{{ cert.lesson.title }}</strong>
+                                        <br>
+                                        <small class="text-muted">Issued: {{ cert.issued_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <span class="badge bg-success">Certificate #{{ cert.certificate_number }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="fas fa-certificate text-muted me-2"></i>
+                            No certificates earned yet. Pass an exam to earn a certificate!
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-<!-- ===== PDF.js + JavaScript ===== -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // ---- DOM refs ----
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
-        const prevBtn = document.getElementById('prev-page');
-        const nextBtn = document.getElementById('next-page');
-        const pageNumSpan = document.getElementById('current-page-num');
-        const totalPagesSpan = document.getElementById('total-page-num');
-        const pageDisplay = document.getElementById('page-display');
-        const progressBar = document.getElementById('progress-bar');
-        const progressLabel = document.getElementById('progress-label');
-        const completedBadge = document.getElementById('completed-badge');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const resumeBtn = document.getElementById('resume-btn');
-        const restartBtn = document.getElementById('restart-btn');
-
-        // ---- PDF data ----
-        const pdfUrl = '{{ pdf_url|escapejs }}';
-        const lessonId = {{ lesson.id }};
-        const startPage = {% if progress and progress.current_page > 1 %}{{ progress.current_page }}{% else %}1{% endif %};
-        let pdfDoc = null;
-        let currentPage = startPage;
-        let totalPages = 1;
-
-        // ---- Render page ----
-        function renderPage(pageNum) {
-            if (!pdfDoc) return;
-            pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1.5 });
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-                page.render(renderContext).promise.then(function() {
-                    // Update UI
-                    pageNumSpan.textContent = pageNum;
-                    totalPagesSpan.textContent = totalPages;
-                    pageDisplay.textContent = `Page ${pageNum} of ${totalPages}`;
-
-                    // Update progress
-                    const progress = (pageNum / totalPages) * 100;
-                    progressBar.style.width = progress + '%';
-                    progressLabel.textContent = Math.round(progress) + '%';
-
-                    // Check completion
-                    if (pageNum === totalPages) {
-                        completedBadge.style.display = 'inline-block';
-                    } else {
-                        completedBadge.style.display = 'none';
-                    }
-
-                    // Save progress via AJAX
-                    saveProgress(pageNum, totalPages, progress);
-                });
-            }).catch(function(err) {
-                console.error('Error rendering page:', err);
-                loadingSpinner.textContent = '⚠️ Error loading page.';
-            });
-        }
-
-        // ---- Save progress (AJAX) ----
-        function saveProgress(pageNum, total, progressPercent) {
-            const data = {
-                lesson_id: lessonId,
-                current_page: pageNum,
-                total_pages: total,
-                progress_percentage: progressPercent,
-                completed: (pageNum === total)
-            };
-            fetch('{% url "save_lesson_progress" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Optional: log or handle
-            })
-            .catch(err => console.warn('Progress save error:', err));
-        }
-
-        // ---- CSRF token helper ----
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        // ---- Load PDF ----
-        if (pdfUrl) {
-            loadingSpinner.style.display = 'block';
-            const loadingTask = pdfjsLib.getDocument(pdfUrl);
-            loadingTask.promise.then(function(pdf) {
-                pdfDoc = pdf;
-                totalPages = pdf.numPages;
-                totalPagesSpan.textContent = totalPages;
-                loadingSpinner.style.display = 'none';
-                renderPage(currentPage);
-            }).catch(function(err) {
-                console.error('PDF load error:', err);
-                loadingSpinner.textContent = '⚠️ Failed to load PDF. Please try again later.';
-            });
-        } else {
-            loadingSpinner.textContent = '⚠️ PDF URL not available.';
-        }
-
-        // ---- Navigation ----
-        function goToPage(pageNum) {
-            if (pageNum < 1) pageNum = 1;
-            if (pageNum > totalPages) pageNum = totalPages;
-            if (pageNum !== currentPage) {
-                currentPage = pageNum;
-                renderPage(currentPage);
-            }
-        }
-
-        prevBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (currentPage > 1) goToPage(currentPage - 1);
-        });
-
-        nextBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (currentPage < totalPages) goToPage(currentPage + 1);
-        });
-
-        // ---- Keyboard support ----
-        document.addEventListener('keydown', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                if (currentPage > 1) goToPage(currentPage - 1);
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                if (currentPage < totalPages) goToPage(currentPage + 1);
-            }
-        });
-
-        // ---- Touch swipe support (pointer events) ----
-        let startX = 0;
-        let startY = 0;
-        const container = document.getElementById('reader-container');
-        container.addEventListener('pointerdown', function(e) {
-            startX = e.clientX;
-            startY = e.clientY;
-        });
-        container.addEventListener('pointerup', function(e) {
-            if (startX === 0) return;
-            const deltaX = e.clientX - startX;
-            const deltaY = e.clientY - startY;
-            // Only trigger if horizontal swipe is dominant
-            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
-                if (deltaX < 0 && currentPage < totalPages) {
-                    goToPage(currentPage + 1);
-                } else if (deltaX > 0 && currentPage > 1) {
-                    goToPage(currentPage - 1);
-                }
-            }
-            startX = 0;
-        });
-
-        // ---- Resume / Restart ----
-        if (resumeBtn) {
-            resumeBtn.addEventListener('click', function() {
-                const banner = document.getElementById('resume-banner');
-                if (banner) banner.style.display = 'none';
-                goToPage(startPage);
-            });
-        }
-        if (restartBtn) {
-            restartBtn.addEventListener('click', function() {
-                const banner = document.getElementById('resume-banner');
-                if (banner) banner.style.display = 'none';
-                goToPage(1);
-            });
-        }
-    });
-</script>
 {% endblock %}

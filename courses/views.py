@@ -324,10 +324,14 @@ def add_subject(request):
 @lesson_access
 def view_lesson(request, lesson_id):
     """New PDF reader view with progress tracking."""
+    from .models import LessonProgress
+    from datetime import timedelta
+    import cloudinary.utils
+
     lesson = get_object_or_404(Lesson, id=lesson_id)
     exam = None
 
-    # Get or create progress for the logged-in user
+    # Get or create progress
     if request.user.is_authenticated:
         progress, created = LessonProgress.objects.get_or_create(
             user=request.user,
@@ -342,26 +346,46 @@ def view_lesson(request, lesson_id):
     else:
         progress = None
 
-    # Generate signed PDF URL (with expiry)
     pdf_url = None
+
     if lesson.pdf_file:
         try:
             public_id = lesson.pdf_file.name
             if '.' in public_id:
                 public_id = public_id.rsplit('.', 1)[0]
 
-            pdf_url = cloudinary_url(
+            # Calculate expiry timestamp (1 hour from now)
+            expires_at = int((datetime.now() + timedelta(hours=1)).timestamp())
+            print(f"DEBUG: public_id = {public_id}, expires_at = {expires_at}")
+
+            # Try as image first
+            signed_url = cloudinary.utils.cloudinary_url(
                 public_id,
                 resource_type='image',
+                type='upload',          # explicitly set
                 sign_url=True,
-                expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
+                expires_at=expires_at
             )[0]
 
-            # Debug: print to Render logs
-            print(f"Generated PDF URL: {pdf_url}")
+            # If the URL still contains 's--', it's a transformation signature,
+            # not a delivery signature – try 'raw' as fallback.
+            if 's--' in signed_url:
+                print("DEBUG: image URL has transformation signature, trying raw...")
+                signed_url = cloudinary.utils.cloudinary_url(
+                    public_id,
+                    resource_type='raw',
+                    type='upload',
+                    sign_url=True,
+                    expires_at=expires_at
+                )[0]
+
+            pdf_url = signed_url
+            print(f"DEBUG: Final PDF URL: {pdf_url}")
+
         except Exception as e:
             pdf_url = None
             messages.warning(request, f"Could not generate PDF URL: {str(e)}")
+            print(f"ERROR: {e}")
 
     context = {
         'lesson': lesson,
@@ -370,7 +394,6 @@ def view_lesson(request, lesson_id):
         'progress': progress,
     }
     return render(request, 'courses/lesson_reader.html', context)
-
 
 @login_required
 @csrf_exempt

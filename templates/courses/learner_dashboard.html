@@ -47,7 +47,8 @@
     <!-- ===== ACTION BUTTONS ===== -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <a href="{% url 'lesson_list' %}" class="btn btn-success btn-lg w-100">
+            <!-- ✅ FIX: added 'courses:' namespace -->
+            <a href="{% url 'courses:lesson_list' %}" class="btn btn-success btn-lg w-100">
                 <i class="fas fa-book-open"></i> Browse All Lessons
             </a>
         </div>
@@ -71,7 +72,8 @@
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>
-                                        <a href="{% url 'view_lesson' item.lesson_id %}" class="text-decoration-none">
+                                        <!-- ✅ FIX: added 'courses:' namespace -->
+                                        <a href="{% url 'courses:view_lesson' item.lesson_id %}" class="text-decoration-none">
                                             {{ item.title }}
                                         </a>
                                     </span>
@@ -93,7 +95,8 @@
                     {% else %}
                         <p class="text-muted text-center py-3">
                             No lessons started yet. 
-                            <a href="{% url 'lesson_list' %}" class="text-success">Start learning now!</a>
+                            <!-- ✅ FIX: added 'courses:' namespace -->
+                            <a href="{% url 'courses:lesson_list' %}" class="text-success">Start learning now!</a>
                         </p>
                     {% endif %}
                 </div>

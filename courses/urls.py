@@ -11,7 +11,7 @@ urlpatterns = [
 
     # ===== LEARNER DASHBOARD =====
     # 👇 MUST come BEFORE lesson/<int:lesson_id>/ to avoid conflicts
-    path('dashboard/', views.learner_dashboard, name='learner_dashboard'),
+    
 
     # ===== LESSON VIEWER =====
     path('lesson/<int:lesson_id>/', views.view_lesson, name='view_lesson'),

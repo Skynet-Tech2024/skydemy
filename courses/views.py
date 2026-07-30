@@ -16,6 +16,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 # Users & notifications
 from users.utils import create_notification
@@ -36,57 +38,6 @@ from .utils import convert_uploaded_file_to_pdf
 # ====== WHITEBOARD VIDEO CONVERSION (uses pypdfium2 + moviepy) ======
 import pypdfium2 as pdfium
 from moviepy.editor import ImageSequenceClip
-
-
-
-@login_required
-@basic_access
-def learner_dashboard(request):
-    """Dashboard for learners with stats, progress, and certificates."""
-    user = request.user
-    
-    # Get all approved lessons for learner's level
-    lessons = Lesson.objects.filter(status='approved', level=user.profile.level)
-    
-    # Build progress data
-    lessons_with_progress = []
-    lessons_completed = 0
-    
-    for lesson in lessons:
-        try:
-            progress = LessonProgress.objects.get(user=user, lesson=lesson)
-            progress_data = {
-                'title': lesson.title,
-                'progress_percentage': progress.progress_percentage,
-                'completed': progress.completed,
-                'lesson_id': lesson.id
-            }
-            if progress.completed:
-                lessons_completed += 1
-            lessons_with_progress.append(progress_data)
-        except LessonProgress.DoesNotExist:
-            lessons_with_progress.append({
-                'title': lesson.title,
-                'progress_percentage': 0,
-                'completed': False,
-                'lesson_id': lesson.id
-            })
-    
-    # Get certificates
-    certificates = Certificate.objects.filter(user=user).order_by('-issued_date')
-    certificates_count = certificates.count()
-    
-    # Get exams taken
-    exams_taken = ExamResult.objects.filter(user=user).count()
-    
-    context = {
-        'lessons_with_progress': lessons_with_progress,
-        'lessons_completed': lessons_completed,
-        'certificates': certificates,
-        'certificates_count': certificates_count,
-        'exams_taken': exams_taken,
-    }
-    return render(request, 'courses/learner_dashboard.html', context)
 
 
 @login_required
@@ -222,22 +173,43 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
 @basic_access
 def lesson_list(request):
-    """Display lessons – learners see only their level, teachers see all."""
-    lessons = Lesson.objects.filter(status='approved').order_by('-created_at')
-    
+    """Display lessons with search and pagination."""
+    # Base queryset: only approved lessons
+    lessons_qs = Lesson.objects.filter(status='approved').order_by('-created_at')
+
+    # Level filter for learners
     if request.user.is_authenticated and request.user.profile.role == 'learner':
-        lessons = lessons.filter(level=request.user.profile.level)
+        lessons_qs = lessons_qs.filter(level=request.user.profile.level)
+
+    # Search
+    query = request.GET.get('q')
+    if query:
+        lessons_qs = lessons_qs.filter(
+            Q(title__icontains=query) |
+            Q(subject__name__icontains=query) |
+            Q(teacher__username__icontains=query)
+        )
+
+    # Pagination
+    paginator = Paginator(lessons_qs, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    # Attach following/wishlist info for learners
+    if request.user.is_authenticated and request.user.profile.role == 'learner':
         following_ids = request.user.following.values_list('following_id', flat=True)
         wishlisted_ids = Wishlist.objects.filter(user=request.user).values_list('lesson_id', flat=True)
-        for lesson in lessons:
+        for lesson in page_obj:
             lesson.is_following = lesson.teacher.id in following_ids
             lesson.is_wishlisted = lesson.id in wishlisted_ids
     else:
-        for lesson in lessons:
+        for lesson in page_obj:
             lesson.is_following = False
             lesson.is_wishlisted = False
-    
-    return render(request, 'courses/lesson_list.html', {'lessons': lessons})
+
+    return render(request, 'courses/lesson_list.html', {
+        'page_obj': page_obj,
+        'query': query,
+    })
 
 
 @upload_access
@@ -369,18 +341,49 @@ def add_subject(request):
     return render(request, 'courses/add_subject.html')
 
 
-# ====== NEW PDF READER WITH PROGRESS ======
-def view_lesson(request, lesson_id):
-    from django.core.files.storage import default_storage
+# ====== PDF READER WITH BASIC PROGRESS ======
 
+@xframe_options_exempt
+@lesson_access
+def view_lesson(request, lesson_id):
+    """View a lesson with a PDF reader (plain URL for now)."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    pdf_url = default_storage.url(lesson.pdf_file.name)
+    exam = None
+
+    # Get or create progress for the logged-in user
+    if request.user.is_authenticated:
+        progress, created = LessonProgress.objects.get_or_create(
+            user=request.user,
+            lesson=lesson,
+            defaults={
+                'current_page': 1,
+                'total_pages': 1,
+                'progress_percentage': 0,
+                'completed': False
+            }
+        )
+    else:
+        progress = None
+
+    # Get the PDF URL using default_storage (works with Cloudinary)
+    pdf_url = None
+    if lesson.pdf_file:
+        try:
+            pdf_url = default_storage.url(lesson.pdf_file.name)
+            print(f"DEBUG: PDF URL = {pdf_url}")
+        except Exception as e:
+            pdf_url = None
+            messages.warning(request, f"Could not generate PDF URL: {str(e)}")
 
     context = {
-        'pdf_url': pdf_url,
         'lesson': lesson,
+        'exam': exam,
+        'pdf_url': pdf_url,
+        'progress': progress,
     }
     return render(request, 'courses/lesson_reader.html', context)
+
+
 @login_required
 @csrf_exempt
 def save_lesson_progress(request):

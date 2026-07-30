@@ -325,15 +325,14 @@ def add_subject(request):
 @xframe_options_exempt
 @lesson_access
 def view_lesson(request, lesson_id):
-    """New PDF reader view with progress tracking."""
+    """PDF reader with signed download URL."""
     from .models import LessonProgress
     from datetime import timedelta
-    import cloudinary.api
+    from cloudinary.utils import private_download_url
 
     lesson = get_object_or_404(Lesson, id=lesson_id)
     exam = None
 
-    # Get or create progress
     if request.user.is_authenticated:
         progress, created = LessonProgress.objects.get_or_create(
             user=request.user,
@@ -355,21 +354,24 @@ def view_lesson(request, lesson_id):
             if '.' in public_id:
                 public_id = public_id.rsplit('.', 1)[0]
 
-            print(f"DEBUG: Fetching URL for public_id = {public_id}")
-
-            # Try 'raw' resource type first (most PDFs are raw)
+            # Try 'raw' first (most PDFs are stored as raw)
             try:
-                resource = cloudinary.api.resource(public_id, resource_type='raw')
-                pdf_url = resource.get('secure_url')
-                print(f"DEBUG: Got raw URL: {pdf_url}")
-            except cloudinary.exceptions.NotFound:
-                # Fallback to 'image' if raw fails
-                try:
-                    resource = cloudinary.api.resource(public_id, resource_type='image')
-                    pdf_url = resource.get('secure_url')
-                    print(f"DEBUG: Got image URL: {pdf_url}")
-                except Exception as e:
-                    print(f"DEBUG: Image fallback failed: {e}")
+                pdf_url = private_download_url(
+                    public_id,
+                    resource_type='raw',
+                    expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
+                )
+                print(f"DEBUG: raw signed URL generated")
+            except Exception as e_raw:
+                print(f"DEBUG: raw failed, falling back to image")
+                pdf_url = private_download_url(
+                    public_id,
+                    resource_type='image',
+                    expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
+                )
+                print(f"DEBUG: image signed URL generated")
+
+            print(f"DEBUG: Final PDF URL: {pdf_url}")
 
         except Exception as e:
             pdf_url = None
@@ -383,6 +385,7 @@ def view_lesson(request, lesson_id):
         'progress': progress,
     }
     return render(request, 'courses/lesson_reader.html', context)
+
 @login_required
 @csrf_exempt
 def save_lesson_progress(request):

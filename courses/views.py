@@ -326,15 +326,15 @@ from django.shortcuts import render, get_object_or_404
 
 def view_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    public_id = lesson.pdf_file.public_id   # Should be "media/lessons/pdfs/introtocomplexnumbers_lmyjva"
+    public_id = lesson.pdf_file.name   # e.g. "media/lessons/pdfs/introtocomplexnumbers_lmyjva.pdf"
 
-    # Generate a signed URL valid for, say, 1 hour
     signed_url = cloudinary.utils.private_download_url(
         public_id,
-        resource_type="image",               # because your PDF is stored as image
+        resource_type="image",         # or "raw" – see note below
         expires_at=datetime.utcnow() + timedelta(hours=1),
-        type="private"                       # matches "Blocked for delivery" (private assets)
+        type="private"
     )
+    # fallback...
 
     # Fallback if private_download_url returns None (shouldn't happen, but safe)
     if not signed_url:

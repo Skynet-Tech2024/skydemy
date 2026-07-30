@@ -171,16 +171,16 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
 # ====== Core Lesson Views ======
 
-def lesson_list(request):
-    print("✅ lesson_list called (no decorator)")
-    """Display lessons with search and pagination."""
-    print("✅ lesson_list view called!")  # <-- indented correctly
 
-    # Base queryset: only approved lessons
+@login_required
+def lesson_list(request):
+    """Display lessons – accessible to all authenticated users."""
+    print("✅ lesson_list view called!")   # debug
+
     lessons_qs = Lesson.objects.filter(status='approved').order_by('-created_at')
 
-    # Level filter for learners
-    if request.user.is_authenticated and request.user.profile.role == 'learner':
+    # If learner, filter by their level
+    if hasattr(request.user, 'profile') and request.user.profile.role == 'learner':
         lessons_qs = lessons_qs.filter(level=request.user.profile.level)
 
     # Search
@@ -197,7 +197,7 @@ def lesson_list(request):
     page_obj = paginator.get_page(request.GET.get('page'))
 
     # Attach following/wishlist info for learners
-    if request.user.is_authenticated and request.user.profile.role == 'learner':
+    if request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.role == 'learner':
         following_ids = request.user.following.values_list('following_id', flat=True)
         wishlisted_ids = Wishlist.objects.filter(user=request.user).values_list('lesson_id', flat=True)
         for lesson in page_obj:

@@ -50,6 +50,7 @@ def debug_templates(request):
 
 # ====== URL patterns ======
 urlpatterns = [
+path('courses/', include('courses.urls')),
     # Service worker
     path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw.js'),
     path('migrate/', run_migrations, name='run_migrations'),
@@ -87,9 +88,9 @@ urlpatterns = [
     path('users/logout/', custom_logout, name='logout'),
     path('users/complete-profile/', complete_profile, name='complete_profile'),
 
-    # Courses
-    path('courses/', include('courses.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('', include('dashboard.urls')), 
+  ] 
++ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

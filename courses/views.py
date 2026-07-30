@@ -171,6 +171,8 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
 # ====== Core Lesson Views ======
 
+from django.contrib.auth.decorators import login_required
+
 @login_required
 def lesson_list(request):
     """Display lessons with search and pagination."""

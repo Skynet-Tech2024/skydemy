@@ -320,31 +320,22 @@ def add_subject(request):
 
 # ====== NEW PDF READER WITH PROGRESS ======
 
+
 import cloudinary.utils
 from datetime import datetime, timedelta
-from django.shortcuts import render, get_object_or_404
 
 def view_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    public_id = lesson.pdf_file.name   # e.g. "media/lessons/pdfs/introtocomplexnumbers_lmyjva.pdf"
+    public_id = lesson.pdf_file.name   # e.g., "media/lessons/pdfs/introtocomplexnumbers_lmyjva.pdf"
 
-    signed_url = cloudinary.utils.private_download_url(
+    # Generate signed URL using cloudinary_url (more robust)
+    signed_url, options = cloudinary.utils.cloudinary_url(
         public_id,
-        resource_type="image",         # or "raw" – see note below
+        resource_type="image",          # adjust to "raw" if needed – check your Cloudinary URL
+        sign_url=True,
         expires_at=datetime.utcnow() + timedelta(hours=1),
-        type="private"
+        type="private"                  # matches "Blocked for delivery"
     )
-    # fallback...
-
-    # Fallback if private_download_url returns None (shouldn't happen, but safe)
-    if not signed_url:
-        signed_url, _ = cloudinary.utils.cloudinary_url(
-            public_id,
-            resource_type="image",
-            sign_url=True,
-            expires_at=datetime.utcnow() + timedelta(hours=1),
-            type="private"
-        )
 
     context = {
         'pdf_url': signed_url,
@@ -352,6 +343,7 @@ def view_lesson(request, lesson_id):
         # ... other context
     }
     return render(request, 'courses/lesson_reader.html', context)
+
 
 @login_required
 @csrf_exempt

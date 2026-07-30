@@ -320,89 +320,38 @@ def add_subject(request):
 
 # ====== NEW PDF READER WITH PROGRESS ======
 
-@xframe_options_exempt
-@lesson_access
+import cloudinary.utils
+from datetime import datetime, timedelta
+from django.shortcuts import render, get_object_or_404
+
 def view_lesson(request, lesson_id):
-    """PDF reader with signed download URL (fallback to public URL)."""
-    from .models import LessonProgress
-    from datetime import timedelta
-    from cloudinary.utils import private_download_url
-    import cloudinary.api
-
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    exam = None
+    public_id = lesson.pdf_file.public_id   # Should be "media/lessons/pdfs/introtocomplexnumbers_lmyjva"
 
-    if request.user.is_authenticated:
-        progress, created = LessonProgress.objects.get_or_create(
-            user=request.user,
-            lesson=lesson,
-            defaults={
-                'current_page': 1,
-                'total_pages': 1,
-                'progress_percentage': 0,
-                'completed': False
-            }
+    # Generate a signed URL valid for, say, 1 hour
+    signed_url = cloudinary.utils.private_download_url(
+        public_id,
+        resource_type="image",               # because your PDF is stored as image
+        expires_at=datetime.utcnow() + timedelta(hours=1),
+        type="private"                       # matches "Blocked for delivery" (private assets)
+    )
+
+    # Fallback if private_download_url returns None (shouldn't happen, but safe)
+    if not signed_url:
+        signed_url, _ = cloudinary.utils.cloudinary_url(
+            public_id,
+            resource_type="image",
+            sign_url=True,
+            expires_at=datetime.utcnow() + timedelta(hours=1),
+            type="private"
         )
-    else:
-        progress = None
-
-    pdf_url = None
-    if lesson.pdf_file:
-        try:
-            public_id = lesson.pdf_file.name
-            if '.' in public_id:
-                public_id = public_id.rsplit('.', 1)[0]
-
-            print(f"DEBUG: public_id = {public_id}")
-
-            # Try private_download_url with raw
-            try:
-                pdf_url = private_download_url(
-                    public_id,
-                    resource_type='raw',
-                    expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
-                )
-                print(f"DEBUG: raw private_download_url succeeded")
-            except Exception as e_raw:
-                print(f"DEBUG: raw private_download_url failed: {e_raw}")
-                # Fallback to image
-                try:
-                    pdf_url = private_download_url(
-                        public_id,
-                        resource_type='image',
-                        expires_at=int((datetime.now() + timedelta(hours=1)).timestamp())
-                    )
-                    print(f"DEBUG: image private_download_url succeeded")
-                except Exception as e_image:
-                    print(f"DEBUG: image private_download_url failed: {e_image}")
-                    # Final fallback: get public URL via API
-                    try:
-                        resource = cloudinary.api.resource(public_id, resource_type='raw')
-                        pdf_url = resource.get('secure_url')
-                        print(f"DEBUG: API fallback (raw) succeeded")
-                    except Exception as e_api_raw:
-                        try:
-                            resource = cloudinary.api.resource(public_id, resource_type='image')
-                            pdf_url = resource.get('secure_url')
-                            print(f"DEBUG: API fallback (image) succeeded")
-                        except Exception as e_api_image:
-                            print(f"DEBUG: All fallbacks failed. Last error: {e_api_image}")
-
-            print(f"DEBUG: Final PDF URL: {pdf_url}")
-
-        except Exception as e:
-            pdf_url = None
-            messages.warning(request, f"Could not generate PDF URL: {str(e)}")
-            print(f"ERROR: {e}")
 
     context = {
+        'pdf_url': signed_url,
         'lesson': lesson,
-        'exam': exam,
-        'pdf_url': pdf_url,
-        'progress': progress,
+        # ... other context
     }
     return render(request, 'courses/lesson_reader.html', context)
-
 
 @login_required
 @csrf_exempt

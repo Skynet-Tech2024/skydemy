@@ -25,7 +25,7 @@
     </div>
     
     <h2 style="margin-top: 30px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📖 Browse Lessons</h2>
-    <a href="/courses/" class="..." style=" style="background: #f39c12; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">Browse All Lessons</a>
+    <a href="/courses/" style="background: #f39c12; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">Browse All Lessons</a>
     
     <!-- Progress Chart Button -->
     <a href="{% url 'progress_chart' %}" style="background: #8e44ad; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px); margin-top: 10px;">📈 View Progress Chart</a>
@@ -45,7 +45,7 @@
             </div>
         {% endfor %}
     {% else %}
-        <p style="font-size: clamp(14px, 1.5vw, 16px);">No lessons started yet. <a href="{% url 'lesson_list' %}" style="color: #f39c12;">Start learning now!</a></p>
+        <p style="font-size: clamp(14px, 1.5vw, 16px);">No lessons started yet. <a href="/courses/" style="color: #f39c12;">Start learning now!</a></p>
     {% endif %}
     
     <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">🏆 My Certificates</h2>

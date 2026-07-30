@@ -3,138 +3,261 @@
 
 {% block title %}Learner Dashboard | SKYDEMY{% endblock %}
 
+{% block extra_css %}
+<style>
+    .dashboard-hero {
+        background: linear-gradient(135deg, #0B7A3B 0%, #1a9e5a 100%);
+        color: white;
+        padding: 2rem 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(11, 122, 59, 0.3);
+    }
+    .stat-card {
+        border: none;
+        border-radius: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        background: white;
+        text-align: center;
+        padding: 1.25rem 1rem;
+        height: 100%;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    .stat-card .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .stat-card .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .stat-card .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .action-btn {
+        border-radius: 50px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .section-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    .section-card .card-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1F2937;
+    }
+    .section-card .card-body {
+        padding: 1.5rem;
+    }
+    .progress-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f1f3f5;
+    }
+    .progress-item:last-child {
+        border-bottom: none;
+    }
+    .progress-item .lesson-link {
+        color: #0B7A3B;
+        font-weight: 500;
+        text-decoration: none;
+    }
+    .progress-item .lesson-link:hover {
+        text-decoration: underline;
+    }
+    .certificate-badge {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        transition: background 0.2s;
+    }
+    .certificate-badge:hover {
+        background: #e9ecef;
+    }
+    .certificate-badge .cert-number {
+        background: #0B7A3B;
+        color: white;
+        padding: 0.2rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .empty-state {
+        color: #6c757d;
+        text-align: center;
+        padding: 2rem 0;
+    }
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+        opacity: 0.4;
+    }
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        color: white;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
-    <!-- ===== WELCOME SECTION ===== -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2>Welcome back, {{ user.username }}!</h2>
-            <p class="text-muted">
-                Level: <strong>{{ user.profile.get_level_display|default:"Not set" }}</strong> |
-                Rating: <strong>{{ user.profile.rating|default:"0.0" }} ★</strong>
-            </p>
+
+    <!-- ===== HERO / WELCOME ===== -->
+    <div class="dashboard-hero">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">Welcome back, {{ user.username }}!</h1>
+                <p class="lead mb-0">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    Level: <strong>{{ user.profile.get_level_display|default:"Not set" }}</strong>
+                    <span class="mx-2">|</span>
+                    <i class="fas fa-star me-1"></i>
+                    Rating: <strong>{{ user.profile.rating|default:"0.0" }} ★</strong>
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'courses:lesson_list' %}" class="btn btn-light btn-lg action-btn">
+                    <i class="fas fa-book-open me-2"></i> Browse Lessons
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- ===== STATS CARDS ===== -->
-    <div class="row mb-4">
+    <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h3 class="display-4 text-success">{{ lessons_completed|default:0 }}</h3>
-                    <p class="text-muted">Lessons Completed</p>
-                </div>
+            <div class="stat-card">
+                <span class="stat-icon text-success"><i class="fas fa-check-circle"></i></span>
+                <div class="stat-number text-success">{{ lessons_completed|default:0 }}</div>
+                <div class="stat-label">Lessons Completed</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h3 class="display-4 text-primary">{{ certificates_count|default:0 }}</h3>
-                    <p class="text-muted">Certificates Earned</p>
-                </div>
+            <div class="stat-card">
+                <span class="stat-icon text-primary"><i class="fas fa-award"></i></span>
+                <div class="stat-number text-primary">{{ certificates_count|default:0 }}</div>
+                <div class="stat-label">Certificates Earned</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h3 class="display-4 text-warning">{{ exams_taken|default:0 }}</h3>
-                    <p class="text-muted">Exams Taken</p>
-                </div>
+            <div class="stat-card">
+                <span class="stat-icon text-warning"><i class="fas fa-pencil-alt"></i></span>
+                <div class="stat-number text-warning">{{ exams_taken|default:0 }}</div>
+                <div class="stat-label">Exams Taken</div>
             </div>
         </div>
     </div>
 
-    <!-- ===== ACTION BUTTONS ===== -->
-    <div class="row mb-4">
+    <!-- ===== ACTION BUTTONS ROW ===== -->
+    <div class="row g-3 mb-4">
         <div class="col-md-6">
-            <!-- ✅ FIX: added 'courses:' namespace -->
-            <a href="{% url 'courses:lesson_list' %}" class="btn btn-success btn-lg w-100">
-                <i class="fas fa-book-open"></i> Browse All Lessons
+            <a href="{% url 'courses:lesson_list' %}" class="btn btn-success action-btn w-100">
+                <i class="fas fa-book-open me-2"></i> Browse All Lessons
             </a>
         </div>
         <div class="col-md-6">
-            <a href="#" class="btn btn-outline-secondary btn-lg w-100">
-                <i class="fas fa-chart-line"></i> View Progress Chart
+            <a href="#" class="btn btn-outline-secondary action-btn w-100">
+                <i class="fas fa-chart-line me-2"></i> View Progress Chart
             </a>
         </div>
     </div>
 
     <!-- ===== MY PROGRESS SECTION ===== -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar text-success"></i> My Progress</h5>
-                </div>
-                <div class="card-body">
-                    {% if lessons_with_progress %}
-                        {% for item in lessons_with_progress %}
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>
-                                        <!-- ✅ FIX: added 'courses:' namespace -->
-                                        <a href="{% url 'courses:view_lesson' item.lesson_id %}" class="text-decoration-none">
-                                            {{ item.title }}
-                                        </a>
-                                    </span>
-                                    <span>{{ item.progress_percentage|floatformat:0 }}%</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar {% if item.completed %}bg-success{% else %}bg-info{% endif %}" 
-                                         role="progressbar" 
-                                         style="width: {{ item.progress_percentage }}%;" 
-                                         aria-valuenow="{{ item.progress_percentage }}" 
-                                         aria-valuemin="0" aria-valuemax="100">
-                                    </div>
-                                </div>
+    <div class="section-card">
+        <div class="card-header">
+            <i class="fas fa-chart-bar text-success me-2"></i> My Progress
+        </div>
+        <div class="card-body">
+            {% if lessons_with_progress %}
+                {% for item in lessons_with_progress %}
+                    <div class="progress-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{% url 'courses:view_lesson' item.lesson_id %}" class="lesson-link">
+                                    {{ item.title }}
+                                </a>
                                 {% if item.completed %}
-                                    <small class="text-success"><i class="fas fa-check-circle"></i> Completed</small>
+                                    <span class="badge bg-success ms-2">✓ Completed</span>
                                 {% endif %}
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted text-center py-3">
-                            No lessons started yet. 
-                            <!-- ✅ FIX: added 'courses:' namespace -->
-                            <a href="{% url 'courses:lesson_list' %}" class="text-success">Start learning now!</a>
-                        </p>
-                    {% endif %}
+                            <span class="fw-bold">{{ item.progress_percentage|floatformat:0 }}%</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div class="progress-bar {% if item.completed %}bg-success{% else %}bg-info{% endif %}"
+                                 role="progressbar"
+                                 style="width: {{ item.progress_percentage }}%;"
+                                 aria-valuenow="{{ item.progress_percentage }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <p class="mb-0">No lessons started yet.</p>
+                    <a href="{% url 'courses:lesson_list' %}" class="btn btn-sm btn-success mt-2">Start learning now!</a>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 
     <!-- ===== MY CERTIFICATES SECTION ===== -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-award text-warning"></i> My Certificates</h5>
-                </div>
-                <div class="card-body">
-                    {% if certificates %}
-                        <div class="list-group">
-                            {% for cert in certificates %}
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="fas fa-certificate text-warning me-2"></i>
-                                        <strong>{{ cert.lesson.title }}</strong>
-                                        <br>
-                                        <small class="text-muted">Issued: {{ cert.issued_date|date:"M d, Y" }}</small>
-                                    </div>
-                                    <span class="badge bg-success">Certificate #{{ cert.certificate_number }}</span>
-                                </div>
-                            {% endfor %}
+    <div class="section-card">
+        <div class="card-header">
+            <i class="fas fa-award text-warning me-2"></i> My Certificates
+        </div>
+        <div class="card-body">
+            {% if certificates %}
+                {% for cert in certificates %}
+                    <div class="certificate-badge">
+                        <div>
+                            <i class="fas fa-certificate text-warning me-2"></i>
+                            <strong>{{ cert.lesson.title }}</strong>
+                            <br>
+                            <small class="text-muted">Issued: {{ cert.issued_date|date:"M d, Y" }}</small>
                         </div>
-                    {% else %}
-                        <p class="text-muted text-center py-3">
-                            <i class="fas fa-certificate text-muted me-2"></i>
-                            No certificates earned yet. Pass an exam to earn a certificate!
-                        </p>
-                    {% endif %}
+                        <span class="cert-number">#{{ cert.certificate_number }}</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-certificate"></i>
+                    <p class="mb-0">No certificates earned yet.</p>
+                    <p class="text-muted small">Pass an exam to earn a certificate!</p>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
+
 </div>
 {% endblock %}

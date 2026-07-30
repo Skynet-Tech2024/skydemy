@@ -171,8 +171,8 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
 # ====== Core Lesson Views ======
 
-@login_required
 def lesson_list(request):
+    print("✅ lesson_list called (no decorator)")
     """Display lessons with search and pagination."""
     print("✅ lesson_list view called!")  # <-- indented correctly
 

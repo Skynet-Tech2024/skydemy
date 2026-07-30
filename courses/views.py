@@ -968,4 +968,4 @@ def admin_lesson_list(request):
         'total': total,
         'opts': Lesson._meta,   # for breadcrumbs
     }
-    return render(request, 'admin/courses/lesson_list.html', context)
+    return render(request, 'admin/courses/lesson_list.html', context)// Force redeploy 

@@ -1,73 +1,237 @@
 {% extends 'dashboard/base.html' %}
+{% load static %}
 
 {% block title %}Learner Dashboard - SKYDEMY{% endblock %}
 
 {% block content %}
-<div style="max-width: 1000px; margin: 0 auto; background: white; padding: clamp(15px, 3vw, 30px); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-    <h1 style="color: #1a1a2e; font-size: clamp(22px, 4vw, 32px);">📚 Learner Dashboard</h1>
-    <p style="font-size: clamp(14px, 2vw, 16px);">Welcome back, <strong>{{ user.username }}</strong>!</p>
-    <p style="font-size: clamp(14px, 2vw, 16px);"><strong>Level:</strong> {{ profile.get_level_display }}</p>
-    <p style="font-size: clamp(14px, 2vw, 16px);"><strong>Rating:</strong> {{ profile.rating }} ⭐</p>
-    
-    <div style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap;">
-        <div style="background: #e8f0fe; padding: 15px; border-radius: 4px; flex: 1; text-align: center; min-width: 100px;">
-            <h3 style="margin: 0; color: #1a1a2e; font-size: clamp(14px, 1.5vw, 18px);">Lessons Completed</h3>
-            <p style="font-size: clamp(24px, 4vw, 28px); margin: 5px 0; color: #f39c12; font-weight: 700;">{{ completed_count }}</p>
+
+<!-- ===== MAIN WRAPPER – WIDER ===== -->
+<div style="max-width: 1300px; margin: 0 auto; padding: 20px 15px;">
+
+    <!-- ===== 1. WELCOME HERO CARD ===== -->
+    <div style="background: linear-gradient(135deg, #0B7A3B 0%, #0a5c2e 100%); color: white; border-radius: 16px; padding: 30px 35px; margin-bottom: 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+        <div>
+            <span style="font-size: 14px; font-weight: 500; opacity: 0.8;">👋 Good {{ request.user.profile.get_time_of_day|default:'Evening' }},</span>
+            <h1 style="font-size: 32px; font-weight: 700; margin: 4px 0 6px; color: white;">Welcome back, <span style="color: #D4AF37;">{{ user.username }}</span>!</h1>
+            <p style="font-size: 16px; opacity: 0.9; margin: 0;">Continue learning and earn certificates by completing your lessons and exams.</p>
         </div>
-        <div style="background: #e8f0fe; padding: 15px; border-radius: 4px; flex: 1; text-align: center; min-width: 100px;">
-            <h3 style="margin: 0; color: #1a1a2e; font-size: clamp(14px, 1.5vw, 18px);">Certificates Earned</h3>
-            <p style="font-size: clamp(24px, 4vw, 28px); margin: 5px 0; color: #f39c12; font-weight: 700;">{{ certificates_count }}</p>
-        </div>
-        <div style="background: #e8f0fe; padding: 15px; border-radius: 4px; flex: 1; text-align: center; min-width: 100px;">
-            <h3 style="margin: 0; color: #1a1a2e; font-size: clamp(14px, 1.5vw, 18px);">Exams Taken</h3>
-            <p style="font-size: clamp(24px, 4vw, 28px); margin: 5px 0; color: #f39c12; font-weight: 700;">0</p>
+        <div style="margin-top: 10px; background: rgba(255,255,255,0.15); border-radius: 50px; padding: 10px 22px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+            <span style="font-size: 14px; font-weight: 500; opacity: 0.8;">Today's Progress</span>
+            <div style="width: 200px; height: 8px; background: rgba(255,255,255,0.25); border-radius: 10px; margin: 6px auto 0; overflow: hidden;">
+                <div style="width: {% if completed_count > 0 %}{% widthratio completed_count 25 100 %}{% else %}0{% endif %}%; height: 100%; background: #D4AF37; border-radius: 10px;"></div>
+            </div>
+            <span style="font-size: 13px; font-weight: 600; color: #D4AF37;">{% if completed_count > 0 %}{% widthratio completed_count 25 100 %}%{% else %}0%{% endif %}</span>
         </div>
     </div>
-    
-    <h2 style="margin-top: 30px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📖 Browse Lessons</h2>
-    <a href="/courses/" style="background: #f39c12; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">Browse All Lessons</a>
-    
-    <!-- Progress Chart Button -->
-    <a href="{% url 'progress_chart' %}" style="background: #8e44ad; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px); margin-top: 10px;">📈 View Progress Chart</a>
-    
 
-<a href="/send-message/" style="background: #0B7A3B; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px); margin-left: 10px;">💬 Send Message</a>
-
-
-    <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📈 My Progress</h2>
-    {% if progress %}
-        {% for p in progress %}
-            <div style="border: 1px solid #ddd; padding: clamp(12px, 2vw, 15px); margin: 10px 0; border-radius: 4px; {% if p.completed %}background: #d4edda; border-color: #28a745;{% else %}background: #f9f9f9;{% endif %}">
-                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
-                    <strong style="font-size: clamp(14px, 1.5vw, 16px);">{{ p.lesson.title }}</strong>
-                    <span style="background: #28a745; color: white; padding: 2px 10px; border-radius: 12px; font-size: clamp(11px, 1vw, 12px);">{% if p.completed %}✅ Completed{% else %}In Progress{% endif %}</span>
-                </div>
-                <div style="background: #e9ecef; height: 20px; border-radius: 10px; overflow: hidden; margin: 10px 0;">
-                    <div style="background: #f39c12; height: 100%; width: {{ p.progress_percentage }}%;"></div>
-                </div>
-                <small style="font-size: clamp(12px, 1vw, 14px);">{{ p.progress_percentage }}% complete</small>
+    <!-- ===== 2. STATS CARDS ===== -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div style="background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 14px;">
+            <div style="background: #e8f5e9; border-radius: 12px; padding: 12px; font-size: 24px; color: #0B7A3B;">
+                <i class="fas fa-book-open"></i>
             </div>
-        {% endfor %}
-    {% else %}
-        <p style="font-size: clamp(14px, 1.5vw, 16px);">No lessons started yet!🤔 &nbsp
-
-
-<a href="/courses/" style="background: #808000; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);"><b style="color: #D4AF37; Start Learning Now!</b></a></p>
-
-    {% endif %}
-    
-    <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">🏆 My Certificates</h2>
-    {% if certificates %}
-        {% for cert in certificates %}
-            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: clamp(12px, 2vw, 15px); margin: 10px 0; border-radius: 4px;">
-                <strong style="font-size: clamp(14px, 1.5vw, 16px);">📜 {{ cert.lesson.title }}</strong>
-                <p style="font-size: clamp(13px, 1.2vw, 14px); margin: 5px 0;">Certificate #: {{ cert.certificate_number }}</p>
-                <p style="font-size: clamp(13px, 1.2vw, 14px); margin: 5px 0;">Score: {{ cert.score }}%</p>
-                <p style="font-size: clamp(12px, 1vw, 13px); margin: 5px 0; color: #666;"><small>Issued: {{ cert.issued_date|date:"F d, Y" }}</small></p>
+            <div>
+                <div style="font-size: 30px; font-weight: 700; color: #D4AF37;">{{ completed_count }}</div>
+                <div style="font-size: 14px; color: #4B5563;">Lessons Completed</div>
+                <div style="font-size: 12px; color: #16A34A; margin-top: 2px;"><i class="fas fa-arrow-up"></i> +{{ completed_count|default:0 }} this week</div>
             </div>
-        {% endfor %}
-    {% else %}
-        <p style="font-size: clamp(14px, 1.5vw, 16px);">No certificates earned yet. Pass an exam to earn a certificate!</p>
+        </div>
+        <div style="background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 14px;">
+            <div style="background: #fef3c7; border-radius: 12px; padding: 12px; font-size: 24px; color: #D4AF37;">
+                <i class="fas fa-certificate"></i>
+            </div>
+            <div>
+                <div style="font-size: 30px; font-weight: 700; color: #D4AF37;">{{ certificates_count }}</div>
+                <div style="font-size: 14px; color: #4B5563;">Certificates</div>
+                <div style="font-size: 12px; color: #16A34A; margin-top: 2px;"><i class="fas fa-arrow-up"></i> +{{ certificates_count|default:0 }} earned</div>
+            </div>
+        </div>
+        <div style="background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 14px;">
+            <div style="background: #e8f5e9; border-radius: 12px; padding: 12px; font-size: 24px; color: #0B7A3B;">
+                <i class="fas fa-pencil-alt"></i>
+            </div>
+            <div>
+                <div style="font-size: 30px; font-weight: 700; color: #D4AF37;">{{ exams_taken|default:0 }}</div>
+                <div style="font-size: 14px; color: #4B5563;">Exams Taken</div>
+                <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;"><i class="fas fa-minus"></i> No change</div>
+            </div>
+        </div>
+        <div style="background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 14px;">
+            <div style="background: #fef3c7; border-radius: 12px; padding: 12px; font-size: 24px; color: #D4AF37;">
+                <i class="fas fa-star"></i>
+            </div>
+            <div>
+                <div style="font-size: 30px; font-weight: 700; color: #D4AF37;">{{ profile.rating|floatformat:1 }}</div>
+                <div style="font-size: 14px; color: #4B5563;">Learning Score</div>
+                <div style="font-size: 12px; color: #D4AF37; margin-top: 2px;">{% if profile.rating > 0 %}⭐⭐⭐{% else %}—{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 3. OVERALL PROGRESS BAR ===== -->
+    <div style="background: white; border-radius: 14px; padding: 24px 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: #0B7A3B; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-chart-line" style="color: #D4AF37;"></i> Overall Progress
+                </h3>
+                <p style="font-size: 14px; color: #6B7280; margin: 2px 0 0;">Keep going – you are one lesson closer to your goal.</p>
+            </div>
+            <span style="font-size: 18px; font-weight: 700; color: #D4AF37;">
+                {% if completed_count > 0 %}{% widthratio completed_count 25 100 %}%{% else %}0%{% endif %}
+            </span>
+        </div>
+        <div style="width: 100%; height: 12px; background: #E5E7EB; border-radius: 10px; margin-top: 12px; overflow: hidden;">
+            <div style="width: {% if completed_count > 0 %}{% widthratio completed_count 25 100 %}{% else %}0{% endif %}%; height: 100%; background: linear-gradient(90deg, #0B7A3B, #D4AF37); border-radius: 10px; transition: width 0.8s ease;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 13px; color: #6B7280; margin-top: 6px;">
+            <span>0%</span>
+            <span>{{ completed_count }} of 25 lessons completed</span>
+            <span>100%</span>
+        </div>
+    </div>
+
+    <!-- ===== 4. QUICK ACTIONS ===== -->
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 30px;">
+        <a href="{% url 'lesson_list' %}" style="background: #0B7A3B; color: white; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(11,122,59,0.2); transition: 0.2s;">
+            <i class="fas fa-book"></i> Browse Lessons
+        </a>
+        <a href="{% url 'progress_chart' %}" style="background: white; color: #0B7A3B; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; border: 2px solid #0B7A3B; transition: 0.2s;">
+            <i class="fas fa-chart-bar" style="color: #D4AF37;"></i> View Progress
+        </a>
+        <a href="{% url 'send_message' %}" style="background: white; color: #0B7A3B; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; border: 2px solid #0B7A3B; transition: 0.2s;">
+            <i class="fas fa-envelope" style="color: #D4AF37;"></i> Messages
+        </a>
+        <a href="{% url 'leaderboard' %}" style="background: white; color: #0B7A3B; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; border: 2px solid #0B7A3B; transition: 0.2s;">
+            <i class="fas fa-trophy" style="color: #D4AF37;"></i> Leaderboard
+        </a>
+    </div>
+
+    <!-- ===== 5. CONTINUE LEARNING / PROGRESS ===== -->
+    <div style="margin-bottom: 30px;">
+        <h3 style="font-size: 20px; font-weight: 700; color: #0B7A3B; margin: 0 0 16px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-play-circle" style="color: #D4AF37;"></i> Continue Learning
+        </h3>
+        {% if progress %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                {% for p in progress %}
+                    <div style="background: white; border-radius: 14px; padding: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; border-left: 4px solid {% if p.completed %}#0B7A3B{% else %}#D4AF37{% endif %};">
+                        <h4 style="font-size: 16px; font-weight: 600; color: #1F2937; margin: 0 0 4px;">{{ p.lesson.title }}</h4>
+                        <p style="font-size: 13px; color: #6B7280; margin: 0 0 10px;">{{ p.lesson.subject.name|default:"No subject" }}</p>
+                        <div style="width: 100%; height: 6px; background: #E5E7EB; border-radius: 10px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: {{ p.progress_percentage }}%; height: 100%; background: {% if p.completed %}#0B7A3B{% else %}#D4AF37{% endif %}; border-radius: 10px;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 13px; color: #4B5563;">{{ p.progress_percentage }}% complete</span>
+                            <a href="{% url 'view_lesson' p.lesson.id %}" style="background: #0B7A3B; color: white; padding: 4px 16px; border-radius: 50px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                                {% if p.completed %}Review{% else %}Resume{% endif %} →
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="background: white; border-radius: 14px; padding: 40px 20px; text-align: center; border: 1px solid #e5e7eb; box-shadow: 0 6px 18px rgba(0,0,0,0.04);">
+                <div style="font-size: 48px; color: #D4AF37; margin-bottom: 10px;">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 6px;">Start Your Learning Journey</h4>
+                <p style="font-size: 15px; color: #6B7280; max-width: 400px; margin: 0 auto 16px;">You haven't started any lessons yet. Browse available lessons to begin earning progress and certificates.</p>
+                <a href="{% url 'lesson_list' %}" style="background: #0B7A3B; color: white; padding: 10px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(11,122,59,0.2);">
+                    Browse Lessons
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ===== 6. RECOMMENDED LESSONS ===== -->
+    {% if recommended %}
+        <div style="margin-bottom: 30px;">
+            <h3 style="font-size: 20px; font-weight: 700; color: #0B7A3B; margin: 0 0 16px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-lightbulb" style="color: #D4AF37;"></i> Recommended For You
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+                {% for lesson in recommended %}
+                    <div style="background: white; border-radius: 14px; padding: 18px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; transition: transform 0.2s;">
+                        <div style="font-size: 32px; color: #D4AF37; margin-bottom: 6px;">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h4 style="font-size: 15px; font-weight: 600; color: #1F2937; margin: 0 0 4px;">{{ lesson.title }}</h4>
+                        <p style="font-size: 13px; color: #6B7280; margin: 0 0 10px;">{{ lesson.subject.name|default:"No subject" }}</p>
+                        <a href="{% url 'view_lesson' lesson.id %}" style="color: #0B7A3B; font-weight: 600; text-decoration: none; font-size: 14px;">
+                            Start Learning →
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     {% endif %}
+
+    <!-- ===== 7. CERTIFICATES ===== -->
+    <div style="margin-bottom: 30px;">
+        <h3 style="font-size: 20px; font-weight: 700; color: #0B7A3B; margin: 0 0 16px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-certificate" style="color: #D4AF37;"></i> My Certificates
+        </h3>
+        {% if certificates %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+                {% for cert in certificates %}
+                    <div style="background: white; border-radius: 14px; padding: 18px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; text-align: center;">
+                        <div style="font-size: 36px; color: #D4AF37; margin-bottom: 6px;">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <h4 style="font-size: 15px; font-weight: 600; color: #1F2937; margin: 0 0 2px;">{{ cert.lesson.title }}</h4>
+                        <p style="font-size: 12px; color: #6B7280; margin: 0;">Issued: {{ cert.issued_date|date:"M d, Y" }}</p>
+                        <span style="font-size: 12px; background: #fef3c7; color: #D4AF37; padding: 2px 12px; border-radius: 20px; font-weight: 600; display: inline-block; margin-top: 6px;">Certificate</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="background: white; border-radius: 14px; padding: 40px 20px; text-align: center; border: 1px solid #e5e7eb; box-shadow: 0 6px 18px rgba(0,0,0,0.04);">
+                <div style="font-size: 48px; color: #D4AF37; margin-bottom: 10px;">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 6px;">No Certificates Yet</h4>
+                <p style="font-size: 15px; color: #6B7280; max-width: 400px; margin: 0 auto 16px;">Complete lessons and pass exams to unlock your first certificate.</p>
+                <a href="{% url 'lesson_list' %}" style="background: #0B7A3B; color: white; padding: 10px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(11,122,59,0.2);">
+                    View Available Courses
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ===== 8. ACHIEVEMENTS (Placeholder) ===== -->
+    <div style="margin-bottom: 30px;">
+        <h3 style="font-size: 20px; font-weight: 700; color: #0B7A3B; margin: 0 0 16px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-medal" style="color: #D4AF37;"></i> Achievements
+        </h3>
+        <div style="background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border: 1px solid #e5e7eb; display: flex; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px; background: #f8fafc; border-radius: 50px; padding: 6px 16px 6px 8px; border: 1px solid #e5e7eb;">
+                <span style="background: #D4AF37; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🥇</span>
+                <span style="font-size: 14px; font-weight: 500; color: #1F2937;">First Lesson</span>
+                {% if completed_count > 0 %}<span style="color: #16A34A; font-size: 12px;">✓</span>{% else %}<span style="color: #94A3B8; font-size: 12px;">🔒</span>{% endif %}
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; background: #f8fafc; border-radius: 50px; padding: 6px 16px 6px 8px; border: 1px solid #e5e7eb;">
+                <span style="background: #D4AF37; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🏆</span>
+                <span style="font-size: 14px; font-weight: 500; color: #1F2937;">First Exam</span>
+                <span style="color: #94A3B8; font-size: 12px;">🔒</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; background: #f8fafc; border-radius: 50px; padding: 6px 16px 6px 8px; border: 1px solid #e5e7eb;">
+                <span style="background: #D4AF37; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px;">⭐</span>
+                <span style="font-size: 14px; font-weight: 500; color: #1F2937;">Top Performer</span>
+                <span style="color: #94A3B8; font-size: 12px;">🔒</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; background: #f8fafc; border-radius: 50px; padding: 6px 16px 6px 8px; border: 1px solid #e5e7eb;">
+                <span style="background: #D4AF37; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🔥</span>
+                <span style="font-size: 14px; font-weight: 500; color: #1F2937;">7-Day Streak</span>
+                <span style="color: #94A3B8; font-size: 12px;">🔒</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; background: #f8fafc; border-radius: 50px; padding: 6px 16px 6px 8px; border: 1px solid #e5e7eb;">
+                <span style="background: #D4AF37; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🎓</span>
+                <span style="font-size: 14px; font-weight: 500; color: #1F2937;">Certificate Earned</span>
+                {% if certificates_count > 0 %}<span style="color: #16A34A; font-size: 12px;">✓</span>{% else %}<span style="color: #94A3B8; font-size: 12px;">🔒</span>{% endif %}
+            </div>
+        </div>
+    </div>
 </div>
+
 {% endblock %}

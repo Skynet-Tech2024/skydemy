@@ -18,12 +18,12 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.template.loader import get_template   # Added for debug
+from django.template.loader import get_template
 
 # Users & notifications
 from users.utils import create_notification
 from users.models import SavedLesson as Wishlist
-from users.decorators import basic_access, lesson_access, upload_access   # ✅ Fixed import
+from users.decorators import basic_access, lesson_access, upload_access
 
 # Cloudinary
 import cloudinary
@@ -230,14 +230,15 @@ def upload_lesson(request):
 
     if request.method == 'POST':
         form = LessonForm(request.POST, request.FILES)
-        if 'level' in form.fields:
-            del form.fields['level']
-        
+        # DO NOT delete the 'level' field – we need it in the template for JavaScript
+        # if 'level' in form.fields:
+        #     del form.fields['level']   # <-- REMOVE this line
+
         if form.is_valid():
             lesson = form.save(commit=False)
             lesson.teacher = request.user
             lesson.status = 'pending'
-            lesson.level = teacher_level
+            lesson.level = teacher_level   # force the level from the profile
 
             # --- Handle new subject creation ---
             selected_subject_id = request.POST.get('subject')
@@ -266,6 +267,7 @@ def upload_lesson(request):
                     lesson.subject = subject
                     messages.success(request, f'New subject "{subject.name}" created and pending approval.')
 
+            # --- Handle file conversion (Word to PDF) ---
             uploaded_file = request.FILES.get('pdf_file')
             if uploaded_file:
                 ext = os.path.splitext(uploaded_file.name)[1].lower()
@@ -282,6 +284,7 @@ def upload_lesson(request):
                     lesson.pdf_file = uploaded_file
                     lesson.is_converted = False
 
+            # Validate subject/course based on level
             if lesson.level in ['primary', 'secondary'] and not lesson.subject:
                 messages.error(request, 'Please select a subject or create a new one for primary/secondary level.')
                 return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
@@ -291,6 +294,7 @@ def upload_lesson(request):
 
             lesson.save()
 
+            # Notify followers
             followers = request.user.followers.all()
             for follow in followers:
                 create_notification(
@@ -307,8 +311,13 @@ def upload_lesson(request):
             return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
     else:
         form = LessonForm()
-        if 'level' in form.fields:
-            del form.fields['level']
+        # DO NOT delete the 'level' field
+        # if 'level' in form.fields:
+        #     del form.fields['level']
+
+        # Set the initial value and disable the field
+        form.fields['level'].initial = teacher_level
+        form.fields['level'].widget.attrs['disabled'] = 'disabled'
 
     # Debug: log the template being rendered and check if it exists
     template_name = 'courses/upload_lesson.html'

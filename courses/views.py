@@ -218,6 +218,9 @@ def lesson_list(request):
 @upload_access
 def upload_lesson(request):
     """Teachers upload a new lesson – level is forced to teacher's level, with Word to PDF conversion."""
+    # ✅ DEBUG: print when view is called
+    print("🔥 upload_lesson called, method:", request.method)
+
     if request.user.profile.role != 'teacher':
         messages.error(request, 'Only teachers can upload lessons.')
         return redirect('home')
@@ -371,7 +374,7 @@ def add_subject(request):
 # ====== PDF READER WITH BASIC PROGRESS ======
 
 @xframe_options_exempt
-@lesson_access
+@login_required  # changed from @lesson_access to allow all authenticated users
 def view_lesson(request, lesson_id):
     """View a lesson with a PDF reader (plain URL for now)."""
     lesson = get_object_or_404(Lesson, id=lesson_id)

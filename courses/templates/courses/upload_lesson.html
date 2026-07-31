@@ -17,6 +17,18 @@
     <form method="post" enctype="multipart/form-data" id="uploadLessonForm">
         {% csrf_token %}
 
+        <!-- ===== DISPLAY FORM ERRORS ===== -->
+        {% if form.errors %}
+        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>Please correct the following errors:</strong>
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    <li>{{ field }}: {{ errors|join:", " }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <!-- ===== ACADEMIC INFORMATION CARD ===== -->
         <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #e9ecef;">
             <h2 style="font-size: 1.2rem; color: #0B7A3B; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">

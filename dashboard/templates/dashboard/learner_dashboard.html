@@ -93,7 +93,7 @@
 
     <!-- ===== 4. QUICK ACTIONS ===== -->
     <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 30px;">
-        <a href="{% url 'lesson_list' %}" style="background: #0B7A3B; color: white; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(11,122,59,0.2); transition: 0.2s;">
+        <a href="{% url 'courses:lesson_list' %}" style="background: #0B7A3B; color: white; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(11,122,59,0.2); transition: 0.2s;">
             <i class="fas fa-book"></i> Browse Lessons
         </a>
         <a href="{% url 'progress_chart' %}" style="background: white; color: #0B7A3B; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; border: 2px solid #0B7A3B; transition: 0.2s;">
@@ -123,7 +123,7 @@
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-size: 13px; color: #4B5563;">{{ p.progress_percentage }}% complete</span>
-                            <a href="{% url 'view_lesson' p.lesson.id %}" style="background: #0B7A3B; color: white; padding: 4px 16px; border-radius: 50px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                            <a href="{% url 'courses:view_lesson' p.lesson.id %}" style="background: #0B7A3B; color: white; padding: 4px 16px; border-radius: 50px; text-decoration: none; font-size: 13px; font-weight: 500;">
                                 {% if p.completed %}Review{% else %}Resume{% endif %} →
                             </a>
                         </div>
@@ -137,7 +137,7 @@
                 </div>
                 <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 6px;">Start Your Learning Journey</h4>
                 <p style="font-size: 15px; color: #6B7280; max-width: 400px; margin: 0 auto 16px;">You haven't started any lessons yet. Browse available lessons to begin earning progress and certificates.</p>
-                <a href="{% url 'lesson_list' %}" style="background: #0B7A3B; color: white; padding: 10px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(11,122,59,0.2);">
+                <a href="{% url 'courses:lesson_list' %}" style="background: #0B7A3B; color: white; padding: 10px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(11,122,59,0.2);">
                     Browse Lessons
                 </a>
             </div>
@@ -158,7 +158,7 @@
                         </div>
                         <h4 style="font-size: 15px; font-weight: 600; color: #1F2937; margin: 0 0 4px;">{{ lesson.title }}</h4>
                         <p style="font-size: 13px; color: #6B7280; margin: 0 0 10px;">{{ lesson.subject.name|default:"No subject" }}</p>
-                        <a href="{% url 'view_lesson' lesson.id %}" style="color: #0B7A3B; font-weight: 600; text-decoration: none; font-size: 14px;">
+                        <a href="{% url 'courses:view_lesson' lesson.id %}" style="color: #0B7A3B; font-weight: 600; text-decoration: none; font-size: 14px;">
                             Start Learning →
                         </a>
                     </div>
@@ -192,7 +192,7 @@
                 </div>
                 <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 6px;">No Certificates Yet</h4>
                 <p style="font-size: 15px; color: #6B7280; max-width: 400px; margin: 0 auto 16px;">Complete lessons and pass exams to unlock your first certificate.</p>
-                <a href="{% url 'lesson_list' %}" style="background: #0B7A3B; color: white; padding: 10px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(11,122,59,0.2);">
+                <a href="{% url 'courses:lesson_list' %}" style="background: #0B7A3B; color: white; padding: 10px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(11,122,59,0.2);">
                     View Available Courses
                 </a>
             </div>

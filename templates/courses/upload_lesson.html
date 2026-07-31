@@ -1,50 +1,79 @@
 {% extends 'dashboard/base.html' %}
-<!-- force deploy -->
 {% load static %}
 
 {% block title %}Upload New Lesson - SKYDEMY{% endblock %}
 
 {% block content %}
 
-<div style="background: #ff0000; color: white; padding: 10px; text-align: center; font-weight: bold;">
-    ✅ NEW TEMPLATE LOADED (Academic Information available)
+<!-- Breadcrumb -->
+<div style="max-width: 960px; margin: 0 auto 20px; padding: 8px 16px; background: #f8fafc; border-radius: 8px; font-size: 14px; color: #6B7280;">
+    <a href="{% url 'dashboard' %}" style="color: #0B7A3B; text-decoration: none;">Dashboard</a>
+    <span style="margin: 0 6px;">›</span>
+    <a href="{% url 'lesson_list' %}" style="color: #0B7A3B; text-decoration: none;">Lessons</a>
+    <span style="margin: 0 6px;">›</span>
+    <span style="color: #1F2937; font-weight: 600;">Upload Lesson</span>
 </div>
 
-<div style="max-width: 800px; margin: 0 auto; background: white; padding: clamp(20px, 4vw, 40px); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-    <h1 style="color: #1a1a2e; font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px;">📤 Upload New Lesson</h1>
-    <p style="color: #6c757d; font-size: clamp(14px, 1.5vw, 16px); margin-bottom: 30px;">Share your knowledge by uploading a lesson for students to learn.</p>
+<div style="max-width: 960px; margin: 0 auto; background: white; padding: 30px 40px 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <h1 style="color: #1a1a2e; font-size: 28px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-cloud-upload-alt" style="color: #0B7A3B;"></i>
+        Upload New Lesson
+    </h1>
+    <p style="color: #6c757d; font-size: 15px; margin-bottom: 30px;">Share your knowledge by uploading a lesson for students to learn.</p>
+
+    <!-- Step Indicator -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 32px; position: relative;">
+        <div style="display: flex; align-items: center; gap: 6px; color: #0B7A3B; font-weight: 600; font-size: 14px;">
+            <span style="background: #0B7A3B; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px;">1</span>
+            Academic
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; color: #94A3B8; font-weight: 500; font-size: 14px;">
+            <span style="background: #E5E7EB; color: #6B7280; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px;">2</span>
+            Lesson
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; color: #94A3B8; font-weight: 500; font-size: 14px;">
+            <span style="background: #E5E7EB; color: #6B7280; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px;">3</span>
+            Content
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; color: #94A3B8; font-weight: 500; font-size: 14px;">
+            <span style="background: #E5E7EB; color: #6B7280; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px;">4</span>
+            Submit
+        </div>
+    </div>
 
     <form method="post" enctype="multipart/form-data" id="uploadLessonForm">
         {% csrf_token %}
 
         <!-- ===== ACADEMIC INFORMATION CARD ===== -->
-        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #e9ecef;">
-            <h2 style="font-size: 1.2rem; color: #0B7A3B; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-graduation-cap"></i> Academic Information
+        <div style="background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h2 style="font-size: 18px; font-weight: 700; color: #166534; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-graduation-cap" style="color: #D4AF37;"></i> Academic Information
             </h2>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <!-- Level -->
                 <div>
-                    <label for="id_level" style="font-weight: 600; display: block; margin-bottom: 4px;">Level *</label>
+                    <label for="id_level" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Level <span style="color: #D4AF37;">*</span></label>
                     {{ form.level }}
+                    <input type="hidden" name="level" value="{{ teacher_level }}">
+                    <p style="font-size: 12px; color: #6B7280; margin-top: 2px;">Your level is set from your profile.</p>
                 </div>
 
                 <!-- Cycle (hidden initially) -->
                 <div id="cycle-group" style="display: none;">
-                    <label for="id_cycle" style="font-weight: 600; display: block; margin-bottom: 4px;">Cycle *</label>
+                    <label for="id_cycle" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Cycle <span style="color: #D4AF37;">*</span></label>
                     {{ form.cycle }}
                 </div>
 
                 <!-- Class (hidden initially) -->
                 <div id="class-group" style="display: none;">
-                    <label for="id_class_level" style="font-weight: 600; display: block; margin-bottom: 4px;">Class *</label>
+                    <label for="id_class_level" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Class <span style="color: #D4AF37;">*</span></label>
                     {{ form.class_level }}
                 </div>
 
                 <!-- Department (hidden initially) -->
                 <div id="department-group" style="display: none;">
-                    <label for="id_department" style="font-weight: 600; display: block; margin-bottom: 4px;">Department *</label>
+                    <label for="id_department" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Department <span style="color: #D4AF37;">*</span></label>
                     {{ form.department }}
                 </div>
             </div>
@@ -57,83 +86,123 @@
         </div>
 
         <!-- ===== LESSON INFORMATION CARD ===== -->
-        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #e9ecef;">
-            <h2 style="font-size: 1.2rem; color: #0B7A3B; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-info-circle"></i> Lesson Information
+        <div style="background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h2 style="font-size: 18px; font-weight: 700; color: #166534; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-info-circle" style="color: #D4AF37;"></i> Lesson Information
             </h2>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
-                    <label for="id_title" style="font-weight: 600; display: block; margin-bottom: 4px;">Lesson Title *</label>
+                    <label for="id_title" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Lesson Title <span style="color: #D4AF37;">*</span></label>
                     {{ form.title }}
                 </div>
                 <div>
-                    <label for="id_subject" style="font-weight: 600; display: block; margin-bottom: 4px;">Subject</label>
+                    <label for="id_subject" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Subject</label>
                     {{ form.subject }}
                 </div>
                 <div>
-                    <label for="id_course" style="font-weight: 600; display: block; margin-bottom: 4px;">Course</label>
+                    <label for="id_course" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Course</label>
                     {{ form.course }}
+                    <p style="font-size: 12px; color: #6B7280; margin-top: 2px;">Optional for university level.</p>
                 </div>
             </div>
 
             <div style="margin-top: 15px;">
-                <label for="id_description" style="font-weight: 600; display: block; margin-bottom: 4px;">Description</label>
+                <label for="id_description" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Description</label>
                 {{ form.description }}
+                <p style="font-size: 12px; color: #6B7280; margin-top: 2px;">A brief overview of what the lesson covers.</p>
             </div>
         </div>
 
         <!-- ===== LESSON CONTENT CARD ===== -->
-        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #e9ecef;">
-            <h2 style="font-size: 1.2rem; color: #0B7A3B; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-file-alt"></i> Lesson Content
+        <div style="background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h2 style="font-size: 18px; font-weight: 700; color: #166534; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-file-alt" style="color: #D4AF37;"></i> Lesson Content
             </h2>
 
-            <div style="margin-bottom: 20px;">
-                <label for="id_pdf_file" style="font-weight: 600; display: block; margin-bottom: 4px;">PDF / Word Document</label>
-                {{ form.pdf_file }}
-                <p style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">Supported: PDF, DOC, DOCX – Max. 20 MB</p>
+            <!-- PDF Upload (custom) -->
+            <div style="margin-bottom: 24px;">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 14px; color: #1F2937;">PDF / Word Document</label>
+                <div id="pdf-drop-zone" style="border: 2px dashed #D4AF37; border-radius: 12px; padding: 30px 20px; text-align: center; background: #fafafa; transition: background 0.2s; cursor: pointer;">
+                    <div style="font-size: 36px; color: #0B7A3B; margin-bottom: 8px;">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <p style="font-size: 16px; font-weight: 500; color: #1F2937;">Drag & drop your file here</p>
+                    <p style="font-size: 13px; color: #6B7280;">or <span style="color: #0B7A3B; font-weight: 600;">browse files</span></p>
+                    <p style="font-size: 12px; color: #94A3B8; margin-top: 4px;">PDF, DOC, DOCX – Max. 20 MB</p>
+                    <input type="file" name="pdf_file" id="id_pdf_file" style="display: none;" accept=".pdf,.doc,.docx">
+                    <div id="pdf-file-info" style="display: none; margin-top: 12px; font-size: 14px; color: #0B7A3B; font-weight: 500;">
+                        <i class="fas fa-check-circle"></i> <span id="pdf-file-name"></span>
+                    </div>
+                </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
-                    <label for="id_video_url" style="font-weight: 600; display: block; margin-bottom: 4px;">Video URL</label>
+                    <label for="id_video_url" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Video URL</label>
                     {{ form.video_url }}
+                    <p style="font-size: 12px; color: #6B7280; margin-top: 2px;">e.g., YouTube, Vimeo link</p>
                 </div>
                 <div>
-                    <label for="id_video_file" style="font-weight: 600; display: block; margin-bottom: 4px;">Upload Video</label>
-                    {{ form.video_file }}
-                    <p style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">Supported: MP4, MOV, MKV – Max. 20 MB</p>
+                    <label for="id_video_file" style="font-weight: 600; display: block; margin-bottom: 4px; font-size: 14px; color: #1F2937;">Upload Video</label>
+                    <div id="video-drop-zone" style="border: 2px dashed #D4AF37; border-radius: 12px; padding: 20px; text-align: center; background: #fafafa; transition: background 0.2s; cursor: pointer;">
+                        <div style="font-size: 28px; color: #0B7A3B;">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <p style="font-size: 13px; color: #6B7280;">Drop video or click to browse</p>
+                        <p style="font-size: 11px; color: #94A3B8;">MP4, MOV, MKV – Max. 20 MB</p>
+                        <input type="file" name="video_file" id="id_video_file" style="display: none;" accept=".mp4,.mov,.mkv">
+                        <div id="video-file-info" style="display: none; margin-top: 8px; font-size: 13px; color: #0B7A3B; font-weight: 500;">
+                            <i class="fas fa-check-circle"></i> <span id="video-file-name"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- ===== LIVE SUMMARY PANEL ===== -->
+        <div id="live-summary" style="background: #f1f5f9; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
+            <h3 style="font-size: 15px; font-weight: 700; color: #1F2937; margin: 0 0 10px;"><i class="fas fa-eye" style="color: #D4AF37;"></i> Lesson Preview</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 14px; color: #1F2937;">
+                <span><strong>Title:</strong> <span id="summary-title">—</span></span>
+                <span><strong>Level:</strong> <span id="summary-level">—</span></span>
+                <span><strong>Cycle:</strong> <span id="summary-cycle">—</span></span>
+                <span><strong>Class:</strong> <span id="summary-class">—</span></span>
+                <span><strong>Department:</strong> <span id="summary-dept">—</span></span>
+                <span><strong>PDF:</strong> <span id="summary-pdf" style="color: #6B7280;">None</span></span>
+                <span><strong>Video:</strong> <span id="summary-video" style="color: #6B7280;">None</span></span>
+            </div>
+        </div>
+
         <!-- ===== SUBMIT ===== -->
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
-            <button type="submit" style="background: #0B7A3B; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <button type="submit" style="background: #0B7A3B; color: white; padding: 14px 36px; border: none; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; box-shadow: 0 2px 8px rgba(11,122,59,0.25); transition: background 0.2s;">
                 <i class="fas fa-cloud-upload-alt"></i> Upload Lesson
             </button>
-            <a href="{% url 'dashboard' %}" style="background: #6c757d; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <button type="button" id="preview-btn" style="background: transparent; color: #0B7A3B; padding: 14px 28px; border: 2px solid #0B7A3B; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer;">
+                <i class="fas fa-eye"></i> Preview
+            </button>
+            <a href="{% url 'dashboard' %}" style="background: transparent; color: #6B7280; padding: 14px 28px; border: 2px solid #D1D5DB; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-flex; align-items: center; gap: 6px;">
                 <i class="fas fa-arrow-left"></i> Cancel
             </a>
         </div>
     </form>
 </div>
-<!-- ===== JavaScript for Progressive Reveal & Dynamic Classes ===== -->
+
+<!-- ===== JavaScript for Progressive Reveal, File Upload, Summary ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Cache DOM elements (with null checks)
+        // ---- Academic Fields ----
         const levelSelect = document.getElementById('id_level');
         const cycleGroup = document.getElementById('cycle-group');
         const classGroup = document.getElementById('class-group');
         const departmentGroup = document.getElementById('department-group');
         const cycleSelect = document.getElementById('id_cycle');
         const classSelect = document.getElementById('id_class_level');
+        const deptSelect = document.getElementById('id_department');
         const previewDiv = document.getElementById('academic-preview');
         const previewText = document.getElementById('preview-text');
-        const deptSelect = document.getElementById('id_department');
 
-        // Define class options per cycle
         const classOptions = {
             'first': [
                 { value: 'form3', label: 'Form 3' },
@@ -151,7 +220,6 @@
             const level = levelSelect.value;
             const isSecondary = (level === 'secondary');
 
-            // Show/hide cycle, class, department
             if (cycleGroup) cycleGroup.style.display = isSecondary ? 'block' : 'none';
             if (classGroup) classGroup.style.display = 'none';
             if (departmentGroup) departmentGroup.style.display = 'none';
@@ -163,7 +231,6 @@
                 if (previewDiv) previewDiv.style.display = 'none';
                 return;
             }
-
             if (cycleGroup) cycleGroup.style.display = 'block';
         }
 
@@ -208,7 +275,6 @@
             }
         }
 
-        // Attach event listeners only if elements exist
         if (levelSelect) {
             levelSelect.addEventListener('change', function() {
                 updateAcademicFields();
@@ -218,6 +284,7 @@
                     if (departmentGroup) departmentGroup.style.display = 'none';
                     if (previewDiv) previewDiv.style.display = 'none';
                 }
+                updateLiveSummary();
             });
         }
 
@@ -229,6 +296,7 @@
                 } else {
                     if (departmentGroup) departmentGroup.style.display = 'none';
                 }
+                updateLiveSummary();
             });
         }
 
@@ -241,19 +309,204 @@
                     if (deptSelect) deptSelect.value = '';
                 }
                 updatePreview();
+                updateLiveSummary();
             });
         }
 
         if (deptSelect) {
-            deptSelect.addEventListener('change', updatePreview);
+            deptSelect.addEventListener('change', function() {
+                updatePreview();
+                updateLiveSummary();
+            });
         }
 
-        // Initial state
+        // ---- File Upload (PDF) ----
+        const pdfDropZone = document.getElementById('pdf-drop-zone');
+        const pdfInput = document.getElementById('id_pdf_file');
+        const pdfFileInfo = document.getElementById('pdf-file-info');
+        const pdfFileName = document.getElementById('pdf-file-name');
+
+        if (pdfDropZone) {
+            pdfDropZone.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    pdfInput.click();
+                }
+            });
+            pdfDropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.background = '#e8f5e9';
+            });
+            pdfDropZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.style.background = '#fafafa';
+            });
+            pdfDropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.background = '#fafafa';
+                if (e.dataTransfer.files.length) {
+                    pdfInput.files = e.dataTransfer.files;
+                    pdfInput.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        if (pdfInput) {
+            pdfInput.addEventListener('change', function() {
+                if (this.files.length) {
+                    const file = this.files[0];
+                    pdfFileName.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' MB)';
+                    pdfFileInfo.style.display = 'block';
+                    updateLiveSummary();
+                } else {
+                    pdfFileInfo.style.display = 'none';
+                    updateLiveSummary();
+                }
+            });
+        }
+
+        // ---- File Upload (Video) ----
+        const videoDropZone = document.getElementById('video-drop-zone');
+        const videoInput = document.getElementById('id_video_file');
+        const videoFileInfo = document.getElementById('video-file-info');
+        const videoFileName = document.getElementById('video-file-name');
+
+        if (videoDropZone) {
+            videoDropZone.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    videoInput.click();
+                }
+            });
+            videoDropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.background = '#e8f5e9';
+            });
+            videoDropZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.style.background = '#fafafa';
+            });
+            videoDropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.background = '#fafafa';
+                if (e.dataTransfer.files.length) {
+                    videoInput.files = e.dataTransfer.files;
+                    videoInput.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        if (videoInput) {
+            videoInput.addEventListener('change', function() {
+                if (this.files.length) {
+                    const file = this.files[0];
+                    videoFileName.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' MB)';
+                    videoFileInfo.style.display = 'block';
+                    updateLiveSummary();
+                } else {
+                    videoFileInfo.style.display = 'none';
+                    updateLiveSummary();
+                }
+            });
+        }
+
+        // ---- Live Summary ----
+        function updateLiveSummary() {
+            const title = document.getElementById('id_title')?.value || '—';
+            const level = levelSelect ? levelSelect.options[levelSelect.selectedIndex]?.text || '—' : '—';
+            const cycle = cycleSelect ? cycleSelect.options[cycleSelect.selectedIndex]?.text || '—' : '—';
+            const classVal = classSelect ? classSelect.options[classSelect.selectedIndex]?.text || '—' : '—';
+            const dept = deptSelect ? deptSelect.options[deptSelect.selectedIndex]?.text || '—' : '—';
+            const pdfFile = pdfInput && pdfInput.files.length ? pdfInput.files[0].name : 'None';
+            const videoFile = videoInput && videoInput.files.length ? videoInput.files[0].name : 'None';
+
+            document.getElementById('summary-title').textContent = title || '—';
+            document.getElementById('summary-level').textContent = level;
+            document.getElementById('summary-cycle').textContent = cycle;
+            document.getElementById('summary-class').textContent = classVal;
+            document.getElementById('summary-dept').textContent = dept;
+            document.getElementById('summary-pdf').textContent = pdfFile;
+            document.getElementById('summary-pdf').style.color = pdfFile !== 'None' ? '#0B7A3B' : '#6B7280';
+            document.getElementById('summary-video').textContent = videoFile;
+            document.getElementById('summary-video').style.color = videoFile !== 'None' ? '#0B7A3B' : '#6B7280';
+        }
+
+        // ---- Initial state ----
         updateAcademicFields();
         if (levelSelect && levelSelect.value === 'secondary') {
             updateClassOptions();
         }
+        updateLiveSummary();
+
+        // ---- Listen to title and other fields ----
+        document.getElementById('id_title')?.addEventListener('input', updateLiveSummary);
+        document.getElementById('id_subject')?.addEventListener('change', updateLiveSummary);
+        document.getElementById('id_course')?.addEventListener('change', updateLiveSummary);
+        document.getElementById('id_description')?.addEventListener('input', updateLiveSummary);
+
+        // ---- Preview button (simulate a preview modal - simple alert) ----
+        document.getElementById('preview-btn')?.addEventListener('click', function() {
+            const title = document.getElementById('id_title')?.value || 'Untitled Lesson';
+            const level = levelSelect ? levelSelect.options[levelSelect.selectedIndex]?.text || 'Not set' : 'Not set';
+            const cycle = cycleSelect && cycleGroup.style.display !== 'none' ? cycleSelect.options[cycleSelect.selectedIndex]?.text || 'N/A' : 'N/A';
+            const classVal = classSelect && classGroup.style.display !== 'none' ? classSelect.options[classSelect.selectedIndex]?.text || 'N/A' : 'N/A';
+            const dept = deptSelect && departmentGroup.style.display !== 'none' ? deptSelect.options[deptSelect.selectedIndex]?.text || 'N/A' : 'N/A';
+            const pdf = pdfInput && pdfInput.files.length ? pdfInput.files[0].name : 'No PDF';
+            const video = videoInput && videoInput.files.length ? videoInput.files[0].name : 'No Video';
+
+            const msg = `📘 Lesson Preview\n\nTitle: ${title}\nLevel: ${level}\nCycle: ${cycle}\nClass: ${classVal}\nDepartment: ${dept}\nPDF: ${pdf}\nVideo: ${video}`;
+            alert(msg);
+        });
     });
 </script>
+
+<style>
+    /* Additional style overrides for larger inputs */
+    #uploadLessonForm input[type="text"],
+    #uploadLessonForm input[type="url"],
+    #uploadLessonForm select,
+    #uploadLessonForm textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+        box-sizing: border-box;
+    }
+    #uploadLessonForm input:focus,
+    #uploadLessonForm select:focus,
+    #uploadLessonForm textarea:focus {
+        border-color: #0B7A3B;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(11,122,59,0.12);
+    }
+    #uploadLessonForm select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+    }
+    #uploadLessonForm textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+    #uploadLessonForm .form-control {
+        /* ensure consistency */
+    }
+    .drop-zone-highlight {
+        border-color: #0B7A3B !important;
+        background: #e8f5e9 !important;
+    }
+    /* Responsive for smaller screens */
+    @media (max-width: 768px) {
+        #uploadLessonForm > div {
+            padding: 16px;
+        }
+        #uploadLessonForm .grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 
 {% endblock %}

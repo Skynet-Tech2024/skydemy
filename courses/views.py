@@ -21,7 +21,7 @@ from django.db.models import Q
 
 # Users & notifications
 from users.utils import create_notification
-from users.models import Wishlist
+from users.models import SavedLesson as Wishlist
 from users.decorators import basic_access, lesson_access, upload_access
 
 # Cloudinary

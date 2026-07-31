@@ -1,4 +1,4 @@
-from users.models import UserProfile, Follow, Wishlist, Message
+from users.models import UserProfile, Follow, SavedLesson as Wishlist, Message
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Count, Avg
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect

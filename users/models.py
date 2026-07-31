@@ -5,8 +5,6 @@ from django.dispatch import receiver
 from core.constants import LEVEL_CHOICES
 from cloudinary.models import CloudinaryField
 from django.core.validators import MinValueValidator, MaxValueValidator
-from core.constants import LEVEL_CHOICES
-
 
 
 class UserProfile(models.Model):
@@ -21,14 +19,12 @@ class UserProfile(models.Model):
         ('approved', 'Approved'),
         ('suspended', 'Suspended'),
     )
-    # REMOVED LOCAL LEVEL_CHOICES – now using imported LEVEL_CHOICES from courses.forms
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='learner')
 
     bio = models.TextField(blank=True, default='')
     avatar = CloudinaryField('avatar', blank=True, null=True)
-    # Use the imported LEVEL_CHOICES with a blank option
     level = models.CharField(
         max_length=50,
         choices=[('', 'Not set')] + LEVEL_CHOICES,
@@ -36,7 +32,6 @@ class UserProfile(models.Model):
         null=True
     )
 
-    # NEW FIELDS
     full_name = models.CharField(
         max_length=200,
         blank=True,
@@ -57,7 +52,7 @@ class UserProfile(models.Model):
     is_premium = models.BooleanField(default=False)
     subscription_expiry = models.DateTimeField(null=True, blank=True)
     is_suspended = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)   # ✅ added field for soft delete
+    is_deleted = models.BooleanField(default=False)
 
     total_lessons_completed = models.IntegerField(default=0)
     rating = models.FloatField(default=0.0, validators=[MinValueValidator(0), MaxValueValidator(5)])
@@ -87,16 +82,22 @@ class Follow(models.Model):
         return f"{self.follower.username} follows {self.following.username}"
 
 
-class Wishlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')
-    lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE, related_name='wishlisted_by')
+# ====== SAVED LESSON (formerly Wishlist) – RENAMED TO BREAK STALE MODEL REFERENCE ======
+
+class SavedLesson(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saved_lessons')
+    lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE, related_name='saved_by')
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = 'users_wishlist'   # keep existing table name
         unique_together = ('user', 'lesson')
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title}"
+
+# If you prefer to keep the name Wishlist, you can add an alias:
+# Wishlist = SavedLesson
 
 
 class Message(models.Model):
@@ -170,19 +171,14 @@ class WhatsAppAnnouncement(models.Model):
         return self.title
 
 
-# ===== Signal to send notification when account is approved/verified =====
 @receiver(post_save, sender=UserProfile)
 def notify_user_on_verification(sender, instance, created, **kwargs):
-    """
-    Send a notification to the user when their account is approved or verified.
-    """
     if not created:
         try:
             old_instance = UserProfile.objects.get(pk=instance.pk)
             old_status = old_instance.verification_status
             new_status = instance.verification_status
             if old_status != new_status and new_status in ['approved', 'verified']:
-                # Local import to avoid circular dependency
                 from users.utils import create_notification
                 create_notification(
                     user=instance.user,

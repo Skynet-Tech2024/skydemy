@@ -119,11 +119,10 @@
         </div>
     </form>
 </div>
-
 <!-- ===== JavaScript for Progressive Reveal & Dynamic Classes ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Cache DOM elements
+        // Cache DOM elements (with null checks)
         const levelSelect = document.getElementById('id_level');
         const cycleGroup = document.getElementById('cycle-group');
         const classGroup = document.getElementById('class-group');
@@ -132,6 +131,7 @@
         const classSelect = document.getElementById('id_class_level');
         const previewDiv = document.getElementById('academic-preview');
         const previewText = document.getElementById('preview-text');
+        const deptSelect = document.getElementById('id_department');
 
         // Define class options per cycle
         const classOptions = {
@@ -147,32 +147,31 @@
         };
 
         function updateAcademicFields() {
+            if (!levelSelect) return;
             const level = levelSelect.value;
             const isSecondary = (level === 'secondary');
 
             // Show/hide cycle, class, department
-            cycleGroup.style.display = isSecondary ? 'block' : 'none';
-            classGroup.style.display = 'none';
-            departmentGroup.style.display = 'none';
+            if (cycleGroup) cycleGroup.style.display = isSecondary ? 'block' : 'none';
+            if (classGroup) classGroup.style.display = 'none';
+            if (departmentGroup) departmentGroup.style.display = 'none';
 
-            // If not secondary, clear values and hide preview
             if (!isSecondary) {
-                cycleSelect.value = '';
-                classSelect.value = '';
-                document.getElementById('id_department').value = '';
-                previewDiv.style.display = 'none';
+                if (cycleSelect) cycleSelect.value = '';
+                if (classSelect) classSelect.value = '';
+                if (deptSelect) deptSelect.value = '';
+                if (previewDiv) previewDiv.style.display = 'none';
                 return;
             }
 
-            // If secondary, show cycle (class and department will show later)
-            cycleGroup.style.display = 'block';
+            if (cycleGroup) cycleGroup.style.display = 'block';
         }
 
         function updateClassOptions() {
+            if (!cycleSelect || !levelSelect || !classSelect) return;
             const cycle = cycleSelect.value;
             const isSecondary = (levelSelect.value === 'secondary');
 
-            // Clear current options
             classSelect.innerHTML = '<option value="">-- Select Class --</option>';
 
             if (cycle && isSecondary) {
@@ -183,21 +182,20 @@
                     option.textContent = opt.label;
                     classSelect.appendChild(option);
                 });
-                classGroup.style.display = 'block';
-                // Show department only if a class is selected (will be handled by change event)
+                if (classGroup) classGroup.style.display = 'block';
             } else {
-                classGroup.style.display = 'none';
-                document.getElementById('id_department').value = '';
-                departmentGroup.style.display = 'none';
+                if (classGroup) classGroup.style.display = 'none';
+                if (deptSelect) deptSelect.value = '';
+                if (departmentGroup) departmentGroup.style.display = 'none';
             }
             updatePreview();
         }
 
         function updatePreview() {
+            if (!levelSelect || !cycleSelect || !classSelect || !deptSelect || !previewDiv || !previewText) return;
             const level = levelSelect.value;
             const cycle = cycleSelect.value;
             const classVal = classSelect.value;
-            const deptSelect = document.getElementById('id_department');
             const deptName = deptSelect.options[deptSelect.selectedIndex]?.text || '';
 
             if (level === 'secondary' && cycle && classVal && deptName && deptName !== '-- Select Department --') {
@@ -210,46 +208,52 @@
             }
         }
 
-        // Event listeners
-        levelSelect.addEventListener('change', function() {
-            updateAcademicFields();
-            // If level changes away from secondary, reset class and department
-            if (this.value !== 'secondary') {
-                classSelect.innerHTML = '<option value="">-- Select Class --</option>';
-                document.getElementById('id_department').value = '';
-                departmentGroup.style.display = 'none';
-                previewDiv.style.display = 'none';
-            }
-        });
+        // Attach event listeners only if elements exist
+        if (levelSelect) {
+            levelSelect.addEventListener('change', function() {
+                updateAcademicFields();
+                if (this.value !== 'secondary') {
+                    if (classSelect) classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+                    if (deptSelect) deptSelect.value = '';
+                    if (departmentGroup) departmentGroup.style.display = 'none';
+                    if (previewDiv) previewDiv.style.display = 'none';
+                }
+            });
+        }
 
-        cycleSelect.addEventListener('change', function() {
-            updateClassOptions();
-            // Show department only if a class is selected
-            if (classSelect.value) {
-                departmentGroup.style.display = 'block';
-            } else {
-                departmentGroup.style.display = 'none';
-            }
-        });
+        if (cycleSelect) {
+            cycleSelect.addEventListener('change', function() {
+                updateClassOptions();
+                if (classSelect && classSelect.value) {
+                    if (departmentGroup) departmentGroup.style.display = 'block';
+                } else {
+                    if (departmentGroup) departmentGroup.style.display = 'none';
+                }
+            });
+        }
 
-        classSelect.addEventListener('change', function() {
-            if (this.value) {
-                departmentGroup.style.display = 'block';
-            } else {
-                departmentGroup.style.display = 'none';
-                document.getElementById('id_department').value = '';
-            }
-            updatePreview();
-        });
+        if (classSelect) {
+            classSelect.addEventListener('change', function() {
+                if (this.value) {
+                    if (departmentGroup) departmentGroup.style.display = 'block';
+                } else {
+                    if (departmentGroup) departmentGroup.style.display = 'none';
+                    if (deptSelect) deptSelect.value = '';
+                }
+                updatePreview();
+            });
+        }
 
-        document.getElementById('id_department').addEventListener('change', updatePreview);
+        if (deptSelect) {
+            deptSelect.addEventListener('change', updatePreview);
+        }
 
         // Initial state
         updateAcademicFields();
-        if (levelSelect.value === 'secondary') {
-            // If the form is loaded with secondary pre-selected (e.g., after validation error), show fields
+        if (levelSelect && levelSelect.value === 'secondary') {
             updateClassOptions();
         }
     });
 </script>
+
 {% endblock %}

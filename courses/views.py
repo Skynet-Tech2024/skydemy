@@ -237,7 +237,6 @@ def upload_lesson(request):
         if form.is_valid():
             lesson = form.save(commit=False)
             lesson.teacher = request.user
-            lesson.status = 'pending'
             lesson.level = teacher_level   # force the level from the profile
 
             # --- Handle new subject creation ---
@@ -292,20 +291,29 @@ def upload_lesson(request):
                 messages.error(request, 'Please select a course for university level.')
                 return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
 
-            lesson.save()
+            # ---- Determine action: draft or submit ----
+            action = request.POST.get('action')
+            if action == 'draft':
+                lesson.status = 'draft'
+                lesson.save()
+                messages.success(request, 'Your lesson has been saved as a draft.')
+                # Do not send notifications for drafts
+            else:
+                lesson.status = 'pending'
+                lesson.save()
+                messages.success(request, 'Your lesson has been submitted for review!')
 
-            # Notify followers
-            followers = request.user.followers.all()
-            for follow in followers:
-                create_notification(
-                    user=follow.follower,
-                    notification_type='system',
-                    title='📚 New Lesson from Teacher You Follow!',
-                    message=f'Your followed teacher "{request.user.username}" has uploaded a new lesson: "{lesson.title}".',
-                    link=f'/courses/lesson/{lesson.id}/'
-                )
+                # Notify followers only when submitted (not draft)
+                followers = request.user.followers.all()
+                for follow in followers:
+                    create_notification(
+                        user=follow.follower,
+                        notification_type='system',
+                        title='📚 New Lesson from Teacher You Follow!',
+                        message=f'Your followed teacher "{request.user.username}" has uploaded a new lesson: "{lesson.title}".',
+                        link=f'/courses/lesson/{lesson.id}/'
+                    )
 
-            messages.success(request, 'Lesson uploaded successfully and is pending admin review!')
             return redirect('dashboard')
         else:
             return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})

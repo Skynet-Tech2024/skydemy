@@ -1,9 +1,9 @@
 from django.conf import settings
+from .constants import CYCLE_CHOICES, CLASS_CHOICES
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
-# ===== CENTRALIZED LEVEL CHOICES =====
+# ===== CHOICES =====
 LEVEL_CHOICES = [
     ('primary', 'Primary'),
     ('secondary', 'Secondary'),
@@ -14,23 +14,31 @@ LEVEL_CHOICES = [
     ('other', 'Other'),
 ]
 
+CYCLE_CHOICES = (
+    ('first', 'First Cycle'),
+    ('second', 'Second Cycle'),
+)
+
+CLASS_CHOICES = (
+    ('form3', 'Form 3'),
+    ('form4', 'Form 4'),
+    ('form5', 'Form 5'),
+    ('lower_sixth', 'Lower Sixth'),
+    ('upper_sixth', 'Upper Sixth'),
+)
+
 User = get_user_model()
-class LessonProgress(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_progress')
-    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, related_name='user_progress')
 
-    current_page = models.IntegerField(default=1)
-    total_pages = models.IntegerField(default=1)
-    progress_percentage = models.FloatField(default=0.0)
-    completed = models.BooleanField(default=False)
 
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('user', 'lesson')
+# ===== DEPARTMENT (NEW) =====
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"
+        return self.name
+
+
 # ===== SUBJECT =====
 class Subject(models.Model):
     STATUS_CHOICES = (
@@ -44,6 +52,7 @@ class Subject(models.Model):
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='primary')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     proposed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)  # NEW
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -105,13 +114,18 @@ class Lesson(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     views = models.PositiveIntegerField(default=0)
 
-    # Whiteboard video generated from PDF – correctly indented (4 spaces)
+    # Whiteboard video
     whiteboard_video = models.FileField(
         upload_to='lessons/whiteboard_videos/',
         blank=True,
         null=True,
         help_text="Generated whiteboard video from the PDF."
     )
+
+    # NEW FIELDS FOR ACADEMIC HIERARCHY
+    cycle = models.CharField(max_length=10, choices=CYCLE_CHOICES, blank=True, null=True)
+    class_level = models.CharField(max_length=15, choices=CLASS_CHOICES, blank=True, null=True)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -156,6 +170,25 @@ class Progress(models.Model):
     class Meta:
         unique_together = ('user', 'lesson')
         ordering = ['-last_accessed']
+
+
+# ===== LESSON PROGRESS (for reader) =====
+class LessonProgress(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_progress')
+    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, related_name='user_progress')
+
+    current_page = models.IntegerField(default=1)
+    total_pages = models.IntegerField(default=1)
+    progress_percentage = models.FloatField(default=0.0)
+    completed = models.BooleanField(default=False)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"
 
 
 # ===== EXAM =====
@@ -285,19 +318,3 @@ class Certificate(models.Model):
 
     def __str__(self):
         return f"Certificate #{self.certificate_number} - {self.user.username}"
-class LessonProgress(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_progress')
-    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, related_name='user_progress')
-
-    current_page = models.IntegerField(default=1)
-    total_pages = models.IntegerField(default=1)
-    progress_percentage = models.FloatField(default=0.0)
-    completed = models.BooleanField(default=False)
-
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('user', 'lesson')   # one record per user per lesson
-
-    def __str__(self):
-        return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"

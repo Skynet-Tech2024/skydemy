@@ -1,5 +1,6 @@
 from django import forms
 from .models import Lesson, Subject, Course, Exam, Certificate
+from .constants import CYCLE_CHOICES, CLASS_CHOICES
 from users.models import UserProfile
 from .models import CYCLE_CHOICES, CLASS_CHOICES
 from .models import Subject, Course, Lesson, Department

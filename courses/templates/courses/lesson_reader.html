@@ -1,0 +1,219 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}{{ lesson.title }} - SKYDEMY{% endblock %}
+
+{% block content %}
+<!-- CSRF token for AJAX -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px 15px;">
+
+    <!-- Lesson Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+        <h1 style="color: #0B7A3B; font-size: 1.8rem; margin: 0;">{{ lesson.title }}</h1>
+        <span style="background: #f6c945; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">
+            {{ lesson.get_level_display }}
+        </span>
+    </div>
+    <p style="color: #64748B; margin-bottom: 20px;">
+        <strong>Subject:</strong> {{ lesson.subject.name }} &nbsp;|&nbsp; 
+        <strong>Teacher:</strong> {{ lesson.teacher.username }}
+    </p>
+
+    <!-- PDF Viewer Container -->
+    <div style="background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; padding: 20px;">
+
+        <!-- Progress Bar -->
+        <div style="margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #475569;">
+                <span>Progress</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden;">
+                <div id="progressFill" style="height: 100%; width: 0%; background: #0B7A3B; transition: width 0.3s;"></div>
+            </div>
+        </div>
+
+        <!-- PDF Viewer -->
+        <div style="position: relative; background: #f1f3f5; border-radius: 8px; min-height: 600px;">
+            <canvas id="pdfCanvas" style="width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 20px; flex-wrap: wrap;">
+            <button id="prevPage" style="background: #0B7A3B; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                ◀ Previous
+            </button>
+            <span style="font-size: 1rem; color: #1F2937;">
+                Page <span id="currentPageDisplay">1</span> of <span id="totalPagesDisplay">1</span>
+            </span>
+            <button id="nextPage" style="background: #0B7A3B; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                Next ▶
+            </button>
+            <input type="number" id="pageInput" min="1" max="1" style="width: 60px; padding: 8px; border: 2px solid #e9ecef; border-radius: 6px; text-align: center;" placeholder="Go">
+            <button id="goPage" style="background: #f6c945; color: #123526; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; cursor: pointer;">Go</button>
+        </div>
+    </div>
+
+    <!-- Back link -->
+    <div style="margin-top: 25px;">
+        <a href="{% url 'courses:lesson_list' %}" style="color: #0B7A3B; text-decoration: none; font-weight: 500;">← Back to all lessons</a>
+    </div>
+</div>
+
+<!-- PDF.js and custom script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    // Set worker source
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Get lesson data from Django context (passed via template)
+    const lessonId = {{ lesson.id }};
+    const pdfUrl = "{{ pdf_url|escapejs }}";
+    const totalPages = {{ total_pages|default:1 }};
+    let currentPage = {{ current_page|default:1 }};
+    let pdfDoc = null;
+    let pageRendering = false;
+    let pageNumPending = null;
+
+    // DOM elements
+    const canvas = document.getElementById('pdfCanvas');
+    const ctx = canvas.getContext('2d');
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+    const currentPageSpan = document.getElementById('currentPageDisplay');
+    const totalPagesSpan = document.getElementById('totalPagesDisplay');
+    const pageInput = document.getElementById('pageInput');
+    const goBtn = document.getElementById('goPage');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
+
+    // Get CSRF token from hidden input
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+    // Update progress bar
+    function updateProgress() {
+        if (!totalPages) return;
+        const percentage = Math.round((currentPage / totalPages) * 100);
+        progressFill.style.width = percentage + '%';
+        progressPercent.textContent = percentage + '%';
+    }
+
+    // Save progress via AJAX
+    function saveProgress() {
+        fetch('/courses/api/lesson-progress/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({
+                lesson_id: lessonId,
+                current_page: currentPage,
+                total_pages: totalPages,
+                progress_percentage: Math.round((currentPage / totalPages) * 100),
+                completed: currentPage >= totalPages
+            })
+        }).catch(err => console.warn('Progress save failed:', err));
+    }
+
+    // Render page
+    function renderPage(num) {
+        pageRendering = true;
+        pdfDoc.getPage(num).then(function(page) {
+            const viewport = page.getViewport({ scale: 1.5 });
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            const renderTask = page.render(renderContext);
+            renderTask.promise.then(function() {
+                pageRendering = false;
+                if (pageNumPending !== null) {
+                    renderPage(pageNumPending);
+                    pageNumPending = null;
+                }
+            });
+        });
+
+        currentPage = num;
+        currentPageSpan.textContent = currentPage;
+        pageInput.value = currentPage;
+        updateProgress();
+        saveProgress();
+    }
+
+    // Queue rendering if busy
+    function queueRenderPage(num) {
+        if (pageRendering) {
+            pageNumPending = num;
+        } else {
+            renderPage(num);
+        }
+    }
+
+    // Load PDF
+    function loadPDF() {
+        if (!pdfUrl) {
+            alert('PDF URL is missing. Please contact support.');
+            return;
+        }
+        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+            pdfDoc = pdf;
+            totalPagesSpan.textContent = pdfDoc.numPages;
+            pageInput.max = pdfDoc.numPages;
+            // Ensure currentPage is within range
+            if (currentPage > pdfDoc.numPages) currentPage = pdfDoc.numPages;
+            renderPage(currentPage);
+        }).catch(function(err) {
+            console.error('PDF load error:', err);
+            alert('Failed to load PDF. Please try again later.');
+        });
+    }
+
+    // Event listeners
+    prevBtn.addEventListener('click', function() {
+        if (currentPage <= 1) return;
+        queueRenderPage(currentPage - 1);
+    });
+
+    nextBtn.addEventListener('click', function() {
+        if (currentPage >= pdfDoc.numPages) return;
+        queueRenderPage(currentPage + 1);
+    });
+
+    goBtn.addEventListener('click', function() {
+        let goTo = parseInt(pageInput.value);
+        if (isNaN(goTo) || goTo < 1 || goTo > pdfDoc.numPages) {
+            alert('Enter a valid page number between 1 and ' + pdfDoc.numPages);
+            return;
+        }
+        queueRenderPage(goTo);
+    });
+
+    // Keyboard navigation (left/right arrows)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft') {
+            prevBtn.click();
+            e.preventDefault();
+        } else if (e.key === 'ArrowRight') {
+            nextBtn.click();
+            e.preventDefault();
+        }
+    });
+
+    // Load on page ready
+    document.addEventListener('DOMContentLoaded', function() {
+        loadPDF();
+    });
+
+    // Save progress when leaving page (optional)
+    window.addEventListener('beforeunload', function() {
+        saveProgress();
+    });
+</script>
+{% endblock %}

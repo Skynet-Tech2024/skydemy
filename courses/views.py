@@ -402,11 +402,17 @@ def view_lesson(request, lesson_id):
             pdf_url = None
             messages.warning(request, f"Could not generate PDF URL: {str(e)}")
 
+    # --- NEW: get current page and total pages from progress ---
+    total_pages = progress.total_pages if progress else 1
+    current_page = progress.current_page if progress else 1
+
     context = {
         'lesson': lesson,
         'exam': exam,
         'pdf_url': pdf_url,
         'progress': progress,
+        'total_pages': total_pages,      # <-- added
+        'current_page': current_page,    # <-- added
     }
     return render(request, 'courses/lesson_reader.html', context)
 

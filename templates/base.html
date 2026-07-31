@@ -491,7 +491,7 @@
                         <a href="{% url 'notifications' %}">🔔 Notifications</a>
                         <a href="{% url 'profile' %}">👤 Profile Settings</a>
                         {% if user.profile.role == 'teacher' %}
-                            <a href="{% url 'upload_lesson' %}">➕ Create Lesson</a>
+                            <a href="{% url 'courses:upload_lesson' %}">➕ Create Lesson</a>
                         {% endif %}
                     </div>
                 </div>

@@ -1,6 +1,8 @@
 from django import forms
 from .models import Lesson, Subject, Course, Exam, Certificate
 from users.models import UserProfile
+from .models import CYCLE_CHOICES, CLASS_CHOICES
+from .models import Subject, Course, Lesson, Department
 from core.constants import LEVEL_CHOICES
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -8,59 +10,89 @@ import datetime
 import random
 
 
+
 class LessonForm(forms.ModelForm):
-    new_subject_name = forms.CharField(
-        max_length=100,
+    # Add the new fields
+    cycle = forms.ChoiceField(
+        choices=[('', '-- Select Cycle --')] + list(CYCLE_CHOICES),
         required=False,
-        help_text="If subject doesn't exist, enter a new subject name here and it will be created automatically."
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_cycle'})
     )
-    new_subject_level = forms.ChoiceField(
-        choices=LEVEL_CHOICES,
+    class_level = forms.ChoiceField(
+        choices=[('', '-- Select Class --')],
         required=False,
-        help_text="Select the level for the new subject"
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_class_level'})
+    )
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all().order_by('name'),
+        required=False,
+        empty_label="-- Select Department --",
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_department'})
     )
 
     class Meta:
         model = Lesson
-        fields = ['title', 'description', 'level', 'subject', 'course', 'pdf_file', 'video_file', 'video_url', 'new_subject_name', 'new_subject_level']
+        fields = [
+            'title', 'level', 'subject', 'course',
+            'cycle', 'class_level', 'department',
+            'description', 'pdf_file', 'video_url', 'video_file'
+        ]
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'level': forms.Select(attrs={'class': 'form-control', 'id': 'id_level'}),
+            'subject': forms.Select(attrs={'class': 'form-control', 'id': 'id_subject'}),
+            'course': forms.Select(attrs={'class': 'form-control', 'id': 'id_course'}),
+            'pdf_file': forms.FileInput(attrs={'class': 'form-control'}),
+            'video_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://...'}),
+            'video_file': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['subject'].required = False
-        self.fields['course'].required = False
-        self.fields['pdf_file'].required = False
-        self.fields['video_file'].required = False
-        self.fields['video_url'].required = False
-        if 'level' in self.data:
-            level = self.data.get('level')
-            if level:
-                self.fields['subject'].queryset = Subject.objects.filter(level=level)
+        # Set initial choices for class_level (empty)
+        self.fields['class_level'].choices = [('', '-- Select Class --')]
+        # If the instance has a cycle, update class_level choices
+        if self.instance and self.instance.pk and self.instance.cycle:
+            self.fields['class_level'].choices = self.get_class_choices(self.instance.cycle)
+
+    def get_class_choices(self, cycle):
+        """Return class choices based on cycle."""
+        if cycle == 'first':
+            return [('', '-- Select Class --')] + [
+                ('form3', 'Form 3'),
+                ('form4', 'Form 4'),
+                ('form5', 'Form 5'),
+            ]
+        elif cycle == 'second':
+            return [('', '-- Select Class --')] + [
+                ('lower_sixth', 'Lower Sixth'),
+                ('upper_sixth', 'Upper Sixth'),
+            ]
+        return [('', '-- Select Class --')]
 
     def clean(self):
         cleaned_data = super().clean()
         level = cleaned_data.get('level')
-        subject = cleaned_data.get('subject')
-        new_subject_name = cleaned_data.get('new_subject_name')
-        new_subject_level = cleaned_data.get('new_subject_level')
-        if new_subject_name and new_subject_level:
-            existing_subject = Subject.objects.filter(name__iexact=new_subject_name, level=new_subject_level).first()
-            if existing_subject:
-                cleaned_data['subject'] = existing_subject
-            else:
-                new_subject = Subject.objects.create(
-                    name=new_subject_name,
-                    level=new_subject_level,
-                    description=f"Auto-created from lesson upload"
-                )
-                cleaned_data['subject'] = new_subject
-        if level in ['primary', 'secondary'] and not cleaned_data.get('subject'):
-            raise forms.ValidationError('Please select an existing subject or create a new one by filling in "New Subject Name" and "New Subject Level".')
-        if level == 'university' and not cleaned_data.get('course'):
-            raise forms.ValidationError('Please select a course for university level.')
+        cycle = cleaned_data.get('cycle')
+        class_level = cleaned_data.get('class_level')
+        department = cleaned_data.get('department')
+
+        # If level is secondary, require cycle, class_level, and department
+        if level == 'secondary':
+            if not cycle:
+                self.add_error('cycle', 'Cycle is required for Secondary level.')
+            if not class_level:
+                self.add_error('class_level', 'Class is required for Secondary level.')
+            if not department:
+                self.add_error('department', 'Department is required for Secondary level.')
+        else:
+            # If not secondary, clear these fields (they are not needed)
+            cleaned_data['cycle'] = None
+            cleaned_data['class_level'] = None
+            cleaned_data['department'] = None
+
         return cleaned_data
+
 
 
 class ExamForm(forms.ModelForm):

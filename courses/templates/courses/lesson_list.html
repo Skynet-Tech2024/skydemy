@@ -20,7 +20,7 @@
             🔍 Search
         </button>
         {% if query %}
-            <a href="{% url 'lesson_list' %}" style="background: #6c757d; color: #fff; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">Clear</a>
+            <a href="{% url 'courses:lesson_list' %}" style="background: #6c757d; color: #fff; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">Clear</a>
         {% endif %}
     </form>
 
@@ -41,7 +41,7 @@
                 <strong>Level:</strong> {{ lesson.get_level_display }}
             </p>
             <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-                <a href="{% url 'view_lesson' lesson.id %}" style="background: #0B7A3B; color: #fff; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 500;">
+                <a href="{% url 'courses:view_lesson' lesson.id %}" style="background: #0B7A3B; color: #fff; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 500;">
                     View Lesson →
                 </a>
                 {% if user.is_authenticated and user.profile.role == 'learner' %}

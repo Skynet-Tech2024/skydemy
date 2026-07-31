@@ -4,7 +4,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('courses', '0001_initial'),
+        ('courses', '0002_create_department'),
     ]
 
     operations = [

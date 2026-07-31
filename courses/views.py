@@ -296,12 +296,17 @@ def upload_lesson(request):
             if action == 'draft':
                 lesson.status = 'draft'
                 lesson.save()
-                messages.success(request, 'Your lesson has been saved as a draft.')
+                messages.success(request, '📝 Your lesson has been saved as a draft. You can continue editing later.')
                 # Do not send notifications for drafts
             else:
                 lesson.status = 'pending'
                 lesson.save()
-                messages.success(request, 'Your lesson has been submitted for review!')
+                messages.success(
+                    request,
+                    '🎉 Great Job! Your lesson has been submitted for review. '
+                    'Our administrators will verify the content before making it available to learners. '
+                    'Thank you for helping students learn with SKYDEMY!'
+                )
 
                 # Notify followers only when submitted (not draft)
                 followers = request.user.followers.all()

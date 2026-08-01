@@ -870,20 +870,28 @@ def add_gce_past_questions(request, level):
 
 # ====== WIZARDS ======
 
-
 @staff_member_required
-def create_course_wizard(request):
+def create_exam_wizard(request):
     if request.method == 'POST':
-        form = CourseCreationForm(request.POST)
+        form = ExamCreationForm(request.POST, request.FILES)
         if form.is_valid():
-            course = form.save(commit=False)
-            course.save()
-            messages.success(request, f"Course '{course.name}' created successfully!")
-            return redirect('admin:courses_course_changelist')
+            exam = form.save(commit=False)
+            exam.exam_code = f"EXAM-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            exam.status = 'pending'
+            exam.save()
+            
+            if form.cleaned_data.get('exam_paper'):
+                exam.exam_document = form.cleaned_data['exam_paper']
+            if form.cleaned_data.get('marking_guide'):
+                exam.marking_guide_document = form.cleaned_data['marking_guide']
+            exam.save()
+            
+            messages.success(request, f"Exam '{exam.title}' created successfully!")
+            return redirect('admin:courses_exam_changelist')
     else:
-        form = CourseCreationForm()
+        form = ExamCreationForm()
     
-    return render(request, 'courses/create_course_wizard.html', {'form': form})
+    return render(request, 'courses/create_exam_wizard.html', {'form': form})
 
 
 @staff_member_required
@@ -941,6 +949,7 @@ def issue_certificate_wizard(request):
 
     return render(request, 'courses/issue_certificate_wizard.html', {'form': form})
 
+
 @staff_member_required
 def create_course_wizard(request):
     if request.method == 'POST':
@@ -954,3 +963,53 @@ def create_course_wizard(request):
         form = CourseCreationForm()
     
     return render(request, 'courses/create_course_wizard.html', {'form': form})
+
+
+# ====== CUSTOM ADMIN LESSON LIST VIEW ======
+
+@staff_member_required
+def admin_lesson_list(request):
+    """
+    Custom admin view for listing lessons, matching the style and functionality
+    of the Students page (approve/reject/delete actions with checkboxes).
+    """
+    lessons = Lesson.objects.all().order_by('-created_at')
+    total = lessons.count()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')          # 'approve', 'reject', 'delete'
+        selected_ids = request.POST.getlist('selected_lessons')
+        if selected_ids:
+            lessons_selected = Lesson.objects.filter(id__in=selected_ids)
+            if action == 'approve':
+                lessons_selected.update(status='approved')
+                messages.success(request, f"{lessons_selected.count()} lesson(s) approved.")
+            elif action == 'reject':
+                lessons_selected.update(status='rejected')
+                messages.success(request, f"{lessons_selected.count()} lesson(s) rejected.")
+            elif action == 'delete':
+                lessons_selected.delete()
+                messages.success(request, f"{len(selected_ids)} lesson(s) deleted.")
+            else:
+                messages.error(request, "Invalid action.")
+        else:
+            messages.error(request, "No lessons selected.")
+        # Redirect back to this same view
+        return redirect('admin:lesson_list')   # This name will be registered in core/admin.py
+
+    context = {
+        'lessons': lessons,
+        'total': total,
+        'opts': Lesson._meta,   # for breadcrumbs
+    }
+    return render(request, 'admin/courses/lesson_list.html', context)
+
+
+@login_required
+def debug_lessons(request):
+    """Temporary debug view to check lessons."""
+    lessons = Lesson.objects.filter(teacher=request.user)
+    output = f"Total lessons: {lessons.count()}\n"
+    for l in lessons:
+        output += f"ID: {l.id}, Title: {l.title}, Status: {l.status}\n"
+    return HttpResponse(output, content_type='text/plain')

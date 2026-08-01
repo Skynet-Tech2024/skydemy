@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.views.generic import RedirectView
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -54,6 +55,7 @@ path('courses/', include('courses.urls')),
     # Service worker
     path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw.js'),
 path('download-app/', TemplateView.as_view(template_name='dashboard/download_app.html'), name='download_app'),    
+path('', RedirectView.as_view(url='/users/login/', permanent=False), name='home'),
 path('migrate/', run_migrations, name='run_migrations'),
 
     # Captcha

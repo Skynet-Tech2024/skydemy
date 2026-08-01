@@ -218,7 +218,6 @@ def lesson_list(request):
 @upload_access
 def upload_lesson(request):
     """Teachers upload a new lesson – level is forced to teacher's level, with Word to PDF conversion."""
-    # ✅ DEBUG: print when view is called
     print("🔥 upload_lesson called, method:", request.method)
 
     if request.user.profile.role != 'teacher':
@@ -231,11 +230,11 @@ def upload_lesson(request):
         messages.error(request, 'Please set your education level in your profile before uploading a lesson.')
         return redirect('profile')
 
+    # Determine if course field should be shown (only for university level)
+    show_course = (teacher_level == 'university')
+
     if request.method == 'POST':
-        form = LessonForm(request.POST, request.FILES)
-        # DO NOT delete the 'level' field – we need it in the template for JavaScript
-        # if 'level' in form.fields:
-        #     del form.fields['level']   # <-- REMOVE this line
+        form = LessonForm(request.POST, request.FILES, teacher_level=teacher_level)
 
         if form.is_valid():
             print("✅ Form is valid!")
@@ -257,7 +256,7 @@ def upload_lesson(request):
                     lesson.subject = Subject.objects.get(id=selected_subject_id)
                 except Subject.DoesNotExist:
                     messages.error(request, 'Selected subject does not exist.')
-                    return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
+                    return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
             elif new_subject_name:
                 existing = Subject.objects.filter(name__iexact=new_subject_name, level=teacher_level).first()
                 if existing:
@@ -286,7 +285,7 @@ def upload_lesson(request):
                         lesson.original_file = uploaded_file
                     except Exception as e:
                         messages.error(request, f"Failed to convert Word document: {e}")
-                        return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
+                        return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
                 else:
                     lesson.pdf_file = uploaded_file
                     lesson.is_converted = False
@@ -294,10 +293,10 @@ def upload_lesson(request):
             # Validate subject/course based on level
             if lesson.level in ['primary', 'secondary'] and not lesson.subject:
                 messages.error(request, 'Please select a subject or create a new one for primary/secondary level.')
-                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
+                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
             if lesson.level == 'university' and not lesson.course:
                 messages.error(request, 'Please select a course for university level.')
-                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
+                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
 
             # ---- Determine action: draft or submit ----
             action = request.POST.get('action')
@@ -333,16 +332,9 @@ def upload_lesson(request):
         else:
             print("❌ Form is INVALID!")
             print(f"Form errors: {form.errors}")
-            return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
+            return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
     else:
-        form = LessonForm()
-        # DO NOT delete the 'level' field
-        # if 'level' in form.fields:
-        #     del form.fields['level']
-
-        # Set the initial value and disable the field
-        form.fields['level'].initial = teacher_level
-        form.fields['level'].widget.attrs['disabled'] = 'disabled'
+        form = LessonForm(teacher_level=teacher_level)
 
     # Debug: log the template being rendered and check if it exists
     template_name = 'courses/upload_lesson.html'
@@ -353,7 +345,11 @@ def upload_lesson(request):
     except Exception as e:
         print(f"Template load error: {e}")
 
-    return render(request, template_name, {'form': form, 'teacher_level': teacher_level})
+    return render(request, template_name, {
+        'form': form,
+        'teacher_level': teacher_level,
+        'show_course': show_course,
+    })
 
 
 @upload_access

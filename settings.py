@@ -26,11 +26,21 @@ SECRET_KEY = 'django-insecure-z3h5@fv+p_z54=^s2hc@wm$7m*$kpns)n9uw7$n=hr=p&17f9m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ===== ALLOWED HOSTS (ADDED FOR RENDER) =====
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '.render.com',  # Allows all subdomains of render.com
+    'skydemy-jeer.onrender.com',
+]
 
+# ===== CSRF TRUSTED ORIGINS (FIX FOR MOBILE 403) =====
+CSRF_TRUSTED_ORIGINS = [
+    'https://skydemy-jeer.onrender.com',
+    'https://*.render.com',
+]
 
 # Application definition
-
 INSTALLED_APPS = [
     'core',
     'django.contrib.admin',
@@ -39,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 👇 Add these two for Cloudinary storage
+    # Cloudinary storage
     'cloudinary_storage',
     'cloudinary',
 ]
@@ -59,7 +69,7 @@ ROOT_URLCONF = 'elearning_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Added templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -120,7 +130,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Added static files directory
 
 # ===== FILE STORAGE (Django 6.0+) =====
 # Use Cloudinary as the default storage backend
@@ -136,3 +146,17 @@ STORAGES = {
 # ===== MEDIA FILES (local storage – not used with Cloudinary, but kept) =====
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ===== LOGIN/LOGOUT URLs =====
+LOGIN_URL = '/users/login/'
+LOGOUT_REDIRECT_URL = 'login'
+
+# ===== SESSION SETTINGS =====
+SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS
+CSRF_COOKIE_SECURE = True     # Only send CSRF cookies over HTTPS
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# ===== SECURE PROXY HEADER =====
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True

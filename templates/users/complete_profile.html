@@ -14,7 +14,7 @@
         <!-- ===== ROLE SELECTION ===== -->
         <div class="form-group" style="margin-bottom: 20px;">
             <label style="font-weight: 600; display: block; margin-bottom: 5px;">Role *</label>
-            <select name="role" class="form-control" required style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 6px;">
+            <select name="role" id="role-select" class="form-control" required style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 6px;">
                 <option value="">Select your role</option>
                 {% for value, label in role_choices %}
                     <option value="{{ value }}">{{ label }}</option>
@@ -22,25 +22,39 @@
             </select>
         </div>
 
-        <!-- ===== LEVELS (multiple checkboxes) ===== -->
+        <!-- ===== EDUCATION LEVEL ===== -->
         <div class="form-group" style="margin-bottom: 20px;">
-            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Education Level(s) *</label>
-            <!-- DEBUG LINE -->
-            <p style="background: yellow; padding: 5px; font-size: 14px;"></p>
+            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Education Level *</label>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                {% for level in all_levels %}
-                    <div class="form-check" style="display: flex; align-items: center; gap: 8px;">
-                        <input class="form-check-input" type="checkbox" name="levels" value="{{ level.code }}" id="level_{{ level.code }}" style="width: 18px; height: 18px;">
-                        <label class="form-check-label" for="level_{{ level.code }}" style="font-size: 0.95rem;">
-                            {{ level.name }}
-                        </label>
-                    </div>
-                {% empty %}
-                    <p style="color: red;">No levels found. Please run the Level population script.</p>
-                {% endfor %}
+            <!-- For Teachers: Multiple checkboxes -->
+            <div id="teacher-levels" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    {% for level in all_levels %}
+                        <div class="form-check" style="display: flex; align-items: center; gap: 8px;">
+                            <input class="form-check-input" type="checkbox" name="levels" value="{{ level.code }}" id="level_{{ level.code }}" style="width: 18px; height: 18px;">
+                            <label class="form-check-label" for="level_{{ level.code }}" style="font-size: 0.95rem;">
+                                {{ level.name }}
+                            </label>
+                        </div>
+                    {% empty %}
+                        <p style="color: red;">No levels found. Please contact support.</p>
+                    {% endfor %}
+                </div>
+                <small class="form-text text-muted" style="display: block; margin-top: 5px; color: #6c757d;">Teachers can select multiple levels.</small>
             </div>
-            <small class="form-text text-muted" style="display: block; margin-top: 5px; color: #6c757d;">Teachers can select multiple levels.</small>
+
+            <!-- For Learners: Single dropdown -->
+            <div id="learner-level">
+                <select name="learner_level" class="form-control" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 6px;">
+                    <option value="">Select your level</option>
+                    {% for level in all_levels %}
+                        <option value="{{ level.code }}">{{ level.name }}</option>
+                    {% empty %}
+                        <option value="">No levels available</option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted" style="display: block; margin-top: 5px; color: #6c757d;">Learners select one level.</small>
+            </div>
         </div>
 
         <!-- ===== PHONE NUMBER ===== -->
@@ -71,4 +85,37 @@
         <a href="{% url 'login' %}" style="color: #0B7A3B;">Already have an account? Login</a>
     </p>
 </div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('role-select');
+        const teacherLevels = document.getElementById('teacher-levels');
+        const learnerLevel = document.getElementById('learner-level');
+
+        function toggleLevels() {
+            if (roleSelect.value === 'teacher') {
+                teacherLevels.style.display = 'block';
+                learnerLevel.style.display = 'none';
+                // Uncheck all checkboxes when switching to teacher
+                document.querySelectorAll('input[name="levels"]').forEach(function(cb) {
+                    cb.checked = false;
+                });
+            } else {
+                teacherLevels.style.display = 'none';
+                learnerLevel.style.display = 'block';
+                // Reset dropdown when switching to learner
+                if (roleSelect.value === 'learner' || roleSelect.value === '') {
+                    document.querySelector('select[name="learner_level"]').value = '';
+                }
+            }
+        }
+
+        // Initial state
+        toggleLevels();
+
+        // On role change
+        roleSelect.addEventListener('change', toggleLevels);
+    });
+</script>
 {% endblock %}

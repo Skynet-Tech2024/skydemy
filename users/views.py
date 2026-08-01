@@ -210,7 +210,6 @@ def account_deactivated(request):
 def admin_level_list(request):
     levels = Level.objects.all().order_by('code')
 
-    # Search
     search_query = request.GET.get('q', '')
     if search_query:
         levels = levels.filter(
@@ -218,13 +217,11 @@ def admin_level_list(request):
             Q(name__icontains=search_query)
         )
 
-    # Pagination
     paginator = Paginator(levels, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
 
-    # Build rows for the template
     level_rows = []
-    for i, level in enumerate(page_obj, start=page_obj.start_index()):  # <-- FIXED: call method
+    for i, level in enumerate(page_obj, start=page_obj.start_index()):
         level_rows.append({
             'cells': [
                 f'<input type="checkbox" name="selected_items" value="{level.id}">',
@@ -249,10 +246,32 @@ def admin_level_list(request):
         return redirect('admin:level_list')
 
     context = {
+        'page_title': 'Levels',
+        'page_subtitle': 'Manage educational levels available on SKYDEMY.',
+        'page_icon': '📚',
+        'app_label': 'Users',
+        'add_url': '/admin/users/level/add/',
+        'add_label': 'Level',
+        'columns': [
+            {'checkbox': True},
+            {'label': '#'},
+            {'label': 'Code'},
+            {'label': 'Name'},
+            {'label': 'Created At'}
+        ],
+        'rows': level_rows,
+        'bulk_actions': [
+            {'value': 'delete', 'label': '🗑️ Delete selected'}
+        ],
+        'stats': [
+            {'value': levels.count(), 'label': 'Total Levels', 'color': '#0B7A3B'}
+        ],
+        'search_url': '?',
+        'search_query': search_query,
+        'paginator': paginator,
+        'page_obj': page_obj,
+        # old variables for fallback
         'level_rows': level_rows,
         'total': levels.count(),
-        'page_obj': page_obj,
-        'paginator': paginator,
-        'search_query': search_query,
     }
     return render(request, 'admin/users/level_list.html', context)

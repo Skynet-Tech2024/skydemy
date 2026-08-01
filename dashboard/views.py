@@ -26,7 +26,11 @@ def dashboard(request):
         return redirect('/admin/')
     
     profile = user.profile
-    context = {'user': user, 'profile': profile}
+    
+    # ===== REFERRAL COUNT =====
+    referrals_count = profile.referrals.count()
+    
+    context = {'user': user, 'profile': profile, 'referrals_count': referrals_count}
     
     if profile.role == 'teacher':
         lessons = Lesson.objects.filter(teacher=user).order_by('-created_at')
@@ -54,12 +58,23 @@ def dashboard(request):
         in_progress_ids = progress.filter(completed=False).values_list('lesson_id', flat=True)
         wishlist_ids = Wishlist.objects.filter(user=user).values_list('lesson_id', flat=True)
         excluded_ids = set(list(completed_ids) + list(in_progress_ids) + list(wishlist_ids))
+        
+        # Get learner's levels
+        learner_levels = profile.levels.all()
+        level_codes = [level.code for level in learner_levels] if learner_levels.exists() else []
+        
         recommended = Lesson.objects.filter(
-            level=profile.level,
             status='approved'
-        ).exclude(id__in=excluded_ids).annotate(
+        ).exclude(id__in=excluded_ids)
+        
+        # Filter by learner's levels if they have any
+        if level_codes:
+            recommended = recommended.filter(level__in=level_codes)
+        
+        recommended = recommended.annotate(
             engagement=Count('likes') + Count('comments') + Count('progress')
         ).order_by('-engagement', '-views')[:6]
+        
         context.update({
             'progress': progress,
             'completed_count': completed_lessons,
@@ -410,7 +425,6 @@ def batch_subject_action(request):
 @staff_member_required
 def exam_list(request):
     """Admin view to list all exams with stat cards and batch actions."""
-    # FIX: removed 'lesson' from select_related (Exam has no lesson field)
     exams = Exam.objects.select_related('course', 'subject', 'reviewed_by', 'teacher').all().order_by('-created_at')
     total_count = exams.count()
     pending_count = exams.filter(status='pending').count()
@@ -454,18 +468,14 @@ def batch_exam_action(request):
 @staff_member_required
 def certificate_list(request):
     """Admin view to list all certificates with stat cards and batch actions."""
-    # FIX: removed 'exam' from select_related (Certificate has no exam field)
     certificates = Certificate.objects.select_related('user', 'lesson').all().order_by('-issued_date')
     total_count = certificates.count()
     by_lesson_count = certificates.exclude(lesson=None).count()
-    # Remove the by_exam_count because Certificate has no exam field
-    # by_exam_count = certificates.exclude(exam=None).count()  # removed
     unique_users_count = certificates.values('user').distinct().count()
     context = {
         'certificates': certificates,
         'total_count': total_count,
         'by_lesson_count': by_lesson_count,
-        # 'by_exam_count': by_exam_count,  # removed
         'unique_users_count': unique_users_count,
     }
     return render(request, 'dashboard/certificate_list.html', context)

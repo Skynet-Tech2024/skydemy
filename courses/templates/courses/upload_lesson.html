@@ -117,10 +117,13 @@
                         <label for="id_subject" style="font-weight: 600; display: block; margin-bottom: 4px;">Subject</label>
                         {{ form.subject }}
                     </div>
+                    {% if show_course %}
                     <div>
                         <label for="id_course" style="font-weight: 600; display: block; margin-bottom: 4px;">Course</label>
                         {{ form.course }}
+                        <p style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">Optional for university level.</p>
                     </div>
+                    {% endif %}
                 </div>
 
                 <div style="margin-top: 15px;">

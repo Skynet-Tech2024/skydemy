@@ -182,7 +182,20 @@ def lesson_list(request):
 
     # If learner, filter by their level
     if hasattr(request.user, 'profile') and request.user.profile.role == 'learner':
-        lessons_qs = lessons_qs.filter(level=request.user.profile.level)
+        # For learners, we might want to filter by their enrolled levels
+        # For now, keep the old behavior (filter by a single level)
+        # This will need updating if learners also have multiple levels
+        # But we'll leave it as is for now; you can adapt later
+        # For simplicity, we still use the first level? Or we can filter by any of their levels.
+        # We'll assume learner has a single level for now.
+        learner_levels = request.user.profile.levels.all()
+        if learner_levels.exists():
+            # Filter lessons that match any of the learner's levels
+            level_codes = [level.code for level in learner_levels]
+            lessons_qs = lessons_qs.filter(level__in=level_codes)
+        # else: no levels, show none? Or show all? We'll show none.
+        else:
+            lessons_qs = lessons_qs.none()
 
     # Search
     query = request.GET.get('q')
@@ -217,34 +230,37 @@ def lesson_list(request):
 
 @upload_access
 def upload_lesson(request):
-    """Teachers upload a new lesson – level is forced to teacher's level, with Word to PDF conversion."""
+    """Teachers upload a new lesson – level is chosen from teacher's assigned levels."""
     print("🔥 upload_lesson called, method:", request.method)
 
     if request.user.profile.role != 'teacher':
         messages.error(request, 'Only teachers can upload lessons.')
         return redirect('home')
 
-    teacher_level = request.user.profile.level
+    # Get teacher's assigned levels (many‑to‑many)
+    teacher_levels = request.user.profile.levels.all()
 
-    if not teacher_level:
-        messages.error(request, 'Please set your education level in your profile before uploading a lesson.')
+    if not teacher_levels.exists():
+        messages.error(request, 'Please set your education level(s) in your profile before uploading a lesson.')
         return redirect('profile')
 
-    # Determine if course field should be shown (only for university level)
-    show_course = (teacher_level == 'university')
+    # Determine if course field should be shown (only if teacher has 'university' level)
+    show_course = teacher_levels.filter(code='university').exists()
 
     if request.method == 'POST':
-        form = LessonForm(request.POST, request.FILES, teacher_level=teacher_level)
+        form = LessonForm(request.POST, request.FILES, teacher_levels=teacher_levels)
 
         if form.is_valid():
             print("✅ Form is valid!")
             print(f"Lesson title: {form.cleaned_data.get('title')}")
-            print(f"Level: {teacher_level}")
+            print(f"Selected level: {form.cleaned_data.get('level')}")
             print(f"PDF file: {request.FILES.get('pdf_file')}")
 
             lesson = form.save(commit=False)
             lesson.teacher = request.user
-            lesson.level = teacher_level   # force the level from the profile
+            # The level is taken from the form (since it's a choice from teacher's levels)
+            # No need to force it; the form already validates it belongs to teacher's levels.
+            # But we keep the lesson.level as selected.
 
             # --- Handle new subject creation ---
             selected_subject_id = request.POST.get('subject')
@@ -256,9 +272,15 @@ def upload_lesson(request):
                     lesson.subject = Subject.objects.get(id=selected_subject_id)
                 except Subject.DoesNotExist:
                     messages.error(request, 'Selected subject does not exist.')
-                    return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
+                    return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_levels': teacher_levels, 'show_course': show_course})
             elif new_subject_name:
-                existing = Subject.objects.filter(name__iexact=new_subject_name, level=teacher_level).first()
+                # When creating a new subject, we need to associate it with the lesson's level
+                # The subject's level field might be used for filtering; we can set it to the lesson's level.
+                level_code = form.cleaned_data.get('level')
+                existing = Subject.objects.filter(
+                    name__iexact=new_subject_name,
+                    level=level_code
+                ).first()
                 if existing:
                     lesson.subject = existing
                     messages.info(request, f'Using existing subject "{existing.name}".')
@@ -266,7 +288,7 @@ def upload_lesson(request):
                     subject = Subject.objects.create(
                         name=new_subject_name,
                         code=new_subject_code,
-                        level=teacher_level,
+                        level=level_code,
                         proposed_by=request.user,
                         status='pending'
                     )
@@ -285,7 +307,7 @@ def upload_lesson(request):
                         lesson.original_file = uploaded_file
                     except Exception as e:
                         messages.error(request, f"Failed to convert Word document: {e}")
-                        return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
+                        return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_levels': teacher_levels, 'show_course': show_course})
                 else:
                     lesson.pdf_file = uploaded_file
                     lesson.is_converted = False
@@ -293,10 +315,10 @@ def upload_lesson(request):
             # Validate subject/course based on level
             if lesson.level in ['primary', 'secondary'] and not lesson.subject:
                 messages.error(request, 'Please select a subject or create a new one for primary/secondary level.')
-                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
+                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_levels': teacher_levels, 'show_course': show_course})
             if lesson.level == 'university' and not lesson.course:
                 messages.error(request, 'Please select a course for university level.')
-                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
+                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_levels': teacher_levels, 'show_course': show_course})
 
             # ---- Determine action: draft or submit ----
             action = request.POST.get('action')
@@ -328,13 +350,13 @@ def upload_lesson(request):
                         link=f'/courses/lesson/{lesson.id}/'
                     )
 
-            return redirect('dashboard')
+            return redirect('courses:lesson_list')  # Redirect to lesson list after submission
         else:
             print("❌ Form is INVALID!")
             print(f"Form errors: {form.errors}")
-            return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level, 'show_course': show_course})
+            return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_levels': teacher_levels, 'show_course': show_course})
     else:
-        form = LessonForm(teacher_level=teacher_level)
+        form = LessonForm(teacher_levels=teacher_levels)
 
     # Debug: log the template being rendered and check if it exists
     template_name = 'courses/upload_lesson.html'
@@ -347,7 +369,7 @@ def upload_lesson(request):
 
     return render(request, template_name, {
         'form': form,
-        'teacher_level': teacher_level,
+        'teacher_levels': teacher_levels,
         'show_course': show_course,
     })
 

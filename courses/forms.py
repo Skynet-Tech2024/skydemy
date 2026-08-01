@@ -24,7 +24,6 @@ class LessonForm(forms.ModelForm):
             'video_file',
         ]
         widgets = {
-            # level is handled separately in __init__
             'cycle': forms.Select(choices=CYCLE_CHOICES, attrs={'class': 'form-control'}),
             'class_level': forms.Select(choices=CLASS_CHOICES, attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-control'}),
@@ -37,9 +36,10 @@ class LessonForm(forms.ModelForm):
             'video_file': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        # Get teacher_level from kwargs (passed from view)
-        teacher_level = kwargs.pop('teacher_level', None)
+    def __init__(self, *args, teacher_levels=None, **kwargs):
+        """
+        teacher_levels: queryset of Level objects (the teacher's assigned levels)
+        """
         super().__init__(*args, **kwargs)
 
         self.fields['subject'].queryset = Subject.objects.filter(status='approved')
@@ -47,16 +47,23 @@ class LessonForm(forms.ModelForm):
         self.fields['department'].queryset = Department.objects.all()
         self.fields['class_level'].choices = CLASS_CHOICES
 
-        # Level: visible but readonly, not required
-        self.fields['level'].required = False
-        if teacher_level:
-            self.fields['level'].initial = teacher_level
-        self.fields['level'].widget = forms.TextInput(attrs={
-            'class': 'form-control',
-            'readonly': 'readonly',
-            'style': 'background-color: #f5f5f5; cursor: not-allowed;'
-        })
-        # Ensure the select choices are still available (though readonly will ignore them)
+        # ===== Level field: dropdown with teacher's levels =====
+        if teacher_levels is not None and teacher_levels.exists():
+            # Build choices: (code, name)
+            level_choices = [(level.code, level.name) for level in teacher_levels]
+            self.fields['level'].choices = level_choices
+            self.fields['level'].required = True
+            self.fields['level'].widget = forms.Select(attrs={'class': 'form-control'})
+            # Optionally set initial to first level if not already set
+            if not self.initial.get('level') and level_choices:
+                self.initial['level'] = level_choices[0][0]
+        else:
+            # Fallback: if no levels, show empty choices (should not happen if teacher has levels)
+            self.fields['level'].choices = []
+            self.fields['level'].required = True
+            self.fields['level'].widget = forms.Select(attrs={'class': 'form-control'})
+
+        # If you want to keep the old behavior for other users, you can add a fallback.
 
     def clean(self):
         cleaned_data = super().clean()

@@ -1,0 +1,69 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Complete Profile - SKYDEMY{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    <h2 style="color: #0B7A3B; margin-bottom: 20px;">Complete Your Profile</h2>
+    <p style="color: #6c757d; margin-bottom: 25px;">Please provide the following information to complete your registration.</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- ===== ROLE SELECTION ===== -->
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Role *</label>
+            <select name="role" class="form-control" required style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 6px;">
+                <option value="">Select your role</option>
+                {% for value, label in role_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- ===== LEVELS (multiple checkboxes) ===== -->
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Education Level(s) *</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                {% for level in all_levels %}
+                    <div class="form-check" style="display: flex; align-items: center; gap: 8px;">
+                        <input class="form-check-input" type="checkbox" name="levels" value="{{ level.code }}" id="level_{{ level.code }}" style="width: 18px; height: 18px;">
+                        <label class="form-check-label" for="level_{{ level.code }}" style="font-size: 0.95rem;">
+                            {{ level.name }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            <small class="form-text text-muted" style="display: block; margin-top: 5px; color: #6c757d;">Teachers can select multiple levels.</small>
+        </div>
+
+        <!-- ===== PHONE NUMBER ===== -->
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Phone Number (WhatsApp)</label>
+            <input type="text" name="phone_number" class="form-control" placeholder="e.g., 2376XXXXXXX" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 6px;">
+        </div>
+
+        <!-- ===== ADDRESS (optional) ===== -->
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Address</label>
+            <input type="text" name="address" class="form-control" placeholder="e.g., Yaoundé, Cameroon" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 6px;">
+        </div>
+
+        <!-- ===== SCHOOL NAME (for learners) ===== -->
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 5px;">School Name <span style="color: #dc3545;">* (required for learners)</span></label>
+            <input type="text" name="school_name" class="form-control" placeholder="Enter your school name" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 6px;">
+        </div>
+
+        <!-- ===== SUBMIT ===== -->
+        <button type="submit" style="background: #0B7A3B; color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; width: 100%;">
+            Complete Registration
+        </button>
+    </form>
+
+    <p style="margin-top: 20px; text-align: center;">
+        <a href="{% url 'login' %}" style="color: #0B7A3B;">Already have an account? Login</a>
+    </p>
+</div>
+{% endblock %}

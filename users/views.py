@@ -4,10 +4,10 @@ from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import RegisterStep1Form
-from .models import UserProfile
+from .models import UserProfile, Level
 from core.constants import LEVEL_CHOICES
 from datetime import datetime
-from django.urls import reverse  # added for potential future use
+from django.urls import reverse
 
 
 # ===== STEP 1: Account Creation =====
@@ -53,7 +53,7 @@ def register(request):
     return render(request, 'users/register.html', {'form': form})
 
 
-# ===== STEP 2: Profile Completion =====
+# ===== STEP 2: Profile Completion (UPDATED for multiple levels) =====
 def complete_profile(request):
     print("🔵 Profile completion view called (Step 2)")
     user_id = request.session.get('temp_user_id')
@@ -65,8 +65,12 @@ def complete_profile(request):
     profile = user.profile
     allowed_roles = [choice for choice in UserProfile.ROLE_CHOICES if choice[0] != 'admin']
 
+    # Get all Level objects for the template
+    all_levels = Level.objects.all()
+
     if request.method == 'POST':
-        level = request.POST.get('level')
+        # Get selected level codes from POST (list of codes)
+        selected_level_codes = request.POST.getlist('levels')
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
         role = request.POST.get('role')
@@ -77,37 +81,45 @@ def complete_profile(request):
         if address == '':
             address = None
 
-        if not level:
-            messages.error(request, "Education level is required.")
+        if not selected_level_codes:
+            messages.error(request, "Please select at least one education level.")
             return render(request, 'users/complete_profile.html', {
                 'user': user, 'profile': profile,
-                'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
+                'all_levels': all_levels, 'role_choices': allowed_roles,
             })
+
         if not role:
             messages.error(request, "Role is required.")
             return render(request, 'users/complete_profile.html', {
                 'user': user, 'profile': profile,
-                'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
+                'all_levels': all_levels, 'role_choices': allowed_roles,
             })
+
         if role == 'admin':
             messages.error(request, "Invalid role selection.")
             return render(request, 'users/complete_profile.html', {
                 'user': user, 'profile': profile,
-                'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
+                'all_levels': all_levels, 'role_choices': allowed_roles,
             })
+
         if role == 'learner' and not school_name:
             messages.error(request, "School name is required for learners.")
             return render(request, 'users/complete_profile.html', {
                 'user': user, 'profile': profile,
-                'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
+                'all_levels': all_levels, 'role_choices': allowed_roles,
             })
 
-        profile.level = level
+        # Set the many-to-many levels
+        level_objects = Level.objects.filter(code__in=selected_level_codes)
+        profile.levels.set(level_objects)
+
+        # Update other fields
         profile.phone_number = phone_number
-        profile.address = address
+        # profile.address = address  # uncomment if you have this field in the model
         profile.role = role
         profile.save()
 
+        # Clear session and redirect
         del request.session['temp_user_id']
         request.session['reg_user_id'] = user.id
 
@@ -116,7 +128,7 @@ def complete_profile(request):
 
     return render(request, 'users/complete_profile.html', {
         'user': user, 'profile': profile,
-        'level_choices': LEVEL_CHOICES, 'role_choices': allowed_roles,
+        'all_levels': all_levels, 'role_choices': allowed_roles,
     })
 
 
@@ -155,11 +167,11 @@ def custom_login(request):
         user = authenticate(request, username=username, password=password)
         print(f"🟢 Authenticated user: {user}")
         if user is not None:
-            # 👇 NEW: Check for soft‑deleted account
+            # Check for soft‑deleted account
             if hasattr(user, 'profile') and hasattr(user.profile, 'is_deleted') and user.profile.is_deleted:
                 messages.error(request, "Your account has been deactivated. Please contact support.")
                 return redirect('account_deactivated')
-            # Existing approval check
+            # Approval check
             if user.profile.verification_status not in ['approved', 'verified']:
                 return redirect('pending_approval')
             else:
@@ -183,5 +195,7 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         return 'dashboard'
+
+
 def account_deactivated(request):
     return render(request, 'users/account_deactivated.html')

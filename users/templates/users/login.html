@@ -100,6 +100,23 @@
         content: "⚠️";
         font-size: 18px;
     }
+    /* Success message */
+    .success-message {
+        background: #D1FAE5;
+        color: #065F46;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border-left: 4px solid #10B981;
+        font-size: 14px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .success-message::before {
+        content: "✅";
+        font-size: 18px;
+    }
 </style>
 
 <div style="display: flex; justify-content: center; align-items: center; min-height: 70vh; padding: 20px;">
@@ -107,19 +124,25 @@
         <h2 style="text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 5px;">Welcome Back</h2>
         <p style="text-align: center; color: #666; font-size: 15px; margin-bottom: 25px;">Login to your SKYDEMY account</p>
 
-        <!-- Display error messages -->
+        <!-- Display form errors -->
         {% if form.errors %}
             <div class="errornote">
-                <strong>⚠️ Invalid login credentials.</strong> Please check your username and password and try again.
+                <strong>Invalid login credentials.</strong> Please check your username and password and try again.
             </div>
         {% endif %}
 
-        <!-- Display Django messages (e.g., from logout) -->
+        <!-- Display Django messages -->
         {% if messages %}
             {% for message in messages %}
-                <div style="padding: 10px; border-radius: 6px; margin-bottom: 15px; background: #d4edda; color: #155724; border-left: 4px solid #28a745;">
-                    {{ message }}
-                </div>
+                {% if message.tags == 'success' %}
+                    <div class="success-message">
+                        {{ message }}
+                    </div>
+                {% else %}
+                    <div style="padding: 10px; border-radius: 6px; margin-bottom: 15px; background: {% if message.tags == 'error' %}#FEE2E2{% else %}#d4edda{% endif %}; color: {% if message.tags == 'error' %}#991B1B{% else %}#155724{% endif %}; border-left: 4px solid {% if message.tags == 'error' %}#EF4444{% else %}#28a745{% endif %};">
+                        {{ message }}
+                    </div>
+                {% endif %}
             {% endfor %}
         {% endif %}
 

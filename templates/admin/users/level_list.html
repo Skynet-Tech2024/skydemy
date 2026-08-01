@@ -209,6 +209,40 @@
         background: #096B34;
     }
 
+    /* ===== SQUARE CHECKBOXES ===== */
+    .checkbox-input {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #D4AF37;
+        border-radius: 3px;
+        background: #ffffff;
+        cursor: pointer;
+        accent-color: #0B7A3B;
+        -webkit-appearance: none;
+        appearance: none;
+        display: inline-block;
+        position: relative;
+        transition: all 0.15s;
+    }
+    .checkbox-input:checked {
+        background: #0B7A3B;
+        border-color: #0B7A3B;
+    }
+    .checkbox-input:checked::after {
+        content: '✓';
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .checkbox-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(11, 122, 59, 0.2);
+    }
+
     /* ===== TABLE CARD ===== */
     .table-card {
         background: #ffffff;
@@ -239,11 +273,6 @@
         background: #0B7A3B;
         font-size: 14px;
         letter-spacing: 0.3px;
-    }
-    .table-card th .checkbox {
-        width: 18px;
-        height: 18px;
-        border-radius: 4px;
     }
     .table-card td {
         padding: 14px 18px;
@@ -428,7 +457,7 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 40px;"><input type="checkbox" id="select-all" class="checkbox"></th>
+                    <th style="width: 40px;"><input type="checkbox" id="select-all" class="checkbox-input"></th>
                     <th>#</th>
                     <th>Code</th>
                     <th>Name</th>
@@ -439,7 +468,7 @@
             <tbody>
                 {% for level in level_rows %}
                 <tr>
-                    <td><input type="checkbox" name="selected_items" value="{{ level.id }}"></td>
+                    <td><input type="checkbox" name="selected_items" value="{{ level.id }}" class="checkbox-input"></td>
                     <td>{{ forloop.counter }}</td>
                     <td><strong>{{ level.code }}</strong></td>
                     <td>{{ level.name }}</td>
@@ -485,8 +514,11 @@
 </div>
 
 <script>
+    // Select all checkbox functionality
     document.getElementById('select-all')?.addEventListener('change', function() {
-        document.querySelectorAll('input[name="selected_items"]').forEach(cb => cb.checked = this.checked);
+        document.querySelectorAll('input[name="selected_items"]').forEach(function(cb) {
+            cb.checked = this.checked;
+        }.bind(this));
     });
 </script>
 {% endblock %}

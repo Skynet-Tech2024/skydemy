@@ -5,6 +5,18 @@
 
 {% block content %}
 
+<!-- ===== MESSAGES DISPLAY ===== -->
+{% if messages %}
+<div style="max-width: 800px; margin: 0 auto 20px auto; padding: 0 15px;">
+    {% for message in messages %}
+        <div style="background: {% if message.tags == 'success' %}#d4edda{% elif message.tags == 'error' %}#f8d7da{% else %}#cce5ff{% endif %}; padding: 12px 20px; border-radius: 6px; border-left: 4px solid {% if message.tags == 'success' %}#28a745{% elif message.tags == 'error' %}#dc3545{% else %}#007bff{% endif %}; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: {% if message.tags == 'success' %}#155724{% elif message.tags == 'error' %}#721c24{% else %}#004085{% endif %}; font-weight: 500;">{{ message }}</span>
+            <button onclick="this.parentElement.style.display='none'" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #6c757d;">&times;</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div style="max-width: 800px; margin: 0 auto; background: white; padding: clamp(20px, 4vw, 40px); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
     <h1 style="color: #1a1a2e; font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px;">📤 Upload New Lesson</h1>
     <p style="color: #6c757d; font-size: clamp(14px, 1.5vw, 16px); margin-bottom: 30px;">Share your knowledge by uploading a lesson for students to learn.</p>

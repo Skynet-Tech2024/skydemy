@@ -102,6 +102,11 @@ STORAGES = {
 # Retained for backward compatibility with older Django versions
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+# ===== FILE UPLOAD LIMITS (FIX CONNECTION RESET ISSUE) =====
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800   # 50 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800   # 50 MB
+FILE_UPLOAD_PERMISSIONS = 0o644
+
 # ===== PASSWORD VALIDATORS =====
 # Remove all restrictions – users can choose any password
 AUTH_PASSWORD_VALIDATORS = []
@@ -143,3 +148,6 @@ CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 
 CSRF_TRUSTED_ORIGINS = ['https://skydemy-jeer.onrender.com']
+
+# ===== DEFAULT AUTO FIELD =====
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

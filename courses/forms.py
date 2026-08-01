@@ -23,26 +23,6 @@ class LessonForm(forms.ModelForm):
             'video_url',
             'video_file',
         ]
-
-class ExamForm(forms.ModelForm):
-    """Form for teachers to create/edit exams."""
-    class Meta:
-        model = Exam
-        fields = [
-            'title',
-            'exam_type',
-            'subject',
-            'course',
-            'duration_minutes',
-            'total_marks',
-            'passing_score',
-            'instructions',
-            'exam_document',
-            'marking_guide_document',
-        ]
-        widgets = {
-            'instructions': forms.Textarea(attrs={'rows': 4}),
-        }
         widgets = {
             'level': forms.Select(choices=LEVEL_CHOICES),
             'cycle': forms.Select(choices=CYCLE_CHOICES, attrs={'class': 'form-control'}),
@@ -79,6 +59,27 @@ class ExamForm(forms.ModelForm):
             if not department:
                 self.add_error('department', 'Department is required for Secondary level.')
         return cleaned_data
+
+
+class ExamForm(forms.ModelForm):
+    """Form for teachers to create/edit exams."""
+    class Meta:
+        model = Exam
+        fields = [
+            'title',
+            'exam_type',
+            'subject',
+            'course',
+            'duration_minutes',
+            'total_marks',
+            'passing_score',
+            'instructions',
+            'exam_document',
+            'marking_guide_document',
+        ]
+        widgets = {
+            'instructions': forms.Textarea(attrs={'rows': 4}),
+        }
 
 
 # ===== ADMIN WIZARD FORMS =====

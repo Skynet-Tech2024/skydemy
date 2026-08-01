@@ -6,7 +6,7 @@ from django.urls import path
 from courses.models import Lesson, Subject, Course, Exam, Certificate
 from users.models import UserProfile, Level
 from users.admin import LevelAdmin
-from users.views import admin_level_list  # <-- import the custom view
+from users.views import admin_level_list
 from datetime import datetime, timedelta
 from courses.views import admin_lesson_list
 
@@ -22,19 +22,11 @@ class SkydemyAdminSite(AdminSite):
         urls = super().get_urls()
         custom_urls = [
             path('courses/lesson/', self.admin_view(admin_lesson_list), name='lesson_list'),
-            path('users/level/', self.admin_view(admin_level_list), name='level_list'),  # <-- new
+            path('users/level/', self.admin_view(admin_level_list), name='level_list'),
         ]
         return custom_urls + urls
 
     def index(self, request, extra_context=None):
-        # ----- MY LESSONS (for teacher dashboard) -----
-        lessons = []
-        if request.user.is_authenticated:
-            if hasattr(request.user, 'profile') and request.user.profile.role == 'teacher':
-                lessons = Lesson.objects.filter(teacher=request.user).order_by('-created_at')
-            elif request.user.is_superuser:
-                lessons = Lesson.objects.all().order_by('-created_at')
-
         # ----- STAT COUNTS -----
         total_students = UserProfile.objects.filter(role='learner').count()
         total_teachers = UserProfile.objects.filter(role='teacher').count()
@@ -52,7 +44,6 @@ class SkydemyAdminSite(AdminSite):
 
         context = {
             **self.each_context(request),
-            'lessons': lessons,
             'total_students': total_students,
             'total_teachers': total_teachers,
             'total_courses': total_courses,

@@ -361,6 +361,33 @@
             transform: scale(1.1);
         }
 
+        /* ===== FLOATING APK DOWNLOAD BUTTON ===== */
+        .apk-download-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: #0B7A3B;
+            color: #ffffff;
+            padding: 14px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 4px 16px rgba(11, 122, 59, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9998;
+            transition: transform 0.2s;
+        }
+        .apk-download-btn:hover {
+            transform: scale(1.05);
+            color: #ffffff;
+        }
+        .apk-download-btn .icon {
+            font-size: 20px;
+        }
+
         /* ===== SKYNET THEME ===== */
         .skynet-theme {
             background:
@@ -561,6 +588,15 @@
 
     <!-- ===== FOOTER ===== -->
     {% include "shared/footer.html" %}
+
+    <!-- ===== FLOATING APK DOWNLOAD BUTTON ===== -->
+    <a href="/static/skydemy.apk" 
+       download 
+       class="apk-download-btn"
+       onmouseenter="this.style.transform='scale(1.05)'"
+       onmouseleave="this.style.transform='scale(1)'">
+        <span class="icon">📲</span> Download APK
+    </a>
 
     <!-- ===== SCRIPTS ===== -->
     <script>

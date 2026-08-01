@@ -7,53 +7,22 @@
     {{ block.super }}
     <style>
         /* ===== PAGE BACKGROUND ===== */
-        body {
-            background: #F8FAF9 !important;
+        body.dashboard {
+            background: #F7F9F8 !important;
         }
         #content {
             background: transparent !important;
-            padding: 20px !important;
+            padding: 20px 30px !important;
         }
-        /* ===== CARD ===== */
-        .level-form-card {
-            max-width: 900px;
-            margin: 20px auto;
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 40px 50px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            border: 1px solid #D4AF37;
-        }
-        /* ===== HEADER ===== */
-        .level-form-card .form-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 8px;
-        }
-        .level-form-card .form-header .icon {
-            font-size: 32px;
-        }
-        .level-form-card .form-header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #0B7A3B;
-            margin: 0;
-        }
-        .level-form-card .subtitle {
-            font-size: 15px;
-            color: #0B7A3B;
-            font-weight: 500;
-            margin-bottom: 25px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #D4AF37;
-        }
+
         /* ===== BREADCRUMB ===== */
         .breadcrumb {
             font-size: 14px;
-            color: #0B7A3B;
             font-weight: 600;
-            margin-bottom: 15px;
+            color: #0B7A3B;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #D4AF37;
         }
         .breadcrumb a {
             color: #0B7A3B;
@@ -64,62 +33,131 @@
         }
         .breadcrumb .sep {
             color: #D4AF37;
-            margin: 0 6px;
+            margin: 0 8px;
         }
         .breadcrumb .current {
             color: #D4AF37;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .page-header .title-area h1 {
+            font-size: 30px;
             font-weight: 700;
+            color: #0B7A3B;
+            margin: 0;
         }
-        /* ===== FORM ELEMENTS ===== */
-        .level-form-card .form-row {
-            margin-bottom: 22px;
+        .page-header .title-area p {
+            font-size: 15px;
+            color: #0B7A3B;
+            font-weight: 500;
+            margin: 4px 0 0 0;
         }
-        .level-form-card label {
+
+        /* ===== STATISTICS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 18px 22px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #D4AF37;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        .stat-card .number {
+            font-size: 34px;
+            font-weight: 700;
+            color: #000000;
+            line-height: 1.2;
+        }
+        .stat-card .label {
+            font-size: 14px;
+            color: #0B7A3B;
+            font-weight: 600;
+        }
+        .stat-card .trend {
+            font-size: 13px;
+            color: #D4AF37;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* ===== FORM CARD ===== */
+        .form-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 35px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid #D4AF37;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .form-card .form-row {
+            margin-bottom: 24px;
+        }
+        .form-card label {
             display: block;
             font-size: 15px;
             font-weight: 700;
             color: #0B7A3B;
             margin-bottom: 6px;
         }
-        .level-form-card label .icon {
+        .form-card label .icon {
             margin-right: 8px;
         }
-        .level-form-card input, 
-        .level-form-card select, 
-        .level-form-card textarea {
+        .form-card input,
+        .form-card select,
+        .form-card textarea {
             width: 100%;
             height: 48px;
             padding: 0 16px;
             font-size: 15px;
             color: #000000;
             background: #ffffff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #E5E7EB;
             border-radius: 10px;
             transition: border 0.2s, box-shadow 0.2s;
             box-sizing: border-box;
         }
-        .level-form-card input:focus, 
-        .level-form-card select:focus, 
-        .level-form-card textarea:focus {
+        .form-card input:focus,
+        .form-card select:focus,
+        .form-card textarea:focus {
             border-color: #0B7A3B;
             box-shadow: 0 0 0 4px rgba(11, 122, 59, 0.15);
             outline: none;
         }
-        .level-form-card .help-text {
+        .form-card .help-text {
             font-size: 13px;
             color: #0B7A3B;
             font-weight: 500;
             margin-top: 4px;
         }
+
         /* ===== BUTTONS ===== */
-        .level-form-card .form-actions {
+        .form-actions {
             display: flex;
             gap: 14px;
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #D4AF37;
+            flex-wrap: wrap;
         }
-        .level-form-card .btn-save {
+        .btn-save {
             background: #0B7A3B;
             color: #ffffff !important;
             border: none;
@@ -135,11 +173,11 @@
             box-shadow: 0 4px 12px rgba(11, 122, 59, 0.25);
             text-decoration: none;
         }
-        .level-form-card .btn-save:hover {
+        .btn-save:hover {
             background: #096B34;
             transform: scale(1.02);
         }
-        .level-form-card .btn-cancel {
+        .btn-cancel {
             background: transparent;
             color: #0B7A3B !important;
             border: 2px solid #0B7A3B;
@@ -154,22 +192,26 @@
             gap: 8px;
             transition: background 0.2s;
         }
-        .level-form-card .btn-cancel:hover {
+        .btn-cancel:hover {
             background: #f0f5f2;
         }
+
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 600px) {
-            .level-form-card {
+        @media (max-width: 700px) {
+            #content {
+                padding: 15px !important;
+            }
+            .page-header .title-area h1 {
+                font-size: 24px;
+            }
+            .form-card {
                 padding: 25px 20px;
             }
-            .level-form-card .form-header h1 {
-                font-size: 22px;
-            }
-            .level-form-card .form-actions {
+            .form-actions {
                 flex-direction: column;
             }
-            .level-form-card .btn-save,
-            .level-form-card .btn-cancel {
+            .btn-save,
+            .btn-cancel {
                 width: 100%;
                 justify-content: center;
             }
@@ -177,7 +219,12 @@
     </style>
 {% endblock %}
 
+{% block breadcrumbs %}
+    <!-- Hide default admin breadcrumb -->
+{% endblock %}
+
 {% block content %}
+<!-- ===== BREADCRUMB ===== -->
 <div class="breadcrumb">
     <a href="{% url 'admin:index' %}">Home</a>
     <span class="sep">/</span>
@@ -186,17 +233,35 @@
     <span class="current">Add Level</span>
 </div>
 
-<div class="level-form-card">
-    <!-- HEADER -->
-    <div class="form-header">
-        <span class="icon">📚</span>
-        <h1>Add Academic Level</h1>
+<!-- ===== PAGE HEADER ===== -->
+<div class="page-header">
+    <div class="title-area">
+        <h1>📚 Add Academic Level</h1>
+        <p>Create a new level that courses and examinations can be assigned to.</p>
     </div>
-    <div class="subtitle">
-        Create a new level that courses and examinations can be assigned to.
-    </div>
+</div>
 
-    <!-- FORM -->
+<!-- ===== STATISTICS CARDS ===== -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="number">{{ total_levels|default:0 }}</div>
+        <div class="label">📚 Total Levels</div>
+        <div class="trend">Currently Available</div>
+    </div>
+    <div class="stat-card" style="border-left-color: #0B7A3B;">
+        <div class="number">{{ total_courses|default:0 }}</div>
+        <div class="label">📖 Courses</div>
+        <div class="trend">Total Courses</div>
+    </div>
+    <div class="stat-card" style="border-left-color: #D4AF37;">
+        <div class="number">{{ total_lessons|default:0 }}</div>
+        <div class="label">📄 Lessons</div>
+        <div class="trend">Total Lessons</div>
+    </div>
+</div>
+
+<!-- ===== FORM CARD ===== -->
+<div class="form-card">
     <form method="post" id="level_form" novalidate>
         {% csrf_token %}
 

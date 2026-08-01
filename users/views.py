@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models iadmin_level_listmport Q
 from django.urls import reverse
 
 from .forms import RegisterStep1Form
@@ -220,16 +220,13 @@ def admin_level_list(request):
     paginator = Paginator(levels, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
 
+    # Build level_rows for the template
     level_rows = []
-    for i, level in enumerate(page_obj, start=page_obj.start_index()):
+    for level in page_obj:
         level_rows.append({
-            'cells': [
-                f'<input type="checkbox" name="selected_items" value="{level.id}">',
-                str(i),
-                f'<strong>{level.code}</strong>',
-                level.name,
-                '—'
-            ]
+            'id': level.id,
+            'code': level.code,
+            'name': level.name,
         })
 
     if request.method == 'POST':
@@ -246,32 +243,10 @@ def admin_level_list(request):
         return redirect('admin:level_list')
 
     context = {
-        'page_title': 'Levels',
-        'page_subtitle': 'Manage educational levels available on SKYDEMY.',
-        'page_icon': '📚',
-        'app_label': 'Users',
-        'add_url': '/admin/users/level/add/',
-        'add_label': 'Level',
-        'columns': [
-            {'checkbox': True},
-            {'label': '#'},
-            {'label': 'Code'},
-            {'label': 'Name'},
-            {'label': 'Created At'}
-        ],
-        'rows': level_rows,
-        'bulk_actions': [
-            {'value': 'delete', 'label': '🗑️ Delete selected'}
-        ],
-        'stats': [
-            {'value': levels.count(), 'label': 'Total Levels', 'color': '#0B7A3B'}
-        ],
-        'search_url': '?',
-        'search_query': search_query,
-        'paginator': paginator,
-        'page_obj': page_obj,
-        # old variables for fallback
         'level_rows': level_rows,
         'total': levels.count(),
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'search_query': search_query,
     }
     return render(request, 'admin/users/level_list.html', context)

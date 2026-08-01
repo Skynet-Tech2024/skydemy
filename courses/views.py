@@ -423,9 +423,12 @@ def view_lesson(request, lesson_id):
         'exam': exam,
         'pdf_url': pdf_url,
         'progress': progress,
-        'total_pages': total_pages,      # <-- added
-        'current_page': current_page,    # <-- added
+        'total_pages': total_pages,
+        'current_page': current_page,
     }
+
+    # Debug print to confirm template name
+    print("📄 TEMPLATE: courses/lesson_reader.html")
     return render(request, 'courses/lesson_reader.html', context)
 
 

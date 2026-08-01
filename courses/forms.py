@@ -24,7 +24,7 @@ class LessonForm(forms.ModelForm):
             'video_file',
         ]
         widgets = {
-            'level': forms.Select(choices=LEVEL_CHOICES),
+            # level is handled separately in __init__
             'cycle': forms.Select(choices=CYCLE_CHOICES, attrs={'class': 'form-control'}),
             'class_level': forms.Select(choices=CLASS_CHOICES, attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-control'}),
@@ -38,11 +38,25 @@ class LessonForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        # Get teacher_level from kwargs (passed from view)
+        teacher_level = kwargs.pop('teacher_level', None)
         super().__init__(*args, **kwargs)
+
         self.fields['subject'].queryset = Subject.objects.filter(status='approved')
         self.fields['course'].queryset = Course.objects.filter(status='approved')
         self.fields['department'].queryset = Department.objects.all()
         self.fields['class_level'].choices = CLASS_CHOICES
+
+        # Level: visible but readonly, not required
+        self.fields['level'].required = False
+        if teacher_level:
+            self.fields['level'].initial = teacher_level
+        self.fields['level'].widget = forms.TextInput(attrs={
+            'class': 'form-control',
+            'readonly': 'readonly',
+            'style': 'background-color: #f5f5f5; cursor: not-allowed;'
+        })
+        # Ensure the select choices are still available (though readonly will ignore them)
 
     def clean(self):
         cleaned_data = super().clean()

@@ -1,20 +1,5 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-{% include "admin/base_admin_table.html" with
-    page_title=page_title
-    page_subtitle=page_subtitle
-    page_icon=page_icon
-    app_label=app_label
-    add_url=add_url
-    add_label=add_label
-    columns=columns
-    rows=rows
-    bulk_actions=bulk_actions
-    stats=stats
-    search_url=search_url
-    search_query=search_query
-    paginator=paginator
-    page_obj=page_obj
-%}
+{% include "admin/base_admin_table.html" %}
 {% endblock %}

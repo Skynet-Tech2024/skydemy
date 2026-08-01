@@ -10,15 +10,15 @@
     <!-- ===== PAGE HEADER ===== -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
         <div>
-            <h2 style="font-size: 24px; font-weight: 700; color: #0B7A3B; margin: 0;">
+            <h2 style="font-size: 24px; font-weight: 700; color: #ffffff; margin: 0;">
                 {% if page_icon %}{{ page_icon|safe }} {% endif %}{{ page_title|default:"List" }}
             </h2>
-            <p style="color: #0B7A3B; font-size: 14px; margin: 4px 0 0 0; font-weight: 500;">
+            <p style="color: #ffffff; font-size: 14px; margin: 4px 0 0 0; font-weight: 500;">
                 {{ page_subtitle|default:"Manage items" }}
             </p>
         </div>
         <div>
-            <a href="{{ add_url }}" style="background: #D4AF37; color: #123526; padding: 10px 22px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); transition: all 0.2s;">
+            <a href="{{ add_url }}" style="background: #D4AF37; color: #ffffff; padding: 10px 22px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); transition: all 0.2s;">
                 ➕ New {{ add_label|default:"Item" }}
             </a>
         </div>

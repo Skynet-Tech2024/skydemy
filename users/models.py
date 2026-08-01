@@ -55,6 +55,15 @@ class UserProfile(models.Model):
         help_text="WhatsApp number for login and notifications"
     )
 
+    # ===== REFERRAL SYSTEM =====
+    referred_by = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='referrals'
+    )
+
     verification_status = models.CharField(max_length=10, choices=VERIFICATION_STATUS_CHOICES, default='pending')
     verification_notes = models.TextField(blank=True)
 

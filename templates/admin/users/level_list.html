@@ -216,13 +216,15 @@
         border: 2px solid #D4AF37;
         border-radius: 3px;
         background: #ffffff;
-        cursor: pointer;
+        cursor: pointer !important;
         accent-color: #0B7A3B;
         -webkit-appearance: none;
         appearance: none;
         display: inline-block;
         position: relative;
         transition: all 0.15s;
+        pointer-events: auto !important;
+        user-select: none;
     }
     .checkbox-input:checked {
         background: #0B7A3B;
@@ -241,6 +243,10 @@
     .checkbox-input:focus {
         outline: none;
         box-shadow: 0 0 0 3px rgba(11, 122, 59, 0.2);
+    }
+    .checkbox-input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed !important;
     }
 
     /* ===== TABLE CARD ===== */
@@ -519,6 +525,15 @@
         document.querySelectorAll('input[name="selected_items"]').forEach(function(cb) {
             cb.checked = this.checked;
         }.bind(this));
+    });
+
+    // Ensure checkboxes are clickable
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.checkbox-input').forEach(function(cb) {
+            cb.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
     });
 </script>
 {% endblock %}

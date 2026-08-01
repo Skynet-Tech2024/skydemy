@@ -1,0 +1,136 @@
+{% load static %}
+
+<div style="max-width: 100%; padding: 0 20px;">
+
+    <!-- ===== BREADCRUMB ===== -->
+    <div style="margin-bottom: 10px; font-size: 13px; color: #64748B;">
+        Home › {{ app_label|default:"Dashboard" }} › {{ page_title|default:"List" }}
+    </div>
+
+    <!-- ===== PAGE HEADER ===== -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h2 style="font-size: 24px; font-weight: 700; color: #0B7A3B; margin: 0;">
+                {% if page_icon %}{{ page_icon|safe }} {% endif %}{{ page_title|default:"List" }}
+            </h2>
+            <p style="color: #64748B; font-size: 14px; margin: 4px 0 0 0;">
+                {{ page_subtitle|default:"Manage items" }}
+            </p>
+        </div>
+        <div>
+            <a href="{{ add_url }}" style="background: #D4AF37; color: #123526; padding: 10px 22px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); transition: all 0.2s;">
+                ➕ New {{ add_label|default:"Item" }}
+            </a>
+        </div>
+    </div>
+
+    <!-- ===== STATISTICS CARDS ===== -->
+    {% if stats %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 25px;">
+        {% for stat in stats %}
+        <div style="background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid {{ stat.color|default:'#0B7A3B' }};">
+            <div style="font-size: 24px; font-weight: 700; color: #0f172a;">{{ stat.value }}</div>
+            <div style="font-size: 13px; color: #64748B;">{{ stat.label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ===== TOOLBAR ===== -->
+    <div style="background: #F8FAFC; border-radius: 12px; padding: 12px 18px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; border: 1px solid #E5E7EB;">
+        <!-- Search -->
+        {% if search_url %}
+        <form method="get" style="display: flex; align-items: center; gap: 6px; flex: 1; min-width: 180px;">
+            <input type="text" name="q" placeholder="🔍 Search..." value="{{ search_query|default:'' }}" style="padding: 8px 14px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; width: 100%; max-width: 280px;">
+            <button type="submit" style="background: #0B7A3B; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Search</button>
+            {% if search_query %}
+            <a href="{{ search_clear_url|default:'?' }}" style="color: #64748B; font-size: 13px;">Clear</a>
+            {% endif %}
+        </form>
+        {% endif %}
+
+        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap;">
+            <form method="post" style="display: flex; align-items: center; gap: 8px;">
+                {% csrf_token %}
+                <select name="action" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 13px; background: #fff;">
+                    <option value="">Actions ▼</option>
+                    {% if bulk_actions %}
+                        {% for action in bulk_actions %}
+                            <option value="{{ action.value }}">{{ action.label }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="delete">Delete selected</option>
+                    {% endif %}
+                </select>
+                <button type="submit" style="background: #0B7A3B; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; cursor: pointer;">Apply</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== TABLE CARD ===== -->
+    <div style="background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden; border: 1px solid #E5E7EB;">
+        <div style="overflow-x: auto; padding: 4px 0;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px; background: #fff;">
+                <thead>
+                    <tr style="background: #F8FAFC; border-bottom: 2px solid #E5E7EB;">
+                        {% for col in columns %}
+                            <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #000000; font-size: 13px; letter-spacing: 0.3px;">
+                                {% if col.checkbox %}
+                                    <input type="checkbox" id="select-all" style="width: 18px; height: 18px; border-radius: 4px;">
+                                {% else %}
+                                    {{ col.label }}
+                                {% endif %}
+                            </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                        <tr style="border-bottom: 1px solid #F1F5F9;">
+                            {% for cell in row.cells %}
+                                <td style="padding: 14px 16px; color: #000000; vertical-align: middle;">
+                                    {{ cell|safe }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="{{ columns|length }}" style="text-align: center; padding: 60px 20px; color: #94A3B8;">
+                                <div style="font-size: 48px; margin-bottom: 12px;">📚</div>
+                                <div style="font-size: 18px; font-weight: 600; color: #1F2937;">No {{ page_title|lower }} yet</div>
+                                <div style="font-size: 14px; margin-top: 6px;">Create your first {{ page_title|lower }} to get started.</div>
+                                <a href="{{ add_url }}" style="display: inline-block; margin-top: 16px; background: #0B7A3B; color: #fff; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">➕ Add {{ add_label|default:"Item" }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== PAGINATION FOOTER ===== -->
+        {% if paginator %}
+        <div style="border-top: 1px solid #E5E7EB; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: #FAFAFA;">
+            <div style="font-size: 13px; color: #64748B;">
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ paginator.count }} entries
+            </div>
+            <div style="display: flex; gap: 6px;">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}" style="padding: 6px 14px; border: 1px solid #E5E7EB; border-radius: 6px; text-decoration: none; color: #0B7A3B;">«</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="padding: 6px 14px; border: 1px solid #E5E7EB; border-radius: 6px; text-decoration: none; color: #0B7A3B;">‹</a>
+                {% endif %}
+                <span style="padding: 6px 14px; background: #0B7A3B; color: #fff; border-radius: 6px;">{{ page_obj.number }}</span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="padding: 6px 14px; border: 1px solid #E5E7EB; border-radius: 6px; text-decoration: none; color: #0B7A3B;">›</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}" style="padding: 6px 14px; border: 1px solid #E5E7EB; border-radius: 6px; text-decoration: none; color: #0B7A3B;">»</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.getElementById('select-all')?.addEventListener('change', function() {
+        document.querySelectorAll('input[name="selected_items"]').forEach(cb => cb.checked = this.checked);
+    });
+</script>

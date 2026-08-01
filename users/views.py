@@ -202,18 +202,44 @@ def account_deactivated(request):
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import Level
 
+from django.core.paginator import Paginator
+from django.db.models import Q
+
 @staff_member_required
 def admin_level_list(request):
     levels = Level.objects.all().order_by('code')
-    total = levels.count()
+
+    # Search
+    search_query = request.GET.get('q', '')
+    if search_query:
+        levels = levels.filter(
+            Q(code__icontains=search_query) |
+            Q(name__icontains=search_query)
+        )
+
+    # Pagination
+    paginator = Paginator(levels, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    # Build rows for the template
+    level_rows = []
+    for i, level in enumerate(page_obj, start=page_obj.start_index):
+        level_rows.append({
+            'cells': [
+                f'<input type="checkbox" name="selected_items" value="{level.id}">',
+                str(i),
+                f'<strong>{level.code}</strong>',
+                level.name,
+                '—'
+            ]
+        })
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        selected_ids = request.POST.getlist('selected_levels')
+        selected_ids = request.POST.getlist('selected_items')
         if selected_ids:
-            levels_selected = Level.objects.filter(id__in=selected_ids)
             if action == 'delete':
-                levels_selected.delete()
+                Level.objects.filter(id__in=selected_ids).delete()
                 messages.success(request, f"{len(selected_ids)} level(s) deleted.")
             else:
                 messages.error(request, "Invalid action.")
@@ -222,8 +248,10 @@ def admin_level_list(request):
         return redirect('admin:level_list')
 
     context = {
-        'levels': levels,
-        'total': total,
-        'opts': Level._meta,
+        'level_rows': level_rows,
+        'total': levels.count(),
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'search_query': search_query,
     }
     return render(request, 'admin/users/level_list.html', context)

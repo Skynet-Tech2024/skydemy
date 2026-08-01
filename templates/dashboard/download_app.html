@@ -1,0 +1,36 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Download SKYDEMY App{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center;">
+    <div style="font-size: 60px; margin-bottom: 15px;">📲</div>
+    <h2 style="color: #0B7A3B; margin-bottom: 10px;">Download SKYDEMY App</h2>
+    <p style="color: #6c757d; margin-bottom: 25px;">Get the best learning experience on your device.</p>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 0 auto;">
+        <!-- Android -->
+        <a href="/static/skydemy.apk" download style="display: flex; align-items: center; gap: 12px; background: #0B7A3B; color: #ffffff; padding: 14px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 12px rgba(11, 122, 59, 0.3);">
+            <span style="font-size: 28px;">📱</span>
+            <div style="text-align: left;">
+                <div style="font-size: 12px; opacity: 0.8;">Download for</div>
+                <div style="font-size: 18px;">Android</div>
+            </div>
+        </a>
+
+        <!-- iOS -->
+        <a href="#" onclick="alert('📲 SKYDEMY will be available on the App Store soon. For now, you can add this site to your Home Screen by tapping the Share button → Add to Home Screen.'); return false;" style="display: flex; align-items: center; gap: 12px; background: #123526; color: #ffffff; padding: 14px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            <span style="font-size: 28px;">🍏</span>
+            <div style="text-align: left;">
+                <div style="font-size: 12px; opacity: 0.8;">Coming Soon</div>
+                <div style="font-size: 18px;">iOS</div>
+            </div>
+        </a>
+    </div>
+
+    <p style="margin-top: 25px; font-size: 13px; color: #94A3B8;">
+        <i class="fas fa-shield-alt"></i> Secure download • Android only for now
+    </p>
+</div>
+{% endblock %}

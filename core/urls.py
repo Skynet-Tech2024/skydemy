@@ -53,7 +53,8 @@ urlpatterns = [
 path('courses/', include('courses.urls')),
     # Service worker
     path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw.js'),
-    path('migrate/', run_migrations, name='run_migrations'),
+path('download-app/', TemplateView.as_view(template_name='dashboard/download_app.html'), name='download_app'),    
+path('migrate/', run_migrations, name='run_migrations'),
 
     # Captcha
     path('captcha/', include('captcha.urls')),

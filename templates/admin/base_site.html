@@ -9,6 +9,173 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
     <script src="{% static 'admin/js/custom_admin.js' %}"></script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
+    <style>
+        /* ===== ALL TEXT BLACK, GREEN, OR GOLD ===== */
+        body, .module, .module h2, .module caption, .module p, .module label,
+        .module input, .module select, .module textarea, .form-row, .field-box,
+        .aligned label, .form-row label, .help, .help-block, .helptext,
+        .submit-row, .submit-row input, .submit-row a, .breadcrumbs,
+        .breadcrumbs a, .breadcrumbs .current, .paginator, .paginator a,
+        .paginator .this-page, .paginator .end, .actions, .actions .button,
+        .actions select, .actions input, .object-tools a, .object-tools li,
+        .results, .results th, .results td, .result-list, .result-list a,
+        .change-list, .change-list .filtered, .filtered .filter,
+        .filtered .filter label, .filtered .filter select,
+        .form-row label, .aligned label, .field-box label {
+            color: #000000 !important;
+        }
+        h1, h2, h3, h4, .brand, .logo, .site-name, .site-title,
+        .module h2, .module caption, .current, .section, .section a,
+        .dashboard .module h2, .dashboard .module caption {
+            color: #0B7A3B !important;
+        }
+        a, a:link, a:visited, .button, .btn, .submit-row input,
+        input[type="submit"], button, .addlink, .changelink, .deletelink,
+        .related-widget-wrapper-link, .object-tools a {
+            color: #0B7A3B !important;
+            font-weight: 600 !important;
+        }
+        .gold, .gold-text, .accent, .accent-text {
+            color: #D4AF37 !important;
+        }
+        .help, .help-block, .helptext {
+            color: #0B7A3B !important;
+            font-weight: 500 !important;
+        }
+        .submit-row input[type="submit"], .submit-row input[type="button"] {
+            background: #0B7A3B !important;
+            color: #ffffff !important;
+        }
+        .submit-row .deletelink-box .deletelink {
+            background: #dc3545 !important;
+            color: #ffffff !important;
+        }
+        .add-row, .add-row a, .add-row a:link {
+            color: #0B7A3B !important;
+            font-weight: 700 !important;
+        }
+        .module {
+            background: #ffffff !important;
+            border: 1px solid #D4AF37 !important;
+            border-radius: 8px !important;
+        }
+        .module h2, .module caption {
+            background: #f8fafc !important;
+            border-bottom: 1px solid #D4AF37 !important;
+        }
+        .breadcrumbs {
+            background: #ffffff !important;
+            border-bottom: 1px solid #D4AF37 !important;
+            color: #0B7A3B !important;
+        }
+        .breadcrumbs a {
+            color: #0B7A3B !important;
+        }
+        .breadcrumbs .current {
+            color: #D4AF37 !important;
+        }
+        .form-row {
+            background: #ffffff !important;
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+        input, select, textarea {
+            border: 1px solid #D4AF37 !important;
+            border-radius: 4px !important;
+            padding: 6px 10px !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        input[type="submit"], button {
+            background: #0B7A3B !important;
+            color: #ffffff !important;
+            border: none !important;
+            padding: 8px 20px !important;
+            border-radius: 4px !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+        }
+        .button, .btn, .submit-row input[type="submit"] {
+            background: #0B7A3B !important;
+            color: #ffffff !important;
+        }
+        .deletelink-box .deletelink {
+            background: #dc3545 !important;
+            color: #ffffff !important;
+        }
+        .deletelink-box .deletelink:hover {
+            background: #bd2130 !important;
+        }
+        .addlink {
+            color: #0B7A3B !important;
+        }
+        .changelink {
+            color: #0B7A3B !important;
+        }
+        .deletelink {
+            color: #dc3545 !important;
+        }
+        .object-tools a {
+            background: #D4AF37 !important;
+            color: #123526 !important;
+            border-radius: 4px !important;
+            padding: 4px 12px !important;
+            font-weight: 700 !important;
+        }
+        .object-tools a:hover {
+            background: #c49b2e !important;
+        }
+        .paginator {
+            background: #ffffff !important;
+            border-top: 1px solid #D4AF37 !important;
+            color: #000000 !important;
+        }
+        .paginator a {
+            color: #0B7A3B !important;
+        }
+        .paginator .this-page {
+            background: #0B7A3B !important;
+            color: #ffffff !important;
+            border-radius: 4px !important;
+            padding: 4px 10px !important;
+        }
+        .results th, .results td {
+            color: #000000 !important;
+        }
+        .results th {
+            color: #0B7A3B !important;
+            font-weight: 700 !important;
+        }
+        .filtered .filter {
+            background: #ffffff !important;
+            border: 1px solid #D4AF37 !important;
+        }
+        .filtered .filter label {
+            color: #0B7A3B !important;
+            font-weight: 600 !important;
+        }
+        .filtered .filter select {
+            color: #000000 !important;
+        }
+        .actions {
+            background: #ffffff !important;
+            border-top: 1px solid #D4AF37 !important;
+            color: #000000 !important;
+        }
+        .actions .button {
+            background: #0B7A3B !important;
+            color: #ffffff !important;
+        }
+        .actions select {
+            color: #000000 !important;
+        }
+        .datetime .datetimeshortcuts a {
+            color: #0B7A3B !important;
+        }
+        .help, .help-block, .helptext {
+            color: #0B7A3B !important;
+            font-weight: 500 !important;
+        }
+    </style>
 {% endblock %}
 
 {% block branding %}
@@ -50,28 +217,3 @@
         <i class="fab fa-whatsapp" style="font-size: 32px;"></i>
     </a>
 {% endblock %}
-<style>
-    body, .module, .module h2, .module caption, .module p, .module label, .module input, .module select, .module textarea {
-        color: #000000 !important;
-    }
-    h1, h2, h3, h4, .brand, .logo, .site-name, .site-title {
-        color: #0B7A3B !important;
-    }
-    a, a:link, a:visited, .button, .btn, .submit-row input, input[type="submit"], button {
-        color: #ffffff !important;
-    }
-    .addlink, .changelink, .deletelink, .related-widget-wrapper-link {
-        color: #0B7A3B !important;
-    }
-    .gold, .gold-text, .accent, .accent-text {
-        color: #D4AF37 !important;
-    }
-    .form-row, .field-box, .aligned label, .form-row label {
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }
-    .help, .help-block, .helptext {
-        color: #0B7A3B !important;
-        font-weight: 500 !important;
-    }
-</style>

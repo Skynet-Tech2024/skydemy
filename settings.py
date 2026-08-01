@@ -30,7 +30,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '.render.com',  # Allows all subdomains of render.com
+    '.render.com',
     'skydemy-jeer.onrender.com',
 ]
 
@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Cloudinary storage
     'cloudinary_storage',
     'cloudinary',
 ]
@@ -69,7 +68,7 @@ ROOT_URLCONF = 'elearning_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Added templates directory
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -130,10 +129,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Added static files directory
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # ===== FILE STORAGE (Django 6.0+) =====
-# Use Cloudinary as the default storage backend
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -143,7 +141,7 @@ STORAGES = {
     },
 }
 
-# ===== MEDIA FILES (local storage – not used with Cloudinary, but kept) =====
+# ===== MEDIA FILES =====
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -151,11 +149,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = '/users/login/'
 LOGOUT_REDIRECT_URL = 'login'
 
-# ===== SESSION SETTINGS =====
-SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS
-CSRF_COOKIE_SECURE = True     # Only send CSRF cookies over HTTPS
-SESSION_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_SAMESITE = 'Lax'
+# ===== CSRF & SESSION FIX FOR MOBILE =====
+CSRF_USE_SESSIONS = True  # Store CSRF token in session instead of cookie
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 # ===== SECURE PROXY HEADER =====
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

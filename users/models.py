@@ -7,6 +7,18 @@ from cloudinary.models import CloudinaryField
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
+# ===== NEW: LEVEL MODEL =====
+class Level(models.Model):
+    code = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['code']
+
+
 class UserProfile(models.Model):
     ROLE_CHOICES = (
         ('learner', 'Learner'),
@@ -25,12 +37,9 @@ class UserProfile(models.Model):
 
     bio = models.TextField(blank=True, default='')
     avatar = CloudinaryField('avatar', blank=True, null=True)
-    level = models.CharField(
-        max_length=50,
-        choices=[('', 'Not set')] + LEVEL_CHOICES,
-        blank=True,
-        null=True
-    )
+
+    # ---- REPLACED old level field with ManyToMany ----
+    levels = models.ManyToManyField(Level, blank=True, related_name='users')
 
     full_name = models.CharField(
         max_length=200,
@@ -95,9 +104,6 @@ class SavedLesson(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title}"
-
-# If you prefer to keep the name Wishlist, you can add an alias:
-# Wishlist = SavedLesson
 
 
 class Message(models.Model):

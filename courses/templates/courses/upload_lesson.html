@@ -117,7 +117,8 @@
                         <label for="id_subject" style="font-weight: 600; display: block; margin-bottom: 4px;">Subject</label>
                         {{ form.subject }}
                     </div>
-                    {% if show_course %}
+                    <!-- Course field only for university level -->
+                    {% if teacher_level == 'university' %}
                     <div>
                         <label for="id_course" style="font-weight: 600; display: block; margin-bottom: 4px;">Course</label>
                         {{ form.course }}

@@ -4,12 +4,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.urls import path
 from courses.models import Lesson, Subject, Course, Exam, Certificate
-from users.models import UserProfile
+from users.models import UserProfile, Level   # <-- added Level
 from datetime import datetime, timedelta
 from courses.views import admin_lesson_list
-
-# Optionally import custom admin classes if you want to register them here
-# from courses.admin import CourseAdmin, ExamAdmin, CertificateAdmin, SubjectAdmin
 
 User = get_user_model()
 
@@ -43,6 +40,7 @@ class SkydemyAdminSite(AdminSite):
         total_certificates = Certificate.objects.count()
         total_lessons = Lesson.objects.count()
         total_subjects = Subject.objects.count()
+        total_levels = Level.objects.count()   # <-- added
 
         # Active Today: users who logged in within the last 24 hours
         today = datetime.now()
@@ -59,6 +57,7 @@ class SkydemyAdminSite(AdminSite):
             'total_certificates': total_certificates,
             'total_lessons': total_lessons,
             'total_subjects': total_subjects,
+            'total_levels': total_levels,   # <-- added
             'active_today': active_today,
         }
         if extra_context:

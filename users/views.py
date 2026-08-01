@@ -3,11 +3,15 @@ from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.urls import reverse
+
 from .forms import RegisterStep1Form
 from .models import UserProfile, Level
 from core.constants import LEVEL_CHOICES
 from datetime import datetime
-from django.urls import reverse
 
 
 # ===== STEP 1: Account Creation =====
@@ -199,12 +203,9 @@ class CustomLoginView(LoginView):
 
 def account_deactivated(request):
     return render(request, 'users/account_deactivated.html')
-from django.contrib.admin.views.decorators import staff_member_required
-from .models import Level
 
-from django.core.paginator import Paginator
-from django.db.models import Q
 
+# ===== CUSTOM ADMIN LEVEL LIST =====
 @staff_member_required
 def admin_level_list(request):
     levels = Level.objects.all().order_by('code')
@@ -223,7 +224,7 @@ def admin_level_list(request):
 
     # Build rows for the template
     level_rows = []
-    for i, level in enumerate(page_obj, start=page_obj.start_index):
+    for i, level in enumerate(page_obj, start=page_obj.start_index()):  # <-- FIXED: call method
         level_rows.append({
             'cells': [
                 f'<input type="checkbox" name="selected_items" value="{level.id}">',

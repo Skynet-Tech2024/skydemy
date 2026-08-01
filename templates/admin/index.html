@@ -49,7 +49,7 @@
         .stat-card .icon.orange { background: #F59E0B; }
         .stat-card .icon.red { background: #DC2626; }
         .stat-card .icon.teal { background: #0D9488; }
-        .stat-card .icon.indigo { background: #4F46E5; }   /* new for Levels */
+        .stat-card .icon.indigo { background: #4F46E5; }
         .stat-card .info {
             flex: 1;
         }
@@ -249,8 +249,8 @@
             </div>
         </div>
 
-        <!-- ===== NEW: LEVELS CARD ===== -->
-        <a href="{% url 'admin:users_level_changelist' %}" style="text-decoration: none; color: inherit; display: block;">
+        <!-- ===== NEW: LEVELS CARD (hardcoded path) ===== -->
+        <a href="/admin/users/level/" style="text-decoration: none; color: inherit; display: block;">
             <div class="stat-card">
                 <div class="icon indigo"><i class="fas fa-tag"></i></div>
                 <div class="info">

@@ -1,7 +1,8 @@
 from django.conf import settings
-from .constants import CYCLE_CHOICES, CLASS_CHOICES
 from django.db import models
 from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # ===== CHOICES =====
 LEVEL_CHOICES = [
@@ -14,30 +15,26 @@ LEVEL_CHOICES = [
     ('other', 'Other'),
 ]
 
-CYCLE_CHOICES = (
+CYCLE_CHOICES = [
     ('first', 'First Cycle'),
     ('second', 'Second Cycle'),
-)
+]
 
-CLASS_CHOICES = (
+CLASS_CHOICES = [
     ('form3', 'Form 3'),
     ('form4', 'Form 4'),
     ('form5', 'Form 5'),
     ('lower_sixth', 'Lower Sixth'),
     ('upper_sixth', 'Upper Sixth'),
-)
+]
 
-User = get_user_model()
-
-
-# ===== DEPARTMENT (NEW) =====
+# ===== DEPARTMENT =====
 class Department(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
         return self.name
-
 
 # ===== SUBJECT =====
 class Subject(models.Model):
@@ -52,7 +49,7 @@ class Subject(models.Model):
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='primary')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     proposed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)  # NEW
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -61,7 +58,6 @@ class Subject(models.Model):
 
     class Meta:
         ordering = ['name']
-
 
 # ===== COURSE =====
 class Course(models.Model):
@@ -84,7 +80,6 @@ class Course(models.Model):
 
     class Meta:
         ordering = ['name']
-
 
 # ===== LESSON =====
 class Lesson(models.Model):
@@ -122,7 +117,7 @@ class Lesson(models.Model):
         help_text="Generated whiteboard video from the PDF."
     )
 
-    # NEW FIELDS FOR ACADEMIC HIERARCHY
+    # Academic hierarchy fields
     cycle = models.CharField(max_length=10, choices=CYCLE_CHOICES, blank=True, null=True)
     class_level = models.CharField(max_length=15, choices=CLASS_CHOICES, blank=True, null=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
@@ -132,7 +127,6 @@ class Lesson(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-
 
 # ===== LESSON LIKE =====
 class LessonLike(models.Model):
@@ -146,7 +140,6 @@ class LessonLike(models.Model):
     def __str__(self):
         return f"{self.user.username} likes {self.lesson.title}"
 
-
 # ===== LESSON COMMENT =====
 class LessonComment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_comments')
@@ -157,7 +150,6 @@ class LessonComment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.lesson.title}"
-
 
 # ===== PROGRESS =====
 class Progress(models.Model):
@@ -171,11 +163,10 @@ class Progress(models.Model):
         unique_together = ('user', 'lesson')
         ordering = ['-last_accessed']
 
-
 # ===== LESSON PROGRESS (for reader) =====
 class LessonProgress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_progress')
-    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, related_name='user_progress')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='user_progress')
 
     current_page = models.IntegerField(default=1)
     total_pages = models.IntegerField(default=1)
@@ -189,7 +180,6 @@ class LessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title} ({self.progress_percentage}%)"
-
 
 # ===== EXAM =====
 class Exam(models.Model):
@@ -292,7 +282,6 @@ class Exam(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-
 # ===== EXAM RESULT =====
 class ExamResult(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_results')
@@ -308,13 +297,14 @@ class ExamResult(models.Model):
     class Meta:
         ordering = ['-date_taken']
 
-
 # ===== CERTIFICATE =====
 class Certificate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='certificates', null=True, blank=True)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, null=True, blank=True, related_name='certificates')
     certificate_number = models.CharField(max_length=50, unique=True)
     issued_date = models.DateTimeField(auto_now_add=True)
+    score = models.FloatField(default=0.0)  # Score achieved
 
     def __str__(self):
         return f"Certificate #{self.certificate_number} - {self.user.username}"

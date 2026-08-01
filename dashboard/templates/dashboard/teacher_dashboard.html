@@ -4,9 +4,9 @@
 
 {% block content %}
 
-<!-- ===== MESSAGES DISPLAY (block + toast) ===== -->
+<!-- ===== MESSAGES DISPLAY ===== -->
 {% if messages %}
-<div id="messageContainer" style="max-width: 1000px; margin: 0 auto 20px auto; padding: 0 15px;">
+<div style="max-width: 1000px; margin: 0 auto 20px auto; padding: 0 15px;">
     {% for message in messages %}
         <div style="background: {% if message.tags == 'success' %}#d4edda{% elif message.tags == 'error' %}#f8d7da{% else %}#cce5ff{% endif %}; padding: 12px 20px; border-radius: 6px; border-left: 4px solid {% if message.tags == 'success' %}#28a745{% elif message.tags == 'error' %}#dc3545{% else %}#007bff{% endif %}; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
             <span style="color: {% if message.tags == 'success' %}#155724{% elif message.tags == 'error' %}#721c24{% else %}#004085{% endif %}; font-weight: 500;">{{ message }}</span>
@@ -14,39 +14,6 @@
         </div>
     {% endfor %}
 </div>
-
-<!-- Floating toast notification -->
-<div id="toast" style="position: fixed; bottom: 20px; right: 20px; background: #0B7A3B; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: none; z-index: 9999; max-width: 400px; animation: slideUp 0.5s ease;">
-    <span id="toastMessage"></span>
-    <button onclick="document.getElementById('toast').style.display='none'" style="background: none; border: none; color: white; font-size: 20px; margin-left: 15px; cursor: pointer;">&times;</button>
-</div>
-
-<style>
-    @keyframes slideUp {
-        from { transform: translateY(20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Show toast if there is a message
-        const messageContainer = document.getElementById('messageContainer');
-        if (messageContainer && messageContainer.children.length > 0) {
-            const firstMessage = messageContainer.querySelector('span')?.textContent || '';
-            if (firstMessage) {
-                const toast = document.getElementById('toast');
-                const toastMsg = document.getElementById('toastMessage');
-                toastMsg.textContent = firstMessage;
-                toast.style.display = 'block';
-                // Auto-hide after 5 seconds
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                }, 5000);
-            }
-        }
-    });
-</script>
 {% endif %}
 
 <div style="max-width: 1000px; margin: 0 auto; background: white; padding: clamp(15px, 3vw, 30px); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -93,35 +60,12 @@
         {% endif %}
     </div>
 
-    <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📚 My Uploaded Lessons</h2>
-    <div style="margin-top: 15px;">
-        {% if lessons %}
-            {% for lesson in lessons %}
-                <div style="border: 1px solid #ddd; padding: clamp(12px, 2vw, 15px); margin: 10px 0; border-radius: 4px; background: #f9f9f9;">
-                    <h3 style="margin: 0; font-size: clamp(16px, 2vw, 20px);">{{ lesson.title }}</h3>
-                    <p style="font-size: clamp(13px, 1.2vw, 14px);">{{ lesson.description|truncatewords:20 }}</p>
-                    <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Level:</strong> {{ lesson.get_level_display }}</p>
-                    {% if lesson.subject %}
-                        <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Subject:</strong> {{ lesson.subject.name }}</p>
-                    {% endif %}
-                    {% if lesson.course %}
-                        <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Course:</strong> {{ lesson.course.name }}</p>
-                    {% endif %}
-                    <p style="font-size: clamp(12px, 1vw, 13px); color: #666;"><strong>Uploaded:</strong> {{ lesson.created_at|date:"M d, Y" }}</p>
-                    
-                    <!-- Lesson Engagement Stats -->
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 8px 0; font-size: clamp(12px, 1vw, 14px); color: #6c757d;">
-                        <span>👁️ {{ lesson.views }} views</span>
-                        <span>❤️ {{ lesson.likes_count|default:0 }} likes</span>
-                        <span>💬 {{ lesson.comments_count|default:0 }} comments</span>
-                    </div>
-                    
-                    <a href="{% url 'courses:view_lesson' lesson.id %}" style="background: #3498db; color: white; padding: 8px 18px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 5px; font-size: clamp(13px, 1.2vw, 14px);">View Lesson</a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p style="font-size: clamp(14px, 1.5vw, 16px);">You haven't uploaded any lessons yet.</p>
-        {% endif %}
+    <!-- ===== BROWSE ALL LESSONS BUTTON (replaces My Uploaded Lessons) ===== -->
+    <div style="margin-top: 40px; text-align: center;">
+        <a href="{% url 'courses:lesson_list' %}" style="background: #0B7A3B; color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-block; transition: background 0.2s;">
+            📚 Browse All Lessons
+        </a>
     </div>
+
 </div>
 {% endblock %}

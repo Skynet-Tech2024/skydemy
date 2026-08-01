@@ -941,8 +941,16 @@ def issue_certificate_wizard(request):
 
     return render(request, 'courses/issue_certificate_wizard.html', {'form': form})
 
-
 @staff_member_required
 def create_course_wizard(request):
     if request.method == 'POST':
-        form =
+        form = CourseCreationForm(request.POST)
+        if form.is_valid():
+            course = form.save(commit=False)
+            course.save()
+            messages.success(request, f"Course '{course.name}' created successfully!")
+            return redirect('admin:courses_course_changelist')
+    else:
+        form = CourseCreationForm()
+    
+    return render(request, 'courses/create_course_wizard.html', {'form': form})

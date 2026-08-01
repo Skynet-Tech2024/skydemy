@@ -238,6 +238,11 @@ def upload_lesson(request):
         #     del form.fields['level']   # <-- REMOVE this line
 
         if form.is_valid():
+            print("✅ Form is valid!")
+            print(f"Lesson title: {form.cleaned_data.get('title')}")
+            print(f"Level: {teacher_level}")
+            print(f"PDF file: {request.FILES.get('pdf_file')}")
+
             lesson = form.save(commit=False)
             lesson.teacher = request.user
             lesson.level = teacher_level   # force the level from the profile
@@ -299,11 +304,13 @@ def upload_lesson(request):
             if action == 'draft':
                 lesson.status = 'draft'
                 lesson.save()
+                print(f"✅ Lesson saved! ID: {lesson.id}, Status: {lesson.status}")
                 messages.success(request, '📝 Your lesson has been saved as a draft. You can continue editing later.')
                 # Do not send notifications for drafts
             else:
                 lesson.status = 'pending'
                 lesson.save()
+                print(f"✅ Lesson saved! ID: {lesson.id}, Status: {lesson.status}")
                 messages.success(
                     request,
                     '🎉 Great Job! Your lesson has been submitted for review. '
@@ -324,6 +331,8 @@ def upload_lesson(request):
 
             return redirect('dashboard')
         else:
+            print("❌ Form is INVALID!")
+            print(f"Form errors: {form.errors}")
             return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_level': teacher_level})
     else:
         form = LessonForm()
@@ -944,63 +953,4 @@ def issue_certificate_wizard(request):
 @staff_member_required
 def create_course_wizard(request):
     if request.method == 'POST':
-        form = CourseCreationForm(request.POST)
-        if form.is_valid():
-            course = form.save(commit=False)
-            course.save()
-            messages.success(request, f"Course '{course.name}' created successfully!")
-            return redirect('admin:courses_course_changelist')
-    else:
-        form = CourseCreationForm()
-    
-    return render(request, 'courses/create_course_wizard.html', {'form': form})
-
-
-# ====== CUSTOM ADMIN LESSON LIST VIEW ======
-
-@staff_member_required
-def admin_lesson_list(request):
-    """
-    Custom admin view for listing lessons, matching the style and functionality
-    of the Students page (approve/reject/delete actions with checkboxes).
-    """
-    lessons = Lesson.objects.all().order_by('-created_at')
-    total = lessons.count()
-
-    if request.method == 'POST':
-        action = request.POST.get('action')          # 'approve', 'reject', 'delete'
-        selected_ids = request.POST.getlist('selected_lessons')
-        if selected_ids:
-            lessons_selected = Lesson.objects.filter(id__in=selected_ids)
-            if action == 'approve':
-                lessons_selected.update(status='approved')
-                messages.success(request, f"{lessons_selected.count()} lesson(s) approved.")
-            elif action == 'reject':
-                lessons_selected.update(status='rejected')
-                messages.success(request, f"{lessons_selected.count()} lesson(s) rejected.")
-            elif action == 'delete':
-                lessons_selected.delete()
-                messages.success(request, f"{len(selected_ids)} lesson(s) deleted.")
-            else:
-                messages.error(request, "Invalid action.")
-        else:
-            messages.error(request, "No lessons selected.")
-        # Redirect back to this same view
-        return redirect('admin:lesson_list')   # This name will be registered in core/admin.py
-
-    context = {
-        'lessons': lessons,
-        'total': total,
-        'opts': Lesson._meta,   # for breadcrumbs
-    }
-    return render(request, 'admin/courses/lesson_list.html', context)
-
-
-@login_required
-def debug_lessons(request):
-    """Temporary debug view to check lessons."""
-    lessons = Lesson.objects.filter(teacher=request.user)
-    output = f"Total lessons: {lessons.count()}\n"
-    for l in lessons:
-        output += f"ID: {l.id}, Title: {l.title}, Status: {l.status}\n"
-    return HttpResponse(output, content_type='text/plain')
+        form =

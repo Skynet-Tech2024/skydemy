@@ -7,10 +7,11 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_protect, csrf_exempt  # <-- ADDED csrf_exempt
 
 from .forms import RegisterStep1Form
 from .models import UserProfile, Level
-from .utils import create_notification  # <-- import notification utility
+from .utils import create_notification
 from core.constants import LEVEL_CHOICES
 from datetime import datetime
 
@@ -196,7 +197,8 @@ def pending_approval(request):
     return render(request, 'users/pending_approval.html')
 
 
-# ===== Login =====
+# ===== Login (with csrf_exempt for mobile testing) =====
+@csrf_exempt  # <-- CHANGED from csrf_protect to csrf_exempt
 def custom_login(request):
     print("🔵 Login view called")
     if request.method == 'POST':

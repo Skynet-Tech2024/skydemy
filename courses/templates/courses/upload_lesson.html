@@ -1,20 +1,15 @@
 {% extends 'dashboard/base.html' %}
-<!-- force deploy -->
 {% load static %}
 
 {% block title %}Upload New Lesson - SKYDEMY{% endblock %}
 
 {% block content %}
 
-<div style="background: #ff0000; color: white; padding: 10px; text-align: center; font-weight: bold;">
-    ✅ NEW TEMPLATE LOADED (Academic Information available)
-</div>
-
 <div style="max-width: 800px; margin: 0 auto; background: white; padding: clamp(20px, 4vw, 40px); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
     <h1 style="color: #1a1a2e; font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px;">📤 Upload New Lesson</h1>
     <p style="color: #6c757d; font-size: clamp(14px, 1.5vw, 16px); margin-bottom: 30px;">Share your knowledge by uploading a lesson for students to learn.</p>
 
-    <form method="post" enctype="multipart/form-data" id="uploadLessonForm">
+    <form method="post" enctype="multipart/form-data" id="uploadLessonForm" novalidate>
         {% csrf_token %}
 
         <!-- ===== DISPLAY FORM ERRORS ===== -->
@@ -102,7 +97,7 @@
             </h2>
 
             <div style="margin-bottom: 20px;">
-                <label for="id_pdf_file" style="font-weight: 600; display: block; margin-bottom: 4px;">PDF / Word Document</label>
+                <label for="id_pdf_file" style="font-weight: 600; display: block; margin-bottom: 4px;">PDF / Word Document *</label>
                 {{ form.pdf_file }}
                 <p style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">Supported: PDF, DOC, DOCX – Max. 20 MB</p>
             </div>
@@ -122,7 +117,7 @@
 
         <!-- ===== SUBMIT ===== -->
         <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
-            <button type="submit" style="background: #0B7A3B; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">
+            <button type="submit" id="submitBtn" style="background: #0B7A3B; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">
                 <i class="fas fa-cloud-upload-alt"></i> Upload Lesson
             </button>
             <a href="{% url 'dashboard' %}" style="background: #6c757d; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
@@ -132,16 +127,18 @@
     </form>
 </div>
 
-<!-- ===== JavaScript for Progressive Reveal & Dynamic Classes ===== -->
+<!-- ===== JavaScript for Progressive Reveal, Dynamic Classes, and Client Validation ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Cache DOM elements
+        const form = document.getElementById('uploadLessonForm');
         const levelSelect = document.getElementById('id_level');
         const cycleGroup = document.getElementById('cycle-group');
         const classGroup = document.getElementById('class-group');
         const departmentGroup = document.getElementById('department-group');
         const cycleSelect = document.getElementById('id_cycle');
         const classSelect = document.getElementById('id_class_level');
+        const deptSelect = document.getElementById('id_department');
         const previewDiv = document.getElementById('academic-preview');
         const previewText = document.getElementById('preview-text');
 
@@ -158,33 +155,42 @@
             ]
         };
 
+        // Set required attribute on dynamic fields when visible
+        function setRequiredFields() {
+            const isSecondary = (levelSelect.value === 'secondary');
+            // Cycle
+            cycleSelect.required = isSecondary;
+            // Class
+            classSelect.required = isSecondary && classGroup.style.display !== 'none';
+            // Department
+            deptSelect.required = isSecondary && departmentGroup.style.display !== 'none';
+        }
+
         function updateAcademicFields() {
             const level = levelSelect.value;
             const isSecondary = (level === 'secondary');
 
-            // Show/hide cycle, class, department
             cycleGroup.style.display = isSecondary ? 'block' : 'none';
             classGroup.style.display = 'none';
             departmentGroup.style.display = 'none';
 
-            // If not secondary, clear values and hide preview
             if (!isSecondary) {
                 cycleSelect.value = '';
                 classSelect.value = '';
-                document.getElementById('id_department').value = '';
+                deptSelect.value = '';
                 previewDiv.style.display = 'none';
+                setRequiredFields();
                 return;
             }
 
-            // If secondary, show cycle (class and department will show later)
             cycleGroup.style.display = 'block';
+            setRequiredFields();
         }
 
         function updateClassOptions() {
             const cycle = cycleSelect.value;
             const isSecondary = (levelSelect.value === 'secondary');
 
-            // Clear current options
             classSelect.innerHTML = '<option value="">-- Select Class --</option>';
 
             if (cycle && isSecondary) {
@@ -196,12 +202,12 @@
                     classSelect.appendChild(option);
                 });
                 classGroup.style.display = 'block';
-                // Show department only if a class is selected (will be handled by change event)
             } else {
                 classGroup.style.display = 'none';
-                document.getElementById('id_department').value = '';
+                deptSelect.value = '';
                 departmentGroup.style.display = 'none';
             }
+            setRequiredFields();
             updatePreview();
         }
 
@@ -209,7 +215,6 @@
             const level = levelSelect.value;
             const cycle = cycleSelect.value;
             const classVal = classSelect.value;
-            const deptSelect = document.getElementById('id_department');
             const deptName = deptSelect.options[deptSelect.selectedIndex]?.text || '';
 
             if (level === 'secondary' && cycle && classVal && deptName && deptName !== '-- Select Department --') {
@@ -225,23 +230,24 @@
         // Event listeners
         levelSelect.addEventListener('change', function() {
             updateAcademicFields();
-            // If level changes away from secondary, reset class and department
             if (this.value !== 'secondary') {
                 classSelect.innerHTML = '<option value="">-- Select Class --</option>';
-                document.getElementById('id_department').value = '';
+                deptSelect.value = '';
                 departmentGroup.style.display = 'none';
                 previewDiv.style.display = 'none';
             }
+            setRequiredFields();
         });
 
         cycleSelect.addEventListener('change', function() {
             updateClassOptions();
-            // Show department only if a class is selected
             if (classSelect.value) {
                 departmentGroup.style.display = 'block';
             } else {
                 departmentGroup.style.display = 'none';
+                deptSelect.value = '';
             }
+            setRequiredFields();
         });
 
         classSelect.addEventListener('change', function() {
@@ -249,18 +255,58 @@
                 departmentGroup.style.display = 'block';
             } else {
                 departmentGroup.style.display = 'none';
-                document.getElementById('id_department').value = '';
+                deptSelect.value = '';
             }
             updatePreview();
+            setRequiredFields();
         });
 
-        document.getElementById('id_department').addEventListener('change', updatePreview);
+        deptSelect.addEventListener('change', function() {
+            updatePreview();
+            setRequiredFields();
+        });
 
         // Initial state
         updateAcademicFields();
         if (levelSelect.value === 'secondary') {
-            // If the form is loaded with secondary pre-selected (e.g., after validation error), show fields
             updateClassOptions();
+        }
+        setRequiredFields();
+
+        // ===== CUSTOM FORM VALIDATION BEFORE SUBMIT =====
+        form.addEventListener('submit', function(e) {
+            // Check all visible required fields
+            const requiredFields = form.querySelectorAll('[required]');
+            let missingFields = [];
+
+            requiredFields.forEach(field => {
+                // Skip hidden fields (they might still have required attribute)
+                if (field.offsetParent === null) return; // hidden
+
+                if (!field.value || field.value.trim() === '') {
+                    missingFields.push(field);
+                }
+            });
+
+            if (missingFields.length > 0) {
+                e.preventDefault();
+                // Build user-friendly message
+                let fieldNames = missingFields.map(field => {
+                    let label = field.id ? document.querySelector(`label[for="${field.id}"]`) : null;
+                    return label ? label.textContent.trim() : field.name;
+                }).join(', ');
+
+                alert(`⚠️ Please complete all required fields before submitting:\n\n${fieldNames}`);
+                // Optionally scroll to first empty field
+                missingFields[0].focus();
+                return false;
+            }
+        });
+
+        // Auto-scroll to first error if present
+        const errorList = document.querySelector('.errorlist');
+        if (errorList) {
+            errorList.closest('div[style*="background: #f8d7da"]').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     });
 </script>

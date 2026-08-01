@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
-from django.db.models iadmin_level_listmport Q
+from django.db.models import Q  # <-- FIXED
 from django.urls import reverse
 
 from .forms import RegisterStep1Form

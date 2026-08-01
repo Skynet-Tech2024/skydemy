@@ -1,11 +1,11 @@
 {
   "name": "SKYDEMY - E-Learning Platform",
   "short_name": "SKYDEMY",
-  "description": "Learn at your own pace — Primary, Secondary, and University levels.",
+  "description": "Learn at your Pace, Grow without Limits",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1a2e",
-  "theme_color": "#f39c12",
+  "background_color": "#0B7A3B",
+  "theme_color": "#D4AF37",
   "orientation": "portrait-primary",
   "icons": [
     {

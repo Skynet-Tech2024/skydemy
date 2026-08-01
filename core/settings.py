@@ -89,6 +89,7 @@ CLOUDINARY_STORAGE = {
     'RESOURCE_TYPE': 'raw',
     'MAX_FILE_SIZE': 52428800,  # 50 MB
 }
+
 # ===== STORAGES CONFIGURATION =====
 STORAGES = {
     "default": {

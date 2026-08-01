@@ -99,7 +99,7 @@
     .stat-card .number {
         font-size: 34px;
         font-weight: 700;
-        color: #000000;
+        color: #0B7A3B;
         line-height: 1.2;
     }
     .stat-card .label {
@@ -124,7 +124,7 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 12px;
-        border: 1px solid #E5E7EB;
+        border: 1px solid #D4AF37;
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .toolbar .search-form {
@@ -140,11 +140,15 @@
         border: 1px solid #D4AF37;
         border-radius: 10px;
         font-size: 14px;
-        color: #000000;
+        color: #0B7A3B;
         background: #ffffff;
         width: 100%;
         max-width: 300px;
         transition: box-shadow 0.2s;
+    }
+    .toolbar .search-form input::placeholder {
+        color: #0B7A3B;
+        opacity: 0.7;
     }
     .toolbar .search-form input:focus {
         box-shadow: 0 0 0 4px rgba(11, 122, 59, 0.15);
@@ -186,7 +190,7 @@
         border-radius: 10px;
         font-size: 14px;
         font-weight: 600;
-        color: #000000;
+        color: #0B7A3B;
         background: #ffffff;
     }
     .toolbar .actions-area .apply-btn {
@@ -243,10 +247,14 @@
     }
     .table-card td {
         padding: 14px 18px;
-        color: #000000;
+        color: #0B7A3B;
         vertical-align: middle;
         font-weight: 500;
         border-bottom: 1px solid #f1f5f9;
+    }
+    .table-card td strong {
+        color: #0B7A3B;
+        font-weight: 700;
     }
     .table-card tbody tr:hover {
         background: #f3f8f4;
@@ -298,7 +306,7 @@
     }
     .pagination-footer .info {
         font-size: 14px;
-        color: #000000;
+        color: #0B7A3B;
         font-weight: 600;
     }
     .pagination-footer .links {
@@ -353,8 +361,9 @@
 </style>
 {% endblock %}
 
-{% block content %}
 {% block breadcrumbs %}{% endblock %}
+
+{% block content %}
 <!-- ===== BREADCRUMB ===== -->
 <div class="breadcrumb">
     <a href="{% url 'admin:index' %}">Home</a>
@@ -436,8 +445,8 @@
                     <td>{{ level.name }}</td>
                     <td>—</td>
                     <td>
-                        <a href="#" style="color: #0B7A3B; font-weight: 600; margin-right: 10px;">✏️</a>
-                        <a href="#" style="color: #dc3545; font-weight: 600;">🗑️</a>
+                        <a href="#" style="color: #0B7A3B; font-weight: 700; margin-right: 10px;">✏️</a>
+                        <a href="#" style="color: #D4AF37; font-weight: 700;">🗑️</a>
                     </td>
                 </tr>
                 {% empty %}

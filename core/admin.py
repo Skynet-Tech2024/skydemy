@@ -5,7 +5,8 @@ from django.contrib.auth.admin import UserAdmin
 from django.urls import path
 from courses.models import Lesson, Subject, Course, Exam, Certificate
 from users.models import UserProfile, Level
-from users.admin import LevelAdmin   # <-- import the admin class
+from users.admin import LevelAdmin
+from users.views import admin_level_list  # <-- import the custom view
 from datetime import datetime, timedelta
 from courses.views import admin_lesson_list
 
@@ -21,6 +22,7 @@ class SkydemyAdminSite(AdminSite):
         urls = super().get_urls()
         custom_urls = [
             path('courses/lesson/', self.admin_view(admin_lesson_list), name='lesson_list'),
+            path('users/level/', self.admin_view(admin_level_list), name='level_list'),  # <-- new
         ]
         return custom_urls + urls
 
@@ -41,7 +43,7 @@ class SkydemyAdminSite(AdminSite):
         total_certificates = Certificate.objects.count()
         total_lessons = Lesson.objects.count()
         total_subjects = Subject.objects.count()
-        total_levels = Level.objects.count()   # <-- added
+        total_levels = Level.objects.count()
 
         # Active Today: users who logged in within the last 24 hours
         today = datetime.now()
@@ -70,7 +72,7 @@ admin_site = SkydemyAdminSite()
 
 # Register models with the custom admin site
 admin_site.register(User, UserAdmin)
-admin_site.register(Level, LevelAdmin)   # <-- register Level here
+admin_site.register(Level, LevelAdmin)
 
 # If you want to register other models with their custom admin classes, uncomment and adjust:
 # admin_site.register(Course, CourseAdmin)

@@ -199,3 +199,31 @@ class CustomLoginView(LoginView):
 
 def account_deactivated(request):
     return render(request, 'users/account_deactivated.html')
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import Level
+
+@staff_member_required
+def admin_level_list(request):
+    levels = Level.objects.all().order_by('code')
+    total = levels.count()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        selected_ids = request.POST.getlist('selected_levels')
+        if selected_ids:
+            levels_selected = Level.objects.filter(id__in=selected_ids)
+            if action == 'delete':
+                levels_selected.delete()
+                messages.success(request, f"{len(selected_ids)} level(s) deleted.")
+            else:
+                messages.error(request, "Invalid action.")
+        else:
+            messages.error(request, "No levels selected.")
+        return redirect('admin:level_list')
+
+    context = {
+        'levels': levels,
+        'total': total,
+        'opts': Level._meta,
+    }
+    return render(request, 'admin/users/level_list.html', context)

@@ -1,0 +1,74 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .module { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .module h2 { font-size: 20px; margin-bottom: 15px; }
+        .module .total { font-size: 14px; color: #6c757d; }
+        .module table { width: 100%; border-collapse: collapse; }
+        .module th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #e9ecef; font-weight: 600; color: #495057; }
+        .module td { padding: 10px 12px; border-bottom: 1px solid #f1f3f5; }
+        .module .actions { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .module .actions select, .module .actions button { padding: 6px 12px; border-radius: 4px; border: 1px solid #ced4da; }
+        .module .actions button { background: #0B7A3B; color: #fff; border: none; cursor: pointer; }
+        .module .actions button:hover { background: #065f2e; }
+        .module .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-approved { background: #d4edda; color: #155724; }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-rejected { background: #f8d7da; color: #721c24; }
+        .badge-draft { background: #e9ecef; color: #495057; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="module">
+    <h2>Levels ({{ total }})</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions">
+            <label for="action">Actions:</label>
+            <select name="action" id="action">
+                <option value="">------</option>
+                <option value="delete">Delete selected</option>
+            </select>
+            <button type="submit">Apply</button>
+            <a href="{% url 'admin:users_level_add' %}" style="background: #f6c945; color: #123526; padding: 6px 16px; border-radius: 4px; text-decoration: none; font-weight: 600;">+ Add Level</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 20px;"><input type="checkbox" id="select-all"></th>
+                    <th>#</th>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for level in levels %}
+                <tr>
+                    <td><input type="checkbox" name="selected_levels" value="{{ level.id }}"></td>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ level.code }}</strong></td>
+                    <td>{{ level.name }}</td>
+                    <td>{{ level.id|default:"—" }}</td> <!-- adjust if you have created_at field -->
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align: center; color: #94A3B8; padding: 40px 0;">No levels found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<script>
+    document.getElementById('select-all').addEventListener('change', function() {
+        var checkboxes = document.querySelectorAll('input[name="selected_levels"]');
+        for (var cb of checkboxes) { cb.checked = this.checked; }
+    });
+</script>
+{% endblock %}

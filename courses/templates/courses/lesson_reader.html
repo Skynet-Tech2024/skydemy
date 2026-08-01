@@ -1,28 +1,37 @@
-{% extends "dashboard/base.html" %}
+{% extends 'dashboard/base.html' %}
 {% load static %}
 
 {% block title %}{{ lesson.title }} - SKYDEMY{% endblock %}
 
 {% block content %}
-<!-- CSRF token for AJAX -->
 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px 15px;">
+<div style="max-width: 1100px; margin: 0 auto; padding: 20px 15px;">
 
     <!-- Lesson Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
-        <h1 style="color: #0B7A3B; font-size: 1.8rem; margin: 0;">{{ lesson.title }}</h1>
-        <span style="background: #f6c945; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">
-            {{ lesson.get_level_display }}
-        </span>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; margin-bottom: 15px;">
+        <div>
+            <h1 style="color: #0B7A3B; font-size: 1.8rem; margin: 0;">{{ lesson.title }}</h1>
+            <p style="color: #64748B; margin: 5px 0;">
+                <strong>Subject:</strong> {{ lesson.subject.name|default:"—" }} &nbsp;|&nbsp;
+                <strong>Level:</strong> {{ lesson.get_level_display }} &nbsp;|&nbsp;
+                <strong>Teacher:</strong> {{ lesson.teacher.username }}
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <!-- Download PDF button -->
+            {% if pdf_url %}
+            <a href="{{ pdf_url }}" download style="background: #f6c945; color: #123526; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                ⬇️ Download PDF
+            </a>
+            {% endif %}
+            <!-- Back to lessons -->
+            <a href="{% url 'courses:lesson_list' %}" style="background: #6c757d; color: white; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-weight: 600;">← Back</a>
+        </div>
     </div>
-    <p style="color: #64748B; margin-bottom: 20px;">
-        <strong>Subject:</strong> {{ lesson.subject.name }} &nbsp;|&nbsp; 
-        <strong>Teacher:</strong> {{ lesson.teacher.username }}
-    </p>
 
     <!-- PDF Viewer Container -->
-    <div style="background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; padding: 20px;">
+    <div style="background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 20px;">
 
         <!-- Progress Bar -->
         <div style="margin-bottom: 15px;">
@@ -35,9 +44,9 @@
             </div>
         </div>
 
-        <!-- PDF Viewer -->
-        <div style="position: relative; background: #f1f3f5; border-radius: 8px; min-height: 600px;">
-            <canvas id="pdfCanvas" style="width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+        <!-- PDF Slide Container -->
+        <div style="position: relative; background: #f1f3f5; border-radius: 8px; min-height: 500px; display: flex; align-items: center; justify-content: center; padding: 20px;">
+            <canvas id="pdfCanvas" style="max-width: 100%; height: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></canvas>
         </div>
 
         <!-- Navigation Controls -->
@@ -45,37 +54,46 @@
             <button id="prevPage" style="background: #0B7A3B; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
                 ◀ Previous
             </button>
+
             <span style="font-size: 1rem; color: #1F2937;">
                 Page <span id="currentPageDisplay">1</span> of <span id="totalPagesDisplay">1</span>
             </span>
+
             <button id="nextPage" style="background: #0B7A3B; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
                 Next ▶
             </button>
-            <input type="number" id="pageInput" min="1" max="1" style="width: 60px; padding: 8px; border: 2px solid #e9ecef; border-radius: 6px; text-align: center;" placeholder="Go">
-            <button id="goPage" style="background: #f6c945; color: #123526; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; cursor: pointer;">Go</button>
-        </div>
-    </div>
 
-    <!-- Back link -->
-    <div style="margin-top: 25px;">
-        <a href="{% url 'courses:lesson_list' %}" style="color: #0B7A3B; text-decoration: none; font-weight: 500;">← Back to all lessons</a>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="number" id="pageInput" min="1" max="1" style="width: 60px; padding: 8px; border: 2px solid #e9ecef; border-radius: 6px; text-align: center;" placeholder="Go">
+                <button id="goPage" style="background: #f6c945; color: #123526; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; cursor: pointer;">Go</button>
+            </div>
+        </div>
+
+        <!-- Resume prompt if progress > 1 -->
+        <div id="resumePrompt" style="margin-top: 15px; padding: 12px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #0B7A3B; display: none; text-align: center;">
+            <span style="font-weight: 600;">You were on page <span id="resumePageNum"></span>.</span>
+            <button id="resumeBtn" style="background: #0B7A3B; color: white; padding: 6px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-left: 10px;">Resume</button>
+            <button id="restartBtn" style="background: #6c757d; color: white; padding: 6px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-left: 10px;">Start Over</button>
+        </div>
     </div>
 </div>
 
-<!-- PDF.js and custom script -->
+<!-- PDF.js CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-    // Set worker source
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    // Get lesson data from Django context (passed via template)
+    // Data from Django context
     const lessonId = {{ lesson.id }};
     const pdfUrl = "{{ pdf_url|escapejs }}";
     const totalPages = {{ total_pages|default:1 }};
     let currentPage = {{ current_page|default:1 }};
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
     let pdfDoc = null;
     let pageRendering = false;
     let pageNumPending = null;
+    let hasResumed = false;
 
     // DOM elements
     const canvas = document.getElementById('pdfCanvas');
@@ -88,20 +106,22 @@
     const goBtn = document.getElementById('goPage');
     const progressFill = document.getElementById('progressFill');
     const progressPercent = document.getElementById('progressPercent');
+    const resumePrompt = document.getElementById('resumePrompt');
+    const resumePageNum = document.getElementById('resumePageNum');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const restartBtn = document.getElementById('restartBtn');
 
-    // Get CSRF token from hidden input
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-
-    // Update progress bar
+    // ---- Progress update ----
     function updateProgress() {
-        if (!totalPages) return;
-        const percentage = Math.round((currentPage / totalPages) * 100);
+        if (!pdfDoc) return;
+        const percentage = Math.round((currentPage / pdfDoc.numPages) * 100);
         progressFill.style.width = percentage + '%';
         progressPercent.textContent = percentage + '%';
     }
 
-    // Save progress via AJAX
+    // ---- Save progress ----
     function saveProgress() {
+        if (!pdfDoc) return;
         fetch('/courses/api/lesson-progress/', {
             method: 'POST',
             headers: {
@@ -111,24 +131,29 @@
             body: JSON.stringify({
                 lesson_id: lessonId,
                 current_page: currentPage,
-                total_pages: totalPages,
-                progress_percentage: Math.round((currentPage / totalPages) * 100),
-                completed: currentPage >= totalPages
+                total_pages: pdfDoc.numPages,
+                progress_percentage: Math.round((currentPage / pdfDoc.numPages) * 100),
+                completed: currentPage >= pdfDoc.numPages
             })
         }).catch(err => console.warn('Progress save failed:', err));
     }
 
-    // Render page
+    // ---- Render a page ----
     function renderPage(num) {
+        if (!pdfDoc) return;
         pageRendering = true;
         pdfDoc.getPage(num).then(function(page) {
-            const viewport = page.getViewport({ scale: 1.5 });
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
+            // Adjust scale to fit width
+            const containerWidth = canvas.parentElement.clientWidth - 40;
+            const viewport = page.getViewport({ scale: 1 });
+            const scale = containerWidth / viewport.width;
+            const scaledViewport = page.getViewport({ scale: scale });
+            canvas.width = scaledViewport.width;
+            canvas.height = scaledViewport.height;
 
             const renderContext = {
                 canvasContext: ctx,
-                viewport: viewport
+                viewport: scaledViewport
             };
             const renderTask = page.render(renderContext);
             renderTask.promise.then(function() {
@@ -147,7 +172,6 @@
         saveProgress();
     }
 
-    // Queue rendering if busy
     function queueRenderPage(num) {
         if (pageRendering) {
             pageNumPending = num;
@@ -156,8 +180,8 @@
         }
     }
 
-    // Load PDF
-    function loadPDF() {
+    // ---- Load PDF ----
+    function loadPDF(initialPage) {
         if (!pdfUrl) {
             alert('PDF URL is missing. Please contact support.');
             return;
@@ -166,23 +190,55 @@
             pdfDoc = pdf;
             totalPagesSpan.textContent = pdfDoc.numPages;
             pageInput.max = pdfDoc.numPages;
-            // Ensure currentPage is within range
-            if (currentPage > pdfDoc.numPages) currentPage = pdfDoc.numPages;
-            renderPage(currentPage);
+
+            // Show resume prompt if initialPage > 1 and not already resumed
+            if (initialPage > 1 && !hasResumed && initialPage <= pdfDoc.numPages) {
+                resumePageNum.textContent = initialPage;
+                resumePrompt.style.display = 'block';
+                // Default to page 1 until user resumes
+                currentPage = 1;
+                renderPage(1);
+            } else {
+                // Ensure page is within range
+                if (initialPage > pdfDoc.numPages) initialPage = pdfDoc.numPages;
+                currentPage = initialPage;
+                renderPage(currentPage);
+            }
         }).catch(function(err) {
             console.error('PDF load error:', err);
             alert('Failed to load PDF. Please try again later.');
         });
     }
 
-    // Event listeners
+    // ---- Resume / Restart ----
+    resumeBtn.addEventListener('click', function() {
+        hasResumed = true;
+        const targetPage = parseInt(resumePageNum.textContent);
+        resumePrompt.style.display = 'none';
+        if (targetPage <= pdfDoc.numPages) {
+            currentPage = targetPage;
+            renderPage(currentPage);
+        } else {
+            currentPage = pdfDoc.numPages;
+            renderPage(currentPage);
+        }
+    });
+
+    restartBtn.addEventListener('click', function() {
+        hasResumed = true;
+        resumePrompt.style.display = 'none';
+        currentPage = 1;
+        renderPage(currentPage);
+    });
+
+    // ---- Navigation events ----
     prevBtn.addEventListener('click', function() {
         if (currentPage <= 1) return;
         queueRenderPage(currentPage - 1);
     });
 
     nextBtn.addEventListener('click', function() {
-        if (currentPage >= pdfDoc.numPages) return;
+        if (!pdfDoc || currentPage >= pdfDoc.numPages) return;
         queueRenderPage(currentPage + 1);
     });
 
@@ -195,23 +251,23 @@
         queueRenderPage(goTo);
     });
 
-    // Keyboard navigation (left/right arrows)
+    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowLeft') {
+            e.preventDefault();
             prevBtn.click();
-            e.preventDefault();
         } else if (e.key === 'ArrowRight') {
-            nextBtn.click();
             e.preventDefault();
+            nextBtn.click();
         }
     });
 
-    // Load on page ready
+    // ---- Initial load ----
     document.addEventListener('DOMContentLoaded', function() {
-        loadPDF();
+        loadPDF(currentPage);
     });
 
-    // Save progress when leaving page (optional)
+    // Save progress on page unload
     window.addEventListener('beforeunload', function() {
         saveProgress();
     });

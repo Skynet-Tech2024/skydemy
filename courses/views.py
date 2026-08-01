@@ -994,3 +994,13 @@ def admin_lesson_list(request):
         'opts': Lesson._meta,   # for breadcrumbs
     }
     return render(request, 'admin/courses/lesson_list.html', context)
+
+
+@login_required
+def debug_lessons(request):
+    """Temporary debug view to check lessons."""
+    lessons = Lesson.objects.filter(teacher=request.user)
+    output = f"Total lessons: {lessons.count()}\n"
+    for l in lessons:
+        output += f"ID: {l.id}, Title: {l.title}, Status: {l.status}\n"
+    return HttpResponse(output, content_type='text/plain')

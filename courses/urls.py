@@ -6,7 +6,8 @@ app_name = 'courses'
 urlpatterns = [
     # ===== LESSON VIEWS =====
     path('', views.lesson_list, name='lesson_list'),
-    path('upload/', views.upload_lesson, name='upload_lesson'),
+path('debug-lessons/', views.debug_lessons, name='debug_lessons'),    
+path('upload/', views.upload_lesson, name='upload_lesson'),
     path('add-subject/', views.add_subject, name='add_subject'),
 
     # ===== LEARNER DASHBOARD =====

@@ -25,6 +25,9 @@
         <!-- ===== LEVELS (multiple checkboxes) ===== -->
         <div class="form-group" style="margin-bottom: 20px;">
             <label style="font-weight: 600; display: block; margin-bottom: 5px;">Education Level(s) *</label>
+            <!-- DEBUG LINE -->
+            <p style="background: yellow; padding: 5px; font-size: 14px;">Debug: all_levels count = {{ all_levels|length }}</p>
+            
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 {% for level in all_levels %}
                     <div class="form-check" style="display: flex; align-items: center; gap: 8px;">
@@ -33,6 +36,8 @@
                             {{ level.name }}
                         </label>
                     </div>
+                {% empty %}
+                    <p style="color: red;">No levels found. Please run the Level population script.</p>
                 {% endfor %}
             </div>
             <small class="form-text text-muted" style="display: block; margin-top: 5px; color: #6c757d;">Teachers can select multiple levels.</small>

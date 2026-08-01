@@ -180,22 +180,20 @@ def lesson_list(request):
 
     lessons_qs = Lesson.objects.filter(status='approved').order_by('-created_at')
 
-    # If learner, filter by their level
-    if hasattr(request.user, 'profile') and request.user.profile.role == 'learner':
-        # For learners, we might want to filter by their enrolled levels
-        # For now, keep the old behavior (filter by a single level)
-        # This will need updating if learners also have multiple levels
-        # But we'll leave it as is for now; you can adapt later
-        # For simplicity, we still use the first level? Or we can filter by any of their levels.
-        # We'll assume learner has a single level for now.
-        learner_levels = request.user.profile.levels.all()
-        if learner_levels.exists():
-            # Filter lessons that match any of the learner's levels
-            level_codes = [level.code for level in learner_levels]
-            lessons_qs = lessons_qs.filter(level__in=level_codes)
-        # else: no levels, show none? Or show all? We'll show none.
-        else:
-            lessons_qs = lessons_qs.none()
+    # ===== ROLE-BASED FILTERING =====
+    if hasattr(request.user, 'profile'):
+        if request.user.profile.role == 'teacher':
+            # Teachers see all approved lessons
+            pass  # no additional filter
+        elif request.user.profile.role == 'learner':
+            # Learners: filter by their selected levels
+            learner_levels = request.user.profile.levels.all()
+            if learner_levels.exists():
+                level_codes = [level.code for level in learner_levels]
+                lessons_qs = lessons_qs.filter(level__in=level_codes)
+            else:
+                # If learner has no levels assigned, show no lessons
+                lessons_qs = lessons_qs.none()
 
     # Search
     query = request.GET.get('q')

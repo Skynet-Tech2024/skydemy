@@ -86,9 +86,9 @@ CLOUDINARY_STORAGE = {
     'API_KEY': '981561537385896',
     'API_SECRET': 'A-DGV9yMeUi8j2_saH6_bKVEhQM',
     'SECURE': True,
-    'RESOURCE_TYPE': 'raw',         
+    'RESOURCE_TYPE': 'raw',
+    'MAX_FILE_SIZE': 52428800,  # 50 MB
 }
-
 # ===== STORAGES CONFIGURATION =====
 STORAGES = {
     "default": {

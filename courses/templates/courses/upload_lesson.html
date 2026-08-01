@@ -99,7 +99,7 @@
             <div style="margin-bottom: 20px;">
                 <label for="id_pdf_file" style="font-weight: 600; display: block; margin-bottom: 4px;">PDF / Word Document *</label>
                 {{ form.pdf_file }}
-                <p style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">Supported: PDF, DOC, DOCX – Max. 20 MB</p>
+                <p style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">Supported: PDF, DOC, DOCX – Max. 50 MB</p>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -110,19 +110,27 @@
                 <div>
                     <label for="id_video_file" style="font-weight: 600; display: block; margin-bottom: 4px;">Upload Video</label>
                     {{ form.video_file }}
-                    <p style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">Supported: MP4, MOV, MKV – Max. 20 MB</p>
+                    <p style="font-size: 0.85rem; color: #6c757d; margin-top: 4px;">Supported: MP4, MOV, MKV – Max. 50 MB</p>
                 </div>
             </div>
         </div>
 
-        <!-- ===== SUBMIT ===== -->
+        <!-- ===== SUBMIT BUTTONS ===== -->
         <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
-            <button type="submit" id="submitBtn" style="background: #0B7A3B; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">
-                <i class="fas fa-cloud-upload-alt"></i> Upload Lesson
-            </button>
-            <a href="{% url 'dashboard' %}" style="background: #6c757d; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <!-- Cancel button -->
+            <a href="{% url 'courses:lesson_list' %}" style="background: #6c757d; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
                 <i class="fas fa-arrow-left"></i> Cancel
             </a>
+
+            <!-- Save Draft button -->
+            <button type="submit" name="action" value="draft" style="background: #f6c945; color: #123526; padding: 12px 30px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                <i class="fas fa-save"></i> Save Draft
+            </button>
+
+            <!-- Submit for Review button -->
+            <button type="submit" name="action" value="submit" style="background: #0B7A3B; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                <i class="fas fa-cloud-upload-alt"></i> Submit for Review
+            </button>
         </div>
     </form>
 </div>
@@ -158,11 +166,8 @@
         // Set required attribute on dynamic fields when visible
         function setRequiredFields() {
             const isSecondary = (levelSelect.value === 'secondary');
-            // Cycle
             cycleSelect.required = isSecondary;
-            // Class
             classSelect.required = isSecondary && classGroup.style.display !== 'none';
-            // Department
             deptSelect.required = isSecondary && departmentGroup.style.display !== 'none';
         }
 
@@ -280,9 +285,7 @@
             let missingFields = [];
 
             requiredFields.forEach(field => {
-                // Skip hidden fields (they might still have required attribute)
                 if (field.offsetParent === null) return; // hidden
-
                 if (!field.value || field.value.trim() === '') {
                     missingFields.push(field);
                 }
@@ -290,14 +293,12 @@
 
             if (missingFields.length > 0) {
                 e.preventDefault();
-                // Build user-friendly message
                 let fieldNames = missingFields.map(field => {
                     let label = field.id ? document.querySelector(`label[for="${field.id}"]`) : null;
                     return label ? label.textContent.trim() : field.name;
                 }).join(', ');
 
                 alert(`⚠️ Please complete all required fields before submitting:\n\n${fieldNames}`);
-                // Optionally scroll to first empty field
                 missingFields[0].focus();
                 return false;
             }

@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
-from django.db.models import Q  # <-- FIXED
+from django.db.models import Q
 from django.urls import reverse
 
 from .forms import RegisterStep1Form
@@ -85,6 +85,16 @@ def complete_profile(request):
         if address == '':
             address = None
 
+        # ===== CHECK FOR DUPLICATE PHONE NUMBER =====
+        if phone_number:
+            existing = UserProfile.objects.exclude(user=user).filter(phone_number=phone_number).first()
+            if existing:
+                messages.error(request, "This phone number is already registered to another user. Please use a different number.")
+                return render(request, 'users/complete_profile.html', {
+                    'user': user, 'profile': profile,
+                    'all_levels': all_levels, 'role_choices': allowed_roles,
+                })
+
         if not selected_level_codes:
             messages.error(request, "Please select at least one education level.")
             return render(request, 'users/complete_profile.html', {
@@ -119,7 +129,6 @@ def complete_profile(request):
 
         # Update other fields
         profile.phone_number = phone_number
-        # profile.address = address  # uncomment if you have this field in the model
         profile.role = role
         profile.save()
 

@@ -870,28 +870,20 @@ def add_gce_past_questions(request, level):
 
 # ====== WIZARDS ======
 
+
 @staff_member_required
-def create_exam_wizard(request):
+def create_course_wizard(request):
     if request.method == 'POST':
-        form = ExamCreationForm(request.POST, request.FILES)
+        form = CourseCreationForm(request.POST)
         if form.is_valid():
-            exam = form.save(commit=False)
-            exam.exam_code = f"EXAM-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            exam.status = 'pending'
-            exam.save()
-            
-            if form.cleaned_data.get('exam_paper'):
-                exam.exam_document = form.cleaned_data['exam_paper']
-            if form.cleaned_data.get('marking_guide'):
-                exam.marking_guide_document = form.cleaned_data['marking_guide']
-            exam.save()
-            
-            messages.success(request, f"Exam '{exam.title}' created successfully!")
-            return redirect('admin:courses_exam_changelist')
+            course = form.save(commit=False)
+            course.save()
+            messages.success(request, f"Course '{course.name}' created successfully!")
+            return redirect('admin:courses_course_changelist')
     else:
-        form = ExamCreationForm()
+        form = CourseCreationForm()
     
-    return render(request, 'courses/create_exam_wizard.html', {'form': form})
+    return render(request, 'courses/create_course_wizard.html', {'form': form})
 
 
 @staff_member_required

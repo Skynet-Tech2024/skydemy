@@ -19,7 +19,7 @@
 {% endif %}
 
 <div style="max-width: 800px; margin: 0 auto; background: white; padding: clamp(20px, 4vw, 40px); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-    <h1 style="color: #1a1a2e; font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px;">📤 Upload New Lesson (v4)</h1>
+    <h1 style="color: #1a1a2e; font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px;">📤 Upload New Lesson (v5)</h1>
     <p style="color: #6c757d; font-size: clamp(14px, 1.5vw, 16px); margin-bottom: 30px;">Share your knowledge by uploading a lesson for students to learn.</p>
 
     <!-- Step Progress Indicator (3 steps only) -->
@@ -41,9 +41,14 @@
     <form method="post" enctype="multipart/form-data" id="uploadLessonForm" novalidate>
         {% csrf_token %}
 
-        <!-- ===== DEBUG: Show teacher_level to verify it's passed correctly ===== -->
+        <!-- ===== DEBUG: Show teacher's assigned levels (optional) ===== -->
         <p style="background: #f0f0f0; padding: 5px; border-radius: 4px; font-size: 14px;">
-            <strong>🔍 Debug:</strong> teacher_level = {{ teacher_level }}
+            <strong>🔍 Your assigned levels:</strong>
+            {% for level in teacher_levels %}
+                {{ level.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                (none)
+            {% endfor %}
         </p>
 
         <!-- ===== DISPLAY FORM ERRORS (global) ===== -->
@@ -66,9 +71,9 @@
                 </h2>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <!-- Level -->
+                    <!-- Level (select dropdown from teacher's assigned levels) -->
                     <div>
-                        <label for="id_level" style="font-weight: 600; display: block; margin-bottom: 4px;">Level *</label>
+                        <label for="id_level" style="font-weight: 600; display: block; margin-bottom: 4px;">Lesson Level *</label>
                         {{ form.level }}
                     </div>
 
@@ -122,8 +127,8 @@
                         <label for="id_subject" style="font-weight: 600; display: block; margin-bottom: 4px;">Subject</label>
                         {{ form.subject }}
                     </div>
-                    <!-- Course field ONLY for university level -->
-                    {% if teacher_level == 'university' %}
+                    <!-- Course field ONLY if teacher has university level (show_course) -->
+                    {% if show_course %}
                     <div>
                         <label for="id_course" style="font-weight: 600; display: block; margin-bottom: 4px;">Course</label>
                         {{ form.course }}

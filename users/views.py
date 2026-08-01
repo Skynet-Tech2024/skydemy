@@ -10,13 +10,26 @@ from django.urls import reverse
 
 from .forms import RegisterStep1Form
 from .models import UserProfile, Level
+from .utils import create_notification  # <-- import notification utility
 from core.constants import LEVEL_CHOICES
 from datetime import datetime
 
 
-# ===== STEP 1: Account Creation =====
+# ===== STEP 1: Account Creation with Referral =====
 def register(request):
     print("🔵 Registration view called (Step 1)")
+    
+    # ===== CAPTURE REFERRAL CODE FROM URL =====
+    ref_code = request.GET.get('ref')
+    referrer = None
+    if ref_code:
+        try:
+            referrer = User.objects.get(username=ref_code)
+            print(f"🟢 Referrer found: {referrer.username}")
+        except User.DoesNotExist:
+            print(f"❌ Referrer not found: {ref_code}")
+            pass
+
     if request.method == 'POST':
         print("🟡 POST request received")
         form = RegisterStep1Form(request.POST)
@@ -36,6 +49,20 @@ def register(request):
                     profile.role = 'learner'
                     profile.verification_status = 'pending'
                     profile.save()
+
+                # ===== ASSIGN REFERRER IF EXISTS =====
+                if referrer:
+                    profile.referred_by = referrer.profile
+                    profile.save()
+                    print(f"✅ Referrer assigned: {referrer.username}")
+                    # Notify referrer
+                    create_notification(
+                        user=referrer,
+                        notification_type='system',
+                        title='🎉 New User Joined!',
+                        message=f'{user.username} signed up using your referral link.',
+                        link='/dashboard/'
+                    )
 
                 request.session['temp_user_id'] = user.id
                 print(f"🟢 User and profile created: {user.username}, ID: {user.id}")

@@ -4,7 +4,7 @@
 {% block title %}All Lessons - SKYDEMY{% endblock %}
 
 {% block extra_head %}
-<!-- SweetAlert2 for branded confirm modals -->
+<!-- SweetAlert2 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
@@ -38,7 +38,6 @@
 {% endblock %}
 
 {% block content %}
-
 <!-- ===== MESSAGES DISPLAY ===== -->
 {% if messages %}
 <div style="max-width: 1200px; margin: 0 auto 20px auto; padding: 0 15px;">
@@ -104,18 +103,16 @@
                     View Lesson →
                 </a>
 
-                <!-- Convert to Whiteboard Button with SweetAlert -->
-                {% if user.is_authenticated and lesson.pdf_file %}
-                    {% if lesson.teacher == user or user.is_staff %}
-                        <a href="#" 
-                           style="background: #8B5CF6; color: #fff; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;"
-                           onclick="confirmConversion(event, '{% url 'courses:convert_to_whiteboard' lesson.id %}')">
-                            🎬 Convert to Video
-                        </a>
-                    {% endif %}
+                <!-- CONVERT TO VIDEO BUTTON (now using a <button> with data-url) -->
+                {% if user.is_authenticated and lesson.pdf_file and lesson.teacher == user or user.is_staff %}
+                    <button class="convert-btn" 
+                            data-url="{% url 'courses:convert_to_whiteboard' lesson.id %}"
+                            style="background: #8B5CF6; color: #fff; padding: 6px 14px; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        🎬 Convert to Video
+                    </button>
                 {% endif %}
 
-                <!-- Watch Video Button (updated to use branded player) -->
+                <!-- Watch Video Button (if video exists) -->
                 {% if lesson.whiteboard_video %}
                     <a href="{% url 'courses:watch_whiteboard_video' lesson.id %}" 
                        style="background: #28a745; color: #fff; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;">
@@ -155,33 +152,42 @@
         {% endif %}
     </div>
     {% endif %}
-
 </div>
 
+<!-- ===== SweetAlert2 + Conversion Script ===== -->
 <script>
-    function confirmConversion(event, url) {
-        event.preventDefault();
-        Swal.fire({
-            title: 'Convert to Whiteboard Video',
-            text: 'This will generate a video from the PDF. This may take a while. Continue?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#0B7A3B',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, convert it!',
-            cancelButtonText: 'Cancel',
-            background: '#fff',
-            customClass: {
-                popup: 'swal-gold-border',
-                confirmButton: 'custom-confirm-btn',
-                cancelButton: 'custom-cancel-btn'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = url;
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all Convert buttons
+        document.querySelectorAll('.convert-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var url = this.getAttribute('data-url');
+                if (!url) {
+                    alert('Error: Conversion URL missing.');
+                    return;
+                }
+                Swal.fire({
+                    title: 'Convert to Whiteboard Video',
+                    text: 'This will generate a video from the PDF. This may take a while. Continue?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0B7A3B',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, convert it!',
+                    cancelButtonText: 'Cancel',
+                    background: '#fff',
+                    customClass: {
+                        popup: 'swal-gold-border',
+                        confirmButton: 'custom-confirm-btn',
+                        cancelButton: 'custom-cancel-btn'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = url;
+                    }
+                });
+            });
         });
-        return false;
-    }
+    });
 </script>
 {% endblock %}

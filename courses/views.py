@@ -51,11 +51,10 @@ def get_video_url(lesson):
     return None
 
 
-@login_required
+@@login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
     """
     Convert a lesson's PDF to a whiteboard video using Cloudinary's cloud processing.
-    This avoids memory issues on the Render free tier.
     """
     lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
 
@@ -77,11 +76,11 @@ def convert_lesson_to_whiteboard(request, lesson_id):
         return redirect('courses:view_lesson', lesson_id=lesson.id)
 
     try:
-        # --- 1. Request Cloudinary to generate a video from the raw PDF ---
-        # IMPORTANT: specify resource_type='raw' because PDFs are stored as raw files.
+        # --- 1. Request Cloudinary to generate a video from the PDF ---
+        # IMPORTANT: use resource_type='image' because the file is stored as 'image'
         result = cloudinary.uploader.explicit(
             public_id,
-            resource_type='raw',          # <-- FIX: THIS TELLS CLOUDINARY WHERE TO FIND THE FILE
+            resource_type='image',           # <-- FIXED: changed from 'raw' to 'image'
             type='upload',
             eager=[
                 {
@@ -109,6 +108,21 @@ def convert_lesson_to_whiteboard(request, lesson_id):
         if response.status_code != 200:
             messages.error(request, f"Failed to download video from Cloudinary (HTTP {response.status_code}).")
             return redirect('courses:view_lesson', lesson_id=lesson.id)
+
+        # Save the video file
+        lesson.whiteboard_video.save(
+            f"whiteboard_{lesson.id}.mp4",
+            ContentFile(response.content),
+            save=True
+        )
+
+        messages.success(request, "✅ Whiteboard video created successfully using Cloudinary!")
+
+    except Exception as e:
+        logger.error(f"Cloudinary conversion failed: {str(e)}", exc_info=True)
+        messages.error(request, f"Conversion failed: {str(e)}")
+
+    return redirect('courses:view_lesson', lesson_id=lesson.id)
 
         # Save the video file
         lesson.whiteboard_video.save(

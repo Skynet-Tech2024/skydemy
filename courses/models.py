@@ -59,8 +59,6 @@ class Subject(models.Model):
 
     class Meta:
         ordering = ['name']
-        # Removed unique_together = ['name', 'level'] to allow same subject for different cycles
-        # Code field is already unique globally, which is sufficient for identification.
 
 # ===== COURSE =====
 class Course(models.Model):
@@ -274,6 +272,9 @@ class Exam(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_exams')
+
+    # Year field for GCE past questions
+    year = models.CharField(max_length=10, blank=True, null=True, help_text="Year of the exam (e.g., 2024)")
 
     # File upload fields
     exam_document = models.FileField(upload_to='exams/documents/', blank=True, null=True)

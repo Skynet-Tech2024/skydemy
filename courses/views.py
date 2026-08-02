@@ -425,7 +425,8 @@ def add_subject(request):
             proposed_by=request.user,
             status='pending'
         )
-        messages.success(request, f'Subject "{name}" created successfully!')
+        # Updated success message for "Submit for Review"
+        messages.success(request, f'Subject "{name}" has been submitted for review!')
         return redirect('courses:upload_lesson')
 
     return render(request, 'courses/add_subject.html')

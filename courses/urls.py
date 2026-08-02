@@ -13,6 +13,7 @@ urlpatterns = [
     # ===== LESSON VIEWER & CONVERSION =====
     # 👇 Specific patterns MUST come before the generic lesson/<int:lesson_id>/
     path('lesson/<int:lesson_id>/convert-to-whiteboard/', views.convert_lesson_to_whiteboard, name='convert_to_whiteboard'),
+    path('lesson/<int:lesson_id>/watch-video/', views.watch_whiteboard_video, name='watch_whiteboard_video'),  # NEW
     path('lesson/<int:lesson_id>/', views.view_lesson, name='view_lesson'),
 
     # ===== EXAM VIEWS =====

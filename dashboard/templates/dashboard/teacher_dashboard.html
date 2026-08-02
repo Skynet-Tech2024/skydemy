@@ -119,6 +119,7 @@
         </a>
     </div>
 
+    <!-- ===== EXAM MANAGEMENT ===== -->
     <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📝 Exam Management</h2>
     <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 15px 0;">
         {% if profile.level == 'primary' %}
@@ -130,6 +131,14 @@
         {% else %}
             <p style="font-size: clamp(14px, 1.5vw, 16px);">No exam management options for your level.</p>
         {% endif %}
+    </div>
+
+    <!-- ===== ADD GCE QUESTIONS (always visible) ===== -->
+    <div style="margin-top: 15px;">
+        <a href="{% url 'courses:select_gce_level' %}" style="background: #8B5CF6; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">
+            📚 Add GCE Questions
+        </a>
+        <span style="font-size: 0.9rem; color: #6c757d; margin-left: 10px;">(Available for Secondary teachers)</span>
     </div>
 
     <!-- ===== BROWSE ALL LESSONS BUTTON ===== -->

@@ -30,7 +30,7 @@
         <textarea name="description" id="description" rows="3" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
         
         <button type="submit" style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; margin-top: 20px;">Create Subject</button>
-        <a href="{% url 'upload_lesson' %}" style="background: #6c757d; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px;">Cancel</a>
+        <a href="{% url 'courses:upload_lesson' %}" style="background: #6c757d; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px;">Cancel</a>
     </form>
 </div>
 {% endblock %}

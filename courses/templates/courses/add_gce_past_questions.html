@@ -7,7 +7,7 @@
     <h1 style="color: #1a1a2e; font-size: 28px;">📚 Add GCE Past Questions</h1>
     <p style="font-size: 16px; color: #666; margin: 15px 0;">Level: <strong>{{ level|title }}</strong></p>
     
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
         <div style="margin-bottom: 15px;">
@@ -35,10 +35,19 @@
         </div>
         
         <div style="margin-bottom: 15px;">
-            <label style="font-weight: 600;">Questions (JSON format)</label>
-            <textarea name="questions" rows="10" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: monospace;"></textarea>
+            <label style="font-weight: 600;">Upload Exam Paper (PDF only)</label>
+            <input type="file" name="exam_pdf" accept=".pdf" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
             <p style="font-size: 14px; color: #888; margin-top: 5px;">
-                Example format: [{"question": "What is 2+2?", "options": ["2","3","4","5"], "correct": "4"}, ...]
+                Upload a PDF file containing the exam questions. The system will automatically parse the questions.
+            </p>
+        </div>
+        
+        <!-- Optional: keep JSON for advanced users -->
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: 600;">Or enter Questions in JSON format (optional)</label>
+            <textarea name="questions" rows="5" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: monospace;"></textarea>
+            <p style="font-size: 14px; color: #888; margin-top: 5px;">
+                If you prefer, you can paste JSON instead of uploading a PDF.
             </p>
         </div>
         

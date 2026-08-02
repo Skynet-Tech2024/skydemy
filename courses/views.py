@@ -895,7 +895,15 @@ def add_gce_past_questions(request, level):
         except Exception as e:
             messages.error(request, f"Error saving exam: {e}")
     
-    return render(request, 'courses/add_gce_past_questions.html', {'level': level, 'subjects': subjects})
+    # Generate years from 2010 to current year
+    years = range(2010, datetime.now().year + 1)
+    
+    context = {
+        'level': level,
+        'subjects': subjects,
+        'years': years,
+    }
+    return render(request, 'courses/add_gce_past_questions.html', context)
 
 
 # ====== WIZARDS ======

@@ -929,7 +929,7 @@ def add_gce_past_questions(request, level):
             year=year
         )
         exam.save()
-        messages.success(request, f"GCE past questions '{title}' created successfully!")
+        messages.success(request, "✅ Exam saved! Learners can now access this paper.")
         return redirect('lesson_list')
     
     return render(request, 'courses/add_gce_past_questions.html', context)

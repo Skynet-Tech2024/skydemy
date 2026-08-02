@@ -276,6 +276,9 @@ class Exam(models.Model):
     # Year field for GCE past questions
     year = models.CharField(max_length=10, blank=True, null=True, help_text="Year of the exam (e.g., 2024)")
 
+    # Questions field for storing parsed exam questions
+    questions = models.JSONField(default=list, blank=True, help_text="List of question objects")
+
     # File upload fields
     exam_document = models.FileField(upload_to='exams/documents/', blank=True, null=True)
     marking_guide_document = models.FileField(upload_to='exams/marking_guides/', blank=True, null=True)

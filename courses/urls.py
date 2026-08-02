@@ -7,7 +7,8 @@ urlpatterns = [
     # ===== LESSON VIEWS =====
     path('', views.lesson_list, name='lesson_list'),
     path('upload/', views.upload_lesson, name='upload_lesson'),
-    path('add-subject/', views.add_subject, name='add_subject'),
+path('exams/gce/add/<str:level>/', views.add_gce_past_questions, name='add_gce_past_questions'),    
+path('add-subject/', views.add_subject, name='add_subject'),
     path('debug-lessons/', views.debug_lessons, name='debug_lessons'),
 
     # ===== LESSON VIEWER & CONVERSION =====

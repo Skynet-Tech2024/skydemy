@@ -11,11 +11,6 @@
         {% csrf_token %}
         
         <div style="margin-bottom: 15px;">
-            <label style="font-weight: 600;">Exam Title</label>
-            <input type="text" name="title" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
-        </div>
-        
-        <div style="margin-bottom: 15px;">
             <label style="font-weight: 600;">Year</label>
             <select name="year" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                 {% for year in years %}

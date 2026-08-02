@@ -4,394 +4,172 @@
 {% block extrastyle %}
 {{ block.super }}
 <style>
-    /* ===== PAGE BACKGROUND ===== */
-    body.dashboard {
-        background: #F7F9F8 !important;
+    /* ===== TABLE STYLES ===== */
+    .module {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border: 1px solid #e5e7eb;
     }
-    #content {
-        background: transparent !important;
-        padding: 20px 30px !important;
-    }
-
-    /* ===== BREADCRUMB ===== */
-    .breadcrumb {
-        font-size: 14px;
-        font-weight: 600;
+    .module h2 {
+        font-size: 20px;
+        font-weight: 700;
         color: #0B7A3B;
+        margin: 0 0 15px 0;
+    }
+    .module .total {
+        font-size: 16px;
+        font-weight: 400;
+        color: #64748B;
+        margin-left: 8px;
+    }
+    .actions-bar {
+        background: #F8FAFC;
+        border-radius: 8px;
+        padding: 12px 16px;
         margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #D4AF37;
-    }
-    .breadcrumb a {
-        color: #0B7A3B;
-        text-decoration: none;
-    }
-    .breadcrumb a:hover {
-        text-decoration: underline;
-    }
-    .breadcrumb .sep {
-        color: #D4AF37;
-        margin: 0 8px;
-    }
-    .breadcrumb .current {
-        color: #D4AF37;
-    }
-
-    /* ===== PAGE HEADER ===== */
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-    .page-header .title-area h1 {
-        font-size: 30px;
-        font-weight: 700;
-        color: #0B7A3B;
-        margin: 0;
-    }
-    .page-header .title-area p {
-        font-size: 15px;
-        color: #0B7A3B;
-        font-weight: 500;
-        margin: 4px 0 0 0;
-    }
-    .page-header .add-btn {
-        background: #D4AF37;
-        color: #123526 !important;
-        padding: 12px 28px;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 15px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-        transition: all 0.2s;
-    }
-    .page-header .add-btn:hover {
-        background: #c49b2e;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
-    }
-
-    /* ===== STATISTICS CARDS ===== */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 18px;
-        margin-bottom: 28px;
-    }
-    .stat-card {
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 18px 22px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        border-left: 4px solid #D4AF37;
-        transition: transform 0.2s;
-    }
-    .stat-card:hover {
-        transform: translateY(-3px);
-    }
-    .stat-card .number {
-        font-size: 34px;
-        font-weight: 700;
-        color: #0B7A3B;
-        line-height: 1.2;
-    }
-    .stat-card .label {
-        font-size: 14px;
-        color: #0B7A3B;
-        font-weight: 600;
-    }
-    .stat-card .trend {
-        font-size: 13px;
-        color: #D4AF37;
-        font-weight: 600;
-        margin-top: 4px;
-    }
-
-    /* ===== TOOLBAR ===== */
-    .toolbar {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 14px 20px;
-        margin-bottom: 22px;
         display: flex;
         flex-wrap: wrap;
-        align-items: center;
-        gap: 12px;
-        border: 1px solid #D4AF37;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .toolbar .search-form {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: 1;
-        min-width: 200px;
-    }
-    .toolbar .search-form input {
-        height: 46px;
-        padding: 0 16px;
-        border: 1px solid #D4AF37;
-        border-radius: 10px;
-        font-size: 14px;
-        color: #0B7A3B;
-        background: #ffffff;
-        width: 100%;
-        max-width: 300px;
-        transition: box-shadow 0.2s;
-    }
-    .toolbar .search-form input::placeholder {
-        color: #0B7A3B;
-        opacity: 0.7;
-    }
-    .toolbar .search-form input:focus {
-        box-shadow: 0 0 0 4px rgba(11, 122, 59, 0.15);
-        outline: none;
-        border-color: #0B7A3B;
-    }
-    .toolbar .search-form .search-btn {
-        background: #0B7A3B;
-        color: #ffffff;
-        border: none;
-        padding: 0 22px;
-        height: 46px;
-        border-radius: 10px;
-        font-weight: 700;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background 0.2s;
-    }
-    .toolbar .search-form .search-btn:hover {
-        background: #096B34;
-    }
-    .toolbar .search-form .clear-btn {
-        color: #0B7A3B;
-        font-weight: 600;
-        font-size: 13px;
-        text-decoration: none;
-    }
-    .toolbar .actions-area {
-        display: flex;
         align-items: center;
         gap: 10px;
-        margin-left: auto;
-        flex-wrap: wrap;
+        border: 1px solid #E5E7EB;
     }
-    .toolbar .actions-area select {
-        height: 46px;
-        padding: 0 14px;
-        border: 1px solid #D4AF37;
-        border-radius: 10px;
-        font-size: 14px;
+    .actions-bar label {
         font-weight: 600;
-        color: #0B7A3B;
-        background: #ffffff;
-    }
-    .toolbar .actions-area .apply-btn {
-        background: #0B7A3B;
-        color: #ffffff;
-        border: none;
-        padding: 0 24px;
-        height: 46px;
-        border-radius: 10px;
-        font-weight: 700;
-        cursor: pointer;
+        color: #1F2937;
         font-size: 14px;
+        margin-right: 4px;
+    }
+    .actions-bar select {
+        padding: 6px 12px;
+        border: 1px solid #D4AF37;
+        border-radius: 6px;
+        font-size: 13px;
+        background: #fff;
+        color: #000;
+    }
+    .actions-bar .apply-btn {
+        background: #0B7A3B;
+        color: #fff;
+        border: none;
+        padding: 6px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 13px;
         transition: background 0.2s;
     }
-    .toolbar .actions-area .apply-btn:hover {
+    .actions-bar .apply-btn:hover {
         background: #096B34;
     }
-
-    /* ===== SQUARE CHECKBOXES ===== */
+    .actions-bar .add-btn {
+        background: #D4AF37;
+        color: #123526;
+        padding: 6px 18px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 13px;
+        margin-left: auto;
+        transition: background 0.2s;
+    }
+    .actions-bar .add-btn:hover {
+        background: #c49b2e;
+    }
+    .table-wrapper {
+        overflow-x: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        background: #fff;
+    }
+    th {
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #1F2937;
+        border-bottom: 2px solid #E5E7EB;
+        background: #F8FAFC;
+        font-size: 13px;
+    }
+    td {
+        padding: 10px 16px;
+        color: #1F2937;
+        border-bottom: 1px solid #F1F5F9;
+        vertical-align: middle;
+    }
+    tbody tr:hover {
+        background: #f8fafc;
+    }
     .checkbox-input {
         width: 18px;
         height: 18px;
         border: 2px solid #D4AF37;
         border-radius: 3px;
-        background: #ffffff;
-        cursor: pointer !important;
         accent-color: #0B7A3B;
-        -webkit-appearance: none;
-        appearance: none;
-        display: inline-block;
-        position: relative;
-        transition: all 0.15s;
-        pointer-events: auto !important;
-        user-select: none;
+        cursor: pointer;
     }
-    .checkbox-input:checked {
-        background: #0B7A3B;
-        border-color: #0B7A3B;
-    }
-    .checkbox-input:checked::after {
-        content: '✓';
-        color: #ffffff;
-        font-size: 14px;
-        font-weight: 700;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-    .checkbox-input:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(11, 122, 59, 0.2);
-    }
-    .checkbox-input:disabled {
-        opacity: 0.5;
-        cursor: not-allowed !important;
-    }
-
-    /* ===== TABLE CARD ===== */
-    .table-card {
-        background: #ffffff;
-        border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        overflow: hidden;
-        border: 1px solid #D4AF37;
-        transition: box-shadow 0.2s;
-    }
-    .table-card:hover {
-        box-shadow: 0 6px 30px rgba(0,0,0,0.08);
-    }
-    .table-card .table-wrapper {
-        overflow-x: auto;
-        padding: 4px 0;
-    }
-    .table-card table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-        background: #ffffff;
-    }
-    .table-card th {
-        padding: 16px 18px;
-        text-align: left;
-        font-weight: 700;
-        color: #ffffff;
-        background: #0B7A3B;
-        font-size: 14px;
-        letter-spacing: 0.3px;
-    }
-    .table-card td {
-        padding: 14px 18px;
-        color: #0B7A3B;
-        vertical-align: middle;
-        font-weight: 500;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    .table-card td strong {
-        color: #0B7A3B;
-        font-weight: 700;
-    }
-    .table-card tbody tr:hover {
-        background: #f3f8f4;
-    }
-    .table-card .empty-state {
+    .empty-state {
         text-align: center;
-        padding: 50px 20px;
+        padding: 40px 20px;
+        color: #94A3B8;
     }
-    .table-card .empty-state .icon {
-        font-size: 56px;
-        margin-bottom: 12px;
-    }
-    .table-card .empty-state .title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #0B7A3B;
-    }
-    .table-card .empty-state .sub {
-        font-size: 15px;
-        color: #0B7A3B;
-        font-weight: 500;
-        margin-top: 6px;
-    }
-    .table-card .empty-state .btn {
-        display: inline-block;
-        margin-top: 18px;
-        background: #0B7A3B;
-        color: #ffffff;
-        padding: 12px 30px;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: 700;
-        transition: background 0.2s;
-    }
-    .table-card .empty-state .btn:hover {
-        background: #096B34;
-    }
-
-    /* ===== PAGINATION ===== */
     .pagination-footer {
-        border-top: 1px solid #D4AF37;
-        padding: 14px 20px;
+        border-top: 1px solid #E5E7EB;
+        padding: 12px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 12px;
-        background: #ffffff;
+        gap: 10px;
+        background: #FAFAFA;
+        margin-top: 10px;
     }
     .pagination-footer .info {
-        font-size: 14px;
-        color: #0B7A3B;
-        font-weight: 600;
+        font-size: 13px;
+        color: #64748B;
     }
     .pagination-footer .links {
         display: flex;
         gap: 6px;
     }
     .pagination-footer .links a {
-        padding: 6px 14px;
+        padding: 4px 12px;
         border: 1px solid #D4AF37;
-        border-radius: 8px;
+        border-radius: 4px;
         text-decoration: none;
         color: #0B7A3B;
-        background: #ffffff;
-        font-weight: 700;
-        transition: background 0.2s;
+        background: #fff;
+        font-weight: 600;
+        font-size: 13px;
     }
     .pagination-footer .links a:hover {
         background: #f3f8f4;
     }
     .pagination-footer .links .current-page {
-        padding: 6px 14px;
+        padding: 4px 12px;
         background: #0B7A3B;
-        color: #ffffff;
-        border-radius: 8px;
+        color: #fff;
+        border-radius: 4px;
         font-weight: 700;
     }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 700px) {
-        #content {
-            padding: 15px !important;
-        }
-        .page-header .title-area h1 {
-            font-size: 24px;
-        }
-        .toolbar {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        .toolbar .search-form input {
-            max-width: 100%;
-        }
-        .toolbar .actions-area {
-            margin-left: 0;
-            justify-content: flex-start;
-        }
-        .pagination-footer {
-            flex-direction: column;
-            align-items: center;
-        }
+    .action-icons a {
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 16px;
+        margin: 0 6px;
+    }
+    .action-icons a.edit {
+        color: #0B7A3B;
+    }
+    .action-icons a.delete {
+        color: #D4AF37;
+    }
+    .action-icons a.delete:hover {
+        color: #b8952e;
     }
 </style>
 {% endblock %}
@@ -399,104 +177,61 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block content %}
-<!-- ===== BREADCRUMB ===== -->
-<div class="breadcrumb">
-    <a href="{% url 'admin:index' %}">Home</a>
-    <span class="sep">/</span>
-    <a href="{% url 'admin:users_level_changelist' %}">Levels</a>
-    <span class="sep">/</span>
-    <span class="current">List</span>
-</div>
+<div class="module">
+    <h2>
+        Levels <span class="total">({{ total }})</span>
+    </h2>
 
-<!-- ===== PAGE HEADER ===== -->
-<div class="page-header">
-    <div class="title-area">
-        <h1>📚 Academic Levels</h1>
-        <p>Manage the educational levels used to organise courses, lessons, examinations, and learners.</p>
-    </div>
-    <a href="{% url 'admin:users_level_add' %}" class="add-btn">➕ Add Level</a>
-</div>
-
-<!-- ===== STATISTICS CARDS ===== -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="number">{{ total|default:0 }}</div>
-        <div class="label">📚 Total Levels</div>
-        <div class="trend">Currently Available</div>
-    </div>
-    <div class="stat-card" style="border-left-color: #0B7A3B;">
-        <div class="number">{{ total_courses|default:0 }}</div>
-        <div class="label">📖 Courses</div>
-        <div class="trend">Total Courses</div>
-    </div>
-    <div class="stat-card" style="border-left-color: #D4AF37;">
-        <div class="number">{{ total_lessons|default:0 }}</div>
-        <div class="label">📄 Lessons</div>
-        <div class="trend">Total Lessons</div>
-    </div>
-</div>
-
-<!-- ===== TOOLBAR ===== -->
-<div class="toolbar">
-    <form method="get" class="search-form">
-        <input type="text" name="q" placeholder="🔍 Search by code or level name..." value="{{ search_query|default:'' }}">
-        <button type="submit" class="search-btn">Search</button>
-        {% if search_query %}
-            <a href="?" class="clear-btn">Clear</a>
-        {% endif %}
-    </form>
-    <div class="actions-area">
-        <form method="post">
+    <!-- ===== ACTION BAR ===== -->
+    <div class="actions-bar">
+        <label for="action">Actions:</label>
+        <form method="post" style="display: flex; align-items: center; gap: 8px;">
             {% csrf_token %}
-            <select name="action">
-                <option value="">Bulk Actions ▼</option>
-                <option value="delete">🗑️ Delete selected</option>
+            <select name="action" id="action">
+                <option value="">------</option>
+                <option value="delete">Delete selected</option>
             </select>
             <button type="submit" class="apply-btn">Apply</button>
         </form>
+        <a href="{% url 'admin:users_level_add' %}" class="add-btn">+ Add Level</a>
     </div>
-</div>
 
-<!-- ===== TABLE CARD ===== -->
-<div class="table-card">
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 40px;"><input type="checkbox" id="select-all" class="checkbox-input"></th>
-                    <th>#</th>
-                    <th>Code</th>
-                    <th>Name</th>
-                    <th>Created At</th>
-                    <th style="width: 120px;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for level in level_rows %}
-                <tr>
-                    <td><input type="checkbox" name="selected_items" value="{{ level.id }}" class="checkbox-input"></td>
-                    <td>{{ forloop.counter }}</td>
-                    <td><strong>{{ level.code }}</strong></td>
-                    <td>{{ level.name }}</td>
-                    <td>—</td>
-                    <td>
-                        <a href="#" style="color: #0B7A3B; font-weight: 700; margin-right: 10px;">✏️</a>
-                        <a href="#" style="color: #D4AF37; font-weight: 700;">🗑️</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="empty-state">
-                        <div class="icon">📚</div>
-                        <div class="title">No Academic Levels Yet</div>
-                        <div class="sub">Create your first level to organise courses and examinations.</div>
-                        <a href="{% url 'admin:users_level_add' %}" class="btn">➕ Add Level</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <!-- ===== TABLE ===== -->
+    <form method="post" id="levelForm">
+        {% csrf_token %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"><input type="checkbox" id="select-all" class="checkbox-input"></th>
+                        <th>#</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Created At</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in level_rows %}
+                    <tr>
+                        <td>{{ row.cells.0|safe }}</td>
+                        <td>{{ row.cells.1 }}</td>
+                        <td>{{ row.cells.2|safe }}</td>
+                        <td>{{ row.cells.3 }}</td>
+                        <td>{{ row.cells.4 }}</td>
+                        <td class="action-icons">
+                            {{ row.cells.5|safe }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No levels found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
 
     <!-- ===== PAGINATION ===== -->
     {% if paginator and page_obj %}
@@ -520,20 +255,8 @@
 </div>
 
 <script>
-    // Select all checkbox functionality
     document.getElementById('select-all')?.addEventListener('change', function() {
-        document.querySelectorAll('input[name="selected_items"]').forEach(function(cb) {
-            cb.checked = this.checked;
-        }.bind(this));
-    });
-
-    // Ensure checkboxes are clickable
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.checkbox-input').forEach(function(cb) {
-            cb.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
+        document.querySelectorAll('input[name="selected_items"]').forEach(cb => cb.checked = this.checked);
     });
 </script>
 {% endblock %}

@@ -63,8 +63,6 @@ class LessonForm(forms.ModelForm):
             self.fields['level'].required = True
             self.fields['level'].widget = forms.Select(attrs={'class': 'form-control'})
 
-        # If you want to keep the old behavior for other users, you can add a fallback.
-
     def clean(self):
         cleaned_data = super().clean()
         level = cleaned_data.get('level')
@@ -72,6 +70,8 @@ class LessonForm(forms.ModelForm):
         class_level = cleaned_data.get('class_level')
         department = cleaned_data.get('department')
 
+        # Validate secondary-level fields if the selected level is "secondary"
+        # (We assume the level code is 'secondary' as per standard choices)
         if level == 'secondary':
             if not cycle:
                 self.add_error('cycle', 'Cycle is required for Secondary level.')

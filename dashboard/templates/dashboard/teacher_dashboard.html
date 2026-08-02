@@ -105,5 +105,47 @@
         </a>
     </div>
 
+    <!-- ===== MY LESSONS WITH CONVERT TO WHITEBOARD BUTTON ===== -->
+    <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📚 My Uploaded Lessons</h2>
+    <div style="margin-top: 15px;">
+        {% if lessons %}
+            {% for lesson in lessons %}
+                <div style="border: 1px solid #ddd; padding: clamp(12px, 2vw, 15px); margin: 10px 0; border-radius: 4px; background: #f9f9f9;">
+                    <h3 style="margin: 0; font-size: clamp(16px, 2vw, 20px);">{{ lesson.title }}</h3>
+                    <p style="font-size: clamp(13px, 1.2vw, 14px);">{{ lesson.description|truncatewords:20 }}</p>
+                    <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Level:</strong> {{ lesson.get_level_display }}</p>
+                    {% if lesson.subject %}
+                        <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Subject:</strong> {{ lesson.subject.name }}</p>
+                    {% endif %}
+                    {% if lesson.course %}
+                        <p style="font-size: clamp(13px, 1.2vw, 14px);"><strong>Course:</strong> {{ lesson.course.name }}</p>
+                    {% endif %}
+                    <p style="font-size: clamp(12px, 1vw, 13px); color: #666;"><strong>Uploaded:</strong> {{ lesson.created_at|date:"M d, Y" }}</p>
+                    
+                    <!-- Lesson Engagement Stats -->
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 8px 0; font-size: clamp(12px, 1vw, 14px); color: #6c757d;">
+                        <span>👁️ {{ lesson.views }} views</span>
+                        <span>❤️ {{ lesson.likes_count|default:0 }} likes</span>
+                        <span>💬 {{ lesson.comments_count|default:0 }} comments</span>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
+                        <a href="{% url 'courses:view_lesson' lesson.id %}" style="background: #3498db; color: white; padding: 8px 18px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: clamp(13px, 1.2vw, 14px);">View Lesson</a>
+                        
+                        <!-- Convert to Whiteboard Button -->
+                        {% if lesson.pdf_file %}
+                            <a href="{% url 'courses:convert_to_whiteboard' lesson.id %}" 
+                               style="background: #8B5CF6; color: #fff; padding: 8px 18px; text-decoration: none; border-radius: 4px; font-size: clamp(13px, 1.2vw, 14px); font-weight: 600; display: inline-block;">
+                                🎬 Convert to Whiteboard
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="font-size: clamp(14px, 1.5vw, 16px);">You haven't uploaded any lessons yet.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

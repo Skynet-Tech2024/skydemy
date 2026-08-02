@@ -7,7 +7,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.urls import reverse
-from django.views.decorators.csrf import csrf_protect, csrf_exempt  # <-- ADDED csrf_exempt
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 from .forms import RegisterStep1Form
 from .models import UserProfile, Level
@@ -198,7 +198,7 @@ def pending_approval(request):
 
 
 # ===== Login (with csrf_exempt for mobile testing) =====
-@csrf_exempt  # <-- CHANGED from csrf_protect to csrf_exempt
+@csrf_exempt
 def custom_login(request):
     print("🔵 Login view called")
     if request.method == 'POST':
@@ -258,13 +258,21 @@ def admin_level_list(request):
     paginator = Paginator(levels, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
 
-    # Build level_rows for the template
+    # Build level_rows for the template with actions
     level_rows = []
-    for level in page_obj:
+    for i, level in enumerate(page_obj, start=page_obj.start_index()):
+        edit_url = f"/admin/users/level/{level.id}/change/"
+        delete_url = f"/admin/users/level/{level.id}/delete/"
         level_rows.append({
-            'id': level.id,
-            'code': level.code,
-            'name': level.name,
+            'cells': [
+                f'<input type="checkbox" name="selected_items" value="{level.id}">',
+                str(i),
+                f'<strong>{level.code}</strong>',
+                level.name,
+                '—',
+                f'<a href="{edit_url}" style="color: #0B7A3B; font-weight: 700; margin-right: 10px;">✏️</a>'
+                f'<a href="{delete_url}" style="color: #D4AF37; font-weight: 700;" onclick="return confirm(\'Delete this level?\')">🗑️</a>'
+            ]
         })
 
     if request.method == 'POST':

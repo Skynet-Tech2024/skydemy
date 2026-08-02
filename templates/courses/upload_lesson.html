@@ -1,5 +1,5 @@
 {% extends 'dashboard/base.html' %}
-<!-- UPDATED: using form.level with proper choices -->
+<!-- UPDATED: manual level dropdown v6 -->
 {% load static %}
 
 {% block title %}Upload New Lesson - SKYDEMY{% endblock %}
@@ -19,7 +19,7 @@
 {% endif %}
 
 <div style="max-width: 800px; margin: 0 auto; background: white; padding: clamp(20px, 4vw, 40px); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-    <h1 style="color: #1a1a2e; font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px;">📤 Upload New Lesson (v7)</h1>
+    <h1 style="color: #1a1a2e; font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px;">📤 Upload New Lesson</h1>
     <p style="color: #6c757d; font-size: clamp(14px, 1.5vw, 16px); margin-bottom: 30px;">Share your knowledge by uploading a lesson for students to learn.</p>
 
     <!-- Step Progress Indicator (3 steps only) -->
@@ -45,7 +45,7 @@
         <p style="background: #f0f0f0; padding: 5px; border-radius: 4px; font-size: 14px;">
             <strong>🔍 Your assigned levels:</strong>
             {% for level in teacher_levels %}
-                {{ level.name }} (code: {{ level.code }}){% if not forloop.last %}, {% endif %}
+                {{ level.name }}{% if not forloop.last %}, {% endif %}
             {% empty %}
                 (none)
             {% endfor %}
@@ -71,10 +71,17 @@
                 </h2>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <!-- Level (using form field) -->
+                    <!-- Level (manual dropdown) -->
                     <div>
                         <label for="id_level" style="font-weight: 600; display: block; margin-bottom: 4px;">Lesson Level *</label>
-                        {{ form.level }}
+                        <select name="level" id="id_level" class="form-control" required>
+                            <option value="">-- Select Level --</option>
+                            {% for level in teacher_levels %}
+                                <option value="{{ level.code }}" {% if form.level.value == level.code %}selected{% endif %}>
+                                    {{ level.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <!-- Cycle (hidden initially) -->

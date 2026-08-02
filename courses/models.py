@@ -276,6 +276,9 @@ class Exam(models.Model):
     # Year field for GCE past questions
     year = models.CharField(max_length=10, blank=True, null=True, help_text="Year of the exam (e.g., 2024)")
 
+    # Paper number field for GCE past questions
+    paper_number = models.CharField(max_length=10, blank=True, null=True, help_text="Paper number (e.g., Paper 1, Paper 2, etc.)")
+
     # Questions field for storing parsed exam questions
     questions = models.JSONField(default=list, blank=True, help_text="List of question objects")
 

@@ -74,8 +74,16 @@
         </div>
     </div>
     
+    <!-- ===== UPLOAD LESSON & CREATE SUBJECT ===== -->
     <h2 style="margin-top: 30px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📤 Upload a New Lesson</h2>
     <a href="{% url 'courses:upload_lesson' %}" style="background: #f39c12; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">+ Upload Lesson</a>
+
+    <!-- ===== CREATE NEW SUBJECT ===== -->
+    <div style="margin-top: 15px;">
+        <a href="{% url 'courses:add_subject' %}" style="background: #0B7A3B; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">
+            ➕ Create New Subject
+        </a>
+    </div>
 
     <h2 style="margin-top: 40px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📝 Exam Management</h2>
     <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 15px 0;">
@@ -90,7 +98,7 @@
         {% endif %}
     </div>
 
-    <!-- ===== BROWSE ALL LESSONS BUTTON (replaces My Uploaded Lessons) ===== -->
+    <!-- ===== BROWSE ALL LESSONS BUTTON ===== -->
     <div style="margin-top: 40px; text-align: center;">
         <a href="{% url 'courses:lesson_list' %}" style="background: #0B7A3B; color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-block; transition: background 0.2s;">
             📚 Browse All Lessons

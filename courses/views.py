@@ -51,7 +51,7 @@ def get_video_url(lesson):
     return None
 
 
-@@login_required
+@login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
     """
     Convert a lesson's PDF to a whiteboard video using Cloudinary's cloud processing.

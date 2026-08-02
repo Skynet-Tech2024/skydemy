@@ -167,10 +167,12 @@
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
                         <a href="{% url 'courses:view_lesson' lesson.id %}" style="background: #3498db; color: white; padding: 8px 18px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: clamp(13px, 1.2vw, 14px);">View Lesson</a>
                         
-                        <!-- Convert to Whiteboard Button (inline onclick with properly escaped URL) -->
+                        <!-- Convert to Whiteboard Button – uses data-url and passes element -->
                         {% if lesson.pdf_file %}
                             <a href="#" 
-                               onclick="confirmConversion(event, '{% url 'courses:convert_to_whiteboard' lesson.id %}')"
+                               class="convert-btn"
+                               data-url="{% url 'courses:convert_to_whiteboard' lesson.id %}"
+                               onclick="confirmConversion(event, this)"
                                style="background: #8B5CF6; color: #fff; padding: 8px 18px; text-decoration: none; border-radius: 4px; font-size: clamp(13px, 1.2vw, 14px); font-weight: 600; display: inline-block;">
                                 🎬 Convert to Whiteboard
                             </a>
@@ -194,8 +196,13 @@
 
 <!-- ===== SweetAlert2 Confirm Script (global function) ===== -->
 <script>
-    function confirmConversion(event, url) {
+    function confirmConversion(event, element) {
         event.preventDefault();
+        var url = element.dataset.url;
+        if (!url) {
+            alert('Error: No conversion URL found.');
+            return false;
+        }
         Swal.fire({
             title: 'Convert to Whiteboard Video',
             text: 'This will generate a video from the PDF. This may take a while. Continue?',

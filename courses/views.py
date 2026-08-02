@@ -374,25 +374,61 @@ def upload_lesson(request):
 
 @upload_access
 def add_subject(request):
-    """Teachers add a new subject."""
+    """Teachers add a new subject with name, code, level, and optional cycle."""
     if request.user.profile.role != 'teacher':
         messages.error(request, 'Only teachers can add subjects.')
         return redirect('home')
-    
+
     if request.method == 'POST':
-        name = request.POST.get('name')
+        name = request.POST.get('name', '').strip()
+        code = request.POST.get('code', '').strip()
         level = request.POST.get('level')
+        cycle = request.POST.get('cycle', '')
         description = request.POST.get('description', '')
-        
-        if name and level:
-            existing = Subject.objects.filter(name__iexact=name, level=level).first()
-            if existing:
-                messages.info(request, f'Subject "{name}" already exists for this level.')
-            else:
-                Subject.objects.create(name=name, level=level, description=description)
-                messages.success(request, f'Subject "{name}" created successfully!')
-            return redirect('upload_lesson')
-    
+
+        # Validate required fields
+        if not name:
+            messages.error(request, 'Subject name is required.')
+            return render(request, 'courses/add_subject.html')
+        if not code:
+            messages.error(request, 'Subject code is required.')
+            return render(request, 'courses/add_subject.html')
+        if not level:
+            messages.error(request, 'Please select a level.')
+            return render(request, 'courses/add_subject.html')
+
+        # If secondary, cycle is required
+        if level == 'secondary' and not cycle:
+            messages.error(request, 'Please select a cycle for secondary level.')
+            return render(request, 'courses/add_subject.html')
+
+        # Check duplicate: same name + level
+        existing = Subject.objects.filter(
+            name__iexact=name,
+            level=level
+        ).first()
+        if existing:
+            messages.info(request, f'Subject "{name}" already exists for this level.')
+            return redirect('courses:upload_lesson')
+
+        # Check duplicate code (optional – enforce unique code globally)
+        if Subject.objects.filter(code__iexact=code).exists():
+            messages.error(request, f'Subject code "{code}" is already in use.')
+            return render(request, 'courses/add_subject.html')
+
+        # Create subject
+        Subject.objects.create(
+            name=name,
+            code=code,
+            level=level,
+            cycle=cycle if level == 'secondary' else None,
+            description=description,
+            proposed_by=request.user,
+            status='pending'
+        )
+        messages.success(request, f'Subject "{name}" created successfully!')
+        return redirect('courses:upload_lesson')
+
     return render(request, 'courses/add_subject.html')
 
 

@@ -47,6 +47,7 @@ class Subject(models.Model):
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=20, unique=True, null=True, blank=True)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='primary')
+    cycle = models.CharField(max_length=10, choices=CYCLE_CHOICES, blank=True, null=True, help_text="Cycle for secondary level only")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     proposed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
@@ -58,6 +59,7 @@ class Subject(models.Model):
 
     class Meta:
         ordering = ['name']
+        unique_together = ['name', 'level']  # Prevent duplicate subject per level
 
 # ===== COURSE =====
 class Course(models.Model):

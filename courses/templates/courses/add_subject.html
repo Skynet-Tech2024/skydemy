@@ -16,21 +16,63 @@
     
     <form method="post">
         {% csrf_token %}
-        <label for="name" style="display: block; margin-top: 15px; font-weight: bold;">Subject Name</label>
+        
+        <!-- Subject Name -->
+        <label for="name" style="display: block; margin-top: 15px; font-weight: bold;">Subject Name *</label>
         <input type="text" name="name" id="name" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
         
-        <label for="level" style="display: block; margin-top: 15px; font-weight: bold;">Level</label>
+        <!-- Subject Code -->
+        <label for="code" style="display: block; margin-top: 15px; font-weight: bold;">Subject Code *</label>
+        <input type="text" name="code" id="code" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+        
+        <!-- Level -->
+        <label for="level" style="display: block; margin-top: 15px; font-weight: bold;">Level *</label>
         <select name="level" id="level" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
             <option value="">Select Level</option>
             <option value="primary">Primary School</option>
             <option value="secondary">Secondary School</option>
         </select>
         
+        <!-- Cycle (hidden by default, shown only for secondary) -->
+        <div id="cycle-group" style="display: none; margin-top: 15px;">
+            <label for="cycle" style="display: block; font-weight: bold;">Cycle *</label>
+            <select name="cycle" id="cycle" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Select Cycle</option>
+                <option value="first">First Cycle (Form 1–5)</option>
+                <option value="second">Second Cycle (Lower/Upper Sixth)</option>
+            </select>
+        </div>
+        
+        <!-- Description -->
         <label for="description" style="display: block; margin-top: 15px; font-weight: bold;">Description (Optional)</label>
         <textarea name="description" id="description" rows="3" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
         
-        <button type="submit" style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; margin-top: 20px;">Create Subject</button>
-        <a href="{% url 'courses:upload_lesson' %}" style="background: #6c757d; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px;">Cancel</a>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
+            <button type="submit" style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer;">Create Subject</button>
+            <a href="{% url 'courses:upload_lesson' %}" style="background: #6c757d; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; text-decoration: none; display: inline-block;">Cancel</a>
+        </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const levelSelect = document.getElementById('level');
+        const cycleGroup = document.getElementById('cycle-group');
+        const cycleSelect = document.getElementById('cycle');
+
+        function toggleCycle() {
+            if (levelSelect.value === 'secondary') {
+                cycleGroup.style.display = 'block';
+                cycleSelect.required = true;
+            } else {
+                cycleGroup.style.display = 'none';
+                cycleSelect.required = false;
+                cycleSelect.value = '';
+            }
+        }
+
+        levelSelect.addEventListener('change', toggleCycle);
+        toggleCycle(); // initial state
+    });
+</script>
 {% endblock %}

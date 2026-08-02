@@ -71,12 +71,14 @@
                 </a>
 
                 <!-- Convert to Whiteboard Button (only for owning teacher or staff) -->
-                {% if user.is_authenticated and lesson.pdf_file and (lesson.teacher == user or user.is_staff) %}
-                    <a href="{% url 'courses:convert_to_whiteboard' lesson.id %}" 
-                       style="background: #8B5CF6; color: #fff; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;"
-                       onclick="return confirm('This will generate a video from the PDF. This may take a while. Continue?');">
-                        🎬 Convert to Video
-                    </a>
+                {% if user.is_authenticated and lesson.pdf_file %}
+                    {% if lesson.teacher == user or user.is_staff %}
+                        <a href="{% url 'courses:convert_to_whiteboard' lesson.id %}" 
+                           style="background: #8B5CF6; color: #fff; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;"
+                           onclick="return confirm('This will generate a video from the PDF. This may take a while. Continue?');">
+                            🎬 Convert to Video
+                        </a>
+                    {% endif %}
                 {% endif %}
 
                 <!-- Watch Video Button (if video exists) -->

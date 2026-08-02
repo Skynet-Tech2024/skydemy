@@ -3,11 +3,12 @@ import json
 import re
 import tempfile
 import urllib.parse
+import logging
 from datetime import datetime, timedelta
 
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseServerError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -23,22 +24,34 @@ from django.template.loader import get_template
 # Users & notifications
 from users.utils import create_notification
 from users.models import SavedLesson as Wishlist
-from users.decorators import basic_access, lesson_access, upload_access
+from users.decorators import lesson_access, upload_access
 
 # Cloudinary
 import cloudinary
 import cloudinary.api
 import requests
-from cloudinary.utils import cloudinary_url, private_download_url
+from cloudinary.utils import cloudinary_url
 
 # Forms and models
-from .forms import LessonForm, ExamForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
-from .models import Subject, Lesson, Progress, Exam, ExamResult, Certificate, Course, LessonProgress
+from .forms import LessonForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
+from .models import Subject, Lesson, Exam, ExamResult, Certificate, Course, LessonProgress
 from .utils import convert_uploaded_file_to_pdf
 
 # ====== WHITEBOARD VIDEO CONVERSION (uses pypdfium2 + moviepy) ======
 import pypdfium2 as pdfium
 from moviepy.editor import ImageSequenceClip
+
+logger = logging.getLogger(__name__)
+
+
+# ====== HELPER: Safe video URL ======
+def get_video_url(lesson):
+    """Return the URL of the whiteboard video if it exists, else None."""
+    if hasattr(lesson, 'whiteboard_video') and lesson.whiteboard_video:
+        if hasattr(lesson.whiteboard_video, 'url'):
+            return lesson.whiteboard_video.url
+        return lesson.whiteboard_video
+    return None
 
 
 @login_required
@@ -162,6 +175,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
             messages.success(request, "✅ Whiteboard video created successfully!")
         except Exception as e:
+            logger.error(f"Video conversion failed: {str(e)}", exc_info=True)
             messages.error(request, f"Conversion failed: {str(e)}")
         finally:
             if os.path.exists(tmp_pdf_path):
@@ -176,54 +190,73 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 @login_required
 def lesson_list(request):
     """Display lessons – accessible to all authenticated users."""
-    print("✅ lesson_list view called!")   # debug
+    try:
+        print("✅ lesson_list view called!")   # debug
 
-    lessons_qs = Lesson.objects.filter(status='approved').order_by('-created_at')
+        lessons_qs = Lesson.objects.filter(status='approved').order_by('-created_at')
 
-    # ===== ROLE-BASED FILTERING =====
-    if hasattr(request.user, 'profile'):
-        if request.user.profile.role == 'teacher':
-            # Teachers see all approved lessons
-            pass  # no additional filter
-        elif request.user.profile.role == 'learner':
-            # Learners: filter by their selected levels
-            learner_levels = request.user.profile.levels.all()
-            if learner_levels.exists():
-                level_codes = [level.code for level in learner_levels]
-                lessons_qs = lessons_qs.filter(level__in=level_codes)
-            else:
-                # If learner has no levels assigned, show no lessons
-                lessons_qs = lessons_qs.none()
+        # ===== ROLE-BASED FILTERING =====
+        if hasattr(request.user, 'profile'):
+            if request.user.profile.role == 'teacher':
+                # Teachers see all approved lessons
+                pass  # no additional filter
+            elif request.user.profile.role == 'learner':
+                # Learners: filter by their selected levels
+                learner_levels = request.user.profile.levels.all()
+                if learner_levels.exists():
+                    level_codes = [level.code for level in learner_levels]
+                    lessons_qs = lessons_qs.filter(level__in=level_codes)
+                else:
+                    # If learner has no levels assigned, show no lessons
+                    lessons_qs = lessons_qs.none()
 
-    # Search
-    query = request.GET.get('q')
-    if query:
-        lessons_qs = lessons_qs.filter(
-            Q(title__icontains=query) |
-            Q(subject__name__icontains=query) |
-            Q(teacher__username__icontains=query)
-        )
+        # Search
+        query = request.GET.get('q')
+        if query:
+            lessons_qs = lessons_qs.filter(
+                Q(title__icontains=query) |
+                Q(subject__name__icontains=query) |
+                Q(teacher__username__icontains=query)
+            )
 
-    # Pagination
-    paginator = Paginator(lessons_qs, 12)
-    page_obj = paginator.get_page(request.GET.get('page'))
+        # Pagination
+        paginator = Paginator(lessons_qs, 12)
+        page_obj = paginator.get_page(request.GET.get('page'))
 
-    # Attach following/wishlist info for learners
-    if request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.role == 'learner':
-        following_ids = request.user.following.values_list('following_id', flat=True)
-        wishlisted_ids = Wishlist.objects.filter(user=request.user).values_list('lesson_id', flat=True)
+        # Attach following/wishlist info for learners
+        if request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.role == 'learner':
+            following_ids = request.user.following.values_list('following_id', flat=True)
+            wishlisted_ids = Wishlist.objects.filter(user=request.user).values_list('lesson_id', flat=True)
+            for lesson in page_obj:
+                # Safety: if teacher is None, treat as not following
+                if lesson.teacher:
+                    lesson.is_following = lesson.teacher.id in following_ids
+                else:
+                    lesson.is_following = False
+                lesson.is_wishlisted = lesson.id in wishlisted_ids
+        else:
+            for lesson in page_obj:
+                lesson.is_following = False
+                lesson.is_wishlisted = False
+
+        # Ensure each lesson has a 'whiteboard_video' attribute (even if None)
         for lesson in page_obj:
-            lesson.is_following = lesson.teacher.id in following_ids
-            lesson.is_wishlisted = lesson.id in wishlisted_ids
-    else:
-        for lesson in page_obj:
-            lesson.is_following = False
-            lesson.is_wishlisted = False
+            if not hasattr(lesson, 'whiteboard_video'):
+                lesson.whiteboard_video = None
 
-    return render(request, 'courses/lesson_list.html', {
-        'page_obj': page_obj,
-        'query': query,
-    })
+        return render(request, 'courses/lesson_list.html', {
+            'page_obj': page_obj,
+            'query': query,
+        })
+    except Exception as e:
+        logger.error(f"Lesson list error: {str(e)}", exc_info=True)
+        # Return a friendly error page with details for debugging
+        error_message = f"An error occurred while loading lessons: {str(e)}"
+        if settings.DEBUG:
+            return HttpResponseServerError(f"<h1>Error in lesson_list</h1><pre>{str(e)}</pre>")
+        else:
+            messages.error(request, "We're having trouble loading lessons. Please try again later.")
+            return render(request, 'dashboard/base.html', {'content': '<p>Error loading lessons. Please refresh or try again later.</p>'})
 
 
 @upload_access

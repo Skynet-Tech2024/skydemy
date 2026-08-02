@@ -518,6 +518,16 @@ def view_lesson(request, lesson_id):
 
 
 @login_required
+def watch_whiteboard_video(request, lesson_id):
+    """Display the whiteboard video page."""
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    if not lesson.whiteboard_video:
+        messages.error(request, "This lesson does not have a whiteboard video yet.")
+        return redirect('courses:view_lesson', lesson_id=lesson.id)
+    return render(request, 'courses/whiteboard_video.html', {'lesson': lesson})
+
+
+@login_required
 @csrf_exempt
 def save_lesson_progress(request):
     """AJAX endpoint to save reading progress."""

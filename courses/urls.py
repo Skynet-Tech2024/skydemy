@@ -7,14 +7,13 @@ urlpatterns = [
     # ===== LESSON VIEWS =====
     path('', views.lesson_list, name='lesson_list'),
     path('upload/', views.upload_lesson, name='upload_lesson'),
-path('exams/gce/add/<str:level>/', views.add_gce_past_questions, name='add_gce_past_questions'),    
-path('add-subject/', views.add_subject, name='add_subject'),
+    path('add-subject/', views.add_subject, name='add_subject'),
     path('debug-lessons/', views.debug_lessons, name='debug_lessons'),
 
     # ===== LESSON VIEWER & CONVERSION =====
     # 👇 Specific patterns MUST come before the generic lesson/<int:lesson_id>/
     path('lesson/<int:lesson_id>/convert-to-whiteboard/', views.convert_lesson_to_whiteboard, name='convert_to_whiteboard'),
-    path('lesson/<int:lesson_id>/watch-video/', views.watch_whiteboard_video, name='watch_whiteboard_video'),  # NEW
+    path('lesson/<int:lesson_id>/watch-video/', views.watch_whiteboard_video, name='watch_whiteboard_video'),
     path('lesson/<int:lesson_id>/', views.view_lesson, name='view_lesson'),
 
     # ===== EXAM VIEWS =====

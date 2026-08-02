@@ -772,8 +772,9 @@ def exam_result(request, result_id):
 
 @upload_access
 def add_fslc_papers(request):
-    if request.user.profile.level != 'primary':
-        messages.error(request, "You are not authorized to add FSLC papers.")
+    # Check if user has 'primary' in their levels
+    if not request.user.profile.levels.filter(code='primary').exists():
+        messages.error(request, "You are not authorized to add FSLC papers. Primary level required.")
         return redirect('lesson_list')
     
     lesson_id = request.GET.get('lesson_id')
@@ -786,8 +787,9 @@ def add_fslc_papers(request):
 
 @upload_access
 def add_mock_papers_primary(request):
-    if request.user.profile.level != 'primary':
-        messages.error(request, "You are not authorized to add mock papers.")
+    # Check if user has 'primary' in their levels
+    if not request.user.profile.levels.filter(code='primary').exists():
+        messages.error(request, "You are not authorized to add mock papers. Primary level required.")
         return redirect('lesson_list')
     
     lesson_id = request.GET.get('lesson_id')
@@ -800,24 +802,27 @@ def add_mock_papers_primary(request):
 
 @upload_access
 def select_mock_exam_level(request):
-    if request.user.profile.level != 'secondary':
-        messages.error(request, "You are not authorized.")
+    # Check if user has 'secondary' in their levels
+    if not request.user.profile.levels.filter(code='secondary').exists():
+        messages.error(request, "You are not authorized. Mock exams are only for secondary level teachers.")
         return redirect('lesson_list')
     return render(request, 'courses/select_mock_level.html')
 
 
 @upload_access
 def select_gce_level(request):
-    if request.user.profile.level != 'secondary':
-        messages.error(request, "You are not authorized.")
+    # Check if user has 'secondary' in their levels
+    if not request.user.profile.levels.filter(code='secondary').exists():
+        messages.error(request, "You are not authorized. GCE questions are only for secondary level teachers.")
         return redirect('lesson_list')
     return render(request, 'courses/select_gce_level.html')
 
 
 @upload_access
 def add_mock_exam(request, level):
-    if request.user.profile.level != 'secondary':
-        messages.error(request, "You are not authorized.")
+    # Check if user has 'secondary' in their levels
+    if not request.user.profile.levels.filter(code='secondary').exists():
+        messages.error(request, "You are not authorized to add mock exams. Secondary level required.")
         return redirect('lesson_list')
     
     lessons = Lesson.objects.filter(teacher=request.user, level=level)
@@ -854,8 +859,9 @@ def add_mock_exam(request, level):
 
 @upload_access
 def add_gce_past_questions(request, level):
-    if request.user.profile.level != 'secondary':
-        messages.error(request, "You are not authorized.")
+    # Check if user has 'secondary' in their levels
+    if not request.user.profile.levels.filter(code='secondary').exists():
+        messages.error(request, "You are not authorized to add GCE past questions. Secondary level required.")
         return redirect('lesson_list')
     
     subjects = Subject.objects.all()

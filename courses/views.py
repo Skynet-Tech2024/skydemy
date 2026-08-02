@@ -80,7 +80,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
         # IMPORTANT: use resource_type='image' because the file is stored as 'image'
         result = cloudinary.uploader.explicit(
             public_id,
-            resource_type='image',           # <-- FIXED: changed from 'raw' to 'image'
+            resource_type='image',
             type='upload',
             eager=[
                 {
@@ -108,21 +108,6 @@ def convert_lesson_to_whiteboard(request, lesson_id):
         if response.status_code != 200:
             messages.error(request, f"Failed to download video from Cloudinary (HTTP {response.status_code}).")
             return redirect('courses:view_lesson', lesson_id=lesson.id)
-
-        # Save the video file
-        lesson.whiteboard_video.save(
-            f"whiteboard_{lesson.id}.mp4",
-            ContentFile(response.content),
-            save=True
-        )
-
-        messages.success(request, "✅ Whiteboard video created successfully using Cloudinary!")
-
-    except Exception as e:
-        logger.error(f"Cloudinary conversion failed: {str(e)}", exc_info=True)
-        messages.error(request, f"Conversion failed: {str(e)}")
-
-    return redirect('courses:view_lesson', lesson_id=lesson.id)
 
         # Save the video file
         lesson.whiteboard_video.save(

@@ -4,6 +4,31 @@
 {% block title %}All Lessons - SKYDEMY{% endblock %}
 
 {% block content %}
+
+<!-- ===== MESSAGES DISPLAY ===== -->
+{% if messages %}
+<div style="max-width: 1200px; margin: 0 auto 20px auto; padding: 0 15px;">
+    {% for message in messages %}
+        <div style="background: {% if message.tags == 'success' %}#d4edda{% elif message.tags == 'error' %}#f8d7da{% else %}#cce5ff{% endif %}; padding: 16px 24px; border-radius: 12px; border-left: 6px solid {% if message.tags == 'success' %}#28a745{% elif message.tags == 'error' %}#dc3545{% else %}#007bff{% endif %}; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 28px;">{% if message.tags == 'success' %}🎉{% elif message.tags == 'error' %}⚠️{% else %}ℹ️{% endif %}</span>
+                <div>
+                    <span style="color: {% if message.tags == 'success' %}#155724{% elif message.tags == 'error' %}#721c24{% else %}#004085{% endif %}; font-weight: 500; font-size: 15px; line-height: 1.5;">
+                        {{ message }}
+                    </span>
+                    {% if message.tags == 'success' %}
+                        <div style="margin-top: 4px; font-size: 13px; color: #155724; opacity: 0.8;">
+                            You will receive a notification once your lesson is approved.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <button onclick="this.parentElement.style.display='none'" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d; padding: 0 8px;">&times;</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px 15px;">
 
     <!-- Hero Banner -->

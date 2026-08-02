@@ -869,22 +869,21 @@ def add_gce_past_questions(request, level):
     context = {'level': level, 'subjects': subjects, 'years': years}
     
     if request.method == 'POST':
-        title = request.POST.get('title')
         year = request.POST.get('year')
         subject_id = request.POST.get('subject')
+        subject = Subject.objects.get(id=subject_id) if subject_id else None
         
-        # ----- DUPLICATE CHECK -----
+        # ----- DUPLICATE CHECK (no title, use year+subject+level) -----
         existing = Exam.objects.filter(
-            title=title,
             year=year,
             subject_id=subject_id,
             level=level,
             exam_type='gce'
         ).exists()
         if existing:
-            messages.error(request, "This exam paper already exists. Please check the title, year, and subject.")
+            messages.error(request, "This exam paper already exists. Please check the year and subject.")
             return render(request, 'courses/add_gce_past_questions.html', context)
-        # ---------------------------
+        # ---------------------------------------------------------------
         
         questions = None
         
@@ -913,6 +912,11 @@ def add_gce_past_questions(request, level):
         else:
             messages.error(request, 'Please either upload a PDF or provide questions in JSON format.')
             return render(request, 'courses/add_gce_past_questions.html', context)
+        
+        # ----- AUTO-GENERATE TITLE -----
+        subject_name = subject.name if subject else "Unknown"
+        title = f"GCE {level.title()} - {subject_name} ({year})"
+        # ------------------------------
         
         # Create the exam
         exam = Exam(

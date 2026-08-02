@@ -865,44 +865,69 @@ def add_gce_past_questions(request, level):
         return redirect('lesson_list')
     
     subjects = Subject.objects.all()
+    years = range(2010, datetime.now().year + 1)
+    context = {'level': level, 'subjects': subjects, 'years': years}
     
     if request.method == 'POST':
         title = request.POST.get('title')
         year = request.POST.get('year')
-        questions_json = request.POST.get('questions')
         subject_id = request.POST.get('subject')
         
-        try:
-            questions = json.loads(questions_json)
-            if not isinstance(questions, list) or not questions:
-                messages.error(request, "Invalid questions format. Must be a non-empty JSON array.")
-                return render(request, 'courses/add_gce_past_questions.html', {'level': level, 'subjects': subjects})
-            
-            exam = Exam(
-                title=title,
-                questions=questions_json,
-                teacher=request.user,
-                level=level,
-                exam_type='gce',
-                subject_id=subject_id if subject_id else None,
-                year=year
-            )
-            exam.save()
-            messages.success(request, f"GCE past questions '{title}' created successfully!")
-            return redirect('lesson_list')
-        except json.JSONDecodeError:
-            messages.error(request, "Invalid JSON format. Please check your syntax.")
-        except Exception as e:
-            messages.error(request, f"Error saving exam: {e}")
+        # ----- DUPLICATE CHECK -----
+        existing = Exam.objects.filter(
+            title=title,
+            year=year,
+            subject_id=subject_id,
+            level=level,
+            exam_type='gce'
+        ).exists()
+        if existing:
+            messages.error(request, "This exam paper already exists. Please check the title, year, and subject.")
+            return render(request, 'courses/add_gce_past_questions.html', context)
+        # ---------------------------
+        
+        questions = None
+        
+        # 1) If a PDF file is uploaded, parse it
+        if request.FILES.get('exam_pdf'):
+            try:
+                questions = parse_exam_file(request.FILES['exam_pdf'])
+                if not questions:
+                    messages.error(request, 'No questions could be parsed from the PDF. Please check the format.')
+                    return render(request, 'courses/add_gce_past_questions.html', context)
+            except Exception as e:
+                messages.error(request, f'Error parsing PDF: {str(e)}')
+                return render(request, 'courses/add_gce_past_questions.html', context)
+        
+        # 2) If no PDF, check for JSON input
+        elif request.POST.get('questions'):
+            questions_json = request.POST.get('questions')
+            try:
+                questions = json.loads(questions_json)
+                if not isinstance(questions, list) or not questions:
+                    messages.error(request, 'Invalid JSON format. Must be a non-empty array.')
+                    return render(request, 'courses/add_gce_past_questions.html', context)
+            except json.JSONDecodeError:
+                messages.error(request, 'Invalid JSON format. Please check your syntax.')
+                return render(request, 'courses/add_gce_past_questions.html', context)
+        else:
+            messages.error(request, 'Please either upload a PDF or provide questions in JSON format.')
+            return render(request, 'courses/add_gce_past_questions.html', context)
+        
+        # Create the exam
+        exam = Exam(
+            title=title,
+            questions=questions,
+            teacher=request.user,
+            level=level,
+            exam_type='gce',
+            subject_id=subject_id if subject_id else None,
+            year=year
+        )
+        exam.save()
+        messages.success(request, f"GCE past questions '{title}' created successfully!")
+        return redirect('lesson_list')
     
-    # Generate years from 2010 to current year
-    years = range(2010, datetime.now().year + 1)
-    
-    context = {
-        'level': level,
-        'subjects': subjects,
-        'years': years,
-    }
     return render(request, 'courses/add_gce_past_questions.html', context)
 
 

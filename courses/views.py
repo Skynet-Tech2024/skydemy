@@ -4,7 +4,6 @@ import re
 import tempfile
 import urllib.parse
 import logging
-import gc  # <-- added for memory cleanup
 from datetime import datetime, timedelta
 
 from django.core.files.storage import default_storage
@@ -30,6 +29,7 @@ from users.decorators import lesson_access, upload_access
 # Cloudinary
 import cloudinary
 import cloudinary.api
+import cloudinary.uploader  # <-- added for explicit transformation
 import requests
 from cloudinary.utils import cloudinary_url
 
@@ -37,10 +37,6 @@ from cloudinary.utils import cloudinary_url
 from .forms import LessonForm, ExamCreationForm, CertificateIssueForm, CourseCreationForm
 from .models import Subject, Lesson, Exam, ExamResult, Certificate, Course, LessonProgress
 from .utils import convert_uploaded_file_to_pdf
-
-# ====== WHITEBOARD VIDEO CONVERSION (uses pypdfium2 + moviepy) ======
-import pypdfium2 as pdfium
-from moviepy.editor import ImageSequenceClip
 
 logger = logging.getLogger(__name__)
 
@@ -58,134 +54,74 @@ def get_video_url(lesson):
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
     """
-    Convert a lesson's PDF to a whiteboard video with memory‑optimised settings.
+    Convert a lesson's PDF to a whiteboard video **using Cloudinary's cloud processing**.
+    This avoids memory issues on the Render free tier.
     """
+    lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
+
+    if not lesson.pdf_file:
+        messages.error(request, "This lesson has no PDF to convert.")
+        return redirect('courses:view_lesson', lesson_id=lesson.id)
+
+    # Delete any existing video
+    if lesson.whiteboard_video:
+        lesson.whiteboard_video.delete(save=False)
+
+    # Get the public ID (remove extension)
+    public_id = lesson.pdf_file.name
+    if '.' in public_id:
+        public_id = public_id.rsplit('.', 1)[0]
+
+    if not public_id:
+        messages.error(request, "Could not determine public ID for PDF.")
+        return redirect('courses:view_lesson', lesson_id=lesson.id)
+
     try:
-        lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
+        # --- 1. Request Cloudinary to generate a video from the PDF ---
+        # We use `explicit` to apply an eager transformation on the existing raw file.
+        result = cloudinary.uploader.explicit(
+            public_id,
+            resource_type='raw',
+            type='upload',
+            eager=[
+                {
+                    "format": "mp4",
+                    "resource_type": "video",
+                    "video_codec": "h264",
+                    "audio_codec": "none"
+                }
+            ]
+        )
 
-        if not lesson.pdf_file:
-            messages.error(request, "This lesson has no PDF to convert.")
+        # --- 2. Get the generated video URL from the eager result ---
+        eager = result.get('eager', [])
+        if not eager:
+            messages.error(request, "Cloudinary did not return a video URL. Please try again.")
             return redirect('courses:view_lesson', lesson_id=lesson.id)
 
-        # Delete existing video if any
-        if lesson.whiteboard_video:
-            lesson.whiteboard_video.delete(save=False)
-
-        # Get public ID from Cloudinary filename
-        public_id = lesson.pdf_file.name
-        if '.' in public_id:
-            public_id = public_id.rsplit('.', 1)[0]
-        if not public_id:
-            messages.error(request, "Could not determine public ID for PDF.")
+        video_url = eager[0].get('secure_url')
+        if not video_url:
+            messages.error(request, "Could not extract video URL from Cloudinary response.")
             return redirect('courses:view_lesson', lesson_id=lesson.id)
 
-        # ---- 1. Get PDF download URL ----
-        download_url = None
-        try:
-            download_url = default_storage.url(lesson.pdf_file.name)
-        except Exception:
-            pass
-
-        if not download_url:
-            try:
-                signed_url, _ = cloudinary_url(
-                    public_id,
-                    resource_type='raw',
-                    sign_url=True,
-                    flags='attachment',
-                    expires_at=int((datetime.now().timestamp() + 300))
-                )
-                if requests.head(signed_url).status_code == 200:
-                    download_url = signed_url
-            except Exception as e:
-                logger.error(f"Signed URL generation failed: {e}")
-
-        if not download_url:
-            messages.error(request, "Could not retrieve the PDF file. Please ensure it is uploaded correctly.")
-            return redirect('courses:view_lesson', lesson_id=lesson.id)
-
-        # ---- 2. Download PDF ----
-        response = requests.get(download_url)
+        # --- 3. Download the video and save it to the lesson ---
+        response = requests.get(video_url)
         if response.status_code != 200:
-            messages.error(request, f"Failed to download PDF (HTTP {response.status_code}).")
+            messages.error(request, f"Failed to download video from Cloudinary (HTTP {response.status_code}).")
             return redirect('courses:view_lesson', lesson_id=lesson.id)
 
-        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_pdf:
-            tmp_pdf.write(response.content)
-            tmp_pdf_path = tmp_pdf.name
+        # Save the video file
+        lesson.whiteboard_video.save(
+            f"whiteboard_{lesson.id}.mp4",
+            ContentFile(response.content),
+            save=True
+        )
 
-        # ---- 3. Convert PDF to images (memory‑optimized) ----
-        image_paths = []
-        with tempfile.TemporaryDirectory() as tmpdir:
-            try:
-                pdf = pdfium.PdfDocument(tmp_pdf_path)
-                total_pages = len(pdf)
-
-                # Limit to first 30 pages to avoid memory exhaustion
-                if total_pages > 30:
-                    messages.warning(request, f"PDF has {total_pages} pages. Only first 30 will be converted.")
-                    total_pages = 30
-
-                for i in range(total_pages):
-                    page = pdf.get_page(i)
-                    # Lower resolution: scale=1.0 instead of 2.0
-                    bitmap = page.render(scale=1.0)
-                    pil_image = bitmap.to_pil()
-                    # Resize to max width 1280px to reduce memory
-                    pil_image.thumbnail((1280, 1280))
-                    img_path = os.path.join(tmpdir, f"page_{i+1}.jpeg")
-                    pil_image.save(img_path, 'JPEG', quality=85)
-                    image_paths.append(img_path)
-                    # Free memory
-                    del bitmap
-                    del pil_image
-                    gc.collect()
-
-                if not image_paths:
-                    messages.error(request, "Could not extract pages from the PDF.")
-                    return redirect('courses:view_lesson', lesson_id=lesson.id)
-
-                # ---- 4. Create video ----
-                # Use low fps and low bitrate to reduce memory footprint
-                clip = ImageSequenceClip(image_paths, fps=0.5)
-                video_path = os.path.join(tmpdir, 'whiteboard_video.mp4')
-                clip.write_videofile(
-                    video_path,
-                    fps=24,
-                    codec='libx264',
-                    audio=False,
-                    preset='ultrafast',
-                    bitrate='500k'
-                )
-                clip.close()
-                del clip
-                gc.collect()
-
-                # ---- 5. Save video to lesson ----
-                with open(video_path, 'rb') as f:
-                    lesson.whiteboard_video.save(
-                        f"whiteboard_{lesson.id}.mp4",
-                        ContentFile(f.read()),
-                        save=True
-                    )
-
-                messages.success(request, "✅ Whiteboard video created successfully!")
-
-            except MemoryError:
-                logger.error("MemoryError during conversion", exc_info=True)
-                messages.error(request, "The PDF is too large to convert. Try a smaller file.")
-                return redirect('courses:view_lesson', lesson_id=lesson.id)
-            except Exception as e:
-                logger.error(f"Conversion error: {e}", exc_info=True)
-                messages.error(request, f"Conversion failed: {str(e)}")
-            finally:
-                if os.path.exists(tmp_pdf_path):
-                    os.unlink(tmp_pdf_path)
-                # tmpdir is automatically deleted
+        messages.success(request, "✅ Whiteboard video created successfully using Cloudinary!")
 
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
-        messages.error(request, f"Unexpected error: {str(e)}")
+        logger.error(f"Cloudinary conversion failed: {str(e)}", exc_info=True)
+        messages.error(request, f"Conversion failed: {str(e)}")
 
     return redirect('courses:view_lesson', lesson_id=lesson.id)
 

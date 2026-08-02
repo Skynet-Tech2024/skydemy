@@ -167,7 +167,7 @@
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
                         <a href="{% url 'courses:view_lesson' lesson.id %}" style="background: #3498db; color: white; padding: 8px 18px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: clamp(13px, 1.2vw, 14px);">View Lesson</a>
                         
-                        <!-- Convert to Whiteboard Button – uses data-url and passes element -->
+                        <!-- Convert to Whiteboard Button -->
                         {% if lesson.pdf_file %}
                             <a href="#" 
                                class="convert-btn"
@@ -178,9 +178,9 @@
                             </a>
                         {% endif %}
 
-                        <!-- Watch Video Button (if video exists) -->
+                        <!-- Watch Video Button (updated to use branded player) -->
                         {% if lesson.whiteboard_video %}
-                            <a href="{{ lesson.whiteboard_video.url }}" target="_blank" 
+                            <a href="{% url 'courses:watch_whiteboard_video' lesson.id %}" 
                                style="background: #28a745; color: #fff; padding: 8px 18px; text-decoration: none; border-radius: 4px; font-size: clamp(13px, 1.2vw, 14px); font-weight: 600; display: inline-block;">
                                 ▶️ Watch Video
                             </a>

@@ -115,9 +115,9 @@
                     {% endif %}
                 {% endif %}
 
-                <!-- Watch Video Button (if video exists) -->
+                <!-- Watch Video Button (updated to use branded player) -->
                 {% if lesson.whiteboard_video %}
-                    <a href="{{ lesson.whiteboard_video.url }}" target="_blank" 
+                    <a href="{% url 'courses:watch_whiteboard_video' lesson.id %}" 
                        style="background: #28a745; color: #fff; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;">
                         ▶️ Watch Video
                     </a>

@@ -77,7 +77,6 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
     try:
         # --- 1. Request Cloudinary to generate a video from the PDF ---
-        # IMPORTANT: use resource_type='image' because the file is stored as 'image'
         result = cloudinary.uploader.explicit(
             public_id,
             resource_type='image',
@@ -191,8 +190,6 @@ def lesson_list(request):
         })
     except Exception as e:
         logger.error(f"Lesson list error: {str(e)}", exc_info=True)
-        # Return a friendly error page with details for debugging
-        error_message = f"An error occurred while loading lessons: {str(e)}"
         if settings.DEBUG:
             return HttpResponseServerError(f"<h1>Error in lesson_list</h1><pre>{str(e)}</pre>")
         else:
@@ -230,9 +227,6 @@ def upload_lesson(request):
 
             lesson = form.save(commit=False)
             lesson.teacher = request.user
-            # The level is taken from the form (since it's a choice from teacher's levels)
-            # No need to force it; the form already validates it belongs to teacher's levels.
-            # But we keep the lesson.level as selected.
 
             # --- Handle new subject creation ---
             selected_subject_id = request.POST.get('subject')
@@ -245,18 +239,14 @@ def upload_lesson(request):
                 except Subject.DoesNotExist:
                     messages.error(request, 'Selected subject does not exist.')
                     return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_levels': teacher_levels, 'show_course': show_course})
-            elif new_subject_name:
-                # When creating a new subject, we need to associate it with the lesson's level
-                # The subject's level field might be used for filtering; we can set it to the lesson's level.
-                level_code = form.cleaned_data.get('level')
-                existing = Subject.objects.filter(
-                    name__iexact=new_subject_name,
-                    level=level_code
-                ).first()
-                if existing:
-                    lesson.subject = existing
-                    messages.info(request, f'Using existing subject "{existing.name}".')
+            elif new_subject_name and new_subject_code:
+                # Check if a subject with this code already exists (global uniqueness)
+                if Subject.objects.filter(code__iexact=new_subject_code).exists():
+                    messages.error(request, f'Subject code "{new_subject_code}" is already in use. Please choose a different code.')
+                    return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_levels': teacher_levels, 'show_course': show_course})
                 else:
+                    level_code = form.cleaned_data.get('level')
+                    # Create new subject (same name allowed if code differs)
                     subject = Subject.objects.create(
                         name=new_subject_name,
                         code=new_subject_code,
@@ -265,7 +255,10 @@ def upload_lesson(request):
                         status='pending'
                     )
                     lesson.subject = subject
-                    messages.success(request, f'New subject "{subject.name}" created and pending approval.')
+                    messages.success(request, f'New subject "{subject.name}" created with code "{subject.code}" and pending approval.')
+            else:
+                messages.error(request, 'Please select an existing subject or provide a name and code for a new subject.')
+                return render(request, 'courses/upload_lesson.html', {'form': form, 'teacher_levels': teacher_levels, 'show_course': show_course})
 
             # --- Handle file conversion (Word to PDF) ---
             uploaded_file = request.FILES.get('pdf_file')
@@ -299,7 +292,6 @@ def upload_lesson(request):
                 lesson.save()
                 print(f"✅ Lesson saved! ID: {lesson.id}, Status: {lesson.status}")
                 messages.success(request, '📝 Your lesson has been saved as a draft. You can continue editing later.')
-                # Do not send notifications for drafts
             else:
                 lesson.status = 'pending'
                 lesson.save()
@@ -322,7 +314,7 @@ def upload_lesson(request):
                         link=f'/courses/lesson/{lesson.id}/'
                     )
 
-            return redirect('courses:lesson_list')  # Redirect to lesson list after submission
+            return redirect('courses:lesson_list')
         else:
             print("❌ Form is INVALID!")
             print(f"Form errors: {form.errors}")
@@ -330,7 +322,6 @@ def upload_lesson(request):
     else:
         form = LessonForm(teacher_levels=teacher_levels)
 
-    # Debug: log the template being rendered and check if it exists
     template_name = 'courses/upload_lesson.html'
     print(f"Rendering template: {template_name}")
     try:
@@ -358,7 +349,6 @@ def add_subject(request):
         code = request.POST.get('code', '').strip()
         level = request.POST.get('level')
         cycle = request.POST.get('cycle', '')
-        # description is not used – model doesn't have it
 
         # Validate required fields
         if not name:
@@ -376,21 +366,12 @@ def add_subject(request):
             messages.error(request, 'Please select a cycle for secondary level.')
             return render(request, 'courses/add_subject.html')
 
-        # Check duplicate: same name + level
-        existing = Subject.objects.filter(
-            name__iexact=name,
-            level=level
-        ).first()
-        if existing:
-            messages.info(request, f'Subject "{name}" already exists for this level.')
-            return redirect('courses:upload_lesson')
-
-        # Check duplicate code (optional – enforce unique code globally)
+        # Check if the code is already used (global uniqueness)
         if Subject.objects.filter(code__iexact=code).exists():
-            messages.error(request, f'Subject code "{code}" is already in use.')
+            messages.error(request, f'Subject code "{code}" is already in use. Please choose a different code.')
             return render(request, 'courses/add_subject.html')
 
-        # Create subject (without description)
+        # Create subject (duplicate name+level allowed if code differs)
         Subject.objects.create(
             name=name,
             code=code,
@@ -399,8 +380,7 @@ def add_subject(request):
             proposed_by=request.user,
             status='pending'
         )
-        # Updated success message for "Submit for Review"
-        messages.success(request, f'Subject "{name}" has been submitted for review!')
+        messages.success(request, f'Subject "{name}" (code: {code}) has been submitted for review!')
         return redirect('courses:upload_lesson')
 
     return render(request, 'courses/add_subject.html')
@@ -409,13 +389,12 @@ def add_subject(request):
 # ====== PDF READER WITH BASIC PROGRESS ======
 
 @xframe_options_exempt
-@login_required  # changed from @lesson_access to allow all authenticated users
+@login_required
 def view_lesson(request, lesson_id):
-    """View a lesson with a PDF reader (plain URL for now)."""
+    """View a lesson with a PDF reader."""
     lesson = get_object_or_404(Lesson, id=lesson_id)
     exam = None
 
-    # Get or create progress for the logged-in user
     if request.user.is_authenticated:
         progress, created = LessonProgress.objects.get_or_create(
             user=request.user,
@@ -430,7 +409,6 @@ def view_lesson(request, lesson_id):
     else:
         progress = None
 
-    # Get the PDF URL using default_storage (works with Cloudinary)
     pdf_url = None
     if lesson.pdf_file:
         try:
@@ -440,7 +418,6 @@ def view_lesson(request, lesson_id):
             pdf_url = None
             messages.warning(request, f"Could not generate PDF URL: {str(e)}")
 
-    # --- NEW: get current page and total pages from progress ---
     total_pages = progress.total_pages if progress else 1
     current_page = progress.current_page if progress else 1
 
@@ -453,7 +430,6 @@ def view_lesson(request, lesson_id):
         'current_page': current_page,
     }
 
-    # Debug print to confirm template name
     print("📄 TEMPLATE: courses/lesson_reader.html")
     return render(request, 'courses/lesson_reader.html', context)
 
@@ -466,11 +442,10 @@ def watch_whiteboard_video(request, lesson_id):
         messages.error(request, "This lesson does not have a whiteboard video yet.")
         return redirect('courses:view_lesson', lesson_id=lesson.id)
 
-    # Render the existing lesson_reader.html but with a flag to show video
     context = {
         'lesson': lesson,
-        'show_video': True,          # used in the template to switch to video player
-        'pdf_url': None,             # no PDF needed
+        'show_video': True,
+        'pdf_url': None,
         'progress': None,
         'total_pages': 1,
         'current_page': 1,
@@ -1026,7 +1001,7 @@ def admin_lesson_list(request):
     total = lessons.count()
 
     if request.method == 'POST':
-        action = request.POST.get('action')          # 'approve', 'reject', 'delete'
+        action = request.POST.get('action')
         selected_ids = request.POST.getlist('selected_lessons')
         if selected_ids:
             lessons_selected = Lesson.objects.filter(id__in=selected_ids)
@@ -1043,13 +1018,12 @@ def admin_lesson_list(request):
                 messages.error(request, "Invalid action.")
         else:
             messages.error(request, "No lessons selected.")
-        # Redirect back to this same view
-        return redirect('admin:lesson_list')   # This name will be registered in core/admin.py
+        return redirect('admin:lesson_list')
 
     context = {
         'lessons': lessons,
         'total': total,
-        'opts': Lesson._meta,   # for breadcrumbs
+        'opts': Lesson._meta,
     }
     return render(request, 'admin/courses/lesson_list.html', context)
 

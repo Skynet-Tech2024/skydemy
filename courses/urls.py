@@ -6,17 +6,14 @@ app_name = 'courses'
 urlpatterns = [
     # ===== LESSON VIEWS =====
     path('', views.lesson_list, name='lesson_list'),
-path('debug-lessons/', views.debug_lessons, name='debug_lessons'),    
-path('upload/', views.upload_lesson, name='upload_lesson'),
+    path('upload/', views.upload_lesson, name='upload_lesson'),
     path('add-subject/', views.add_subject, name='add_subject'),
+    path('debug-lessons/', views.debug_lessons, name='debug_lessons'),
 
-    # ===== LEARNER DASHBOARD =====
-    # 👇 MUST come BEFORE lesson/<int:lesson_id>/ to avoid conflicts
-    
-
-    # ===== LESSON VIEWER =====
+    # ===== LESSON VIEWER & CONVERSION =====
+    # 👇 Specific patterns MUST come before the generic lesson/<int:lesson_id>/
+    path('lesson/<int:lesson_id>/convert-to-whiteboard/', views.convert_lesson_to_whiteboard, name='convert_to_whiteboard'),
     path('lesson/<int:lesson_id>/', views.view_lesson, name='view_lesson'),
-    path('lesson/<int:lesson_id>/convert-whiteboard/', views.convert_lesson_to_whiteboard, name='convert_lesson_to_whiteboard'),
 
     # ===== EXAM VIEWS =====
     path('lesson/<int:lesson_id>/add-exam/', views.add_exam, name='add_exam'),

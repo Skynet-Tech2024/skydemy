@@ -51,7 +51,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
     if not lesson.pdf_file:
         messages.error(request, "This lesson has no PDF to convert.")
-        return redirect('view_lesson', lesson_id=lesson.id)
+        return redirect('courses:view_lesson', lesson_id=lesson.id)
 
     # Get the public ID (remove extension)
     public_id = lesson.pdf_file.name
@@ -60,7 +60,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
     if not public_id:
         messages.error(request, "Could not determine public ID for PDF.")
-        return redirect('view_lesson', lesson_id=lesson.id)
+        return redirect('courses:view_lesson', lesson_id=lesson.id)
 
     download_url = None
     error_msg = ""
@@ -119,14 +119,14 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
     if not download_url:
         messages.error(request, f"Could not retrieve PDF: {error_msg}")
-        return redirect('view_lesson', lesson_id=lesson.id)
+        return redirect('courses:view_lesson', lesson_id=lesson.id)
 
     # 3️⃣ Download the PDF
     try:
         response = requests.get(download_url)
         if response.status_code != 200:
             messages.error(request, f"Download failed (HTTP {response.status_code}).")
-            return redirect('view_lesson', lesson_id=lesson.id)
+            return redirect('courses:view_lesson', lesson_id=lesson.id)
 
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_pdf:
             tmp_pdf.write(response.content)
@@ -134,7 +134,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
     except Exception as e:
         messages.error(request, f"Download error: {str(e)}")
-        return redirect('view_lesson', lesson_id=lesson.id)
+        return redirect('courses:view_lesson', lesson_id=lesson.id)
 
     # 4️⃣ Convert PDF to video
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -151,7 +151,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
 
             if not image_paths:
                 messages.error(request, "Could not extract pages from the PDF.")
-                return redirect('view_lesson', lesson_id=lesson.id)
+                return redirect('courses:view_lesson', lesson_id=lesson.id)
 
             clip = ImageSequenceClip(image_paths, fps=0.5)
             video_path = os.path.join(tmpdir, 'whiteboard_video.mp4')
@@ -167,7 +167,7 @@ def convert_lesson_to_whiteboard(request, lesson_id):
             if os.path.exists(tmp_pdf_path):
                 os.unlink(tmp_pdf_path)
 
-    return redirect('view_lesson', lesson_id=lesson.id)
+    return redirect('courses:view_lesson', lesson_id=lesson.id)
 
 
 # ====== Core Lesson Views ======

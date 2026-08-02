@@ -384,7 +384,7 @@ def add_subject(request):
         code = request.POST.get('code', '').strip()
         level = request.POST.get('level')
         cycle = request.POST.get('cycle', '')
-        description = request.POST.get('description', '')
+        # description is not used – model doesn't have it
 
         # Validate required fields
         if not name:
@@ -416,13 +416,12 @@ def add_subject(request):
             messages.error(request, f'Subject code "{code}" is already in use.')
             return render(request, 'courses/add_subject.html')
 
-        # Create subject
+        # Create subject (without description)
         Subject.objects.create(
             name=name,
             code=code,
             level=level,
             cycle=cycle if level == 'secondary' else None,
-            description=description,
             proposed_by=request.user,
             status='pending'
         )

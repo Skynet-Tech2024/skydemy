@@ -45,13 +45,13 @@
     <!-- ===== ACTION BUTTONS ===== -->
     <div style="background: #F8FAFC; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; border: 1px solid #E5E7EB;">
         <span style="font-weight: 600; color: #1F2937; font-size: 14px; margin-right: 8px;">Actions:</span>
-        <button onclick="batchAction('approve')" style="background: #16A34A; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">
+        <button onclick="batchAction('approve_subjects')" style="background: #16A34A; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">
             ✅ Approve
         </button>
-        <button onclick="batchAction('reject')" style="background: #DC2626; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">
+        <button onclick="batchAction('reject_subjects')" style="background: #DC2626; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">
             ❌ Reject
         </button>
-        <button onclick="batchAction('delete')" style="background: #EF4444; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">
+        <button onclick="batchAction('delete_selected_subjects')" style="background: #EF4444; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">
             🗑️ Delete
         </button>
         <span id="selected-count" style="color: #64748B; font-size: 13px; margin-left: auto;">0 selected</span>
@@ -149,21 +149,21 @@
         }
 
         const actionLabels = {
-            'approve': 'Approve',
-            'reject': 'Reject',
-            'delete': 'Delete'
+            'approve_subjects': 'Approve',
+            'reject_subjects': 'Reject',
+            'delete_selected_subjects': 'Delete'
         };
         const actionIcons = {
-            'approve': '✅',
-            'reject': '❌',
-            'delete': '🗑️'
+            'approve_subjects': '✅',
+            'reject_subjects': '❌',
+            'delete_selected_subjects': '🗑️'
         };
         const actionColors = {
-            'approve': '#16A34A',
-            'reject': '#DC2626',
-            'delete': '#EF4444'
+            'approve_subjects': '#16A34A',
+            'reject_subjects': '#DC2626',
+            'delete_selected_subjects': '#EF4444'
         };
-        const isDestructive = action === 'delete';
+        const isDestructive = action === 'delete_selected_subjects';
 
         Swal.fire({
             title: `${actionIcons[action]} ${actionLabels[action]} Subjects?`,

@@ -41,11 +41,6 @@
     <form method="post" enctype="multipart/form-data" id="uploadLessonForm" novalidate>
         {% csrf_token %}
 
-        <!-- ===== DEBUG: Show teacher_level to verify it's passed correctly ===== -->
-        <p style="background: #f0f0f0; padding: 5px; border-radius: 4px; font-size: 14px;">
-            <strong>🔍 Debug:</strong> teacher_level = {{ teacher_level }}
-        </p>
-
         <!-- ===== DISPLAY FORM ERRORS (global) ===== -->
         {% if form.errors %}
         <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
@@ -66,10 +61,17 @@
                 </h2>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <!-- Level -->
+                    <!-- Level (manual dropdown) -->
                     <div>
-                        <label for="id_level" style="font-weight: 600; display: block; margin-bottom: 4px;">Level *</label>
-                        {{ form.level }}
+                        <label for="id_level" style="font-weight: 600; display: block; margin-bottom: 4px;">Lesson Level *</label>
+                        <select name="level" id="id_level" class="form-control" required>
+                            <option value="">-- Select Level --</option>
+                            {% for level in teacher_levels %}
+                                <option value="{{ level.code }}" {% if form.level.value == level.code %}selected{% endif %}>
+                                    {{ level.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <!-- Cycle (hidden initially) -->
@@ -122,8 +124,8 @@
                         <label for="id_subject" style="font-weight: 600; display: block; margin-bottom: 4px;">Subject</label>
                         {{ form.subject }}
                     </div>
-                    <!-- Course field ONLY for university level -->
-                    {% if teacher_level == 'university' %}
+                    <!-- Course field only if show_course is True -->
+                    {% if show_course %}
                     <div>
                         <label for="id_course" style="font-weight: 600; display: block; margin-bottom: 4px;">Course</label>
                         {{ form.course }}

@@ -59,7 +59,8 @@ class Subject(models.Model):
 
     class Meta:
         ordering = ['name']
-        unique_together = ['name', 'level']  # Prevent duplicate subject per level
+        # Removed unique_together = ['name', 'level'] to allow same subject for different cycles
+        # Code field is already unique globally, which is sufficient for identification.
 
 # ===== COURSE =====
 class Course(models.Model):

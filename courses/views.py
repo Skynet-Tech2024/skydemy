@@ -29,7 +29,7 @@ from users.decorators import lesson_access, upload_access
 # Cloudinary
 import cloudinary
 import cloudinary.api
-import cloudinary.uploader  # <-- added for explicit transformation
+import cloudinary.uploader
 import requests
 from cloudinary.utils import cloudinary_url
 
@@ -54,7 +54,7 @@ def get_video_url(lesson):
 @login_required
 def convert_lesson_to_whiteboard(request, lesson_id):
     """
-    Convert a lesson's PDF to a whiteboard video **using Cloudinary's cloud processing**.
+    Convert a lesson's PDF to a whiteboard video using Cloudinary's cloud processing.
     This avoids memory issues on the Render free tier.
     """
     lesson = get_object_or_404(Lesson, id=lesson_id, teacher=request.user)
@@ -77,11 +77,11 @@ def convert_lesson_to_whiteboard(request, lesson_id):
         return redirect('courses:view_lesson', lesson_id=lesson.id)
 
     try:
-        # --- 1. Request Cloudinary to generate a video from the PDF ---
-        # We use `explicit` to apply an eager transformation on the existing raw file.
+        # --- 1. Request Cloudinary to generate a video from the raw PDF ---
+        # IMPORTANT: specify resource_type='raw' because PDFs are stored as raw files.
         result = cloudinary.uploader.explicit(
             public_id,
-            resource_type='raw',
+            resource_type='raw',          # <-- FIX: THIS TELLS CLOUDINARY WHERE TO FIND THE FILE
             type='upload',
             eager=[
                 {

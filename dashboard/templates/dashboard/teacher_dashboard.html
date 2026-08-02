@@ -3,7 +3,7 @@
 {% block title %}Teacher Dashboard - SKYDEMY{% endblock %}
 
 {% block extra_head %}
-<!-- SweetAlert2 for branded confirm modals -->
+<!-- SweetAlert2 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
@@ -167,11 +167,10 @@
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
                         <a href="{% url 'courses:view_lesson' lesson.id %}" style="background: #3498db; color: white; padding: 8px 18px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: clamp(13px, 1.2vw, 14px);">View Lesson</a>
                         
-                        <!-- Convert to Whiteboard Button with data-url (no inline JS) -->
+                        <!-- Convert to Whiteboard Button (inline onclick with properly escaped URL) -->
                         {% if lesson.pdf_file %}
                             <a href="#" 
-                               class="convert-btn"
-                               data-url="{% url 'courses:convert_to_whiteboard' lesson.id %}"
+                               onclick="confirmConversion(event, '{% url 'courses:convert_to_whiteboard' lesson.id %}')"
                                style="background: #8B5CF6; color: #fff; padding: 8px 18px; text-decoration: none; border-radius: 4px; font-size: clamp(13px, 1.2vw, 14px); font-weight: 600; display: inline-block;">
                                 🎬 Convert to Whiteboard
                             </a>
@@ -193,35 +192,31 @@
     </div>
 </div>
 
-<!-- ===== SweetAlert2 Confirm Script ===== -->
+<!-- ===== SweetAlert2 Confirm Script (global function) ===== -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.convert-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                var url = this.getAttribute('data-url');
-                Swal.fire({
-                    title: 'Convert to Whiteboard Video',
-                    text: 'This will generate a video from the PDF. This may take a while. Continue?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#0B7A3B',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, convert it!',
-                    cancelButtonText: 'Cancel',
-                    background: '#fff',
-                    customClass: {
-                        popup: 'swal-gold-border',
-                        confirmButton: 'custom-confirm-btn',
-                        cancelButton: 'custom-cancel-btn'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = url;
-                    }
-                });
-            });
+    function confirmConversion(event, url) {
+        event.preventDefault();
+        Swal.fire({
+            title: 'Convert to Whiteboard Video',
+            text: 'This will generate a video from the PDF. This may take a while. Continue?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0B7A3B',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, convert it!',
+            cancelButtonText: 'Cancel',
+            background: '#fff',
+            customClass: {
+                popup: 'swal-gold-border',
+                confirmButton: 'custom-confirm-btn',
+                cancelButton: 'custom-cancel-btn'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
         });
-    });
+        return false;
+    }
 </script>
 {% endblock %}

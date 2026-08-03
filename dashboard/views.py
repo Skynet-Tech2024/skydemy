@@ -576,18 +576,35 @@ def batch_teacher_action(request):
 # ===== SUBJECT LIST VIEW =====
 @staff_member_required
 def subject_list(request):
-    """Admin view to list all subjects with stat cards and batch actions."""
+    """Admin view to list all subjects with stat cards and filters."""
     subjects = Subject.objects.all().order_by('-created_at')
-    total_count = subjects.count()
-    pending_count = subjects.filter(status='pending').count()
-    approved_count = subjects.filter(status='approved').count()
-    rejected_count = subjects.filter(status='rejected').count()
+    
+    # Get filter from URL
+    status_filter = request.GET.get('status', 'all')
+    current_filter = status_filter
+    
+    # Apply filters
+    if status_filter == 'pending':
+        subjects = subjects.filter(status='pending')
+    elif status_filter == 'approved':
+        subjects = subjects.filter(status='approved')
+    elif status_filter == 'rejected':
+        subjects = subjects.filter(status='rejected')
+    # 'all' shows everything (no filter)
+    
+    # Counts for stat cards
+    total_count = Subject.objects.count()
+    pending_count = Subject.objects.filter(status='pending').count()
+    approved_count = Subject.objects.filter(status='approved').count()
+    rejected_count = Subject.objects.filter(status='rejected').count()
+    
     context = {
         'subjects': subjects,
         'total_count': total_count,
         'pending_count': pending_count,
         'approved_count': approved_count,
         'rejected_count': rejected_count,
+        'current_filter': current_filter,
     }
     return render(request, 'dashboard/subject_list.html', context)
 

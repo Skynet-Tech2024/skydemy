@@ -95,3 +95,62 @@ def update_earnings_on_exam_approval(sender, instance, **kwargs):
                 wallet.available_balance += 5000
                 wallet.total_earned += 5000
                 wallet.save()
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from .models import Lesson, Exam, EarningsCycle, TeacherWallet
+
+
+@receiver(post_delete, sender=Lesson)
+def update_earnings_on_lesson_delete(sender, instance, **kwargs):
+    """When a lesson is deleted, update the teacher's earnings cycle."""
+    if instance.status == 'approved' and instance.teacher:
+        # Get the current active cycle for this teacher
+        cycle = EarningsCycle.objects.filter(
+            teacher=instance.teacher,
+            status__in=['pending', 'eligible']
+        ).first()
+        
+        if cycle:
+            # Decrement the approved lessons count
+            cycle.approved_lessons = max(0, cycle.approved_lessons - 1)
+            
+            # If the cycle was eligible and now incomplete, revert it
+            if cycle.status == 'eligible' and (cycle.approved_lessons < 5 or cycle.approved_exams < 3):
+                cycle.status = 'pending'
+                
+                # Deduct the reward from the wallet
+                wallet = TeacherWallet.objects.filter(teacher=instance.teacher).first()
+                if wallet:
+                    wallet.available_balance = max(0, wallet.available_balance - 5000)
+                    wallet.total_earned = max(0, wallet.total_earned - 5000)
+                    wallet.save()
+            
+            cycle.save()
+
+
+@receiver(post_delete, sender=Exam)
+def update_earnings_on_exam_delete(sender, instance, **kwargs):
+    """When an exam is deleted, update the teacher's earnings cycle."""
+    if instance.status == 'approved' and instance.teacher:
+        # Get the current active cycle for this teacher
+        cycle = EarningsCycle.objects.filter(
+            teacher=instance.teacher,
+            status__in=['pending', 'eligible']
+        ).first()
+        
+        if cycle:
+            # Decrement the approved exams count
+            cycle.approved_exams = max(0, cycle.approved_exams - 1)
+            
+            # If the cycle was eligible and now incomplete, revert it
+            if cycle.status == 'eligible' and (cycle.approved_lessons < 5 or cycle.approved_exams < 3):
+                cycle.status = 'pending'
+                
+                # Deduct the reward from the wallet
+                wallet = TeacherWallet.objects.filter(teacher=instance.teacher).first()
+                if wallet:
+                    wallet.available_balance = max(0, wallet.available_balance - 5000)
+                    wallet.total_earned = max(0, wallet.total_earned - 5000)
+                    wallet.save()
+            
+            cycle.save()

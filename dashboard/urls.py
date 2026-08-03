@@ -15,6 +15,7 @@ from .views import (
 
 urlpatterns = [
     # Main pages
+path('reset-cycle/', views.reset_cycle, name='reset_cycle'),
 path('debug-cycle/', views.debug_cycle, name='debug_cycle'),    
 path('', home, name='home'),
     path('dashboard/', dashboard, name='dashboard'),

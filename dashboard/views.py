@@ -431,8 +431,41 @@ def student_list(request):
 
 @staff_member_required
 def teacher_list(request):
+    """Admin view to list all teachers with stat cards and filters."""
     teachers = UserProfile.objects.filter(role='teacher').select_related('user')
-    return render(request, 'dashboard/teacher_list.html', {'teachers': teachers})
+    
+    # Get filter from URL
+    status_filter = request.GET.get('status', 'all')
+    current_filter = status_filter
+    
+    # Apply filters
+    if status_filter == 'pending':
+        teachers = teachers.filter(verification_status='pending', is_suspended=False)
+    elif status_filter == 'approved':
+        teachers = teachers.filter(verification_status='approved', is_suspended=False)
+    elif status_filter == 'verified':
+        teachers = teachers.filter(verification_status='verified', is_suspended=False)
+    elif status_filter == 'suspended':
+        teachers = teachers.filter(is_suspended=True)
+    # 'all' shows everything
+    
+    # Counts for stat cards
+    total_count = UserProfile.objects.filter(role='teacher').count()
+    pending_count = UserProfile.objects.filter(role='teacher', verification_status='pending', is_suspended=False).count()
+    approved_count = UserProfile.objects.filter(role='teacher', verification_status='approved', is_suspended=False).count()
+    verified_count = UserProfile.objects.filter(role='teacher', verification_status='verified', is_suspended=False).count()
+    suspended_count = UserProfile.objects.filter(role='teacher', is_suspended=True).count()
+    
+    context = {
+        'teachers': teachers,
+        'total_count': total_count,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'verified_count': verified_count,
+        'suspended_count': suspended_count,
+        'current_filter': current_filter,
+    }
+    return render(request, 'dashboard/teacher_list.html', context)
 
 
 # ===== BATCH STUDENT ACTION =====

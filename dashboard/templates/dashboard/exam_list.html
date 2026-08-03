@@ -1,4 +1,4 @@
-{% extends 'dashboard/admin_base.html' %}
+{% extends 'dashboard/base.html' %}
 
 {% block title %}Exams - SKYDEMY Admin{% endblock %}
 
@@ -45,6 +45,7 @@
                 <thead style="background: #f8f9fa;">
                     <tr>
                         <th style="padding: 12px 16px; width: 40px;"><input type="checkbox" id="select-all"></th>
+                        <th style="padding: 12px 16px; text-align: left;">#</th>
                         <th style="padding: 12px 16px; text-align: left;">Title</th>
                         <th style="padding: 12px 16px; text-align: left;">Level</th>
                         <th style="padding: 12px 16px; text-align: left;">Subject</th>
@@ -60,6 +61,7 @@
                         <td style="padding: 12px 16px; text-align: center;">
                             <input type="checkbox" name="selected_ids" value="{{ exam.id }}" class="select-item">
                         </td>
+                        <td style="padding: 12px 16px;">{{ forloop.counter }}</td>
                         <td style="padding: 12px 16px; font-weight: 500;">{{ exam.title }}</td>
                         <td style="padding: 12px 16px;">{{ exam.level|default:"—" }}</td>
                         <td style="padding: 12px 16px;">{{ exam.subject.name|default:"—" }}</td>
@@ -88,7 +90,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" style="padding: 40px; text-align: center; color: #6c757d;">No exams found.</td>
+                        <td colspan="9" style="padding: 40px; text-align: center; color: #6c757d;">No exams found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

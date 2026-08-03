@@ -1,0 +1,141 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ lesson.title }} – Whiteboard Video | SKYDEMY{% endblock %}
+
+{% block extra_head %}
+<style>
+    .video-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        padding: 20px;
+    }
+    .video-wrapper {
+        position: relative;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .video-wrapper video {
+        width: 100%;
+        height: auto;
+        display: block;
+        max-height: 600px;
+        object-fit: contain;
+    }
+    .lesson-meta {
+        padding: 20px 0 10px 0;
+    }
+    .lesson-meta h2 {
+        color: #0B7A3B;
+        font-size: 1.8rem;
+        margin: 0 0 8px 0;
+    }
+    .lesson-meta .subtitle {
+        color: #64748B;
+        font-size: 1rem;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+    }
+    .btn {
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95rem;
+        transition: background 0.2s, transform 0.1s;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background: #0B7A3B;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: #09632f;
+        transform: translateY(-1px);
+    }
+    .btn-secondary {
+        background: #e9ecef;
+        color: #1a1a2e;
+    }
+    .btn-secondary:hover {
+        background: #dde0e3;
+    }
+    .btn-download {
+        background: #D4AF37;
+        color: #1a1a2e;
+    }
+    .btn-download:hover {
+        background: #c5a030;
+    }
+    .info-box {
+        background: #f8fafc;
+        border-left: 4px solid #D4AF37;
+        padding: 16px 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    .info-box strong {
+        color: #0B7A3B;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="video-container">
+
+    <!-- Lesson Title & Meta -->
+    <div class="lesson-meta">
+        <h2>{{ lesson.title }}</h2>
+        <div class="subtitle">
+            <strong>Subject:</strong> {{ lesson.subject.name|default:"—" }} &nbsp;|&nbsp;
+            <strong>Level:</strong> {{ lesson.get_level_display }} &nbsp;|&nbsp;
+            <strong>Teacher:</strong> {{ lesson.teacher.username }}
+        </div>
+    </div>
+
+    <!-- Video Player -->
+    <div class="video-wrapper">
+        <video controls autoplay>
+            <source src="{{ lesson.whiteboard_video.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Description & Actions -->
+    <div class="info-box">
+        <strong>📝 Description</strong>
+        <p style="margin: 8px 0 0 0; color: #1a1a2e;">
+            {{ lesson.description|default:"No description provided." }}
+        </p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{% url 'courses:view_lesson' lesson.id %}" class="btn btn-secondary">
+            📖 Back to Lesson
+        </a>
+        <a href="{{ lesson.whiteboard_video.url }}" download class="btn btn-download">
+            ⬇️ Download Video
+        </a>
+        {% if user == lesson.teacher or user.is_staff %}
+            <a href="{% url 'courses:convert_to_whiteboard' lesson.id %}" class="btn btn-primary" 
+               onclick="return confirm('Regenerate video from PDF? This will overwrite the current one.')">
+                🔄 Regenerate
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

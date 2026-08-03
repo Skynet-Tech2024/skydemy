@@ -1,0 +1,38 @@
+{% extends 'dashboard/admin_base.html' %}
+
+{% block title %}Reject Withdrawal - SKYDEMY Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h1 style="color: #1a1a2e; font-size: 28px;">❌ Reject Withdrawal</h1>
+    <p style="color: #64748B;">You are about to reject a withdrawal request from <strong>{{ withdrawal.teacher.username }}</strong>.</p>
+
+    <div style="background: white; border-radius: 8px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin: 20px 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div>
+                <p><strong>Amount:</strong> {{ withdrawal.amount }} FCFA</p>
+                <p><strong>Method:</strong> {{ withdrawal.get_payment_method_display }}</p>
+            </div>
+            <div>
+                <p><strong>Account:</strong> {{ withdrawal.account_name }}</p>
+                <p><strong>Number:</strong> {{ withdrawal.account_number }}</p>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px;">
+                <label for="admin_note" style="font-weight: 600; display: block; margin-bottom: 8px;">Reason for Rejection</label>
+                <textarea id="admin_note" name="admin_note" required rows="4" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 14px; box-sizing: border-box;" placeholder="Please provide a clear reason for rejecting this withdrawal request..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button type="submit" style="background: #dc3545; color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                    ❌ Confirm Rejection
+                </button>
+                <a href="{% url 'admin_withdrawal_detail' withdrawal.id %}" style="background: #6c757d; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; text-align: center;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

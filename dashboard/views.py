@@ -2,8 +2,12 @@ from users.models import UserProfile, Follow, SavedLesson as Wishlist, Message
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Count, Avg
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from courses.models import TeacherWallet, EarningsCycle, WithdrawalRequest
+from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from courses.models import TeacherWallet, EarningsCycle, WithdrawalRequest
+from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject, Exam, Course
@@ -18,6 +22,7 @@ from users.utils import create_notification
 
 def home(request):
     return render(request, 'dashboard/landing.html')
+
 
 @login_required
 def dashboard(request):
@@ -40,12 +45,48 @@ def dashboard(request):
         for lesson in lessons:
             lesson.likes_count = LessonLike.objects.filter(lesson=lesson).count()
             lesson.comments_count = LessonComment.objects.filter(lesson=lesson).count()
+        
+        # ===== TEACHER EARNINGS DATA =====
+        wallet = TeacherWallet.objects.filter(teacher=user).first()
+        if not wallet:
+            wallet = TeacherWallet.objects.create(teacher=user)
+
+        # Get the current pending/eligible earnings cycle
+        current_cycle = EarningsCycle.objects.filter(
+            teacher=user,
+            status__in=['pending', 'eligible']
+        ).first()
+
+        # Get recent completed cycles (last 5)
+        recent_cycles = EarningsCycle.objects.filter(
+            teacher=user,
+            status__in=['claimed', 'paid']
+        ).order_by('-completed_at')[:5]
+
+        # Calculate progress toward next payout
+        lessons_progress = current_cycle.approved_lessons if current_cycle else 0
+        exams_progress = current_cycle.approved_exams if current_cycle else 0
+        lessons_needed = max(0, 5 - lessons_progress)
+        exams_needed = max(0, 3 - exams_progress)
+        cycle_complete = lessons_progress >= 5 and exams_progress >= 3
+        next_reward = 5000
+
         context.update({
             'lessons': lessons,
             'total_views': total_views,
             'total_likes': total_likes,
             'total_comments': total_comments,
             'followers_count': user.followers.count(),
+            # Earnings data
+            'wallet': wallet,
+            'current_cycle': current_cycle,
+            'recent_cycles': recent_cycles,
+            'lessons_progress': lessons_progress,
+            'exams_progress': exams_progress,
+            'lessons_needed': lessons_needed,
+            'exams_needed': exams_needed,
+            'cycle_complete': cycle_complete,
+            'next_reward': next_reward,
         })
         return render(request, 'dashboard/teacher_dashboard.html', context)
     else:
@@ -85,6 +126,75 @@ def dashboard(request):
         })
         return render(request, 'dashboard/learner_dashboard.html', context)
 
+
+@login_required
+def request_withdrawal(request):
+    """Teacher withdrawal request page."""
+    user = request.user
+    
+    # Check if user is a teacher
+    if not hasattr(user, 'profile') or user.profile.role != 'teacher':
+        messages.error(request, "Only teachers can request withdrawals.")
+        return redirect('dashboard')
+    
+    # Get or create wallet
+    wallet, created = TeacherWallet.objects.get_or_create(teacher=user)
+    
+    # Check if balance is sufficient
+    if wallet.available_balance < 5000:
+        messages.error(request, "You need at least 5,000 FCFA to request a withdrawal.")
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        payment_method = request.POST.get('payment_method')
+        account_name = request.POST.get('account_name')
+        account_number = request.POST.get('account_number')
+        confirm = request.POST.get('confirm')
+        
+        # Validate
+        if not all([payment_method, account_name, account_number]):
+            messages.error(request, "All fields are required.")
+            return render(request, 'dashboard/request_withdrawal.html', {'wallet': wallet})
+        
+        if payment_method not in ['mtn', 'orange']:
+            messages.error(request, "Invalid payment method.")
+            return render(request, 'dashboard/request_withdrawal.html', {'wallet': wallet})
+        
+        if not confirm:
+            messages.error(request, "Please confirm your account details.")
+            return render(request, 'dashboard/request_withdrawal.html', {'wallet': wallet})
+        
+        # Find an eligible earnings cycle to claim
+        cycle = EarningsCycle.objects.filter(
+            teacher=user,
+            status='eligible'
+        ).first()
+        
+        if not cycle:
+            messages.error(request, "No eligible earnings found. Please complete more lessons and exams.")
+            return redirect('dashboard')
+        
+        # Create withdrawal request
+        withdrawal = WithdrawalRequest.objects.create(
+            teacher=user,
+            amount=5000,
+            payment_method=payment_method,
+            account_name=account_name,
+            account_number=account_number,
+            status='pending'
+        )
+        
+        # Mark cycle as claimed
+        cycle.status = 'claimed'
+        cycle.save()
+        
+        messages.success(request, "✅ Withdrawal request submitted successfully! Your request is under review. Payment is usually processed within 1–3 business days.")
+        return redirect('dashboard')
+    
+    # GET request - show the form
+    return render(request, 'dashboard/request_withdrawal.html', {'wallet': wallet})
+
+
 @login_required
 def profile(request):
     user = request.user
@@ -103,6 +213,7 @@ def profile(request):
         form = ProfileUpdateForm(instance=profile)
     return render(request, 'dashboard/profile.html', {'user': user, 'profile': profile, 'form': form})
 
+
 @login_required
 def leaderboard(request):
     top_rating = UserProfile.objects.filter(role='learner').order_by('-rating')[:20]
@@ -116,6 +227,7 @@ def leaderboard(request):
         'top_certificates': top_certificates,
     })
 
+
 @login_required
 def notifications(request):
     user_notifications = request.user.notifications.all()
@@ -127,11 +239,13 @@ def notifications(request):
         'unread_count': 0,
     })
 
+
 def unread_notification_count(request):
     if request.user.is_authenticated:
         count = request.user.notifications.filter(is_read=False).count()
         return JsonResponse({'count': count})
     return JsonResponse({'count': 0})
+
 
 @login_required
 def toggle_follow(request, teacher_id):
@@ -147,6 +261,7 @@ def toggle_follow(request, teacher_id):
         Follow.objects.create(follower=request.user, following=teacher)
         messages.success(request, f"You are now following {teacher.username}!")
     return redirect('lesson_list')
+
 
 @login_required
 def toggle_wishlist(request, lesson_id):
@@ -166,6 +281,7 @@ def toggle_wishlist(request, lesson_id):
         return redirect('view_lesson', lesson_id=lesson.id)
     return redirect('lesson_list')
 
+
 @login_required
 def progress_chart(request):
     if request.user.profile.role != 'learner':
@@ -183,6 +299,7 @@ def progress_chart(request):
         'rating_data': rating_data,
     })
 
+
 @login_required
 def inbox(request):
     received_messages = Message.objects.filter(receiver=request.user)
@@ -194,6 +311,7 @@ def inbox(request):
         'received_messages': received_messages,
         'sent_messages': sent_messages,
     })
+
 
 @login_required
 def send_message(request):
@@ -229,6 +347,7 @@ def send_message(request):
         return redirect('inbox')
     users = User.objects.exclude(id=request.user.id).filter(profile__is_suspended=False)
     return render(request, 'dashboard/send_message.html', {'users': users})
+
 
 @never_cache
 def service_worker(request):
@@ -271,6 +390,7 @@ self.addEventListener('fetch', (event) => {
 '''
     return HttpResponse(content.strip(), content_type='application/javascript')
 
+
 def debug_templates(request):
     base_dir = settings.BASE_DIR
     templates_path = base_dir / 'templates'
@@ -301,16 +421,19 @@ def debug_templates(request):
     """
     return HttpResponse(response)
 
+
 # ===== STUDENT AND TEACHER LIST VIEWS =====
 @staff_member_required
 def student_list(request):
     students = UserProfile.objects.filter(role='learner').select_related('user')
     return render(request, 'dashboard/student_list.html', {'students': students})
 
+
 @staff_member_required
 def teacher_list(request):
     teachers = UserProfile.objects.filter(role='teacher').select_related('user')
     return render(request, 'dashboard/teacher_list.html', {'teachers': teachers})
+
 
 # ===== BATCH STUDENT ACTION =====
 @staff_member_required
@@ -345,6 +468,7 @@ def batch_student_action(request):
         messages.error(request, "Invalid action.")
     return redirect('student_list')
 
+
 # ===== BATCH TEACHER ACTION =====
 @staff_member_required
 def batch_teacher_action(request):
@@ -378,6 +502,7 @@ def batch_teacher_action(request):
         messages.error(request, "Invalid action.")
     return redirect('teacher_list')
 
+
 # ===== SUBJECT LIST VIEW =====
 @staff_member_required
 def subject_list(request):
@@ -395,6 +520,7 @@ def subject_list(request):
         'rejected_count': rejected_count,
     }
     return render(request, 'dashboard/subject_list.html', context)
+
 
 # ===== BATCH SUBJECT ACTION =====
 @staff_member_required
@@ -421,6 +547,7 @@ def batch_subject_action(request):
         messages.error(request, "Invalid action.")
     return redirect('subject_list')
 
+
 # ===== EXAM LIST VIEW (FIXED) =====
 @staff_member_required
 def exam_list(request):
@@ -438,6 +565,7 @@ def exam_list(request):
         'rejected_count': rejected_count,
     }
     return render(request, 'dashboard/exam_list.html', context)
+
 
 # ===== BATCH EXAM ACTION =====
 @staff_member_required
@@ -464,6 +592,7 @@ def batch_exam_action(request):
         messages.error(request, "Invalid action.")
     return redirect('exam_list')
 
+
 # ===== CERTIFICATE LIST VIEW (FIXED) =====
 @staff_member_required
 def certificate_list(request):
@@ -479,6 +608,7 @@ def certificate_list(request):
         'unique_users_count': unique_users_count,
     }
     return render(request, 'dashboard/certificate_list.html', context)
+
 
 # ===== BATCH CERTIFICATE ACTION =====
 @staff_member_required
@@ -498,6 +628,7 @@ def batch_certificate_action(request):
         messages.error(request, "Invalid action.")
     return redirect('certificate_list')
 
+
 # ===== COURSE LIST VIEW =====
 @staff_member_required
 def course_list(request):
@@ -516,6 +647,7 @@ def course_list(request):
     }
     return render(request, 'dashboard/course_list.html', context)
 
+
 # ===== BATCH COURSE ACTION =====
 @staff_member_required
 def batch_course_action(request):
@@ -533,6 +665,7 @@ def batch_course_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('course_list')
+
 
 # ===== EXAM RESULT LIST VIEW =====
 @staff_member_required
@@ -553,6 +686,7 @@ def examresult_list(request):
     }
     return render(request, 'dashboard/examresult_list.html', context)
 
+
 # ===== BATCH EXAM RESULT ACTION =====
 @staff_member_required
 def batch_examresult_action(request):
@@ -572,6 +706,7 @@ def batch_examresult_action(request):
         messages.error(request, "Invalid action.")
     return redirect('examresult_list')
 
+
 # ===== LESSON LIST VIEW =====
 @staff_member_required
 def lesson_list(request):
@@ -589,6 +724,7 @@ def lesson_list(request):
         'rejected_count': rejected_count,
     }
     return render(request, 'dashboard/lesson_list.html', context)
+
 
 # ===== BATCH LESSON ACTION (UPDATED WITH HARDCODED REDIRECT) =====
 @staff_member_required
@@ -639,3 +775,136 @@ def batch_lesson_action(request):
     else:
         messages.error(request, "Invalid action.")
     return redirect('/lessons/')
+
+# ===== ADMIN WITHDRAWAL MANAGEMENT =====
+
+@staff_member_required
+def admin_withdrawal_requests(request):
+    """Admin view to list all withdrawal requests."""
+    status_filter = request.GET.get('status', '')
+    withdrawal_requests = WithdrawalRequest.objects.select_related('teacher').all()
+    
+    if status_filter:
+        withdrawal_requests = withdrawal_requests.filter(status=status_filter)
+    
+    # Stats
+    pending_count = WithdrawalRequest.objects.filter(status='pending').count()
+    approved_count = WithdrawalRequest.objects.filter(status='approved').count()
+    rejected_count = WithdrawalRequest.objects.filter(status='rejected').count()
+    total_count = WithdrawalRequest.objects.count()
+    
+    context = {
+        'requests': withdrawal_requests,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+        'total_count': total_count,
+        'current_filter': status_filter,
+    }
+    return render(request, 'dashboard/admin/withdrawal_list.html', context)
+
+
+@staff_member_required
+def admin_withdrawal_detail(request, pk):
+    """Admin view to see details of a specific withdrawal request."""
+    withdrawal = get_object_or_404(WithdrawalRequest, id=pk, select_related='teacher')
+    return render(request, 'dashboard/admin/withdrawal_detail.html', {'withdrawal': withdrawal})
+
+
+@staff_member_required
+def approve_withdrawal(request, pk):
+    """Admin action to approve a withdrawal request."""
+    withdrawal = get_object_or_404(WithdrawalRequest, id=pk)
+    
+    if withdrawal.status != 'pending':
+        messages.error(request, "This withdrawal request has already been processed.")
+        return redirect('admin_withdrawal_detail', pk=pk)
+    
+    try:
+        # Update wallet
+        wallet = TeacherWallet.objects.get(teacher=withdrawal.teacher)
+        
+        # Deduct from available balance
+        wallet.available_balance -= withdrawal.amount
+        wallet.total_withdrawn += withdrawal.amount
+        wallet.save()
+        
+        # Update withdrawal request
+        withdrawal.status = 'approved'
+        withdrawal.processed_at = datetime.now()
+        withdrawal.save()
+        
+        # Find and update the associated earnings cycle
+        cycle = EarningsCycle.objects.filter(
+            teacher=withdrawal.teacher,
+            status='claimed',
+            amount=withdrawal.amount
+        ).first()
+        if cycle:
+            cycle.status = 'paid'
+            cycle.completed_at = datetime.now()
+            cycle.save()
+        
+        # Send notification to teacher
+        create_notification(
+            user=withdrawal.teacher,
+            notification_type='system',
+            title='✅ Withdrawal Approved!',
+            message=f'Your withdrawal request of {withdrawal.amount} FCFA has been approved and processed.',
+            link='/dashboard/'
+        )
+        
+        messages.success(request, f"Withdrawal of {withdrawal.amount} FCFA for {withdrawal.teacher.username} has been approved.")
+        
+    except Exception as e:
+        messages.error(request, f"Error processing withdrawal: {str(e)}")
+    
+    return redirect('admin_withdrawal_detail', pk=pk)
+
+
+@staff_member_required
+def reject_withdrawal(request, pk):
+    """Admin action to reject a withdrawal request."""
+    withdrawal = get_object_or_404(WithdrawalRequest, id=pk)
+    
+    if withdrawal.status != 'pending':
+        messages.error(request, "This withdrawal request has already been processed.")
+        return redirect('admin_withdrawal_detail', pk=pk)
+    
+    if request.method == 'POST':
+        admin_note = request.POST.get('admin_note', '').strip()
+        
+        if not admin_note:
+            messages.error(request, "Please provide a reason for rejection.")
+            return redirect('admin_withdrawal_detail', pk=pk)
+        
+        # Update withdrawal request
+        withdrawal.status = 'rejected'
+        withdrawal.admin_note = admin_note
+        withdrawal.processed_at = datetime.now()
+        withdrawal.save()
+        
+        # Find and update the associated earnings cycle (return to eligible)
+        cycle = EarningsCycle.objects.filter(
+            teacher=withdrawal.teacher,
+            status='claimed',
+            amount=withdrawal.amount
+        ).first()
+        if cycle:
+            cycle.status = 'eligible'
+            cycle.save()
+        
+        # Send notification to teacher
+        create_notification(
+            user=withdrawal.teacher,
+            notification_type='system',
+            title='❌ Withdrawal Rejected',
+            message=f'Your withdrawal request of {withdrawal.amount} FCFA has been rejected. Reason: {admin_note}',
+            link='/dashboard/'
+        )
+        
+        messages.success(request, f"Withdrawal request for {withdrawal.teacher.username} has been rejected.")
+        return redirect('admin_withdrawal_requests')
+    
+    # GET request - show rejection form
+    return render(request, 'dashboard/admin/withdrawal_reject.html', {'withdrawal': withdrawal})

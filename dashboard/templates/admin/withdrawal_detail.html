@@ -1,0 +1,71 @@
+{% extends 'dashboard/admin_base.html' %}
+
+{% block title %}Withdrawal Detail - SKYDEMY Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="color: #1a1a2e; font-size: 28px;">💰 Withdrawal Request</h1>
+        <a href="{% url 'admin_withdrawal_requests' %}" style="background: #6c757d; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px;">← Back to List</a>
+    </div>
+
+    <div style="background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+        <!-- Status Badge -->
+        <div style="text-align: right; margin-bottom: 15px;">
+            <span style="display: inline-block; padding: 6px 18px; border-radius: 20px; font-weight: 600; 
+                {% if withdrawal.status == 'pending' %}background: #fff3cd; color: #856404;
+                {% elif withdrawal.status == 'approved' %}background: #d4edda; color: #155724;
+                {% elif withdrawal.status == 'rejected' %}background: #f8d7da; color: #721c24;{% endif %}">
+                Status: {{ withdrawal.get_status_display }}
+            </span>
+        </div>
+
+        <!-- Teacher Info -->
+        <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+            <h3 style="margin: 0 0 10px 0; color: #0B7A3B;">Teacher Information</h3>
+            <p style="margin: 4px 0;"><strong>Name:</strong> {{ withdrawal.teacher.username }}</p>
+            <p style="margin: 4px 0;"><strong>Email:</strong> {{ withdrawal.teacher.email }}</p>
+        </div>
+
+        <!-- Withdrawal Details -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <h4 style="color: #0B7A3B; margin: 0 0 10px 0;">Withdrawal Info</h4>
+                <p style="margin: 4px 0;"><strong>Amount:</strong> {{ withdrawal.amount }} FCFA</p>
+                <p style="margin: 4px 0;"><strong>Payment Method:</strong> {{ withdrawal.get_payment_method_display }}</p>
+                <p style="margin: 4px 0;"><strong>Account Name:</strong> {{ withdrawal.account_name }}</p>
+                <p style="margin: 4px 0;"><strong>Account Number:</strong> {{ withdrawal.account_number }}</p>
+            </div>
+            <div>
+                <h4 style="color: #0B7A3B; margin: 0 0 10px 0;">Timeline</h4>
+                <p style="margin: 4px 0;"><strong>Requested:</strong> {{ withdrawal.requested_at|date:"M d, Y H:i" }}</p>
+                {% if withdrawal.processed_at %}
+                    <p style="margin: 4px 0;"><strong>Processed:</strong> {{ withdrawal.processed_at|date:"M d, Y H:i" }}</p>
+                {% endif %}
+                {% if withdrawal.admin_note %}
+                    <p style="margin: 4px 0;"><strong>Admin Note:</strong> {{ withdrawal.admin_note }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action Buttons (only if pending) -->
+        {% if withdrawal.status == 'pending' %}
+            <div style="display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap; border-top: 1px solid #e9ecef; padding-top: 25px;">
+                <form method="post" action="{% url 'approve_withdrawal' withdrawal.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        ✅ Approve Payment
+                    </button>
+                </form>
+                <a href="{% url 'reject_withdrawal' withdrawal.id %}" style="background: #dc3545; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                    ❌ Reject Request
+                </a>
+            </div>
+        {% else %}
+            <div style="margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 6px; text-align: center; color: #6c757d;">
+                This request has been already processed.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

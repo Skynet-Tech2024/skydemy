@@ -108,6 +108,104 @@
         </div>
     </div>
     
+<!-- ===== TEACHER EARNINGS SECTION ===== -->
+<div style="background: linear-gradient(135deg, #0B7A3B, #0a5c2e); border-radius: 12px; padding: 25px; margin: 20px 0; color: white;">
+    <h2 style="color: white; font-size: clamp(18px, 3vw, 24px); margin: 0 0 15px 0;">💰 My Earnings</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 24px; font-weight: 700;">{{ wallet.available_balance|floatformat:0 }} FCFA</div>
+            <div style="font-size: 14px; opacity: 0.8;">Available Balance</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 24px; font-weight: 700;">{{ wallet.total_earned|floatformat:0 }} FCFA</div>
+            <div style="font-size: 14px; opacity: 0.8;">Total Earned</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 24px; font-weight: 700;">{{ wallet.total_withdrawn|floatformat:0 }} FCFA</div>
+            <div style="font-size: 14px; opacity: 0.8;">Withdrawn</div>
+        </div>
+    </div>
+
+    <!-- Next Reward Progress -->
+    <div style="margin-top: 20px; background: rgba(255,255,255,0.08); padding: 20px; border-radius: 8px;">
+        <h3 style="color: white; margin: 0 0 15px 0; font-size: 16px;">🎯 Next Reward Progress</h3>
+        
+        <!-- Lessons Progress -->
+        <div style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                <span>Lessons: {{ lessons_progress }}/5</span>
+                <span>{% if lessons_progress >= 5 %}✅{% else %}{{ lessons_needed }} more needed{% endif %}</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; width: {% widthratio lessons_progress 5 100 %}%; background: #D4AF37; border-radius: 4px; transition: width 0.3s;"></div>
+            </div>
+        </div>
+        
+        <!-- Exams Progress -->
+        <div style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                <span>Exams: {{ exams_progress }}/3</span>
+                <span>{% if exams_progress >= 3 %}✅{% else %}{{ exams_needed }} more needed{% endif %}</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; width: {% widthratio exams_progress 3 100 %}%; background: #D4AF37; border-radius: 4px; transition: width 0.3s;"></div>
+            </div>
+        </div>
+        
+        <!-- Reward Amount -->
+        <div style="margin-top: 10px; text-align: center; font-size: 15px; color: #D4AF37; font-weight: 600;">
+            Reward: {{ next_reward|floatformat:0 }} FCFA
+        </div>
+        
+        <!-- Complete message -->
+        {% if cycle_complete %}
+            <div style="margin-top: 15px; padding: 12px; background: #D4AF37; color: #1a1a2e; border-radius: 6px; text-align: center; font-weight: 600;">
+                🎉 Congratulations! You've earned {{ next_reward|floatformat:0 }} FCFA! 
+                <a href="{% url 'dashboard:request_withdrawal' %}" style="color: #0B7A3B; text-decoration: underline; margin-left: 10px;">Request Withdrawal</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Request Withdrawal Button -->
+    <div style="margin-top: 15px; text-align: center;">
+        {% if wallet.available_balance >= 5000 %}
+            <a href="{% url 'dashboard:request_withdrawal' %}" style="background: #D4AF37; color: #1a1a2e; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">
+                💰 Request Withdrawal
+            </a>
+        {% else %}
+            <button disabled style="background: #6c757d; color: #fff; padding: 12px 30px; border-radius: 8px; border: none; font-weight: 600; cursor: not-allowed;">
+                🔒 Withdrawal Disabled (Minimum: 5,000 FCFA)
+            </button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ===== EARNINGS HISTORY ===== -->
+<div style="margin-top: 30px;">
+    <h2 style="color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📊 Earnings History</h2>
+    {% if recent_cycles %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+            {% for cycle in recent_cycles %}
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid {% if cycle.status == 'paid' %}#28a745{% elif cycle.status == 'claimed' %}#ffc107{% else %}#6c757d{% endif %};">
+                    <div style="font-weight: 600;">{{ cycle.amount|floatformat:0 }} FCFA</div>
+                    <div style="font-size: 13px; color: #6c757d;">
+                        {{ cycle.approved_lessons }} lessons • {{ cycle.approved_exams }} exams
+                    </div>
+                    <div style="font-size: 13px; color: {% if cycle.status == 'paid' %}#28a745{% elif cycle.status == 'claimed' %}#ffc107{% else %}#6c757d{% endif %}; font-weight: 500;">
+                        Status: {{ cycle.get_status_display }}
+                    </div>
+                    <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                        {{ cycle.completed_at|date:"M d, Y"|default:"In progress" }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="font-size: clamp(14px, 1.5vw, 16px); color: #6c757d;">No earnings history yet. Start creating approved lessons and exams to earn!</p>
+    {% endif %}
+</div>
+
     <!-- ===== UPLOAD LESSON & CREATE SUBJECT ===== -->
     <h2 style="margin-top: 30px; color: #1a1a2e; font-size: clamp(18px, 3vw, 24px);">📤 Upload a New Lesson</h2>
     <a href="{% url 'courses:upload_lesson' %}" style="background: #f39c12; color: #1a1a2e; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: 600; font-size: clamp(14px, 1.5vw, 16px);">+ Upload Lesson</a>

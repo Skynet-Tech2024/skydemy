@@ -1,0 +1,93 @@
+{% extends 'dashboard/admin_base.html' %}
+
+{% block title %}Teacher Withdrawals - SKYDEMY Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h1 style="color: #1a1a2e; font-size: 28px;">💰 Teacher Withdrawals</h1>
+    
+    <!-- Stats Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0;">
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #007bff;">
+            <div style="font-size: 24px; font-weight: 700;">{{ total_count }}</div>
+            <div style="color: #6c757d; font-size: 14px;">Total Requests</div>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #ffc107;">
+            <div style="font-size: 24px; font-weight: 700;">{{ pending_count }}</div>
+            <div style="color: #6c757d; font-size: 14px;">Pending</div>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #28a745;">
+            <div style="font-size: 24px; font-weight: 700;">{{ approved_count }}</div>
+            <div style="color: #6c757d; font-size: 14px;">Approved</div>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #dc3545;">
+            <div style="font-size: 24px; font-weight: 700;">{{ rejected_count }}</div>
+            <div style="color: #6c757d; font-size: 14px;">Rejected</div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div style="margin-bottom: 20px;">
+        <form method="get" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label style="font-weight: 600;">Filter by Status:</label>
+            <select name="status" style="padding: 8px 14px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All</option>
+                <option value="pending" {% if current_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="approved" {% if current_filter == 'approved' %}selected{% endif %}>Approved</option>
+                <option value="rejected" {% if current_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+            <button type="submit" style="background: #0B7A3B; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">Apply</button>
+            <a href="{% url 'admin_withdrawal_requests' %}" style="background: #6c757d; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px;">Clear</a>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: #f8f9fa;">
+                <tr>
+                    <th style="padding: 12px 16px; text-align: left;">Teacher</th>
+                    <th style="padding: 12px 16px; text-align: left;">Amount</th>
+                    <th style="padding: 12px 16px; text-align: left;">Method</th>
+                    <th style="padding: 12px 16px; text-align: left;">Account</th>
+                    <th style="padding: 12px 16px; text-align: left;">Status</th>
+                    <th style="padding: 12px 16px; text-align: left;">Requested</th>
+                    <th style="padding: 12px 16px; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr style="border-top: 1px solid #e9ecef;">
+                    <td style="padding: 12px 16px;">
+                        <strong>{{ req.teacher.username }}</strong><br>
+                        <span style="font-size: 13px; color: #6c757d;">{{ req.teacher.email }}</span>
+                    </td>
+                    <td style="padding: 12px 16px; font-weight: 600;">{{ req.amount }} FCFA</td>
+                    <td style="padding: 12px 16px;">{{ req.get_payment_method_display }}</td>
+                    <td style="padding: 12px 16px;">
+                        <span style="font-size: 13px;">{{ req.account_name }}</span><br>
+                        <span style="font-size: 13px; color: #6c757d;">{{ req.account_number }}</span>
+                    </td>
+                    <td style="padding: 12px 16px;">
+                        <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; 
+                            {% if req.status == 'pending' %}background: #fff3cd; color: #856404;
+                            {% elif req.status == 'approved' %}background: #d4edda; color: #155724;
+                            {% elif req.status == 'rejected' %}background: #f8d7da; color: #721c24;{% endif %}">
+                            {{ req.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="padding: 12px 16px; font-size: 14px; color: #6c757d;">{{ req.requested_at|date:"M d, Y H:i" }}</td>
+                    <td style="padding: 12px 16px; text-align: center;">
+                        <a href="{% url 'admin_withdrawal_detail' req.id %}" style="background: #0B7A3B; color: white; padding: 6px 14px; border-radius: 4px; text-decoration: none; font-size: 13px;">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="padding: 40px; text-align: center; color: #6c757d;">No withdrawal requests found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -318,3 +318,71 @@ class Certificate(models.Model):
 
     def __str__(self):
         return f"Certificate #{self.certificate_number} - {self.user.username}"
+
+# ===== TEACHER WALLET =====
+class TeacherWallet(models.Model):
+    teacher = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
+    available_balance = models.DecimalField(max_digits=12, decimal_places=0, default=0)
+    total_earned = models.DecimalField(max_digits=12, decimal_places=0, default=0)
+    total_withdrawn = models.DecimalField(max_digits=12, decimal_places=0, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.teacher.username}'s Wallet"
+
+    class Meta:
+        verbose_name_plural = "Teacher Wallets"
+
+
+# ===== EARNINGS CYCLE =====
+class EarningsCycle(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('eligible', 'Eligible'),
+        ('claimed', 'Claimed'),
+        ('paid', 'Paid'),
+    )
+
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='earning_cycles')
+    approved_lessons = models.PositiveIntegerField(default=0)
+    approved_exams = models.PositiveIntegerField(default=0)
+    amount = models.DecimalField(max_digits=12, decimal_places=0, default=5000)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Cycle for {self.teacher.username} - {self.status}"
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+# ===== WITHDRAWAL REQUEST =====
+class WithdrawalRequest(models.Model):
+    PAYMENT_METHODS = (
+        ('mtn', 'MTN Mobile Money'),
+        ('orange', 'Orange Money'),
+    )
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='withdrawal_requests')
+    amount = models.DecimalField(max_digits=12, decimal_places=0)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
+    account_name = models.CharField(max_length=100)
+    account_number = models.CharField(max_length=30)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    admin_note = models.TextField(blank=True, null=True)
+    requested_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Withdrawal of {self.amount} by {self.teacher.username}"
+
+    class Meta:
+        ordering = ['-requested_at']

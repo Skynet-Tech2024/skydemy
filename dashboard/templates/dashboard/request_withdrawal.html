@@ -1,0 +1,71 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Request Withdrawal - SKYDEMY{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    <h1 style="color: #0B7A3B; font-size: 28px; margin: 0 0 8px 0;">💰 Request Withdrawal</h1>
+    <p style="color: #64748B; font-size: 16px; margin-bottom: 25px;">
+        You have <strong>{{ wallet.available_balance|floatformat:0 }} FCFA</strong> available for withdrawal.
+        Minimum withdrawal: <strong>5,000 FCFA</strong>
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Payment Method -->
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Payment Method</label>
+            <div style="display: flex; gap: 20px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="payment_method" value="mtn" required style="width: 18px; height: 18px;">
+                    <span>MTN Mobile Money</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="payment_method" value="orange" required style="width: 18px; height: 18px;">
+                    <span>Orange Money</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Account Name -->
+        <div style="margin-bottom: 20px;">
+            <label for="account_name" style="font-weight: 600; display: block; margin-bottom: 8px;">Account Name</label>
+            <input type="text" id="account_name" name="account_name" required 
+                   placeholder="Enter your full name as it appears on your mobile money account"
+                   style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+
+        <!-- Account Number -->
+        <div style="margin-bottom: 20px;">
+            <label for="account_number" style="font-weight: 600; display: block; margin-bottom: 8px;">Mobile Money Number</label>
+            <input type="tel" id="account_number" name="account_number" required 
+                   placeholder="Enter your mobile money number (e.g., 670xxxxxx)"
+                   style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+
+        <!-- Amount (Read Only) -->
+        <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Amount</label>
+            <div style="font-size: 24px; font-weight: 700; color: #0B7A3B;">5,000 FCFA</div>
+            <p style="font-size: 14px; color: #6c757d; margin: 5px 0 0 0;">Amount is fixed at 5,000 FCFA per withdrawal.</p>
+        </div>
+
+        <!-- Confirm Checkbox -->
+        <div style="margin-bottom: 25px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" name="confirm" required style="width: 20px; height: 20px;">
+                <span style="font-size: 15px;">I confirm that the account details provided are correct.</span>
+            </label>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button type="submit" style="background: #0B7A3B; color: white; padding: 14px 35px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">
+                Submit Withdrawal Request
+            </button>
+            <a href="{% url 'dashboard' %}" style="background: #6c757d; color: white; padding: 14px 35px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

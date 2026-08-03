@@ -18,7 +18,14 @@ urlpatterns = [
     path('', home, name='home'),
     path('dashboard/', dashboard, name='dashboard'),
     path('profile/', profile, name='profile'),
-    path('leaderboard/', leaderboard, name='leaderboard'),
+# Admin withdrawal management
+path('admin/withdrawals/', views.admin_withdrawal_requests, name='admin_withdrawal_requests'),
+path('admin/withdrawals/<int:pk>/', views.admin_withdrawal_detail, name='admin_withdrawal_detail'),
+path('admin/withdrawals/<int:pk>/approve/', views.approve_withdrawal, name='approve_withdrawal'),
+path('admin/withdrawals/<int:pk>/reject/', views.reject_withdrawal, name='reject_withdrawal'),
+path('request-withdrawal/', views.request_withdrawal, name='request_withdrawal'),
+path('subjects/batch-action/', views.batch_subject_action, name='batch_subject_action'),    
+path('leaderboard/', leaderboard, name='leaderboard'),
 
     # Subjects
     path('subjects/', subject_list, name='subject_list'),

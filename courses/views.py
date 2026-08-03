@@ -1083,3 +1083,62 @@ def debug_lessons(request):
     for l in lessons:
         output += f"ID: {l.id}, Title: {l.title}, Status: {l.status}\n"
     return HttpResponse(output, content_type='text/plain')
+from django.http import FileResponse, Http404
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def download_lesson_file(request, lesson_id, file_type):
+    """
+    Download a lesson's PDF or original file.
+    file_type: 'pdf' or 'original'
+    """
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    
+    if file_type == 'pdf':
+        file_field = lesson.pdf_file
+        filename = f"lesson_{lesson.id}.pdf"
+    elif file_type == 'original':
+        file_field = lesson.original_file
+        filename = f"lesson_{lesson.id}_original.{file_field.name.split('.')[-1] if file_field else 'docx'}"
+    else:
+        raise Http404("Invalid file type.")
+    
+    if not file_field:
+        messages.error(request, "File not found for this lesson.")
+        return redirect('admin:lesson_list')
+    
+    try:
+        response = FileResponse(file_field.open(), as_attachment=True, filename=filename)
+        return response
+    except Exception as e:
+        messages.error(request, f"Error downloading file: {str(e)}")
+        return redirect('admin:lesson_list')
+
+
+@staff_member_required
+def download_exam_file(request, exam_id, file_type):
+    """
+    Download an exam's document or marking guide.
+    file_type: 'exam' or 'marking_guide'
+    """
+    exam = get_object_or_404(Exam, id=exam_id)
+    
+    if file_type == 'exam':
+        file_field = exam.exam_document
+        filename = f"exam_{exam.id}.pdf"
+    elif file_type == 'marking_guide':
+        file_field = exam.marking_guide_document
+        filename = f"exam_{exam.id}_marking_guide.pdf"
+    else:
+        raise Http404("Invalid file type.")
+    
+    if not file_field:
+        messages.error(request, "File not found for this exam.")
+        return redirect('admin:exam_list')
+    
+    try:
+        response = FileResponse(file_field.open(), as_attachment=True, filename=filename)
+        return response
+    except Exception as e:
+        messages.error(request, f"Error downloading file: {str(e)}")
+        return redirect('admin:exam_list')

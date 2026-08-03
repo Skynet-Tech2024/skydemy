@@ -7,7 +7,10 @@ urlpatterns = [
     # ===== LESSON VIEWS =====
     path('', views.lesson_list, name='lesson_list'),
     path('upload/', views.upload_lesson, name='upload_lesson'),
-    path('add-subject/', views.add_subject, name='add_subject'),
+# File downloads (admin only)
+path('admin/lesson/<int:lesson_id>/download/<str:file_type>/', views.download_lesson_file, name='download_lesson_file'),
+path('admin/exam/<int:exam_id>/download/<str:file_type>/', views.download_exam_file, name='download_exam_file'),    
+path('add-subject/', views.add_subject, name='add_subject'),
     path('debug-lessons/', views.debug_lessons, name='debug_lessons'),
 
     # ===== LESSON VIEWER & CONVERSION =====

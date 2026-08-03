@@ -425,8 +425,45 @@ def debug_templates(request):
 # ===== STUDENT AND TEACHER LIST VIEWS =====
 @staff_member_required
 def student_list(request):
+    """Admin view to list all students with stat cards and filters."""
     students = UserProfile.objects.filter(role='learner').select_related('user')
-    return render(request, 'dashboard/student_list.html', {'students': students})
+    
+    # Get filter from URL
+    status_filter = request.GET.get('status', 'all')
+    current_filter = status_filter
+    
+    # Apply filters
+    if status_filter == 'pending':
+        students = students.filter(verification_status='pending', is_suspended=False)
+    elif status_filter == 'approved':
+        students = students.filter(verification_status='approved', is_suspended=False)
+    elif status_filter == 'verified':
+        students = students.filter(verification_status='verified', is_suspended=False)
+    elif status_filter == 'suspended':
+        students = students.filter(is_suspended=True)
+    elif status_filter == 'active':
+        students = students.filter(is_suspended=False)
+    # 'all' shows everything
+    
+    # Counts for stat cards
+    total_count = UserProfile.objects.filter(role='learner').count()
+    pending_count = UserProfile.objects.filter(role='learner', verification_status='pending', is_suspended=False).count()
+    approved_count = UserProfile.objects.filter(role='learner', verification_status='approved', is_suspended=False).count()
+    verified_count = UserProfile.objects.filter(role='learner', verification_status='verified', is_suspended=False).count()
+    suspended_count = UserProfile.objects.filter(role='learner', is_suspended=True).count()
+    active_count = UserProfile.objects.filter(role='learner', is_suspended=False).count()
+    
+    context = {
+        'students': students,
+        'total_count': total_count,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'verified_count': verified_count,
+        'suspended_count': suspended_count,
+        'active_count': active_count,
+        'current_filter': current_filter,
+    }
+    return render(request, 'dashboard/student_list.html', context)
 
 
 @staff_member_required

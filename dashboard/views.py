@@ -6,8 +6,6 @@ from courses.models import TeacherWallet, EarningsCycle, WithdrawalRequest
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from courses.models import TeacherWallet, EarningsCycle, WithdrawalRequest
-from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 from courses.models import Lesson, LessonLike, LessonComment, Progress, Certificate, Subject, Exam, Course
@@ -813,7 +811,7 @@ def lesson_list(request):
     return render(request, 'dashboard/lesson_list.html', context)
 
 
-# ===== BATCH LESSON ACTION (UPDATED WITH HARDCODED REDIRECT) =====
+# ===== BATCH LESSON ACTION =====
 @staff_member_required
 def batch_lesson_action(request):
     if request.method != 'POST':
@@ -863,8 +861,8 @@ def batch_lesson_action(request):
         messages.error(request, "Invalid action.")
     return redirect('/lessons/')
 
-# ===== ADMIN WITHDRAWAL MANAGEMENT =====
 
+# ===== ADMIN WITHDRAWAL MANAGEMENT =====
 @staff_member_required
 def admin_withdrawal_requests(request):
     """Admin view to list all withdrawal requests."""
@@ -995,3 +993,40 @@ def reject_withdrawal(request, pk):
     
     # GET request - show rejection form
     return render(request, 'dashboard/admin/withdrawal_reject.html', {'withdrawal': withdrawal})
+
+
+# ===== DEBUG VIEW =====
+@login_required
+def debug_cycle(request):
+    """Debug view to check earnings cycle data."""
+    user = request.user
+    cycles = EarningsCycle.objects.filter(teacher=user).order_by('-created_at')
+    output = f"<h1>Earnings Cycles for {user.username}</h1>"
+    
+    for cycle in cycles:
+        output += f"""
+        <p>
+        <strong>ID:</strong> {cycle.id}<br>
+        <strong>Status:</strong> {cycle.status}<br>
+        <strong>Approved Lessons:</strong> {cycle.approved_lessons}<br>
+        <strong>Approved Exams:</strong> {cycle.approved_exams}<br>
+        <strong>Created:</strong> {cycle.created_at}<br>
+        <strong>Completed:</strong> {cycle.completed_at}<br>
+        </p><hr>
+        """
+    
+    # Also check the wallet
+    wallet = TeacherWallet.objects.filter(teacher=user).first()
+    if wallet:
+        output += f"""
+        <h2>Wallet</h2>
+        <p>
+        <strong>Available Balance:</strong> {wallet.available_balance}<br>
+        <strong>Total Earned:</strong> {wallet.total_earned}<br>
+        <strong>Total Withdrawn:</strong> {wallet.total_withdrawn}<br>
+        </p>
+        """
+    else:
+        output += "<p>No wallet found.</p>"
+    
+    return HttpResponse(output)

@@ -15,7 +15,8 @@ from .views import (
 
 urlpatterns = [
     # Main pages
-    path('', home, name='home'),
+path('debug-cycle/', views.debug_cycle, name='debug_cycle'),    
+path('', home, name='home'),
     path('dashboard/', dashboard, name='dashboard'),
     path('profile/', profile, name='profile'),
 # Admin withdrawal management

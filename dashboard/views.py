@@ -55,7 +55,7 @@ def dashboard(request):
             status__in=['pending', 'eligible']
         ).first()
 
-        # ===== DEBUG PRINTS =====
+        # ===== DEBUG PRINTS (keep for now) =====
         print(f"🔍 Dashboard: current_cycle = {current_cycle}")
         if current_cycle:
             print(f"🔍 Dashboard: cycle.id = {current_cycle.id}")
@@ -63,7 +63,7 @@ def dashboard(request):
             print(f"🔍 Dashboard: cycle.approved_exams = {current_cycle.approved_exams}")
         else:
             print("🔍 Dashboard: No current cycle found")
-        # ========================
+        # ===================================
 
         # Get recent completed cycles (last 5)
         recent_cycles = EarningsCycle.objects.filter(
@@ -1005,6 +1005,50 @@ def reject_withdrawal(request, pk):
     
     # GET request - show rejection form
     return render(request, 'dashboard/admin/withdrawal_reject.html', {'withdrawal': withdrawal})
+
+
+# ===== RESET CYCLE VIEW =====
+@login_required
+def reset_cycle(request):
+    """Reset the current earnings cycle to match actual approved lessons/exams."""
+    user = request.user
+    
+    # Count actual approved lessons and exams for this teacher
+    approved_lessons_count = Lesson.objects.filter(teacher=user, status='approved').count()
+    approved_exams_count = Exam.objects.filter(teacher=user, status='approved').count()
+    
+    # Get the current pending/eligible cycle
+    cycle = EarningsCycle.objects.filter(
+        teacher=user,
+        status__in=['pending', 'eligible']
+    ).first()
+    
+    if cycle:
+        cycle.approved_lessons = approved_lessons_count
+        cycle.approved_exams = approved_exams_count
+        
+        # Update status if cycle is complete
+        if cycle.approved_lessons >= 5 and cycle.approved_exams >= 3:
+            cycle.status = 'eligible'
+        else:
+            cycle.status = 'pending'
+        
+        cycle.save()
+        messages.success(
+            request, 
+            f"✅ Cycle reset! Lessons: {approved_lessons_count}, Exams: {approved_exams_count}"
+        )
+    else:
+        # Create a new cycle if none exists
+        cycle = EarningsCycle.objects.create(
+            teacher=user,
+            approved_lessons=approved_lessons_count,
+            approved_exams=approved_exams_count,
+            status='pending'
+        )
+        messages.success(request, "✅ New cycle created with current counts.")
+    
+    return redirect('dashboard')
 
 
 # ===== DEBUG VIEW =====

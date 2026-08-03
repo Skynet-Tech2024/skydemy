@@ -55,6 +55,16 @@ def dashboard(request):
             status__in=['pending', 'eligible']
         ).first()
 
+        # ===== DEBUG PRINTS =====
+        print(f"🔍 Dashboard: current_cycle = {current_cycle}")
+        if current_cycle:
+            print(f"🔍 Dashboard: cycle.id = {current_cycle.id}")
+            print(f"🔍 Dashboard: cycle.approved_lessons = {current_cycle.approved_lessons}")
+            print(f"🔍 Dashboard: cycle.approved_exams = {current_cycle.approved_exams}")
+        else:
+            print("🔍 Dashboard: No current cycle found")
+        # ========================
+
         # Get recent completed cycles (last 5)
         recent_cycles = EarningsCycle.objects.filter(
             teacher=user,
@@ -64,6 +74,8 @@ def dashboard(request):
         # Calculate progress toward next payout
         lessons_progress = current_cycle.approved_lessons if current_cycle else 0
         exams_progress = current_cycle.approved_exams if current_cycle else 0
+        print(f"🔍 Dashboard: lessons_progress = {lessons_progress}")
+        print(f"🔍 Dashboard: exams_progress = {exams_progress}")
         lessons_needed = max(0, 5 - lessons_progress)
         exams_needed = max(0, 3 - exams_progress)
         cycle_complete = lessons_progress >= 5 and exams_progress >= 3
